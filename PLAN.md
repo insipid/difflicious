@@ -30,8 +30,8 @@ A lightweight local web application for developers to visualize git diffs with a
 
 **Packaging Tools:**
 - `pyproject.toml` for modern Python packaging standards
-- `setuptools` or `poetry` for dependency management
-- Multi-stage Docker builds for optimized images
+- `uv` for fast Python package management and virtual environments
+- Multi-stage Docker builds using uv for optimized images
 - GitHub Actions for automated builds and releases
 
 ### Key Features Implementation
@@ -44,12 +44,12 @@ A lightweight local web application for developers to visualize git diffs with a
 ## Development Plan
 
 ### Phase 1: Project Setup & Core Backend ✅
-1. ⏳ Set up modern Python project structure with pyproject.toml
-2. ⏸️ Create Flask backend with proper packaging
+1. ⏳ Set up modern Python project structure with pyproject.toml and uv
+2. ⏸️ Create Flask backend with uv-based packaging
 3. ⏸️ Implement git command execution wrapper with security
 4. ⏸️ Create basic HTML template with Alpine.js integration
 5. ⏸️ Build JSON API endpoints for git status and diff data
-6. ⏸️ Create Dockerfile for containerized deployment
+6. ⏸️ Create Dockerfile using uv for containerized deployment
 
 ### Phase 2: Git Operations & Data Layer
 7. ⏸️ Implement diff visualization with syntax highlighting

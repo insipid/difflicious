@@ -47,11 +47,14 @@ docker run -p 5000:5000 -v $(pwd):/workspace difflicious/difflicious
 git clone https://github.com/insipid/difflicious.git
 cd difflicious
 
-# Install in development mode
-pip install -e .
+# Install uv if not already installed
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Create virtual environment and install dependencies
+uv sync
 
 # Run the application
-difflicious
+uv run difflicious
 ```
 
 ## Technology Stack
@@ -61,6 +64,7 @@ difflicious
 - **Real-time**: Server-Sent Events for live git status updates
 - **Security**: Proper subprocess sanitization for safe git command execution
 - **Distribution**: Modern Python packaging (PyPI) and Docker containers
+- **Development**: uv for fast Python package management and virtual environments
 
 ## Development Status
 
@@ -73,13 +77,13 @@ difflicious
 - Modern packaging strategy (PyPI + Docker)
 
 ### In Progress
-- Python project structure with pyproject.toml
-- Flask backend with proper packaging
+- Python project structure with pyproject.toml and uv
+- Flask backend with uv-based packaging
 - Git command execution wrapper
 - Core diff visualization
 
 ### Coming Soon
-- Docker containerization
+- Docker containerization with uv
 - PyPI package publishing
 - Search and filtering capabilities
 - Advanced display options
@@ -92,3 +96,4 @@ This project is in early development. More contribution guidelines will be avail
 ## License
 
 MIT License - see LICENSE file for details.
+
