@@ -14,10 +14,12 @@ Perfect for:
 
 ## Features
 
-- **Elegant Diff Visualization**: Clean, syntax-highlighted display of file changes
+- **Side-by-Side Diff Visualization**: Professional-grade side-by-side view with accurate line numbering
+- **Intelligent Diff Parsing**: Advanced git diff parser with proper alignment of additions and deletions
 - **Interactive Interface**: Toggle visibility, search through changes, and filter content
 - **Secure Git Integration**: Safe git command execution with subprocess sanitization
 - **Real-time Status**: Live git repository status and branch information
+- **Modern UI**: Clean Tailwind CSS design with responsive layout
 - **Lightweight**: Minimal infrastructure using Flask backend and Alpine.js frontend
 - **Developer-Friendly**: Designed by developers, for developers
 
@@ -69,20 +71,22 @@ uv run difflicious
 
 ## Development Status
 
-✅ **Core functionality implemented** - Ready for git diff visualization!
+✅ **Production-ready diff visualization** - Advanced side-by-side interface implemented!
 
 ### Completed ✅
 - Modern Python project structure with pyproject.toml and uv
 - Flask backend with comprehensive API endpoints
+- Advanced git diff parser with side-by-side structure
+- Professional side-by-side diff visualization interface
 - Secure git command execution wrapper with subprocess sanitization
-- Interactive Alpine.js frontend with responsive design
+- Interactive Alpine.js frontend with Tailwind CSS styling
 - Comprehensive test suite (28 tests, 73% coverage)
-- Real git integration (status, diff, branch detection)
+- Real git integration (status, diff, branch detection, parsing)
 
 ### Coming Soon 🚧
 - Docker containerization with uv
 - PyPI package publishing
-- Enhanced diff syntax highlighting
+- Enhanced syntax highlighting for code content
 - Advanced search and filtering capabilities
 - Keyboard shortcuts and accessibility features
 - Server-Sent Events for real-time updates

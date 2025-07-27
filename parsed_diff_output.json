@@ -1,0 +1,5282 @@
+{
+  "summary": {
+    "total_files": 7,
+    "total_additions": 717,
+    "total_deletions": 64,
+    "total_changes": 781,
+    "files_by_status": {
+      "modified": 5,
+      "added": 2
+    }
+  },
+  "files": [
+    {
+      "path": "b/.coverage",
+      "old_path": "a/.coverage",
+      "status": "modified",
+      "additions": 0,
+      "deletions": 0,
+      "changes": 0,
+      "hunks": []
+    },
+    {
+      "path": "b/CLAUDE.md",
+      "old_path": "a/CLAUDE.md",
+      "status": "modified",
+      "additions": 37,
+      "deletions": 30,
+      "changes": 67,
+      "hunks": [
+        {
+          "old_start": 45,
+          "old_count": 10,
+          "new_start": 45,
+          "new_count": 10,
+          "section_header": "uv add package-name",
+          "lines": [
+            {
+              "type": "context",
+              "old_line_num": 45,
+              "new_line_num": 45,
+              "content": "# Add development dependencies"
+            },
+            {
+              "type": "context",
+              "old_line_num": 46,
+              "new_line_num": 46,
+              "content": "uv add --dev pytest ruff black"
+            },
+            {
+              "type": "context",
+              "old_line_num": 47,
+              "new_line_num": 47,
+              "content": ""
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 48,
+              "new_line_num": null,
+              "content": "# Run tests (when implemented)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 48,
+              "content": "# Run tests (comprehensive test suite available)"
+            },
+            {
+              "type": "context",
+              "old_line_num": 49,
+              "new_line_num": 49,
+              "content": "uv run pytest"
+            },
+            {
+              "type": "context",
+              "old_line_num": 50,
+              "new_line_num": 50,
+              "content": ""
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 51,
+              "new_line_num": null,
+              "content": "# Run linting/formatting (when implemented)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 51,
+              "content": "# Run linting/formatting"
+            },
+            {
+              "type": "context",
+              "old_line_num": 52,
+              "new_line_num": 52,
+              "content": "uv run ruff check"
+            },
+            {
+              "type": "context",
+              "old_line_num": 53,
+              "new_line_num": 53,
+              "content": "uv run black ."
+            },
+            {
+              "type": "context",
+              "old_line_num": 54,
+              "new_line_num": 54,
+              "content": ""
+            }
+          ]
+        },
+        {
+          "old_start": 60,
+          "old_count": 34,
+          "new_start": 60,
+          "new_count": 41,
+          "section_header": "uv build",
+          "lines": [
+            {
+              "type": "context",
+              "old_line_num": 60,
+              "new_line_num": 60,
+              "content": "- Multi-stage builds using uv for optimized container images"
+            },
+            {
+              "type": "context",
+              "old_line_num": 61,
+              "new_line_num": 61,
+              "content": "- Base images will use uv for dependency installation"
+            },
+            {
+              "type": "context",
+              "old_line_num": 62,
+              "new_line_num": 62,
+              "content": ""
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 63,
+              "new_line_num": null,
+              "content": "## Current Development Phase"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 64,
+              "new_line_num": null,
+              "content": ""
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 65,
+              "new_line_num": null,
+              "content": "**Phase 1 - Project Setup & Core Backend:**"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 66,
+              "new_line_num": null,
+              "content": "1. Set up modern Python project structure with pyproject.toml and uv"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 67,
+              "new_line_num": null,
+              "content": "2. Create Flask backend with proper uv-based packaging"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 68,
+              "new_line_num": null,
+              "content": "3. Implement git command execution wrapper with security"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 69,
+              "new_line_num": null,
+              "content": "4. Create basic HTML template with Alpine.js integration"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 70,
+              "new_line_num": null,
+              "content": "5. Build JSON API endpoints for git status and diff data"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 71,
+              "new_line_num": null,
+              "content": "6. Create Dockerfile using uv for containerized deployment"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 72,
+              "new_line_num": null,
+              "content": ""
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 73,
+              "new_line_num": null,
+              "content": "**Key Implementation Areas:**"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 74,
+              "new_line_num": null,
+              "content": "- Git command wrapper: Must use proper subprocess sanitization"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 75,
+              "new_line_num": null,
+              "content": "- Flask backend: Minimal setup, focus on git integration"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 76,
+              "new_line_num": null,
+              "content": "- Frontend: Alpine.js for lightweight declarative UI"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 77,
+              "new_line_num": null,
+              "content": "- Security: All git commands must be properly sanitized"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 78,
+              "new_line_num": null,
+              "content": ""
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 79,
+              "new_line_num": null,
+              "content": "## Core Features to Implement"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 80,
+              "new_line_num": null,
+              "content": ""
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 81,
+              "new_line_num": null,
+              "content": "- **Diff Visualization**: Custom syntax-highlighted diff display"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 82,
+              "new_line_num": null,
+              "content": "- **Interactive Controls**: Toggle visibility, search/filter capabilities"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 83,
+              "new_line_num": null,
+              "content": "- **Real-time Updates**: Live monitoring of git status and file changes"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 84,
+              "new_line_num": null,
+              "content": "- **Command-line Interface**: Tool runs locally, starts web server"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 85,
+              "new_line_num": null,
+              "content": ""
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 86,
+              "new_line_num": null,
+              "content": "## Security Requirements"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 87,
+              "new_line_num": null,
+              "content": ""
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 88,
+              "new_line_num": null,
+              "content": "- All git command execution must use proper subprocess sanitization"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 89,
+              "new_line_num": null,
+              "content": "- No exposure of sensitive git repository information"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 90,
+              "new_line_num": null,
+              "content": "- Local-only operation (no external network calls for core functionality)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 63,
+              "content": "## Current Development Status"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 64,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 65,
+              "content": "**Phase 1 - Project Setup & Core Backend (COMPLETED):**"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 66,
+              "content": "1. \u2705 Set up modern Python project structure with pyproject.toml and uv"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 67,
+              "content": "2. \u2705 Create Flask backend with proper uv-based packaging"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 68,
+              "content": "3. \u2705 Implement git command execution wrapper with security"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 69,
+              "content": "4. \u2705 Create basic HTML template with Alpine.js integration"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 70,
+              "content": "5. \u2705 Build JSON API endpoints for git status and diff data"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 71,
+              "content": "6. \ud83d\udea7 Create Dockerfile using uv for containerized deployment"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 72,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 73,
+              "content": "**Implementation Completed:**"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 74,
+              "content": "- \u2705 Git command wrapper: Secure subprocess sanitization with comprehensive security validation"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 75,
+              "content": "- \u2705 Flask backend: Complete API with `/api/status` and `/api/diff` endpoints"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 76,
+              "content": "- \u2705 Frontend: Alpine.js reactive interface with search, filtering, and diff visualization"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 77,
+              "content": "- \u2705 Security: All git commands properly sanitized, injection prevention, path validation"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 78,
+              "content": "- \u2705 Testing: 28 tests with 73% coverage including security and functionality tests"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 79,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 80,
+              "content": "## Core Features Status"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 81,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 82,
+              "content": "- \u2705 **Diff Visualization**: Complete with API integration and frontend display"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 83,
+              "content": "- \u2705 **Interactive Controls**: Toggle visibility, search/filter capabilities implemented"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 84,
+              "content": "- \u2705 **Git Integration**: Live git status and diff data from real repositories"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 85,
+              "content": "- \u2705 **Command-line Interface**: Full CLI with host, port, debug options"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 86,
+              "content": "- \ud83d\udea7 **Enhanced Syntax Highlighting**: Future improvement for diff content"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 87,
+              "content": "- \ud83d\udea7 **Real-time Updates**: Server-Sent Events implementation planned"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 88,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 89,
+              "content": "## Security Requirements (IMPLEMENTED)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 90,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 91,
+              "content": "- \u2705 All git command execution uses proper subprocess sanitization"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 92,
+              "content": "- \u2705 Command injection prevention with argument validation and character filtering"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 93,
+              "content": "- \u2705 Safe git option validation with whitelist-based approach"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 94,
+              "content": "- \u2705 File path validation to prevent directory traversal attacks"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 95,
+              "content": "- \u2705 Timeout protection for git commands to prevent resource exhaustion"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 96,
+              "content": "- \u2705 No exposure of sensitive git repository information"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 97,
+              "content": "- \u2705 Local-only operation (no external network calls for core functionality)"
+            },
+            {
+              "type": "context",
+              "old_line_num": 91,
+              "new_line_num": 98,
+              "content": ""
+            },
+            {
+              "type": "context",
+              "old_line_num": 92,
+              "new_line_num": 99,
+              "content": "## Code Quality Requirements"
+            },
+            {
+              "type": "context",
+              "old_line_num": 93,
+              "new_line_num": 100,
+              "content": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "b/PLAN.md",
+      "old_path": "a/PLAN.md",
+      "status": "modified",
+      "additions": 2,
+      "deletions": 2,
+      "changes": 4,
+      "hunks": [
+        {
+          "old_start": 46,
+          "old_count": 7,
+          "new_start": 46,
+          "new_count": 7,
+          "section_header": "A lightweight local web application for developers to visualize git diffs with a",
+          "lines": [
+            {
+              "type": "context",
+              "old_line_num": 46,
+              "new_line_num": 46,
+              "content": "### Phase 1: Project Setup & Core Backend \u2705"
+            },
+            {
+              "type": "context",
+              "old_line_num": 47,
+              "new_line_num": 47,
+              "content": "1. \u2705 Set up modern Python project structure with pyproject.toml and uv"
+            },
+            {
+              "type": "context",
+              "old_line_num": 48,
+              "new_line_num": 48,
+              "content": "2. \u2705 Create Flask backend with uv-based packaging"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 49,
+              "new_line_num": null,
+              "content": "3. \u23f8\ufe0f Implement git command execution wrapper with security"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 49,
+              "content": "3. \u2705 Implement git command execution wrapper with security"
+            },
+            {
+              "type": "context",
+              "old_line_num": 50,
+              "new_line_num": 50,
+              "content": "4. \u23f8\ufe0f Create basic HTML template with Alpine.js integration"
+            },
+            {
+              "type": "context",
+              "old_line_num": 51,
+              "new_line_num": 51,
+              "content": "5. \u23f8\ufe0f Build JSON API endpoints for git status and diff data"
+            },
+            {
+              "type": "context",
+              "old_line_num": 52,
+              "new_line_num": 52,
+              "content": "6. \u23f8\ufe0f Create Dockerfile using uv for containerized deployment"
+            }
+          ]
+        },
+        {
+          "old_start": 68,
+          "old_count": 4,
+          "new_start": 68,
+          "new_count": 4,
+          "section_header": "A lightweight local web application for developers to visualize git diffs with a",
+          "lines": [
+            {
+              "type": "context",
+              "old_line_num": 68,
+              "new_line_num": 68,
+              "content": "- Todo list established and being tracked"
+            },
+            {
+              "type": "context",
+              "old_line_num": 69,
+              "new_line_num": 69,
+              "content": ""
+            },
+            {
+              "type": "context",
+              "old_line_num": 70,
+              "new_line_num": 70,
+              "content": "## Next Steps"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 71,
+              "new_line_num": null,
+              "content": "Continue with the third todo item: \"Implement git command execution wrapper with security\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 71,
+              "content": "Continue with the fourth todo item: \"Create basic HTML template with Alpine.js integration\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "b/README.md",
+      "old_path": "a/README.md",
+      "status": "modified",
+      "additions": 15,
+      "deletions": 17,
+      "changes": 32,
+      "hunks": [
+        {
+          "old_start": 12,
+          "old_count": 12,
+          "new_start": 12,
+          "new_count": 13,
+          "section_header": "Perfect for:",
+          "lines": [
+            {
+              "type": "context",
+              "old_line_num": 12,
+              "new_line_num": 12,
+              "content": "- Quickly navigating through modifications in your current branch"
+            },
+            {
+              "type": "context",
+              "old_line_num": 13,
+              "new_line_num": 13,
+              "content": "- Getting a bird's-eye view of your development progress"
+            },
+            {
+              "type": "context",
+              "old_line_num": 14,
+              "new_line_num": 14,
+              "content": ""
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 15,
+              "new_line_num": null,
+              "content": "## [TODO] Features"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 15,
+              "content": "## Features"
+            },
+            {
+              "type": "context",
+              "old_line_num": 16,
+              "new_line_num": 16,
+              "content": ""
+            },
+            {
+              "type": "context",
+              "old_line_num": 17,
+              "new_line_num": 17,
+              "content": "- **Elegant Diff Visualization**: Clean, syntax-highlighted display of file changes"
+            },
+            {
+              "type": "context",
+              "old_line_num": 18,
+              "new_line_num": 18,
+              "content": "- **Interactive Interface**: Toggle visibility, search through changes, and filter content"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 19,
+              "content": "- **Secure Git Integration**: Safe git command execution with subprocess sanitization"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 20,
+              "content": "- **Real-time Status**: Live git repository status and branch information"
+            },
+            {
+              "type": "context",
+              "old_line_num": 19,
+              "new_line_num": 21,
+              "content": "- **Lightweight**: Minimal infrastructure using Flask backend and Alpine.js frontend"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 20,
+              "new_line_num": null,
+              "content": "- **Real-time Updates**: Live monitoring of git status and file changes"
+            },
+            {
+              "type": "context",
+              "old_line_num": 21,
+              "new_line_num": 22,
+              "content": "- **Developer-Friendly**: Designed by developers, for developers"
+            },
+            {
+              "type": "context",
+              "old_line_num": 22,
+              "new_line_num": 23,
+              "content": ""
+            },
+            {
+              "type": "context",
+              "old_line_num": 23,
+              "new_line_num": 24,
+              "content": "## Installation & Quick Start"
+            }
+          ]
+        },
+        {
+          "old_start": 68,
+          "old_count": 26,
+          "new_start": 69,
+          "new_count": 23,
+          "section_header": "uv run difflicious",
+          "lines": [
+            {
+              "type": "context",
+              "old_line_num": 68,
+              "new_line_num": 69,
+              "content": ""
+            },
+            {
+              "type": "context",
+              "old_line_num": 69,
+              "new_line_num": 70,
+              "content": "## Development Status"
+            },
+            {
+              "type": "context",
+              "old_line_num": 70,
+              "new_line_num": 71,
+              "content": ""
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 71,
+              "new_line_num": null,
+              "content": "\ud83d\udea7 **Currently in development** - Core functionality is being implemented."
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 72,
+              "content": "\u2705 **Core functionality implemented** - Ready for git diff visualization!"
+            },
+            {
+              "type": "context",
+              "old_line_num": 72,
+              "new_line_num": 73,
+              "content": ""
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 73,
+              "new_line_num": null,
+              "content": "### Completed"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 74,
+              "new_line_num": null,
+              "content": "- Project structure and planning"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 75,
+              "new_line_num": null,
+              "content": "- Git repository setup"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 76,
+              "new_line_num": null,
+              "content": "- Technical architecture decisions"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 77,
+              "new_line_num": null,
+              "content": "- Modern packaging strategy (PyPI + Docker)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 74,
+              "content": "### Completed \u2705"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 75,
+              "content": "- Modern Python project structure with pyproject.toml and uv"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 76,
+              "content": "- Flask backend with comprehensive API endpoints"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 77,
+              "content": "- Secure git command execution wrapper with subprocess sanitization"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 78,
+              "content": "- Interactive Alpine.js frontend with responsive design"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 79,
+              "content": "- Comprehensive test suite (28 tests, 73% coverage)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 80,
+              "content": "- Real git integration (status, diff, branch detection)"
+            },
+            {
+              "type": "context",
+              "old_line_num": 78,
+              "new_line_num": 81,
+              "content": ""
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 79,
+              "new_line_num": null,
+              "content": "### In Progress"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 80,
+              "new_line_num": null,
+              "content": "- Python project structure with pyproject.toml and uv"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 81,
+              "new_line_num": null,
+              "content": "- Flask backend with uv-based packaging"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 82,
+              "new_line_num": null,
+              "content": "- Git command execution wrapper"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 83,
+              "new_line_num": null,
+              "content": "- Core diff visualization"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 84,
+              "new_line_num": null,
+              "content": ""
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 85,
+              "new_line_num": null,
+              "content": "### Coming Soon"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 82,
+              "content": "### Coming Soon \ud83d\udea7"
+            },
+            {
+              "type": "context",
+              "old_line_num": 86,
+              "new_line_num": 83,
+              "content": "- Docker containerization with uv"
+            },
+            {
+              "type": "context",
+              "old_line_num": 87,
+              "new_line_num": 84,
+              "content": "- PyPI package publishing"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 88,
+              "new_line_num": null,
+              "content": "- Search and filtering capabilities"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 89,
+              "new_line_num": null,
+              "content": "- Advanced display options"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 85,
+              "content": "- Enhanced diff syntax highlighting"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 86,
+              "content": "- Advanced search and filtering capabilities"
+            },
+            {
+              "type": "context",
+              "old_line_num": 90,
+              "new_line_num": 87,
+              "content": "- Keyboard shortcuts and accessibility features"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 88,
+              "content": "- Server-Sent Events for real-time updates"
+            },
+            {
+              "type": "context",
+              "old_line_num": 91,
+              "new_line_num": 89,
+              "content": ""
+            },
+            {
+              "type": "context",
+              "old_line_num": 92,
+              "new_line_num": 90,
+              "content": "## Contributing"
+            },
+            {
+              "type": "context",
+              "old_line_num": 93,
+              "new_line_num": 91,
+              "content": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "b/src/difflicious/app.py",
+      "old_path": "a/src/difflicious/app.py",
+      "status": "modified",
+      "additions": 65,
+      "deletions": 15,
+      "changes": 80,
+      "hunks": [
+        {
+          "old_start": 1,
+          "old_count": 8,
+          "new_start": 1,
+          "new_count": 10,
+          "section_header": "",
+          "lines": [
+            {
+              "type": "context",
+              "old_line_num": 1,
+              "new_line_num": 1,
+              "content": "\"\"\"Flask web application for Difflicious git diff visualization.\"\"\""
+            },
+            {
+              "type": "context",
+              "old_line_num": 2,
+              "new_line_num": 2,
+              "content": ""
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 3,
+              "new_line_num": null,
+              "content": "from flask import Flask, render_template, jsonify"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 3,
+              "content": "from flask import Flask, render_template, jsonify, request"
+            },
+            {
+              "type": "context",
+              "old_line_num": 4,
+              "new_line_num": 4,
+              "content": "from typing import Dict, Any"
+            },
+            {
+              "type": "context",
+              "old_line_num": 5,
+              "new_line_num": 5,
+              "content": "import os"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 6,
+              "content": "import logging"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 7,
+              "content": "from difflicious.git_operations import get_git_repository, GitOperationError"
+            },
+            {
+              "type": "context",
+              "old_line_num": 6,
+              "new_line_num": 8,
+              "content": ""
+            },
+            {
+              "type": "context",
+              "old_line_num": 7,
+              "new_line_num": 9,
+              "content": ""
+            },
+            {
+              "type": "context",
+              "old_line_num": 8,
+              "new_line_num": 10,
+              "content": "def create_app() -> Flask:"
+            }
+          ]
+        },
+        {
+          "old_start": 17,
+          "old_count": 6,
+          "new_start": 19,
+          "new_count": 10,
+          "section_header": "def create_app() -> Flask:",
+          "lines": [
+            {
+              "type": "context",
+              "old_line_num": 17,
+              "new_line_num": 19,
+              "content": "                template_folder=template_dir,"
+            },
+            {
+              "type": "context",
+              "old_line_num": 18,
+              "new_line_num": 20,
+              "content": "                static_folder=static_dir)"
+            },
+            {
+              "type": "context",
+              "old_line_num": 19,
+              "new_line_num": 21,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 22,
+              "content": "    # Configure logging"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 23,
+              "content": "    logging.basicConfig(level=logging.INFO)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 24,
+              "content": "    logger = logging.getLogger(__name__)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 25,
+              "content": "    "
+            },
+            {
+              "type": "context",
+              "old_line_num": 20,
+              "new_line_num": 26,
+              "content": "    @app.route('/')"
+            },
+            {
+              "type": "context",
+              "old_line_num": 21,
+              "new_line_num": 27,
+              "content": "    def index() -> str:"
+            },
+            {
+              "type": "context",
+              "old_line_num": 22,
+              "new_line_num": 28,
+              "content": "        \"\"\"Main diff visualization page.\"\"\""
+            }
+          ]
+        },
+        {
+          "old_start": 25,
+          "old_count": 24,
+          "new_start": 31,
+          "new_count": 68,
+          "section_header": "def create_app() -> Flask:",
+          "lines": [
+            {
+              "type": "context",
+              "old_line_num": 25,
+              "new_line_num": 31,
+              "content": "    @app.route('/api/status')"
+            },
+            {
+              "type": "context",
+              "old_line_num": 26,
+              "new_line_num": 32,
+              "content": "    def api_status() -> Dict[str, Any]:"
+            },
+            {
+              "type": "context",
+              "old_line_num": 27,
+              "new_line_num": 33,
+              "content": "        \"\"\"API endpoint for git status information.\"\"\""
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 28,
+              "new_line_num": null,
+              "content": "        # TODO: Implement git status fetching"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 29,
+              "new_line_num": null,
+              "content": "        return jsonify({"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 30,
+              "new_line_num": null,
+              "content": "            \"status\": \"ok\","
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 31,
+              "new_line_num": null,
+              "content": "            \"message\": \"Git status API endpoint - implementation coming soon\","
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 32,
+              "new_line_num": null,
+              "content": "            \"git_available\": True,  # TODO: Check if git is available"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 33,
+              "new_line_num": null,
+              "content": "            \"current_branch\": \"main\",  # TODO: Get actual current branch"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 34,
+              "new_line_num": null,
+              "content": "            \"files_changed\": 0  # TODO: Get actual file count"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 35,
+              "new_line_num": null,
+              "content": "        })"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 34,
+              "content": "        try:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 35,
+              "content": "            # Get git repository (defaults to current working directory)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 36,
+              "content": "            repo = get_git_repository()"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 37,
+              "content": "            status_info = repo.get_status()"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 38,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 39,
+              "content": "            return jsonify({"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 40,
+              "content": "                \"status\": \"ok\","
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 41,
+              "content": "                **status_info"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 42,
+              "content": "            })"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 43,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 44,
+              "content": "        except GitOperationError as e:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 45,
+              "content": "            logger.error(f\"Git status error: {e}\")"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 46,
+              "content": "            return jsonify({"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 47,
+              "content": "                \"status\": \"error\","
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 48,
+              "content": "                \"message\": str(e),"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 49,
+              "content": "                \"git_available\": False,"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 50,
+              "content": "                \"current_branch\": \"error\","
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 51,
+              "content": "                \"files_changed\": 0"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 52,
+              "content": "            }), 500"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 53,
+              "content": "        except Exception as e:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 54,
+              "content": "            logger.error(f\"Unexpected error in git status: {e}\")"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 55,
+              "content": "            return jsonify({"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 56,
+              "content": "                \"status\": \"error\", "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 57,
+              "content": "                \"message\": \"Internal server error\","
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 58,
+              "content": "                \"git_available\": False,"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 59,
+              "content": "                \"current_branch\": \"error\","
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 60,
+              "content": "                \"files_changed\": 0"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 61,
+              "content": "            }), 500"
+            },
+            {
+              "type": "context",
+              "old_line_num": 36,
+              "new_line_num": 62,
+              "content": "    "
+            },
+            {
+              "type": "context",
+              "old_line_num": 37,
+              "new_line_num": 63,
+              "content": "    @app.route('/api/diff')"
+            },
+            {
+              "type": "context",
+              "old_line_num": 38,
+              "new_line_num": 64,
+              "content": "    def api_diff() -> Dict[str, Any]:"
+            },
+            {
+              "type": "context",
+              "old_line_num": 39,
+              "new_line_num": 65,
+              "content": "        \"\"\"API endpoint for git diff information.\"\"\""
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 40,
+              "new_line_num": null,
+              "content": "        # TODO: Implement git diff fetching"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 41,
+              "new_line_num": null,
+              "content": "        return jsonify({"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 42,
+              "new_line_num": null,
+              "content": "            \"status\": \"ok\", "
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 43,
+              "new_line_num": null,
+              "content": "            \"message\": \"Git diff API endpoint - implementation coming soon\","
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 44,
+              "new_line_num": null,
+              "content": "            \"diffs\": []  # TODO: Return actual diff data"
+            },
+            {
+              "type": "deletion",
+              "old_line_num": 45,
+              "new_line_num": null,
+              "content": "        })"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 66,
+              "content": "        try:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 67,
+              "content": "            # Get optional query parameters"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 68,
+              "content": "            staged = request.args.get('staged', 'false').lower() == 'true'"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 69,
+              "content": "            file_path = request.args.get('file')"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 70,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 71,
+              "content": "            # Get git repository"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 72,
+              "content": "            repo = get_git_repository()"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 73,
+              "content": "            diffs = repo.get_diff(staged=staged, file_path=file_path)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 74,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 75,
+              "content": "            return jsonify({"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 76,
+              "content": "                \"status\": \"ok\","
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 77,
+              "content": "                \"diffs\": diffs,"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 78,
+              "content": "                \"staged\": staged,"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 79,
+              "content": "                \"file_filter\": file_path"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 80,
+              "content": "            })"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 81,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 82,
+              "content": "        except GitOperationError as e:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 83,
+              "content": "            logger.error(f\"Git diff error: {e}\")"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 84,
+              "content": "            return jsonify({"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 85,
+              "content": "                \"status\": \"error\","
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 86,
+              "content": "                \"message\": str(e),"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 87,
+              "content": "                \"diffs\": []"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 88,
+              "content": "            }), 500"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 89,
+              "content": "        except Exception as e:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 90,
+              "content": "            logger.error(f\"Unexpected error in git diff: {e}\")"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 91,
+              "content": "            return jsonify({"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 92,
+              "content": "                \"status\": \"error\","
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 93,
+              "content": "                \"message\": \"Internal server error\", "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 94,
+              "content": "                \"diffs\": []"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 95,
+              "content": "            }), 500"
+            },
+            {
+              "type": "context",
+              "old_line_num": 46,
+              "new_line_num": 96,
+              "content": "    "
+            },
+            {
+              "type": "context",
+              "old_line_num": 47,
+              "new_line_num": 97,
+              "content": "    return app"
+            },
+            {
+              "type": "context",
+              "old_line_num": 48,
+              "new_line_num": 98,
+              "content": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "b/src/difflicious/git_operations.py",
+      "old_path": "/dev/null",
+      "status": "added",
+      "additions": 320,
+      "deletions": 0,
+      "changes": 320,
+      "hunks": [
+        {
+          "old_start": 0,
+          "old_count": 0,
+          "new_start": 1,
+          "new_count": 320,
+          "section_header": "",
+          "lines": [
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 1,
+              "content": "\"\"\"Secure git command execution wrapper for Difflicious.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 2,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 3,
+              "content": "import subprocess"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 4,
+              "content": "import shlex"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 5,
+              "content": "import logging"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 6,
+              "content": "from typing import Dict, List, Optional, Any, Tuple"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 7,
+              "content": "from pathlib import Path"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 8,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 9,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 10,
+              "content": "logger = logging.getLogger(__name__)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 11,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 12,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 13,
+              "content": "class GitOperationError(Exception):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 14,
+              "content": "    \"\"\"Exception raised when git operations fail.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 15,
+              "content": "    pass"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 16,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 17,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 18,
+              "content": "class GitRepository:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 19,
+              "content": "    \"\"\"Secure wrapper for git operations with subprocess sanitization.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 20,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 21,
+              "content": "    def __init__(self, repo_path: Optional[str] = None):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 22,
+              "content": "        \"\"\"Initialize git repository wrapper."
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 23,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 24,
+              "content": "        Args:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 25,
+              "content": "            repo_path: Path to git repository. Defaults to current working directory."
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 26,
+              "content": "        \"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 27,
+              "content": "        self.repo_path = Path(repo_path) if repo_path else Path.cwd()"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 28,
+              "content": "        self._validate_repository()"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 29,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 30,
+              "content": "    def _validate_repository(self) -> None:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 31,
+              "content": "        \"\"\"Validate that the path contains a git repository.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 32,
+              "content": "        if not self.repo_path.exists():"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 33,
+              "content": "            raise GitOperationError(f\"Repository path does not exist: {self.repo_path}\")"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 34,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 35,
+              "content": "        git_dir = self.repo_path / \".git\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 36,
+              "content": "        if not (git_dir.exists() or (self.repo_path / \".git\").is_file()):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 37,
+              "content": "            raise GitOperationError(f\"Not a git repository: {self.repo_path}\")"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 38,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 39,
+              "content": "    def _execute_git_command(self, args: List[str], timeout: int = 30) -> Tuple[str, str, int]:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 40,
+              "content": "        \"\"\"Execute a git command with proper security and error handling."
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 41,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 42,
+              "content": "        Args:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 43,
+              "content": "            args: List of git command arguments (without 'git' prefix)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 44,
+              "content": "            timeout: Command timeout in seconds"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 45,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 46,
+              "content": "        Returns:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 47,
+              "content": "            Tuple of (stdout, stderr, return_code)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 48,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 49,
+              "content": "        Raises:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 50,
+              "content": "            GitOperationError: If git command fails or times out"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 51,
+              "content": "        \"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 52,
+              "content": "        # Sanitize command arguments"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 53,
+              "content": "        sanitized_args = self._sanitize_args(args)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 54,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 55,
+              "content": "        # Build full command"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 56,
+              "content": "        cmd = [\"git\"] + sanitized_args"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 57,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 58,
+              "content": "        logger.debug(f\"Executing git command: {' '.join(cmd)}\")"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 59,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 60,
+              "content": "        try:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 61,
+              "content": "            result = subprocess.run("
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 62,
+              "content": "                cmd,"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 63,
+              "content": "                cwd=self.repo_path,"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 64,
+              "content": "                capture_output=True,"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 65,
+              "content": "                text=True,"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 66,
+              "content": "                timeout=timeout,"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 67,
+              "content": "                check=False  # We'll handle return codes manually"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 68,
+              "content": "            )"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 69,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 70,
+              "content": "            logger.debug(f\"Git command completed with return code: {result.returncode}\")"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 71,
+              "content": "            return result.stdout, result.stderr, result.returncode"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 72,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 73,
+              "content": "        except subprocess.TimeoutExpired as e:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 74,
+              "content": "            raise GitOperationError(f\"Git command timed out after {timeout}s: {' '.join(cmd)}\")"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 75,
+              "content": "        except FileNotFoundError:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 76,
+              "content": "            raise GitOperationError(\"Git executable not found. Please ensure git is installed.\")"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 77,
+              "content": "        except Exception as e:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 78,
+              "content": "            raise GitOperationError(f\"Failed to execute git command: {e}\")"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 79,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 80,
+              "content": "    def _sanitize_args(self, args: List[str]) -> List[str]:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 81,
+              "content": "        \"\"\"Sanitize git command arguments to prevent injection attacks."
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 82,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 83,
+              "content": "        Args:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 84,
+              "content": "            args: Raw command arguments"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 85,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 86,
+              "content": "        Returns:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 87,
+              "content": "            Sanitized arguments safe for subprocess execution"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 88,
+              "content": "        \"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 89,
+              "content": "        sanitized = []"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 90,
+              "content": "        for arg in args:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 91,
+              "content": "            if not isinstance(arg, str):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 92,
+              "content": "                raise GitOperationError(f\"Invalid argument type: {type(arg)}\")"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 93,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 94,
+              "content": "            # Remove dangerous characters and patterns"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 95,
+              "content": "            if any(char in arg for char in [';', '|', '&', '`', '$', '(', ')', '>', '<']):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 96,
+              "content": "                raise GitOperationError(f\"Dangerous characters detected in argument: {arg}\")"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 97,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 98,
+              "content": "            # Prevent command injection via git options"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 99,
+              "content": "            if arg.startswith('-') and not self._is_safe_git_option(arg):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 100,
+              "content": "                raise GitOperationError(f\"Unsafe git option: {arg}\")"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 101,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 102,
+              "content": "            sanitized.append(shlex.quote(arg))"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 103,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 104,
+              "content": "        return sanitized"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 105,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 106,
+              "content": "    def _is_safe_git_option(self, option: str) -> bool:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 107,
+              "content": "        \"\"\"Check if a git option is safe to use."
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 108,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 109,
+              "content": "        Args:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 110,
+              "content": "            option: Git command option to validate"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 111,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 112,
+              "content": "        Returns:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 113,
+              "content": "            True if option is safe, False otherwise"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 114,
+              "content": "        \"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 115,
+              "content": "        safe_options = {"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 116,
+              "content": "            '--porcelain', '--short', '--branch', '--ahead-behind',"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 117,
+              "content": "            '--no-renames', '--name-only', '--name-status', '--numstat',"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 118,
+              "content": "            '--stat', '--patch', '--no-patch', '--raw', '--format',"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 119,
+              "content": "            '--oneline', '--graph', '--decorate', '--all', '--color',"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 120,
+              "content": "            '--no-color', '--word-diff', '--unified', '--context',"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 121,
+              "content": "            '--show-current', '--cached'"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 122,
+              "content": "        }"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 123,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 124,
+              "content": "        # Allow safe single-dash options"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 125,
+              "content": "        safe_short_options = {'-s', '-b', '-u', '-z', '-n', '-p', '-w'}"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 126,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 127,
+              "content": "        return option in safe_options or option in safe_short_options"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 128,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 129,
+              "content": "    def get_status(self) -> Dict[str, Any]:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 130,
+              "content": "        \"\"\"Get git repository status information."
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 131,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 132,
+              "content": "        Returns:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 133,
+              "content": "            Dictionary containing git status information"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 134,
+              "content": "        \"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 135,
+              "content": "        try:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 136,
+              "content": "            # Get basic repository info"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 137,
+              "content": "            branch_stdout, _, branch_code = self._execute_git_command(['branch', '--show-current'])"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 138,
+              "content": "            current_branch = branch_stdout.strip() if branch_code == 0 else 'unknown'"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 139,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 140,
+              "content": "            # Get repository status"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 141,
+              "content": "            status_stdout, _, status_code = self._execute_git_command(['status', '--porcelain'])"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 142,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 143,
+              "content": "            # Parse status output"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 144,
+              "content": "            files_changed = 0"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 145,
+              "content": "            if status_code == 0:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 146,
+              "content": "                files_changed = len([line for line in status_stdout.strip().split('\\n') if line.strip()])"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 147,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 148,
+              "content": "            # Check if git is available and working"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 149,
+              "content": "            git_available = branch_code == 0 or status_code == 0"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 150,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 151,
+              "content": "            return {"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 152,
+              "content": "                'git_available': git_available,"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 153,
+              "content": "                'current_branch': current_branch,"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 154,
+              "content": "                'files_changed': files_changed,"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 155,
+              "content": "                'repository_path': str(self.repo_path),"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 156,
+              "content": "                'is_clean': files_changed == 0"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 157,
+              "content": "            }"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 158,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 159,
+              "content": "        except GitOperationError as e:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 160,
+              "content": "            logger.error(f\"Failed to get git status: {e}\")"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 161,
+              "content": "            return {"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 162,
+              "content": "                'git_available': False,"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 163,
+              "content": "                'current_branch': 'error',"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 164,
+              "content": "                'files_changed': 0,"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 165,
+              "content": "                'repository_path': str(self.repo_path),"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 166,
+              "content": "                'is_clean': True,"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 167,
+              "content": "                'error': str(e)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 168,
+              "content": "            }"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 169,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 170,
+              "content": "    def get_diff(self, staged: bool = False, file_path: Optional[str] = None) -> List[Dict[str, Any]]:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 171,
+              "content": "        \"\"\"Get git diff information."
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 172,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 173,
+              "content": "        Args:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 174,
+              "content": "            staged: If True, get staged changes. If False, get working directory changes."
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 175,
+              "content": "            file_path: Optional specific file to diff"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 176,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 177,
+              "content": "        Returns:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 178,
+              "content": "            List of dictionaries containing diff information for each file"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 179,
+              "content": "        \"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 180,
+              "content": "        try:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 181,
+              "content": "            # Build diff command"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 182,
+              "content": "            diff_args = ['diff']"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 183,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 184,
+              "content": "            if staged:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 185,
+              "content": "                diff_args.append('--cached')"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 186,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 187,
+              "content": "            # Add safe diff options"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 188,
+              "content": "            diff_args.extend(['--numstat', '--name-status'])"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 189,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 190,
+              "content": "            if file_path:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 191,
+              "content": "                # Validate file path is within repository"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 192,
+              "content": "                if not self._is_safe_file_path(file_path):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 193,
+              "content": "                    raise GitOperationError(f\"Unsafe file path: {file_path}\")"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 194,
+              "content": "                diff_args.append(file_path)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 195,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 196,
+              "content": "            # Execute diff command"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 197,
+              "content": "            stdout, stderr, return_code = self._execute_git_command(diff_args)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 198,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 199,
+              "content": "            if return_code != 0 and stderr:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 200,
+              "content": "                logger.warning(f\"Git diff warning: {stderr}\")"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 201,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 202,
+              "content": "            # Parse diff output"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 203,
+              "content": "            diffs = self._parse_diff_output(stdout)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 204,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 205,
+              "content": "            # Get detailed diff for each file"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 206,
+              "content": "            for diff_info in diffs:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 207,
+              "content": "                detailed_diff = self._get_file_diff(diff_info['file'], staged)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 208,
+              "content": "                diff_info['content'] = detailed_diff"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 209,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 210,
+              "content": "            return diffs"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 211,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 212,
+              "content": "        except GitOperationError as e:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 213,
+              "content": "            logger.error(f\"Failed to get git diff: {e}\")"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 214,
+              "content": "            return []"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 215,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 216,
+              "content": "    def _is_safe_file_path(self, file_path: str) -> bool:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 217,
+              "content": "        \"\"\"Validate that a file path is safe and within the repository."
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 218,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 219,
+              "content": "        Args:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 220,
+              "content": "            file_path: File path to validate"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 221,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 222,
+              "content": "        Returns:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 223,
+              "content": "            True if path is safe, False otherwise"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 224,
+              "content": "        \"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 225,
+              "content": "        try:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 226,
+              "content": "            # Resolve path relative to repository"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 227,
+              "content": "            full_path = (self.repo_path / file_path).resolve()"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 228,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 229,
+              "content": "            # Ensure path is within repository"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 230,
+              "content": "            return str(full_path).startswith(str(self.repo_path.resolve()))"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 231,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 232,
+              "content": "        except Exception:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 233,
+              "content": "            return False"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 234,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 235,
+              "content": "    def _parse_diff_output(self, output: str) -> List[Dict[str, Any]]:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 236,
+              "content": "        \"\"\"Parse git diff --numstat --name-status output."
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 237,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 238,
+              "content": "        Args:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 239,
+              "content": "            output: Raw git diff output"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 240,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 241,
+              "content": "        Returns:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 242,
+              "content": "            List of file diff information"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 243,
+              "content": "        \"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 244,
+              "content": "        diffs = []"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 245,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 246,
+              "content": "        if not output.strip():"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 247,
+              "content": "            return diffs"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 248,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 249,
+              "content": "        lines = output.strip().split('\\n')"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 250,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 251,
+              "content": "        for line in lines:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 252,
+              "content": "            if not line.strip():"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 253,
+              "content": "                continue"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 254,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 255,
+              "content": "            # Parse numstat format: \"additions\\tdeletions\\tfilename\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 256,
+              "content": "            parts = line.split('\\t')"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 257,
+              "content": "            if len(parts) >= 3:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 258,
+              "content": "                try:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 259,
+              "content": "                    additions = int(parts[0]) if parts[0] != '-' else 0"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 260,
+              "content": "                    deletions = int(parts[1]) if parts[1] != '-' else 0"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 261,
+              "content": "                    filename = parts[2]"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 262,
+              "content": "                    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 263,
+              "content": "                    diffs.append({"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 264,
+              "content": "                        'file': filename,"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 265,
+              "content": "                        'additions': additions,"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 266,
+              "content": "                        'deletions': deletions,"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 267,
+              "content": "                        'changes': additions + deletions,"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 268,
+              "content": "                        'status': 'modified',  # TODO: Parse actual status"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 269,
+              "content": "                        'content': ''  # Will be filled by caller"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 270,
+              "content": "                    })"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 271,
+              "content": "                except ValueError:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 272,
+              "content": "                    # Skip lines that don't parse correctly"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 273,
+              "content": "                    continue"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 274,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 275,
+              "content": "        return diffs"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 276,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 277,
+              "content": "    def _get_file_diff(self, file_path: str, staged: bool = False) -> str:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 278,
+              "content": "        \"\"\"Get detailed diff content for a specific file."
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 279,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 280,
+              "content": "        Args:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 281,
+              "content": "            file_path: Path to the file"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 282,
+              "content": "            staged: Whether to get staged or working directory diff"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 283,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 284,
+              "content": "        Returns:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 285,
+              "content": "            Diff content as string"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 286,
+              "content": "        \"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 287,
+              "content": "        try:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 288,
+              "content": "            if not self._is_safe_file_path(file_path):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 289,
+              "content": "                return f\"Error: Unsafe file path: {file_path}\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 290,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 291,
+              "content": "            diff_args = ['diff']"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 292,
+              "content": "            if staged:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 293,
+              "content": "                diff_args.append('--cached')"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 294,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 295,
+              "content": "            diff_args.extend(['--no-color', file_path])"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 296,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 297,
+              "content": "            stdout, stderr, return_code = self._execute_git_command(diff_args)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 298,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 299,
+              "content": "            if return_code != 0 and stderr:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 300,
+              "content": "                return f\"Error getting diff: {stderr}\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 301,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 302,
+              "content": "            return stdout"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 303,
+              "content": "            "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 304,
+              "content": "        except GitOperationError as e:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 305,
+              "content": "            return f\"Error: {e}\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 306,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 307,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 308,
+              "content": "def get_git_repository(repo_path: Optional[str] = None) -> GitRepository:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 309,
+              "content": "    \"\"\"Factory function to create a GitRepository instance."
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 310,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 311,
+              "content": "    Args:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 312,
+              "content": "        repo_path: Optional path to git repository"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 313,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 314,
+              "content": "    Returns:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 315,
+              "content": "        GitRepository instance"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 316,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 317,
+              "content": "    Raises:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 318,
+              "content": "        GitOperationError: If repository is invalid"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 319,
+              "content": "    \"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 320,
+              "content": "    return GitRepository(repo_path)"
+            },
+            {
+              "type": "context",
+              "old_line_num": 0,
+              "new_line_num": 321,
+              "content": " No newline at end of file"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "b/tests/test_git_operations.py",
+      "old_path": "/dev/null",
+      "status": "added",
+      "additions": 278,
+      "deletions": 0,
+      "changes": 278,
+      "hunks": [
+        {
+          "old_start": 0,
+          "old_count": 0,
+          "new_start": 1,
+          "new_count": 278,
+          "section_header": "",
+          "lines": [
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 1,
+              "content": "\"\"\"Tests for git operations module.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 2,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 3,
+              "content": "import pytest"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 4,
+              "content": "import subprocess"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 5,
+              "content": "import tempfile"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 6,
+              "content": "import os"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 7,
+              "content": "from pathlib import Path"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 8,
+              "content": "from unittest.mock import patch, MagicMock"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 9,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 10,
+              "content": "from difflicious.git_operations import GitRepository, GitOperationError, get_git_repository"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 11,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 12,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 13,
+              "content": "@pytest.fixture"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 14,
+              "content": "def temp_git_repo():"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 15,
+              "content": "    \"\"\"Create a temporary git repository for testing.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 16,
+              "content": "    with tempfile.TemporaryDirectory() as temp_dir:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 17,
+              "content": "        repo_path = Path(temp_dir)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 18,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 19,
+              "content": "        # Initialize git repository"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 20,
+              "content": "        subprocess.run(['git', 'init'], cwd=repo_path, check=True, capture_output=True)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 21,
+              "content": "        subprocess.run(['git', 'config', 'user.email', 'test@example.com'], cwd=repo_path, check=True)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 22,
+              "content": "        subprocess.run(['git', 'config', 'user.name', 'Test User'], cwd=repo_path, check=True)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 23,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 24,
+              "content": "        # Create initial commit"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 25,
+              "content": "        test_file = repo_path / 'test.txt'"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 26,
+              "content": "        test_file.write_text('Initial content\\n')"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 27,
+              "content": "        subprocess.run(['git', 'add', 'test.txt'], cwd=repo_path, check=True)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 28,
+              "content": "        subprocess.run(['git', 'commit', '-m', 'Initial commit'], cwd=repo_path, check=True)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 29,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 30,
+              "content": "        yield repo_path"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 31,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 32,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 33,
+              "content": "@pytest.fixture"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 34,
+              "content": "def mock_git_repo():"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 35,
+              "content": "    \"\"\"Create a mock git repository for testing without actual git commands.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 36,
+              "content": "    with tempfile.TemporaryDirectory() as temp_dir:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 37,
+              "content": "        repo_path = Path(temp_dir)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 38,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 39,
+              "content": "        # Create .git directory to make it look like a git repo"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 40,
+              "content": "        git_dir = repo_path / '.git'"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 41,
+              "content": "        git_dir.mkdir()"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 42,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 43,
+              "content": "        yield repo_path"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 44,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 45,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 46,
+              "content": "class TestGitRepository:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 47,
+              "content": "    \"\"\"Test cases for GitRepository class.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 48,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 49,
+              "content": "    def test_init_with_valid_repo(self, temp_git_repo):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 50,
+              "content": "        \"\"\"Test GitRepository initialization with valid repository.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 51,
+              "content": "        repo = GitRepository(str(temp_git_repo))"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 52,
+              "content": "        assert repo.repo_path == temp_git_repo"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 53,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 54,
+              "content": "    def test_init_with_current_directory(self, temp_git_repo):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 55,
+              "content": "        \"\"\"Test GitRepository initialization with current directory.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 56,
+              "content": "        old_cwd = os.getcwd()"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 57,
+              "content": "        try:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 58,
+              "content": "            os.chdir(temp_git_repo)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 59,
+              "content": "            repo = GitRepository()"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 60,
+              "content": "            assert repo.repo_path.resolve() == temp_git_repo.resolve()"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 61,
+              "content": "        finally:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 62,
+              "content": "            os.chdir(old_cwd)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 63,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 64,
+              "content": "    def test_init_with_invalid_path(self):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 65,
+              "content": "        \"\"\"Test GitRepository initialization with invalid path.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 66,
+              "content": "        with pytest.raises(GitOperationError, match=\"Repository path does not exist\"):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 67,
+              "content": "            GitRepository(\"/nonexistent/path\")"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 68,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 69,
+              "content": "    def test_init_with_non_git_directory(self):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 70,
+              "content": "        \"\"\"Test GitRepository initialization with non-git directory.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 71,
+              "content": "        with tempfile.TemporaryDirectory() as temp_dir:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 72,
+              "content": "            with pytest.raises(GitOperationError, match=\"Not a git repository\"):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 73,
+              "content": "                GitRepository(temp_dir)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 74,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 75,
+              "content": "    def test_sanitize_args_valid(self, mock_git_repo):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 76,
+              "content": "        \"\"\"Test argument sanitization with valid arguments.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 77,
+              "content": "        repo = GitRepository(str(mock_git_repo))"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 78,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 79,
+              "content": "        valid_args = ['status', '--porcelain', 'filename.txt']"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 80,
+              "content": "        sanitized = repo._sanitize_args(valid_args)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 81,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 82,
+              "content": "        assert len(sanitized) == 3"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 83,
+              "content": "        assert all(isinstance(arg, str) for arg in sanitized)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 84,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 85,
+              "content": "    def test_sanitize_args_dangerous_characters(self, mock_git_repo):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 86,
+              "content": "        \"\"\"Test argument sanitization rejects dangerous characters.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 87,
+              "content": "        repo = GitRepository(str(mock_git_repo))"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 88,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 89,
+              "content": "        dangerous_args = ["
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 90,
+              "content": "            'status; rm -rf /',"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 91,
+              "content": "            'status | cat',"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 92,
+              "content": "            'status && echo hack',"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 93,
+              "content": "            'status `whoami`',"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 94,
+              "content": "            'status $(echo hack)',"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 95,
+              "content": "            'status > /tmp/hack'"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 96,
+              "content": "        ]"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 97,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 98,
+              "content": "        for arg in dangerous_args:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 99,
+              "content": "            with pytest.raises(GitOperationError, match=\"Dangerous characters detected\"):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 100,
+              "content": "                repo._sanitize_args([arg])"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 101,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 102,
+              "content": "    def test_sanitize_args_invalid_type(self, mock_git_repo):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 103,
+              "content": "        \"\"\"Test argument sanitization rejects invalid types.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 104,
+              "content": "        repo = GitRepository(str(mock_git_repo))"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 105,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 106,
+              "content": "        with pytest.raises(GitOperationError, match=\"Invalid argument type\"):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 107,
+              "content": "            repo._sanitize_args([123])"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 108,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 109,
+              "content": "    def test_is_safe_git_option(self, mock_git_repo):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 110,
+              "content": "        \"\"\"Test git option safety validation.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 111,
+              "content": "        repo = GitRepository(str(mock_git_repo))"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 112,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 113,
+              "content": "        # Test safe options"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 114,
+              "content": "        safe_options = ['--porcelain', '--short', '--no-color', '-s', '-b']"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 115,
+              "content": "        for option in safe_options:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 116,
+              "content": "            assert repo._is_safe_git_option(option)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 117,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 118,
+              "content": "        # Test unsafe options (should return False for unknown options)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 119,
+              "content": "        unsafe_options = ['--exec', '--upload-pack', '--receive-pack']"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 120,
+              "content": "        for option in unsafe_options:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 121,
+              "content": "            assert not repo._is_safe_git_option(option)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 122,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 123,
+              "content": "    def test_is_safe_file_path(self, mock_git_repo):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 124,
+              "content": "        \"\"\"Test file path safety validation.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 125,
+              "content": "        repo = GitRepository(str(mock_git_repo))"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 126,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 127,
+              "content": "        # Test safe paths"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 128,
+              "content": "        assert repo._is_safe_file_path('test.txt')"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 129,
+              "content": "        assert repo._is_safe_file_path('subdir/test.txt')"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 130,
+              "content": "        assert repo._is_safe_file_path('./test.txt')"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 131,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 132,
+              "content": "        # Test unsafe paths (path traversal attempts)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 133,
+              "content": "        assert not repo._is_safe_file_path('../../../etc/passwd')"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 134,
+              "content": "        assert not repo._is_safe_file_path('/etc/passwd')"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 135,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 136,
+              "content": "    @patch('subprocess.run')"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 137,
+              "content": "    def test_execute_git_command_success(self, mock_run, mock_git_repo):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 138,
+              "content": "        \"\"\"Test successful git command execution.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 139,
+              "content": "        repo = GitRepository(str(mock_git_repo))"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 140,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 141,
+              "content": "        # Mock successful subprocess.run"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 142,
+              "content": "        mock_result = MagicMock()"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 143,
+              "content": "        mock_result.stdout = 'test output'"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 144,
+              "content": "        mock_result.stderr = ''"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 145,
+              "content": "        mock_result.returncode = 0"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 146,
+              "content": "        mock_run.return_value = mock_result"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 147,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 148,
+              "content": "        stdout, stderr, code = repo._execute_git_command(['status'])"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 149,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 150,
+              "content": "        assert stdout == 'test output'"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 151,
+              "content": "        assert stderr == ''"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 152,
+              "content": "        assert code == 0"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 153,
+              "content": "        mock_run.assert_called_once()"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 154,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 155,
+              "content": "    @patch('subprocess.run')"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 156,
+              "content": "    def test_execute_git_command_timeout(self, mock_run, mock_git_repo):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 157,
+              "content": "        \"\"\"Test git command timeout handling.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 158,
+              "content": "        repo = GitRepository(str(mock_git_repo))"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 159,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 160,
+              "content": "        # Mock timeout"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 161,
+              "content": "        mock_run.side_effect = subprocess.TimeoutExpired(['git', 'status'], 30)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 162,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 163,
+              "content": "        with pytest.raises(GitOperationError, match=\"Git command timed out\"):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 164,
+              "content": "            repo._execute_git_command(['status'])"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 165,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 166,
+              "content": "    @patch('subprocess.run')"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 167,
+              "content": "    def test_execute_git_command_file_not_found(self, mock_run, mock_git_repo):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 168,
+              "content": "        \"\"\"Test git command when git executable not found.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 169,
+              "content": "        repo = GitRepository(str(mock_git_repo))"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 170,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 171,
+              "content": "        # Mock FileNotFoundError"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 172,
+              "content": "        mock_run.side_effect = FileNotFoundError()"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 173,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 174,
+              "content": "        with pytest.raises(GitOperationError, match=\"Git executable not found\"):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 175,
+              "content": "            repo._execute_git_command(['status'])"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 176,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 177,
+              "content": "    def test_get_status_real_repo(self, temp_git_repo):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 178,
+              "content": "        \"\"\"Test get_status with real git repository.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 179,
+              "content": "        repo = GitRepository(str(temp_git_repo))"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 180,
+              "content": "        status = repo.get_status()"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 181,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 182,
+              "content": "        assert isinstance(status, dict)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 183,
+              "content": "        assert 'git_available' in status"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 184,
+              "content": "        assert 'current_branch' in status"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 185,
+              "content": "        assert 'files_changed' in status"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 186,
+              "content": "        assert 'repository_path' in status"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 187,
+              "content": "        assert 'is_clean' in status"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 188,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 189,
+              "content": "        assert status['git_available'] is True"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 190,
+              "content": "        assert status['repository_path'] == str(temp_git_repo)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 191,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 192,
+              "content": "    @patch('difflicious.git_operations.GitRepository._execute_git_command')"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 193,
+              "content": "    def test_get_status_with_changes(self, mock_execute, mock_git_repo):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 194,
+              "content": "        \"\"\"Test get_status with file changes.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 195,
+              "content": "        repo = GitRepository(str(mock_git_repo))"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 196,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 197,
+              "content": "        # Mock git command responses"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 198,
+              "content": "        def mock_git_response(args):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 199,
+              "content": "            if 'branch' in args:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 200,
+              "content": "                return 'main', '', 0"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 201,
+              "content": "            elif 'status' in args:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 202,
+              "content": "                return 'M  test.txt\\n?? new.txt\\n', '', 0"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 203,
+              "content": "            return '', '', 1"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 204,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 205,
+              "content": "        mock_execute.side_effect = mock_git_response"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 206,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 207,
+              "content": "        status = repo.get_status()"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 208,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 209,
+              "content": "        assert status['git_available'] is True"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 210,
+              "content": "        assert status['current_branch'] == 'main'"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 211,
+              "content": "        assert status['files_changed'] == 2"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 212,
+              "content": "        assert status['is_clean'] is False"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 213,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 214,
+              "content": "    def test_get_diff_real_repo(self, temp_git_repo):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 215,
+              "content": "        \"\"\"Test get_diff with real git repository.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 216,
+              "content": "        repo = GitRepository(str(temp_git_repo))"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 217,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 218,
+              "content": "        # Make a change to create a diff"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 219,
+              "content": "        test_file = temp_git_repo / 'test.txt'"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 220,
+              "content": "        test_file.write_text('Modified content\\n')"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 221,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 222,
+              "content": "        diffs = repo.get_diff()"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 223,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 224,
+              "content": "        assert isinstance(diffs, list)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 225,
+              "content": "        # Note: might be empty if git diff format doesn't match our parsing"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 226,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 227,
+              "content": "    def test_parse_diff_output(self, mock_git_repo):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 228,
+              "content": "        \"\"\"Test diff output parsing.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 229,
+              "content": "        repo = GitRepository(str(mock_git_repo))"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 230,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 231,
+              "content": "        # Mock diff output in numstat format"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 232,
+              "content": "        diff_output = \"5\\t2\\ttest.txt\\n10\\t0\\tnew.txt\\n\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 233,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 234,
+              "content": "        diffs = repo._parse_diff_output(diff_output)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 235,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 236,
+              "content": "        assert len(diffs) == 2"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 237,
+              "content": "        assert diffs[0]['file'] == 'test.txt'"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 238,
+              "content": "        assert diffs[0]['additions'] == 5"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 239,
+              "content": "        assert diffs[0]['deletions'] == 2"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 240,
+              "content": "        assert diffs[1]['file'] == 'new.txt'"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 241,
+              "content": "        assert diffs[1]['additions'] == 10"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 242,
+              "content": "        assert diffs[1]['deletions'] == 0"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 243,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 244,
+              "content": "    def test_parse_diff_output_empty(self, mock_git_repo):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 245,
+              "content": "        \"\"\"Test diff output parsing with empty output.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 246,
+              "content": "        repo = GitRepository(str(mock_git_repo))"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 247,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 248,
+              "content": "        diffs = repo._parse_diff_output('')"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 249,
+              "content": "        assert diffs == []"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 250,
+              "content": "        "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 251,
+              "content": "        diffs = repo._parse_diff_output('\\n\\n')"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 252,
+              "content": "        assert diffs == []"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 253,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 254,
+              "content": ""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 255,
+              "content": "class TestGitRepositoryFactory:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 256,
+              "content": "    \"\"\"Test cases for git repository factory function.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 257,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 258,
+              "content": "    def test_get_git_repository_with_path(self, temp_git_repo):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 259,
+              "content": "        \"\"\"Test factory function with explicit path.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 260,
+              "content": "        repo = get_git_repository(str(temp_git_repo))"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 261,
+              "content": "        assert isinstance(repo, GitRepository)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 262,
+              "content": "        assert repo.repo_path == temp_git_repo"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 263,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 264,
+              "content": "    def test_get_git_repository_current_dir(self, temp_git_repo):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 265,
+              "content": "        \"\"\"Test factory function with current directory.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 266,
+              "content": "        old_cwd = os.getcwd()"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 267,
+              "content": "        try:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 268,
+              "content": "            os.chdir(temp_git_repo)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 269,
+              "content": "            repo = get_git_repository()"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 270,
+              "content": "            assert isinstance(repo, GitRepository)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 271,
+              "content": "            assert repo.repo_path.resolve() == temp_git_repo.resolve()"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 272,
+              "content": "        finally:"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 273,
+              "content": "            os.chdir(old_cwd)"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 274,
+              "content": "    "
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 275,
+              "content": "    def test_get_git_repository_invalid(self):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 276,
+              "content": "        \"\"\"Test factory function with invalid repository.\"\"\""
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 277,
+              "content": "        with pytest.raises(GitOperationError):"
+            },
+            {
+              "type": "addition",
+              "old_line_num": null,
+              "new_line_num": 278,
+              "content": "            get_git_repository(\"/nonexistent/path\")"
+            },
+            {
+              "type": "context",
+              "old_line_num": 0,
+              "new_line_num": 279,
+              "content": " No newline at end of file"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

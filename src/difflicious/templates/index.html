@@ -67,7 +67,7 @@
             <!-- File List -->
             <div x-show="!loading && diffs.length > 0" class="h-full overflow-y-auto">
                 <div class="p-4 space-y-4">
-                    <template x-for="diff in filteredDiffs" :key="diff.file">
+                    <template x-for="diff in filteredDiffs" :key="diff.path">
                         <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4">
                             <!-- File Header -->
                             <div 
@@ -80,7 +80,8 @@
                                         :class="diff.expanded ? 'rotate-90' : ''"
                                         x-text="'▶'"
                                     ></span>
-                                    <span class="font-mono text-sm text-gray-900" x-text="diff.file"></span>
+                                    <span class="font-mono text-sm text-gray-900" x-text="diff.path"></span>
+                                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded" x-text="diff.status"></span>
                                 </div>
                                 
                                 <div class="flex items-center space-x-2 text-xs">
@@ -91,26 +92,70 @@
                             
                             <!-- Expanded File Diff -->
                             <div x-show="diff.expanded" x-transition class="border-t border-gray-200">
-                                <div class="grid grid-cols-2">
-                                    <!-- Left Side (Before) -->
-                                    <div class="border-r border-gray-200 bg-red-50">
-                                        <div class="bg-red-100 px-4 py-2 text-sm font-medium text-red-800 border-b border-red-200">
-                                            Before
+                                <!-- Check if file has hunks -->
+                                <div x-show="!diff.hunks || diff.hunks.length === 0" class="p-8 text-center text-gray-500">
+                                    <div class="text-4xl mb-2">📄</div>
+                                    <p>No diff content available</p>
+                                    <p class="text-sm">(Binary file or no changes)</p>
+                                </div>
+                                
+                                <!-- Render hunks -->
+                                <div x-show="diff.hunks && diff.hunks.length > 0">
+                                    <template x-for="(hunk, hunkIndex) in diff.hunks" :key="hunkIndex">
+                                        <div class="border-b border-gray-100 last:border-b-0">
+                                            <!-- Hunk Header -->
+                                            <div x-show="hunk.section_header" class="bg-blue-50 px-4 py-2 text-xs font-mono text-blue-800 border-b border-blue-100">
+                                                <span x-text="'@@ -' + hunk.old_start + ',' + hunk.old_count + ' +' + hunk.new_start + ',' + hunk.new_count + ' @@'"></span>
+                                                <span x-show="hunk.section_header" x-text="' ' + hunk.section_header"></span>
+                                            </div>
+                                            
+                                            <!-- Hunk Lines -->
+                                            <div class="font-mono text-xs">
+                                                <template x-for="(line, lineIndex) in hunk.lines" :key="lineIndex">
+                                                    <div class="grid grid-cols-2 border-b border-gray-50 hover:bg-gray-25">
+                                                        <!-- Left Side (Before) -->
+                                                        <div class="border-r border-gray-200" 
+                                                             :class="{
+                                                                'bg-red-50': line.type === 'change' && line.left?.type === 'deletion',
+                                                                'bg-gray-25': line.type === 'context'
+                                                             }">
+                                                            <div class="flex">
+                                                                <!-- Line Number -->
+                                                                <div class="w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
+                                                                    <span x-show="line.left?.line_num" x-text="line.left?.line_num"></span>
+                                                                </div>
+                                                                <!-- Content -->
+                                                                <div class="flex-1 px-2 py-1 overflow-x-auto">
+                                                                    <span x-show="line.left?.type === 'deletion'" class="text-red-600">-</span>
+                                                                    <span x-show="line.type === 'context'" class="text-gray-400"> </span>
+                                                                    <span x-show="line.left?.content" x-text="line.left?.content"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <!-- Right Side (After) -->
+                                                        <div :class="{
+                                                                'bg-green-50': line.type === 'change' && line.right?.type === 'addition',
+                                                                'bg-gray-25': line.type === 'context'
+                                                             }">
+                                                            <div class="flex">
+                                                                <!-- Line Number -->
+                                                                <div class="w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
+                                                                    <span x-show="line.right?.line_num" x-text="line.right?.line_num"></span>
+                                                                </div>
+                                                                <!-- Content -->
+                                                                <div class="flex-1 px-2 py-1 overflow-x-auto">
+                                                                    <span x-show="line.right?.type === 'addition'" class="text-green-600">+</span>
+                                                                    <span x-show="line.type === 'context'" class="text-gray-400"> </span>
+                                                                    <span x-show="line.right?.content" x-text="line.right?.content"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
                                         </div>
-                                        <div class="p-4">
-                                            <pre class="text-xs font-mono text-gray-800" x-text="diff.content"></pre>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Right Side (After) -->
-                                    <div class="bg-green-50">
-                                        <div class="bg-green-100 px-4 py-2 text-sm font-medium text-green-800 border-b border-green-200">
-                                            After
-                                        </div>
-                                        <div class="p-4">
-                                            <pre class="text-xs font-mono text-gray-800" x-text="diff.content"></pre>
-                                        </div>
-                                    </div>
+                                    </template>
                                 </div>
                             </div>
                         </div>

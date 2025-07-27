@@ -5,12 +5,31 @@ from typing import Dict, Any
 import os
 import json
 import logging
+from pathlib import Path
 from difflicious.git_operations import get_git_repository, GitOperationError
+from difflicious.diff_parser import parse_git_diff_for_rendering, DiffParseError
 
-# Load dummy data
+# Load sample diff data for testing
+SAMPLE_DIFF_PATH = Path(__file__).parent.parent.parent / "tests" / "sample_01.diff"
+SAMPLE_DIFF_DATA = None
+
+# Load dummy status data
 DUMMY_DATA_PATH = os.path.join(os.path.dirname(__file__), 'dummy_data.json')
 with open(DUMMY_DATA_PATH, 'r') as f:
-    DUMMY_DATA = json.load(f)
+    DUMMY_STATUS_DATA = json.load(f)["status"]
+
+# Parse the sample diff file for realistic diff data
+if SAMPLE_DIFF_PATH.exists():
+    try:
+        sample_diff_content = SAMPLE_DIFF_PATH.read_text()
+        SAMPLE_DIFF_DATA = parse_git_diff_for_rendering(sample_diff_content)
+        print(f"✅ Loaded {len(SAMPLE_DIFF_DATA)} files from sample diff")
+    except Exception as e:
+        print(f"⚠️ Failed to load sample diff: {e}")
+        SAMPLE_DIFF_DATA = []
+else:
+    print(f"⚠️ Sample diff file not found: {SAMPLE_DIFF_PATH}")
+    SAMPLE_DIFF_DATA = []
 
 
 def create_app() -> Flask:
@@ -37,8 +56,12 @@ def create_app() -> Flask:
     @app.route('/api/status')
     def api_status() -> Dict[str, Any]:
         """API endpoint for git status information."""
-        # Return dummy data for demo purposes
-        return jsonify(DUMMY_DATA["status"])
+        # Return dummy status data for demo purposes
+        status_data = DUMMY_STATUS_DATA.copy()
+        # Update file count to match our sample diff data
+        if SAMPLE_DIFF_DATA:
+            status_data["files_changed"] = len(SAMPLE_DIFF_DATA)
+        return jsonify(status_data)
     
     @app.route('/api/diff')
     def api_diff() -> Dict[str, Any]:
@@ -47,12 +70,19 @@ def create_app() -> Flask:
         staged = request.args.get('staged', 'false').lower() == 'true'
         file_path = request.args.get('file')
         
-        # Return dummy data for demo purposes
+        # Use parsed sample diff data for demo purposes
+        diff_data = SAMPLE_DIFF_DATA if SAMPLE_DIFF_DATA else []
+        
+        # Filter by file if requested
+        if file_path:
+            diff_data = [f for f in diff_data if file_path in f.get('path', '')]
+        
         return jsonify({
             "status": "ok",
-            "diffs": DUMMY_DATA["diffs"],
+            "diffs": diff_data,
             "staged": staged,
-            "file_filter": file_path
+            "file_filter": file_path,
+            "total_files": len(diff_data)
         })
     
     return app

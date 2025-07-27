@@ -26,7 +26,7 @@ function diffApp() {
             if (this.searchFilter.trim()) {
                 const search = this.searchFilter.toLowerCase();
                 filtered = filtered.filter(diff => 
-                    diff.file.toLowerCase().includes(search)
+                    diff.path.toLowerCase().includes(search)
                 );
             }
             
@@ -105,31 +105,6 @@ function diffApp() {
             if (this.diffs[index]) {
                 this.diffs[index].expanded = !this.diffs[index].expanded;
             }
-        },
-        
-        // Format diff content for display
-        formatDiffContent(content) {
-            if (!content) return '';
-            
-            return content
-                .split('\n')
-                .map(line => {
-                    if (line.startsWith('+')) {
-                        return `<span class="diff-addition">${this.escapeHtml(line)}</span>`;
-                    } else if (line.startsWith('-')) {
-                        return `<span class="diff-deletion">${this.escapeHtml(line)}</span>`;
-                    } else {
-                        return `<span class="diff-context">${this.escapeHtml(line)}</span>`;
-                    }
-                })
-                .join('\n');
-        },
-        
-        // Escape HTML to prevent XSS
-        escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
         }
     };
 }

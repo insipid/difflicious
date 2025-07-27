@@ -1,0 +1,666 @@
+{
+  "total_files": 7,
+  "sample_file": {
+    "path": "b/CLAUDE.md",
+    "old_path": "a/CLAUDE.md",
+    "status": "modified",
+    "additions": 37,
+    "deletions": 30,
+    "changes": 67,
+    "hunks": [
+      {
+        "old_start": 45,
+        "old_count": 10,
+        "new_start": 45,
+        "new_count": 10,
+        "section_header": "uv add package-name",
+        "lines": [
+          {
+            "type": "context",
+            "left": {
+              "line_num": 45,
+              "content": "# Add development dependencies"
+            },
+            "right": {
+              "line_num": 45,
+              "content": "# Add development dependencies"
+            }
+          },
+          {
+            "type": "context",
+            "left": {
+              "line_num": 46,
+              "content": "uv add --dev pytest ruff black"
+            },
+            "right": {
+              "line_num": 46,
+              "content": "uv add --dev pytest ruff black"
+            }
+          },
+          {
+            "type": "context",
+            "left": {
+              "line_num": 47,
+              "content": ""
+            },
+            "right": {
+              "line_num": 47,
+              "content": ""
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 48,
+              "content": "# Run tests (when implemented)",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 48,
+              "content": "# Run tests (comprehensive test suite available)",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "context",
+            "left": {
+              "line_num": 49,
+              "content": "uv run pytest"
+            },
+            "right": {
+              "line_num": 49,
+              "content": "uv run pytest"
+            }
+          },
+          {
+            "type": "context",
+            "left": {
+              "line_num": 50,
+              "content": ""
+            },
+            "right": {
+              "line_num": 50,
+              "content": ""
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 51,
+              "content": "# Run linting/formatting (when implemented)",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 51,
+              "content": "# Run linting/formatting",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "context",
+            "left": {
+              "line_num": 52,
+              "content": "uv run ruff check"
+            },
+            "right": {
+              "line_num": 52,
+              "content": "uv run ruff check"
+            }
+          },
+          {
+            "type": "context",
+            "left": {
+              "line_num": 53,
+              "content": "uv run black ."
+            },
+            "right": {
+              "line_num": 53,
+              "content": "uv run black ."
+            }
+          },
+          {
+            "type": "context",
+            "left": {
+              "line_num": 54,
+              "content": ""
+            },
+            "right": {
+              "line_num": 54,
+              "content": ""
+            }
+          }
+        ]
+      },
+      {
+        "old_start": 60,
+        "old_count": 34,
+        "new_start": 60,
+        "new_count": 41,
+        "section_header": "uv build",
+        "lines": [
+          {
+            "type": "context",
+            "left": {
+              "line_num": 60,
+              "content": "- Multi-stage builds using uv for optimized container images"
+            },
+            "right": {
+              "line_num": 60,
+              "content": "- Multi-stage builds using uv for optimized container images"
+            }
+          },
+          {
+            "type": "context",
+            "left": {
+              "line_num": 61,
+              "content": "- Base images will use uv for dependency installation"
+            },
+            "right": {
+              "line_num": 61,
+              "content": "- Base images will use uv for dependency installation"
+            }
+          },
+          {
+            "type": "context",
+            "left": {
+              "line_num": 62,
+              "content": ""
+            },
+            "right": {
+              "line_num": 62,
+              "content": ""
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 63,
+              "content": "## Current Development Phase",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 63,
+              "content": "## Current Development Status",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 64,
+              "content": "",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 64,
+              "content": "",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 65,
+              "content": "**Phase 1 - Project Setup & Core Backend:**",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 65,
+              "content": "**Phase 1 - Project Setup & Core Backend (COMPLETED):**",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 66,
+              "content": "1. Set up modern Python project structure with pyproject.toml and uv",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 66,
+              "content": "1. \u2705 Set up modern Python project structure with pyproject.toml and uv",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 67,
+              "content": "2. Create Flask backend with proper uv-based packaging",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 67,
+              "content": "2. \u2705 Create Flask backend with proper uv-based packaging",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 68,
+              "content": "3. Implement git command execution wrapper with security",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 68,
+              "content": "3. \u2705 Implement git command execution wrapper with security",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 69,
+              "content": "4. Create basic HTML template with Alpine.js integration",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 69,
+              "content": "4. \u2705 Create basic HTML template with Alpine.js integration",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 70,
+              "content": "5. Build JSON API endpoints for git status and diff data",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 70,
+              "content": "5. \u2705 Build JSON API endpoints for git status and diff data",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 71,
+              "content": "6. Create Dockerfile using uv for containerized deployment",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 71,
+              "content": "6. \ud83d\udea7 Create Dockerfile using uv for containerized deployment",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 72,
+              "content": "",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 72,
+              "content": "",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 73,
+              "content": "**Key Implementation Areas:**",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 73,
+              "content": "**Implementation Completed:**",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 74,
+              "content": "- Git command wrapper: Must use proper subprocess sanitization",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 74,
+              "content": "- \u2705 Git command wrapper: Secure subprocess sanitization with comprehensive security validation",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 75,
+              "content": "- Flask backend: Minimal setup, focus on git integration",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 75,
+              "content": "- \u2705 Flask backend: Complete API with `/api/status` and `/api/diff` endpoints",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 76,
+              "content": "- Frontend: Alpine.js for lightweight declarative UI",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 76,
+              "content": "- \u2705 Frontend: Alpine.js reactive interface with search, filtering, and diff visualization",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 77,
+              "content": "- Security: All git commands must be properly sanitized",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 77,
+              "content": "- \u2705 Security: All git commands properly sanitized, injection prevention, path validation",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 78,
+              "content": "",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 78,
+              "content": "- \u2705 Testing: 28 tests with 73% coverage including security and functionality tests",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 79,
+              "content": "## Core Features to Implement",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 79,
+              "content": "",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 80,
+              "content": "",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 80,
+              "content": "## Core Features Status",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 81,
+              "content": "- **Diff Visualization**: Custom syntax-highlighted diff display",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 81,
+              "content": "",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 82,
+              "content": "- **Interactive Controls**: Toggle visibility, search/filter capabilities",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 82,
+              "content": "- \u2705 **Diff Visualization**: Complete with API integration and frontend display",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 83,
+              "content": "- **Real-time Updates**: Live monitoring of git status and file changes",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 83,
+              "content": "- \u2705 **Interactive Controls**: Toggle visibility, search/filter capabilities implemented",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 84,
+              "content": "- **Command-line Interface**: Tool runs locally, starts web server",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 84,
+              "content": "- \u2705 **Git Integration**: Live git status and diff data from real repositories",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 85,
+              "content": "",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 85,
+              "content": "- \u2705 **Command-line Interface**: Full CLI with host, port, debug options",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 86,
+              "content": "## Security Requirements",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 86,
+              "content": "- \ud83d\udea7 **Enhanced Syntax Highlighting**: Future improvement for diff content",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 87,
+              "content": "",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 87,
+              "content": "- \ud83d\udea7 **Real-time Updates**: Server-Sent Events implementation planned",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 88,
+              "content": "- All git command execution must use proper subprocess sanitization",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 88,
+              "content": "",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 89,
+              "content": "- No exposure of sensitive git repository information",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 89,
+              "content": "## Security Requirements (IMPLEMENTED)",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": 90,
+              "content": "- Local-only operation (no external network calls for core functionality)",
+              "type": "deletion"
+            },
+            "right": {
+              "line_num": 90,
+              "content": "",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": null,
+              "content": "",
+              "type": "empty"
+            },
+            "right": {
+              "line_num": 91,
+              "content": "- \u2705 All git command execution uses proper subprocess sanitization",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": null,
+              "content": "",
+              "type": "empty"
+            },
+            "right": {
+              "line_num": 92,
+              "content": "- \u2705 Command injection prevention with argument validation and character filtering",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": null,
+              "content": "",
+              "type": "empty"
+            },
+            "right": {
+              "line_num": 93,
+              "content": "- \u2705 Safe git option validation with whitelist-based approach",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": null,
+              "content": "",
+              "type": "empty"
+            },
+            "right": {
+              "line_num": 94,
+              "content": "- \u2705 File path validation to prevent directory traversal attacks",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": null,
+              "content": "",
+              "type": "empty"
+            },
+            "right": {
+              "line_num": 95,
+              "content": "- \u2705 Timeout protection for git commands to prevent resource exhaustion",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": null,
+              "content": "",
+              "type": "empty"
+            },
+            "right": {
+              "line_num": 96,
+              "content": "- \u2705 No exposure of sensitive git repository information",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "change",
+            "left": {
+              "line_num": null,
+              "content": "",
+              "type": "empty"
+            },
+            "right": {
+              "line_num": 97,
+              "content": "- \u2705 Local-only operation (no external network calls for core functionality)",
+              "type": "addition"
+            }
+          },
+          {
+            "type": "context",
+            "left": {
+              "line_num": 91,
+              "content": ""
+            },
+            "right": {
+              "line_num": 98,
+              "content": ""
+            }
+          },
+          {
+            "type": "context",
+            "left": {
+              "line_num": 92,
+              "content": "## Code Quality Requirements"
+            },
+            "right": {
+              "line_num": 99,
+              "content": "## Code Quality Requirements"
+            }
+          },
+          {
+            "type": "context",
+            "left": {
+              "line_num": 93,
+              "content": ""
+            },
+            "right": {
+              "line_num": 100,
+              "content": ""
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
