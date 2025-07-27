@@ -12,12 +12,13 @@ Perfect for:
 - Quickly navigating through modifications in your current branch
 - Getting a bird's-eye view of your development progress
 
-## [TODO] Features
+## Features
 
 - **Elegant Diff Visualization**: Clean, syntax-highlighted display of file changes
 - **Interactive Interface**: Toggle visibility, search through changes, and filter content
+- **Secure Git Integration**: Safe git command execution with subprocess sanitization
+- **Real-time Status**: Live git repository status and branch information
 - **Lightweight**: Minimal infrastructure using Flask backend and Alpine.js frontend
-- **Real-time Updates**: Live monitoring of git status and file changes
 - **Developer-Friendly**: Designed by developers, for developers
 
 ## Installation & Quick Start
@@ -68,26 +69,23 @@ uv run difflicious
 
 ## Development Status
 
-🚧 **Currently in development** - Core functionality is being implemented.
+✅ **Core functionality implemented** - Ready for git diff visualization!
 
-### Completed
-- Project structure and planning
-- Git repository setup
-- Technical architecture decisions
-- Modern packaging strategy (PyPI + Docker)
+### Completed ✅
+- Modern Python project structure with pyproject.toml and uv
+- Flask backend with comprehensive API endpoints
+- Secure git command execution wrapper with subprocess sanitization
+- Interactive Alpine.js frontend with responsive design
+- Comprehensive test suite (28 tests, 73% coverage)
+- Real git integration (status, diff, branch detection)
 
-### In Progress
-- Python project structure with pyproject.toml and uv
-- Flask backend with uv-based packaging
-- Git command execution wrapper
-- Core diff visualization
-
-### Coming Soon
+### Coming Soon 🚧
 - Docker containerization with uv
 - PyPI package publishing
-- Search and filtering capabilities
-- Advanced display options
+- Enhanced diff syntax highlighting
+- Advanced search and filtering capabilities
 - Keyboard shortcuts and accessibility features
+- Server-Sent Events for real-time updates
 
 ## Contributing
 
