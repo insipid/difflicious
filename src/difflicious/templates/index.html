@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Difflicious - Git Diff Visualization</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body>
+    <div id="app" x-data="diffApp()" x-init="init()">
+        <header class="header">
+            <div class="container">
+                <h1 class="logo">
+                    <span class="logo-text">Difflicious</span>
+                    <span class="logo-subtitle">Git Diff Visualization</span>
+                </h1>
+                
+                <div class="status-bar">
+                    <div class="status-item" x-show="gitStatus.current_branch">
+                        <span class="status-label">Branch:</span>
+                        <span class="status-value" x-text="gitStatus.current_branch"></span>
+                    </div>
+                    <div class="status-item" x-show="gitStatus.files_changed !== undefined">
+                        <span class="status-label">Files Changed:</span>
+                        <span class="status-value" x-text="gitStatus.files_changed"></span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main">
+            <div class="container">
+                <!-- Controls Panel -->
+                <div class="controls">
+                    <div class="control-group">
+                        <label class="control-label">
+                            <input type="checkbox" x-model="showOnlyChanged">
+                            Show only changed files
+                        </label>
+                    </div>
+                    
+                    <div class="control-group">
+                        <input 
+                            type="text" 
+                            x-model="searchFilter" 
+                            placeholder="Search files..."
+                            class="search-input"
+                        >
+                    </div>
+                    
+                    <div class="control-group">
+                        <button @click="refreshData()" class="btn btn-primary">
+                            <span x-show="!loading">🔄 Refresh</span>
+                            <span x-show="loading">⏳ Loading...</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Diff Display Area -->
+                <div class="diff-container">
+                    <div x-show="loading" class="loading-state">
+                        <p>Loading git diff data...</p>
+                    </div>
+                    
+                    <div x-show="!loading && diffs.length === 0" class="empty-state">
+                        <h2>🎉 No changes detected</h2>
+                        <p>Your working directory is clean, or git diff data is not available yet.</p>
+                        <p><em>Note: Git operations are not yet implemented in this development version.</em></p>
+                    </div>
+                    
+                    <div x-show="!loading && diffs.length > 0" class="diff-list">
+                        <template x-for="diff in filteredDiffs" :key="diff.file">
+                            <div class="diff-file">
+                                <div class="diff-file-header" @click="diff.expanded = !diff.expanded">
+                                    <span class="diff-file-name" x-text="diff.file"></span>
+                                    <span class="diff-file-stats">
+                                        <span class="additions" x-text="'+' + diff.additions"></span>
+                                        <span class="deletions" x-text="'-' + diff.deletions"></span>
+                                    </span>
+                                    <span class="expand-icon" x-text="diff.expanded ? '▼' : '▶'"></span>
+                                </div>
+                                
+                                <div x-show="diff.expanded" class="diff-content">
+                                    <pre class="diff-code" x-html="diff.content"></pre>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

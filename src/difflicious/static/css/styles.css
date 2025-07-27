@@ -1,0 +1,298 @@
+/* Difflicious - Git Diff Visualization Styles */
+
+:root {
+    --color-primary: #2563eb;
+    --color-primary-hover: #1d4ed8;
+    --color-success: #059669;
+    --color-danger: #dc2626;
+    --color-warning: #d97706;
+    --color-bg: #ffffff;
+    --color-bg-secondary: #f8fafc;
+    --color-bg-tertiary: #f1f5f9;
+    --color-text: #1e293b;
+    --color-text-secondary: #64748b;
+    --color-border: #e2e8f0;
+    --color-border-hover: #cbd5e1;
+    
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+    
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    
+    --border-radius: 0.5rem;
+    --border-radius-sm: 0.25rem;
+    --box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-family);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+}
+
+/* Header */
+.header {
+    background-color: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--spacing-md) 0;
+}
+
+.header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    margin: 0;
+}
+
+.logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.logo-subtitle {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    font-weight: 400;
+    margin-left: var(--spacing-sm);
+}
+
+.status-bar {
+    display: flex;
+    gap: var(--spacing-lg);
+}
+
+.status-item {
+    display: flex;
+    gap: var(--spacing-xs);
+    align-items: center;
+}
+
+.status-label {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+
+.status-value {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text);
+    font-family: var(--font-family-mono);
+}
+
+/* Main Content */
+.main {
+    padding: var(--spacing-xl) 0;
+}
+
+/* Controls */
+.controls {
+    display: flex;
+    gap: var(--spacing-lg);
+    align-items: center;
+    padding: var(--spacing-md);
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-lg);
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.control-label {
+    font-size: 0.875rem;
+    color: var(--color-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.search-input {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-sm);
+    font-size: 0.875rem;
+    min-width: 200px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+}
+
+.btn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.875rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-hover);
+}
+
+/* Diff Container */
+.diff-container {
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    background-color: var(--color-bg);
+    overflow: hidden;
+}
+
+.loading-state,
+.empty-state {
+    padding: var(--spacing-xl);
+    text-align: center;
+    color: var(--color-text-secondary);
+}
+
+.empty-state h2 {
+    margin: 0 0 var(--spacing-md) 0;
+    font-size: 1.25rem;
+    color: var(--color-text);
+}
+
+.empty-state p {
+    margin: var(--spacing-sm) 0;
+}
+
+/* Diff Files */
+.diff-file {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.diff-file:last-child {
+    border-bottom: none;
+}
+
+.diff-file-header {
+    padding: var(--spacing-md);
+    background-color: var(--color-bg-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background-color 0.2s;
+}
+
+.diff-file-header:hover {
+    background-color: var(--color-bg-tertiary);
+}
+
+.diff-file-name {
+    font-family: var(--font-family-mono);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.diff-file-stats {
+    display: flex;
+    gap: var(--spacing-sm);
+    font-family: var(--font-family-mono);
+    font-size: 0.75rem;
+}
+
+.additions {
+    color: var(--color-success);
+    font-weight: 600;
+}
+
+.deletions {
+    color: var(--color-danger);
+    font-weight: 600;
+}
+
+.expand-icon {
+    color: var(--color-text-secondary);
+    font-size: 0.75rem;
+    width: 1rem;
+    text-align: center;
+}
+
+.diff-content {
+    border-top: 1px solid var(--color-border);
+}
+
+.diff-code {
+    margin: 0;
+    padding: var(--spacing-md);
+    font-family: var(--font-family-mono);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    background-color: var(--color-bg);
+    overflow-x: auto;
+    white-space: pre;
+}
+
+/* Diff syntax highlighting */
+.diff-addition {
+    background-color: #dcfce7;
+    color: var(--color-success);
+}
+
+.diff-deletion {
+    background-color: #fef2f2;
+    color: var(--color-danger);
+}
+
+.diff-context {
+    color: var(--color-text-secondary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header .container {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: flex-start;
+    }
+    
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .control-group {
+        justify-content: space-between;
+    }
+    
+    .search-input {
+        min-width: auto;
+        flex: 1;
+    }
+}

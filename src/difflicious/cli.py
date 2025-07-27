@@ -2,6 +2,7 @@
 
 import click
 from difflicious import __version__
+from difflicious.app import run_server
 
 
 @click.command()
@@ -16,14 +17,23 @@ from difflicious import __version__
     default="127.0.0.1",
     help="Host to bind the web server to (default: 127.0.0.1)",
 )
-def main(port: int, host: str) -> None:
+@click.option(
+    "--debug",
+    is_flag=True,
+    help="Run in debug mode with auto-reload",
+)
+def main(port: int, host: str, debug: bool) -> None:
     """Start the Difflicious web application for git diff visualization."""
     click.echo(f"Starting Difflicious v{__version__}")
     click.echo(f"Server will run at http://{host}:{port}")
     
-    # TODO: Import and start Flask app when implemented
-    click.echo("🚧 Flask backend not yet implemented - coming soon!")
-    click.echo("Check the development progress at: https://github.com/insipid/difflicious")
+    if debug:
+        click.echo("🔧 Debug mode enabled - server will auto-reload on changes")
+    
+    try:
+        run_server(host=host, port=port, debug=debug)
+    except KeyboardInterrupt:
+        click.echo("\n👋 Shutting down Difflicious server")
 
 
 if __name__ == "__main__":
