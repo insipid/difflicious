@@ -3,8 +3,14 @@
 from flask import Flask, render_template, jsonify, request
 from typing import Dict, Any
 import os
+import json
 import logging
 from difflicious.git_operations import get_git_repository, GitOperationError
+
+# Load dummy data
+DUMMY_DATA_PATH = os.path.join(os.path.dirname(__file__), 'dummy_data.json')
+with open(DUMMY_DATA_PATH, 'r') as f:
+    DUMMY_DATA = json.load(f)
 
 
 def create_app() -> Flask:
@@ -31,68 +37,23 @@ def create_app() -> Flask:
     @app.route('/api/status')
     def api_status() -> Dict[str, Any]:
         """API endpoint for git status information."""
-        try:
-            # Get git repository (defaults to current working directory)
-            repo = get_git_repository()
-            status_info = repo.get_status()
-            
-            return jsonify({
-                "status": "ok",
-                **status_info
-            })
-            
-        except GitOperationError as e:
-            logger.error(f"Git status error: {e}")
-            return jsonify({
-                "status": "error",
-                "message": str(e),
-                "git_available": False,
-                "current_branch": "error",
-                "files_changed": 0
-            }), 500
-        except Exception as e:
-            logger.error(f"Unexpected error in git status: {e}")
-            return jsonify({
-                "status": "error", 
-                "message": "Internal server error",
-                "git_available": False,
-                "current_branch": "error",
-                "files_changed": 0
-            }), 500
+        # Return dummy data for demo purposes
+        return jsonify(DUMMY_DATA["status"])
     
     @app.route('/api/diff')
     def api_diff() -> Dict[str, Any]:
         """API endpoint for git diff information."""
-        try:
-            # Get optional query parameters
-            staged = request.args.get('staged', 'false').lower() == 'true'
-            file_path = request.args.get('file')
-            
-            # Get git repository
-            repo = get_git_repository()
-            diffs = repo.get_diff(staged=staged, file_path=file_path)
-            
-            return jsonify({
-                "status": "ok",
-                "diffs": diffs,
-                "staged": staged,
-                "file_filter": file_path
-            })
-            
-        except GitOperationError as e:
-            logger.error(f"Git diff error: {e}")
-            return jsonify({
-                "status": "error",
-                "message": str(e),
-                "diffs": []
-            }), 500
-        except Exception as e:
-            logger.error(f"Unexpected error in git diff: {e}")
-            return jsonify({
-                "status": "error",
-                "message": "Internal server error", 
-                "diffs": []
-            }), 500
+        # Get optional query parameters for future use
+        staged = request.args.get('staged', 'false').lower() == 'true'
+        file_path = request.args.get('file')
+        
+        # Return dummy data for demo purposes
+        return jsonify({
+            "status": "ok",
+            "diffs": DUMMY_DATA["diffs"],
+            "staged": staged,
+            "file_filter": file_path
+        })
     
     return app
 

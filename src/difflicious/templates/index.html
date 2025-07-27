@@ -4,89 +4,117 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Difflicious - Git Diff Visualization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body>
-    <div id="app" x-data="diffApp()" x-init="init()">
-        <header class="header">
-            <div class="container">
-                <h1 class="logo">
-                    <span class="logo-text">Difflicious</span>
-                    <span class="logo-subtitle">Git Diff Visualization</span>
-                </h1>
+<body class="bg-gray-50 min-h-screen">
+    <div id="app" x-data="diffApp()" x-init="init()" class="flex flex-col min-h-screen">
+        <!-- Toolbar -->
+        <header class="bg-white border-b border-gray-200 px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-xl font-semibold text-gray-900">Difflicious</h1>
+                    
+                    <!-- Branch Selection Dropdown -->
+                    <div class="relative">
+                        <select class="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option x-text="gitStatus.current_branch || 'Select branch'"></option>
+                        </select>
+                    </div>
+                </div>
                 
-                <div class="status-bar">
-                    <div class="status-item" x-show="gitStatus.current_branch">
-                        <span class="status-label">Branch:</span>
-                        <span class="status-value" x-text="gitStatus.current_branch"></span>
+                <!-- Status and Controls -->
+                <div class="flex items-center space-x-4">
+                    <div class="text-sm text-gray-600" x-show="gitStatus.files_changed !== undefined">
+                        <span x-text="gitStatus.files_changed"></span> files changed
                     </div>
-                    <div class="status-item" x-show="gitStatus.files_changed !== undefined">
-                        <span class="status-label">Files Changed:</span>
-                        <span class="status-value" x-text="gitStatus.files_changed"></span>
-                    </div>
+                    
+                    <input 
+                        type="text" 
+                        x-model="searchFilter" 
+                        placeholder="Search files..."
+                        class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                    
+                    <button @click="refreshData()" class="bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <span x-show="!loading">Refresh</span>
+                        <span x-show="loading">Loading...</span>
+                    </button>
                 </div>
             </div>
         </header>
 
-        <main class="main">
-            <div class="container">
-                <!-- Controls Panel -->
-                <div class="controls">
-                    <div class="control-group">
-                        <label class="control-label">
-                            <input type="checkbox" x-model="showOnlyChanged">
-                            Show only changed files
-                        </label>
-                    </div>
-                    
-                    <div class="control-group">
-                        <input 
-                            type="text" 
-                            x-model="searchFilter" 
-                            placeholder="Search files..."
-                            class="search-input"
-                        >
-                    </div>
-                    
-                    <div class="control-group">
-                        <button @click="refreshData()" class="btn btn-primary">
-                            <span x-show="!loading">🔄 Refresh</span>
-                            <span x-show="loading">⏳ Loading...</span>
-                        </button>
-                    </div>
+        <!-- Main Content -->
+        <main class="flex-1 overflow-hidden">
+            <!-- Loading State -->
+            <div x-show="loading" class="flex items-center justify-center h-full">
+                <div class="text-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p class="mt-2 text-gray-600">Loading git diff data...</p>
                 </div>
-
-                <!-- Diff Display Area -->
-                <div class="diff-container">
-                    <div x-show="loading" class="loading-state">
-                        <p>Loading git diff data...</p>
-                    </div>
-                    
-                    <div x-show="!loading && diffs.length === 0" class="empty-state">
-                        <h2>🎉 No changes detected</h2>
-                        <p>Your working directory is clean, or git diff data is not available yet.</p>
-                        <p><em>Note: Git operations are not yet implemented in this development version.</em></p>
-                    </div>
-                    
-                    <div x-show="!loading && diffs.length > 0" class="diff-list">
-                        <template x-for="diff in filteredDiffs" :key="diff.file">
-                            <div class="diff-file">
-                                <div class="diff-file-header" @click="diff.expanded = !diff.expanded">
-                                    <span class="diff-file-name" x-text="diff.file"></span>
-                                    <span class="diff-file-stats">
-                                        <span class="additions" x-text="'+' + diff.additions"></span>
-                                        <span class="deletions" x-text="'-' + diff.deletions"></span>
-                                    </span>
-                                    <span class="expand-icon" x-text="diff.expanded ? '▼' : '▶'"></span>
+            </div>
+            
+            <!-- Empty State -->
+            <div x-show="!loading && diffs.length === 0" class="flex items-center justify-center h-full">
+                <div class="text-center">
+                    <div class="text-6xl mb-4">🎉</div>
+                    <h2 class="text-xl font-semibold text-gray-900 mb-2">No changes detected</h2>
+                    <p class="text-gray-600">Your working directory is clean, or git diff data is not available yet.</p>
+                </div>
+            </div>
+            
+            <!-- File List -->
+            <div x-show="!loading && diffs.length > 0" class="h-full overflow-y-auto">
+                <div class="p-4 space-y-4">
+                    <template x-for="diff in filteredDiffs" :key="diff.file">
+                        <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4">
+                            <!-- File Header -->
+                            <div 
+                                @click="diff.expanded = !diff.expanded" 
+                                class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                            >
+                                <div class="flex items-center space-x-3">
+                                    <span 
+                                        class="text-gray-400 transition-transform duration-200"
+                                        :class="diff.expanded ? 'rotate-90' : ''"
+                                        x-text="'▶'"
+                                    ></span>
+                                    <span class="font-mono text-sm text-gray-900" x-text="diff.file"></span>
                                 </div>
                                 
-                                <div x-show="diff.expanded" class="diff-content">
-                                    <pre class="diff-code" x-html="diff.content"></pre>
+                                <div class="flex items-center space-x-2 text-xs">
+                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded" x-text="'+' + diff.additions"></span>
+                                    <span class="bg-red-100 text-red-800 px-2 py-1 rounded" x-text="'-' + diff.deletions"></span>
                                 </div>
                             </div>
-                        </template>
-                    </div>
+                            
+                            <!-- Expanded File Diff -->
+                            <div x-show="diff.expanded" x-transition class="border-t border-gray-200">
+                                <div class="grid grid-cols-2">
+                                    <!-- Left Side (Before) -->
+                                    <div class="border-r border-gray-200 bg-red-50">
+                                        <div class="bg-red-100 px-4 py-2 text-sm font-medium text-red-800 border-b border-red-200">
+                                            Before
+                                        </div>
+                                        <div class="p-4">
+                                            <pre class="text-xs font-mono text-gray-800" x-text="diff.content"></pre>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Right Side (After) -->
+                                    <div class="bg-green-50">
+                                        <div class="bg-green-100 px-4 py-2 text-sm font-medium text-green-800 border-b border-green-200">
+                                            After
+                                        </div>
+                                        <div class="p-4">
+                                            <pre class="text-xs font-mono text-gray-800" x-text="diff.content"></pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
                 </div>
             </div>
         </main>
