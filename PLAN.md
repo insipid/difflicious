@@ -22,6 +22,18 @@ A lightweight local web application for developers to visualize git diffs with a
 **Styling:** Modern CSS Grid/Flexbox without frameworks
 **Security:** Proper subprocess sanitization for git commands
 
+### Deployment Strategy
+**Primary Distribution:** 
+1. **PyPI Package** - Modern Python packaging with pip install
+2. **Docker Image** - Containerized deployment for consistency
+3. **Source Installation** - Git clone as fallback option
+
+**Packaging Tools:**
+- `pyproject.toml` for modern Python packaging standards
+- `setuptools` or `poetry` for dependency management
+- Multi-stage Docker builds for optimized images
+- GitHub Actions for automated builds and releases
+
 ### Key Features Implementation
 - **Diff visualization:** Custom implementation with syntax highlighting
 - **File monitoring:** Watch git status and file changes
@@ -32,15 +44,17 @@ A lightweight local web application for developers to visualize git diffs with a
 ## Development Plan
 
 ### Phase 1: Project Setup & Core Backend ✅
-1. ⏳ Set up basic project structure with Flask backend
-2. ⏸️ Implement git command execution wrapper with security
-3. ⏸️ Create basic HTML template with Alpine.js integration
-4. ⏸️ Build JSON API endpoints for git status and diff data
+1. ⏳ Set up modern Python project structure with pyproject.toml
+2. ⏸️ Create Flask backend with proper packaging
+3. ⏸️ Implement git command execution wrapper with security
+4. ⏸️ Create basic HTML template with Alpine.js integration
+5. ⏸️ Build JSON API endpoints for git status and diff data
+6. ⏸️ Create Dockerfile for containerized deployment
 
 ### Phase 2: Git Operations & Data Layer
-5. ⏸️ Implement diff visualization with syntax highlighting
-6. ⏸️ Add search and filtering functionality
-7. ⏸️ Add toggle controls for visibility options
+7. ⏸️ Implement diff visualization with syntax highlighting
+8. ⏸️ Add search and filtering functionality
+9. ⏸️ Add toggle controls for visibility options
 
 ### Phase 3: Enhanced Features (Future)
 - Add real-time updates using Server-Sent Events
