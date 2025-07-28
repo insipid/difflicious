@@ -146,6 +146,9 @@ function diffApp() {
         get visibleGroups() {
             const groups = [];
             
+            // Special case: if only staged changes are displayed, show files without grouping
+            const showingStagedOnly = !this.unstaged && !this.untracked;
+            
             // Add groups that have content (headers always show, but content may be hidden)
             if (this.groups.untracked.count > 0) {
                 groups.push({
@@ -153,7 +156,8 @@ function diffApp() {
                     title: 'Untracked',
                     files: this.filterFiles(this.groups.untracked.files),
                     visible: this.groups.untracked.visible,
-                    count: this.groups.untracked.count
+                    count: this.groups.untracked.count,
+                    hideGroupHeader: false
                 });
             }
             
@@ -163,7 +167,8 @@ function diffApp() {
                     title: 'Unstaged',
                     files: this.filterFiles(this.groups.unstaged.files),
                     visible: this.groups.unstaged.visible,
-                    count: this.groups.unstaged.count
+                    count: this.groups.unstaged.count,
+                    hideGroupHeader: false
                 });
             }
             
@@ -173,7 +178,8 @@ function diffApp() {
                     title: 'Staged', 
                     files: this.filterFiles(this.groups.staged.files),
                     visible: this.groups.staged.visible,
-                    count: this.groups.staged.count
+                    count: this.groups.staged.count,
+                    hideGroupHeader: showingStagedOnly
                 });
             }
             
@@ -459,7 +465,6 @@ function diffApp() {
         
         // Navigate to previous file
         navigateToPreviousFile(groupKey, fileIndex) {
-            const allFiles = this.getAllVisibleFiles();
             const currentGlobalIndex = this.getGlobalFileIndex(groupKey, fileIndex);
             
             if (currentGlobalIndex > 0) {
@@ -473,10 +478,10 @@ function diffApp() {
         
         // Navigate to next file
         navigateToNextFile(groupKey, fileIndex) {
-            const allFiles = this.getAllVisibleFiles();
+            const totalFiles = this.getTotalVisibleFiles();
             const currentGlobalIndex = this.getGlobalFileIndex(groupKey, fileIndex);
             
-            if (currentGlobalIndex < allFiles.length - 1) {
+            if (currentGlobalIndex < totalFiles - 1) {
                 const nextFileId = `file-${currentGlobalIndex + 1}`;
                 document.getElementById(nextFileId)?.scrollIntoView({ 
                     behavior: 'smooth', 
@@ -485,7 +490,18 @@ function diffApp() {
             }
         },
         
-        // Get global index of a file across all groups (for navigation - only visible groups)
+        // Get total count of visible files across all visible groups
+        getTotalVisibleFiles() {
+            let total = 0;
+            for (const group of this.visibleGroups) {
+                if (group.visible) {
+                    total += group.files.length;
+                }
+            }
+            return total;
+        },
+        
+        // Get global index of a file across all groups (for navigation)
         getGlobalFileIndex(targetGroupKey, targetFileIndex) {
             let globalIndex = 0;
             
@@ -501,18 +517,9 @@ function diffApp() {
             return -1;
         },
         
-        // Get unique file ID across all groups (for DOM IDs - includes all groups)
+        // Get unique file ID for DOM (same as global index for consistency)
         getFileId(targetGroupKey, targetFileIndex) {
-            let fileId = 0;
-            
-            for (const group of this.visibleGroups) {
-                if (group.key === targetGroupKey) {
-                    return fileId + targetFileIndex;
-                }
-                fileId += group.files.length;
-            }
-            
-            return fileId;
+            return this.getGlobalFileIndex(targetGroupKey, targetFileIndex);
         }
     };
 }

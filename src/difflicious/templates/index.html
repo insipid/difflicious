@@ -135,8 +135,9 @@
                     <!-- Groups -->
                     <template x-for="group in visibleGroups" :key="group.key">
                         <div class="space-y-2">
-                            <!-- Group Header -->
-                            <div @click="toggleGroupVisibility(group.key)"
+                            <!-- Group Header (hidden when showing staged only) -->
+                            <div x-show="!group.hideGroupHeader" 
+                                 @click="toggleGroupVisibility(group.key)"
                                  class="flex items-center space-x-3 px-2 py-2 cursor-pointer hover:bg-gray-50 transition-colors rounded">
                                 <span class="text-gray-400 transition-transform duration-200"
                                       :class="group.visible ? 'rotate-90' : ''" x-text="'▶'"></span>
@@ -145,8 +146,9 @@
                                       x-text="group.count + ' files'"></span>
                             </div>
 
-                            <!-- Group Files -->
-                            <div x-show="group.visible" x-transition class="space-y-4 ml-4">
+                            <!-- Group Files (no left margin when header is hidden) -->
+                            <div x-show="group.visible" x-transition 
+                                 :class="group.hideGroupHeader ? 'space-y-4' : 'space-y-4 ml-4'">
                                 <template x-for="(file, fileIndex) in group.files" :key="file.path">
                                     <div class="bg-white border border-gray-200 rounded-lg shadow-sm">
                                         <!-- File Header -->
@@ -170,7 +172,7 @@
                                                             title="Previous file">
                                                         <span class="text-sm">↑</span>
                                                     </button>
-                                                    <button x-show="getGlobalFileIndex(group.key, fileIndex) < totalVisibleFiles - 1" 
+                                                    <button x-show="getGlobalFileIndex(group.key, fileIndex) < getTotalVisibleFiles() - 1" 
                                                             @click="navigateToNextFile(group.key, fileIndex)"
                                                             class="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
                                                             title="Next file">
