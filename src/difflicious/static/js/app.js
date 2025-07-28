@@ -111,7 +111,7 @@ function diffApp() {
             // Filter by changed files only
             if (this.showOnlyChanged) {
                 filtered = filtered.filter(file => 
-                    file.additions > 0 || file.deletions > 0 || file.status === 'untracked'
+                    file.additions > 0 || file.deletions > 0 || file.status === 'untracked' || file.status === 'staged'
                 );
             }
             
