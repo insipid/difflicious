@@ -50,6 +50,76 @@ function diffApp() {
             return this.filteredDiffs.length > 0 && this.filteredDiffs.every(diff => !diff.expanded);
         },
         
+        // Detect language from file extension
+        detectLanguage(filePath) {
+            const ext = filePath.split('.').pop()?.toLowerCase();
+            const languageMap = {
+                'js': 'javascript',
+                'jsx': 'javascript',
+                'ts': 'typescript',
+                'tsx': 'typescript',
+                'py': 'python',
+                'html': 'html',
+                'htm': 'html',
+                'css': 'css',
+                'scss': 'scss',
+                'sass': 'sass',
+                'less': 'less',
+                'json': 'json',
+                'xml': 'xml',
+                'yaml': 'yaml',
+                'yml': 'yaml',
+                'md': 'markdown',
+                'sh': 'bash',
+                'bash': 'bash',
+                'zsh': 'bash',
+                'php': 'php',
+                'rb': 'ruby',
+                'go': 'go',
+                'rs': 'rust',
+                'java': 'java',
+                'c': 'c',
+                'cpp': 'cpp',
+                'cc': 'cpp',
+                'cxx': 'cpp',
+                'h': 'c',
+                'hpp': 'cpp',
+                'cs': 'csharp',
+                'sql': 'sql',
+                'r': 'r',
+                'swift': 'swift',
+                'kt': 'kotlin',
+                'scala': 'scala',
+                'clj': 'clojure',
+                'ex': 'elixir',
+                'exs': 'elixir',
+                'dockerfile': 'dockerfile'
+            };
+            return languageMap[ext] || 'plaintext';
+        },
+        
+        // Apply syntax highlighting to code content
+        highlightCode(content, filePath) {
+            if (!content || !window.hljs) return content;
+            
+            try {
+                const language = this.detectLanguage(filePath);
+                if (language === 'plaintext') {
+                    // Try auto-detection for unknown extensions
+                    const result = hljs.highlightAuto(content);
+                    return result.value;
+                } else {
+                    // Use detected language
+                    const result = hljs.highlight(content, { language });
+                    return result.value;
+                }
+            } catch (error) {
+                // If highlighting fails, return original content
+                console.warn('Syntax highlighting failed:', error);
+                return content;
+            }
+        },
+        
         // Initialize the application
         async init() {
             console.log('🎉 Difflicious initialized');
