@@ -199,6 +199,28 @@ function diffApp() {
             this.diffs.forEach(diff => {
                 diff.expanded = false;
             });
+        },
+        
+        // Navigate to previous file
+        navigateToPreviousFile(currentIndex) {
+            if (currentIndex > 0) {
+                const previousFileId = `file-${currentIndex - 1}`;
+                document.getElementById(previousFileId)?.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }
+        },
+        
+        // Navigate to next file
+        navigateToNextFile(currentIndex) {
+            if (currentIndex < this.filteredDiffs.length - 1) {
+                const nextFileId = `file-${currentIndex + 1}`;
+                document.getElementById(nextFileId)?.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }
         }
     };
 }

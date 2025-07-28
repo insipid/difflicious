@@ -101,10 +101,11 @@
                         </button>
                     </div>
                     
-                    <template x-for="diff in filteredDiffs" :key="diff.path">
+                    <template x-for="(diff, index) in filteredDiffs" :key="diff.path">
                         <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4">
                             <!-- File Header -->
                             <div @click="diff.expanded = !diff.expanded"
+                                :id="'file-' + index"
                                 class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors">
                                 <div class="flex items-center space-x-3">
                                     <span class="text-gray-400 transition-transform duration-200"
@@ -115,6 +116,22 @@
                                 </div>
 
                                 <div class="flex items-center space-x-2 text-xs">
+                                    <!-- Navigation buttons -->
+                                    <div class="flex items-center space-x-1" @click.stop>
+                                        <button x-show="index > 0" 
+                                                @click="navigateToPreviousFile(index)"
+                                                class="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                                                title="Previous file">
+                                            <span class="text-sm">↑</span>
+                                        </button>
+                                        <button x-show="index < filteredDiffs.length - 1" 
+                                                @click="navigateToNextFile(index)"
+                                                class="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                                                title="Next file">
+                                            <span class="text-sm">↓</span>
+                                        </button>
+                                    </div>
+                                    
                                     <span class="bg-green-100 text-green-800 px-2 py-1 rounded"
                                         x-text="'+' + diff.additions"></span>
                                     <span class="bg-red-100 text-red-800 px-2 py-1 rounded"
