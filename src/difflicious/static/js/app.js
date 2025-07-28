@@ -101,8 +101,17 @@ function diffApp() {
                     }
                 }
                 
-                // File expansions will be restored after diff data loads
+                // Restore file expansion states
                 this.savedFileExpansions = state.fileExpansions || {};
+                if (this.savedFileExpansions) {
+                    Object.keys(this.groups).forEach(groupKey => {
+                        this.groups[groupKey].files.forEach(file => {
+                            if (file.path && this.savedFileExpansions.hasOwnProperty(file.path)) {
+                                file.expanded = this.savedFileExpansions[file.path];
+                            }
+                        });
+                    });
+                }
                 
             } catch (error) {
                 console.warn('Failed to load UI state from localStorage:', error);
@@ -132,17 +141,6 @@ function diffApp() {
             return expansions;
         },
         
-        restoreFileExpansionStates() {
-            if (!this.savedFileExpansions) return;
-            
-            Object.keys(this.groups).forEach(groupKey => {
-                this.groups[groupKey].files.forEach(file => {
-                    if (file.path && this.savedFileExpansions.hasOwnProperty(file.path)) {
-                        file.expanded = this.savedFileExpansions[file.path];
-                    }
-                });
-            });
-        },
 
         // Computed properties
         get visibleGroups() {
@@ -367,6 +365,9 @@ function diffApp() {
         async loadDiffs() {
             this.loading = true;
             
+            // Save current UI state before fetching new diff data
+            this.saveUIState();
+            
             try {
                 // Build query parameters based on UI state
                 const params = new URLSearchParams();
@@ -405,8 +406,8 @@ function diffApp() {
                         // Keep existing visibility state
                     });
                     
-                    // Restore file expansion states from localStorage
-                    this.restoreFileExpansionStates();
+                    // Load UI state after processing new diff data (includes file expansion restoration)
+                    this.loadUIState();
                 }
             } catch (error) {
                 console.error('Failed to load diffs:', error);
