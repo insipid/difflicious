@@ -13,11 +13,12 @@ class DiffParseError(Exception):
     pass
 
 
-def parse_git_diff(diff_text: str) -> List[Dict[str, Any]]:
+def parse_git_diff(diff_text: str, word_diff: bool = False) -> List[Dict[str, Any]]:
     """Parse git diff output into structured side-by-side format.
     
     Args:
-        diff_text: Raw git diff output in unified format
+        diff_text: Raw git diff output in unified format or word-diff format
+        word_diff: If True, parse word-diff format with {+additions+} and [-deletions-]
         
     Returns:
         List of file dictionaries with structured diff data
@@ -29,22 +30,25 @@ def parse_git_diff(diff_text: str) -> List[Dict[str, Any]]:
         if not diff_text.strip():
             return []
             
-        # Parse using unidiff library
-        patch_set = PatchSet(diff_text)
-        
-        files = []
-        for patched_file in patch_set:
-            file_data = _parse_file(patched_file)
-            files.append(file_data)
+        if word_diff:
+            return _parse_word_diff(diff_text)
+        else:
+            # Parse using unidiff library
+            patch_set = PatchSet(diff_text)
             
-        return files
+            files = []
+            for patched_file in patch_set:
+                file_data = _parse_file(patched_file, word_diff=False)
+                files.append(file_data)
+                
+            return files
         
     except Exception as e:
         logger.error(f"Failed to parse diff: {e}")
         raise DiffParseError(f"Diff parsing failed: {e}")
 
 
-def _parse_file(patched_file: PatchedFile) -> Dict[str, Any]:
+def _parse_file(patched_file: PatchedFile, word_diff: bool = False) -> Dict[str, Any]:
     """Parse a single file's diff data.
     
     Args:
@@ -72,9 +76,19 @@ def _parse_file(patched_file: PatchedFile) -> Dict[str, Any]:
         total_additions += hunk.added
         total_deletions += hunk.removed
     
+    # Clean up file paths by removing a/ and b/ prefixes
+    target_path = patched_file.target_file or patched_file.source_file
+    source_path = patched_file.source_file
+    
+    # Remove a/ and b/ prefixes commonly found in git diffs
+    if target_path and target_path.startswith(('a/', 'b/')):
+        target_path = target_path[2:]
+    if source_path and source_path.startswith(('a/', 'b/')):
+        source_path = source_path[2:]
+    
     file_data = {
-        "path": patched_file.target_file or patched_file.source_file,
-        "old_path": patched_file.source_file,
+        "path": target_path,
+        "old_path": source_path,
         "status": status,
         "additions": total_additions,
         "deletions": total_deletions,
@@ -267,7 +281,7 @@ def create_side_by_side_lines(hunks: List[Dict[str, Any]]) -> List[Dict[str, Any
     return side_by_side_lines
 
 
-def parse_git_diff_for_rendering(diff_text: str) -> List[Dict[str, Any]]:
+def parse_git_diff_for_rendering(diff_text: str, word_diff: bool = False) -> List[Dict[str, Any]]:
     """Parse git diff output into side-by-side structure optimized for rendering.
     
     This is the main method to use for converting git diff output into the final
@@ -275,7 +289,8 @@ def parse_git_diff_for_rendering(diff_text: str) -> List[Dict[str, Any]]:
     hunk contains side-by-side line pairs ready for display.
     
     Args:
-        diff_text: Raw git diff output in unified format
+        diff_text: Raw git diff output in unified format or word-diff format
+        word_diff: If True, parse word-diff format with {+additions+} and [-deletions-]
         
     Returns:
         List of files with side-by-side structure:
@@ -309,28 +324,32 @@ def parse_git_diff_for_rendering(diff_text: str) -> List[Dict[str, Any]]:
     """
     try:
         # First parse into intermediate structure
-        parsed_files = parse_git_diff(diff_text)
+        parsed_files = parse_git_diff(diff_text, word_diff=word_diff)
         
         # Convert each file to side-by-side structure
         rendered_files = []
         for file_data in parsed_files:
-            # Convert hunks to side-by-side lines
-            side_by_side_lines = create_side_by_side_lines(file_data["hunks"])
-            
-            # Group side-by-side lines back into hunks for rendering
-            rendered_hunks = _group_lines_into_hunks(side_by_side_lines, file_data["hunks"])
-            
-            rendered_file = {
-                "path": file_data["path"],
-                "old_path": file_data["old_path"],
-                "status": file_data["status"],
-                "additions": file_data["additions"],
-                "deletions": file_data["deletions"],
-                "changes": file_data["changes"],
-                "hunks": rendered_hunks
-            }
-            
-            rendered_files.append(rendered_file)
+            if word_diff:
+                # For word-diff, the structure is already optimized for rendering
+                rendered_files.append(file_data)
+            else:
+                # Convert hunks to side-by-side lines for unified diff
+                side_by_side_lines = create_side_by_side_lines(file_data["hunks"])
+                
+                # Group side-by-side lines back into hunks for rendering
+                rendered_hunks = _group_lines_into_hunks(side_by_side_lines, file_data["hunks"])
+                
+                rendered_file = {
+                    "path": file_data["path"],
+                    "old_path": file_data["old_path"],
+                    "status": file_data["status"],
+                    "additions": file_data["additions"],
+                    "deletions": file_data["deletions"],
+                    "changes": file_data["changes"],
+                    "hunks": rendered_hunks
+                }
+                
+                rendered_files.append(rendered_file)
         
         return rendered_files
         
@@ -423,3 +442,283 @@ def get_file_summary(files: List[Dict[str, Any]]) -> Dict[str, Any]:
         "total_changes": total_additions + total_deletions,
         "files_by_status": files_by_status
     }
+
+
+def _parse_word_diff(diff_text: str) -> List[Dict[str, Any]]:
+    """Parse word-diff format into structured side-by-side format.
+    
+    Args:
+        diff_text: Raw git diff --word-diff output
+        
+    Returns:
+        List of file dictionaries with word-level structured diff data
+        
+    Raises:
+        DiffParseError: If parsing fails
+    """
+    files = []
+    current_file = None
+    current_hunk = None
+    
+    lines = diff_text.split('\n')
+    i = 0
+    
+    while i < len(lines):
+        line = lines[i]
+        
+        # File header detection
+        if line.startswith('diff --git'):
+            if current_file:
+                # Add current hunk to current file before switching
+                if current_hunk:
+                    current_file["hunks"].append(current_hunk)
+                files.append(current_file)
+            current_file = _parse_word_diff_file_header(lines, i)
+            current_hunk = None
+            
+        # Hunk header detection
+        elif line.startswith('@@') and current_file:
+            if current_hunk:
+                current_file["hunks"].append(current_hunk)
+            current_hunk = _parse_word_diff_hunk_header(line)
+            
+        # Content line with word-diff markers
+        elif current_hunk is not None and not line.startswith(('diff ', 'index ', '---', '+++')):
+            if line.strip():  # Skip empty lines
+                line_pairs = _parse_word_diff_line(line)
+                current_hunk["lines"].extend(line_pairs)
+                
+        i += 1
+    
+    # Add the last file and hunk
+    if current_hunk and current_file:
+        current_file["hunks"].append(current_hunk)
+    if current_file:
+        files.append(current_file)
+    
+    # Calculate additions and deletions for each file
+    for file_data in files:
+        _calculate_word_diff_stats(file_data)
+        
+    return files
+
+
+def _parse_word_diff_file_header(lines: List[str], start_idx: int) -> Dict[str, Any]:
+    """Parse file header from word-diff format.
+    
+    Args:
+        lines: All lines from the diff
+        start_idx: Starting index of the file header
+        
+    Returns:
+        Dictionary containing file metadata
+    """
+    # Extract file paths from "diff --git a/path b/path" line
+    diff_line = lines[start_idx]
+    match = re.match(r'diff --git a/(.+) b/(.+)', diff_line)
+    if match:
+        source_path = match.group(1)
+        target_path = match.group(2)
+    else:
+        source_path = target_path = "unknown"
+    
+    # Clean up file paths
+    if target_path.startswith(('a/', 'b/')):
+        target_path = target_path[2:]
+    if source_path.startswith(('a/', 'b/')):
+        source_path = source_path[2:]
+    
+    # Determine file status (simplified for word-diff)
+    status = "modified"
+    if source_path != target_path:
+        status = "renamed"
+    
+    return {
+        "path": target_path,
+        "old_path": source_path,
+        "status": status,
+        "additions": 0,  # Will be calculated during parsing
+        "deletions": 0,  # Will be calculated during parsing
+        "changes": 0,
+        "hunks": []
+    }
+
+
+def _parse_word_diff_hunk_header(line: str) -> Dict[str, Any]:
+    """Parse hunk header from word-diff format.
+    
+    Args:
+        line: Hunk header line starting with @@
+        
+    Returns:
+        Dictionary containing hunk metadata
+    """
+    # Parse @@ -old_start,old_count +new_start,new_count @@ section_header
+    match = re.match(r'@@ -(\d+),(\d+) \+(\d+),(\d+) @@(.+)?', line)
+    if match:
+        old_start = int(match.group(1))
+        old_count = int(match.group(2))
+        new_start = int(match.group(3))
+        new_count = int(match.group(4))
+        section_header = match.group(5).strip() if match.group(5) else ""
+    else:
+        old_start = new_start = 1
+        old_count = new_count = 1
+        section_header = ""
+    
+    return {
+        "old_start": old_start,
+        "old_count": old_count,
+        "new_start": new_start,
+        "new_count": new_count,
+        "section_header": section_header,
+        "lines": []
+    }
+
+
+def _parse_word_diff_line(line: str) -> List[Dict[str, Any]]:
+    """Parse a single line with word-diff markers into side-by-side format.
+    
+    Args:
+        line: Line containing {+additions+} and [-deletions-] markers
+        
+    Returns:
+        List of line pair dictionaries with word-level segments
+    """
+    # Parse word-diff markers: {+added+} and [-removed-]
+    segments = _parse_word_diff_segments(line)
+    
+    # For word-diff, we typically have one line pair that shows the changes
+    # We'll create content with inline markup for rendering
+    left_content = ""
+    right_content = ""
+    left_segments = []
+    right_segments = []
+    
+    for segment in segments:
+        if segment["type"] == "context":
+            left_content += segment["text"]
+            right_content += segment["text"]
+            left_segments.append(segment)
+            right_segments.append(segment)
+        elif segment["type"] == "deletion":
+            left_content += segment["text"]
+            left_segments.append(segment)
+        elif segment["type"] == "addition":
+            right_content += segment["text"]
+            right_segments.append(segment)
+    
+    # Create a single line pair with word-level content
+    return [{
+        "type": "change",
+        "left": {
+            "line_num": None,  # Line numbers not available in word-diff
+            "content": left_content,
+            "type": "deletion" if any(s["type"] == "deletion" for s in left_segments) else "context",
+            "word_segments": left_segments
+        },
+        "right": {
+            "line_num": None,  # Line numbers not available in word-diff
+            "content": right_content,
+            "type": "addition" if any(s["type"] == "addition" for s in right_segments) else "context",
+            "word_segments": right_segments
+        }
+    }]
+
+
+def _parse_word_diff_segments(line: str) -> List[Dict[str, Any]]:
+    """Parse word-diff markers in a line into segments.
+    
+    Args:
+        line: Line containing {+additions+} and [-deletions-] markers
+        
+    Returns:
+        List of segment dictionaries with text and type
+    """
+    segments = []
+    pos = 0
+    
+    # Pattern to match {+text+} and [-text-] markers
+    pattern = r'(\{\+[^}]*\+\}|\[\-[^\]]*\-\])'
+    
+    for match in re.finditer(pattern, line):
+        # Add context text before the match
+        if match.start() > pos:
+            context_text = line[pos:match.start()]
+            if context_text:
+                segments.append({
+                    "text": context_text,
+                    "type": "context"
+                })
+        
+        # Parse the matched marker
+        marker = match.group(1)
+        if marker.startswith('{+') and marker.endswith('+}'):
+            # Addition: {+text+}
+            text = marker[2:-2]
+            segments.append({
+                "text": text,
+                "type": "addition"
+            })
+        elif marker.startswith('[-') and marker.endswith('-]'):
+            # Deletion: [-text-]
+            text = marker[2:-2]
+            segments.append({
+                "text": text,
+                "type": "deletion"
+            })
+        
+        pos = match.end()
+    
+    # Add remaining context text
+    if pos < len(line):
+        context_text = line[pos:]
+        if context_text:
+            segments.append({
+                "text": context_text,
+                "type": "context"
+            })
+    
+    # If no markers found, treat entire line as context
+    if not segments:
+        segments.append({
+            "text": line,
+            "type": "context"
+        })
+    
+    return segments
+
+
+def _calculate_word_diff_stats(file_data: Dict[str, Any]) -> None:
+    """Calculate additions and deletions for a word-diff file.
+    
+    Args:
+        file_data: File dictionary to update with statistics
+    """
+    total_additions = 0
+    total_deletions = 0
+    
+    for hunk in file_data.get("hunks", []):
+        for line in hunk.get("lines", []):
+            # Count word segments in left and right sides
+            left_segments = line.get("left", {}).get("word_segments", [])
+            right_segments = line.get("right", {}).get("word_segments", [])
+            
+            # Count deletions from left side
+            for segment in left_segments:
+                if segment["type"] == "deletion":
+                    # Count words (rough approximation)
+                    word_count = len(segment["text"].split())
+                    total_deletions += max(1, word_count)
+            
+            # Count additions from right side  
+            for segment in right_segments:
+                if segment["type"] == "addition":
+                    # Count words (rough approximation)
+                    word_count = len(segment["text"].split())
+                    total_additions += max(1, word_count)
+    
+    # Update file statistics
+    file_data["additions"] = total_additions
+    file_data["deletions"] = total_deletions
+    file_data["changes"] = total_additions + total_deletions

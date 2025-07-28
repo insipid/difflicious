@@ -1,11 +1,72 @@
+diff --git a/src/difflicious/diff_parser.py b/src/difflicious/diff_parser.py
+index a2ba8a2..381b180 100644
+--- a/src/difflicious/diff_parser.py
++++ b/src/difflicious/diff_parser.py
+@@ -72,9 +72,19 @@ def _parse_file(patched_file: PatchedFile) -> Dict[str, Any]:
+        total_additions += hunk.added
+        total_deletions += hunk.removed
+    
+    {+# Clean up file paths by removing a/ and b/ prefixes+}
+{+    target_path = patched_file.target_file or patched_file.source_file+}
+{+    source_path = patched_file.source_file+}
+{+    +}
+{+    # Remove a/ and b/ prefixes commonly found in git diffs+}
+{+    if target_path and target_path.startswith(('a/', 'b/')):+}
+{+        target_path = target_path[2:]+}
+{+    if source_path and source_path.startswith(('a/', 'b/')):+}
+{+        source_path = source_path[2:]+}
+    
+    file_data = {
+        "path": [-patched_file.target_file or patched_file.source_file,-]{+target_path,+}
+        "old_path": [-patched_file.source_file,-]{+source_path,+}
+        "status": status,
+        "additions": total_additions,
+        "deletions": total_deletions,
+diff --git a/src/difflicious/static/js/app.js b/src/difflicious/static/js/app.js
+index f4fcb48..4515e9f 100644
+--- a/src/difflicious/static/js/app.js
++++ b/src/difflicious/static/js/app.js
+@@ -81,7 +81,7 @@ function diffApp() {
+                if (data.status === 'ok') {
+                    this.diffs = (data.diffs || []).map(diff => ({
+                        ...diff,
+                        expanded: [-false-]{+true+} // Add UI state for each diff {+- start expanded+}
+                    }));
+                }
+            } catch (error) {
+@@ -105,6 +105,20 @@ function diffApp() {
+            if (this.diffs[index]) {
+                this.diffs[index].expanded = !this.diffs[index].expanded;
+            }
+        {+},+}
+{+        +}
+{+        // Expand all diffs+}
+{+        expandAll() {+}
+{+            this.diffs.forEach(diff => {+}
+{+                diff.expanded = true;+}
+{+            });+}
+{+        },+}
+{+        +}
+{+        // Collapse all diffs+}
+{+        collapseAll() {+}
+{+            this.diffs.forEach(diff => {+}
+{+                diff.expanded = false;+}
+{+            });+}
+        }
+    };
+}
+diff --git a/src/difflicious/templates/index.html b/src/difflicious/templates/index.html
+index 4075eff..ba692c4 100644
+--- a/src/difflicious/templates/index.html
++++ b/src/difflicious/templates/index.html
+@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Difflicious - Git Diff Visualization</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
@@ -13,7 +74,7 @@
 <body class="bg-gray-50 min-h-screen">
     <div id="app" x-data="diffApp()" x-init="init()" class="flex flex-col min-h-screen">
         <!-- Toolbar -->
-        <header class="bg-white border-b border-gray-200 px-4 py-3">
+@@ -15,29 +17,27 @@
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
                     <h1 class="text-xl font-semibold text-gray-900">Difflicious</h1>
@@ -34,23 +95,15 @@
                     </div>
 
                     <input type="text" x-model="searchFilter" placeholder="Search files..."
-                        class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 [-focus:border-blue-500"-]
+[-                    >-]{+focus:border-blue-500">+}
 
                     <button @click="refreshData()"
                         class="bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <span x-show="!loading">Refresh</span>
                         <span x-show="loading">Loading...</span>
                     </button>
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <main class="flex-1 overflow-hidden">
-            <!-- Loading State -->
-            <div x-show="loading" class="flex items-center justify-center h-full">
-                <div class="text-center">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+@@ -54,7 +54,7 @@
                     <p class="mt-2 text-gray-600">Loading git diff data...</p>
                 </div>
             </div>
@@ -58,8 +111,7 @@
             <!-- Empty State -->
             <div x-show="!loading && diffs.length === 0" class="flex items-center justify-center h-full">
                 <div class="text-center">
-                    <div class="text-6xl mb-4">🎉</div>
-                    <h2 class="text-xl font-semibold text-gray-900 mb-2">No changes detected</h2>
+@@ -63,76 +63,94 @@
                     <p class="text-gray-600">Your working directory is clean, or git diff data is not available yet.</p>
                 </div>
             </div>
@@ -67,25 +119,27 @@
             <!-- File List -->
             <div x-show="!loading && diffs.length > 0" class="h-full overflow-y-auto">
                 <div class="p-4 space-y-4">
-                    <!-- Expand/Collapse Controls -->
-                    <div class="flex items-center space-x-2 mb-4">
-                        <button @click="expandAll()"
-                            class="bg-gray-100 text-gray-700 px-3 py-1.5 rounded text-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400">
-                            Expand All
-                        </button>
-                        <button @click="collapseAll()"
-                            class="bg-gray-100 text-gray-700 px-3 py-1.5 rounded text-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400">
-                            Collapse All
-                        </button>
-                    </div>
+                    {+<!-- Expand/Collapse Controls -->+}
+{+                    <div class="flex items-center space-x-2 mb-4">+}
+{+                        <button @click="expandAll()"+}
+{+                            class="bg-gray-100 text-gray-700 px-3 py-1.5 rounded text-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400">+}
+{+                            Expand All+}
+{+                        </button>+}
+{+                        <button @click="collapseAll()"+}
+{+                            class="bg-gray-100 text-gray-700 px-3 py-1.5 rounded text-sm hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400">+}
+{+                            Collapse All+}
+{+                        </button>+}
+{+                    </div>+}
                     <template x-for="diff in filteredDiffs" :key="diff.path">
                         <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4">
                             <!-- File Header -->
                             <div @click="diff.expanded = !diff.expanded"
-                                class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                                class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 [-transition-colors"-]
+[-                            >-]{+transition-colors">+}
                                 <div class="flex items-center space-x-3">
                                     <span class="text-gray-400 transition-transform duration-200"
-                                        :class="diff.expanded ? 'rotate-90' : ''" x-text="'▶'"></span>
+                                        :class="diff.expanded ? 'rotate-90' : ''" [-x-text="'▶'"-]
+[-                                    ></span>-]{+x-text="'▶'"></span>+}
                                     <span class="font-mono text-sm text-gray-900" x-text="diff.path"></span>
                                     <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded"
                                         x-text="diff.status"></span>
@@ -143,23 +197,9 @@
                                                                 <div class="flex-1 px-2 py-1 overflow-x-auto">
                                                                     <span x-show="line.left?.type === 'deletion'"
                                                                         class="text-red-600">-</span>
-                                                                    <span x-show="line.type==='context'"
-                                                                        class="text-gray-400">&nbsp;</span>
-                                                                    
-                                                                    <!-- Word-level rendering if segments exist -->
-                                                                    <template x-if="line.left?.word_segments">
-                                                                        <span>
-                                                                            <template x-for="segment in line.left.word_segments">
-                                                                                <span :class="{
-                                                                                    'bg-red-200 text-red-800': segment.type === 'deletion',
-                                                                                    'bg-green-200 text-green-800': segment.type === 'addition'
-                                                                                }" x-text="segment.text"></span>
-                                                                            </template>
-                                                                        </span>
-                                                                    </template>
-                                                                    
-                                                                    <!-- Regular content if no word segments -->
-                                                                    <span x-show="!line.left?.word_segments && line.left?.content"
+                                                                    <span [-x-show="line.type === 'context'" class="text-gray-400"> </span>-]{+x-show="line.type==='context'"+}
+{+                                                                        class="text-gray-400">&nbsp;</span>+}
+                                                                    <span x-show="line.left?.content"
                                                                         x-text="line.left?.content"></span>
                                                                 </div>
                                                             </div>
@@ -168,7 +208,7 @@
                                                         <!-- Right Side (After) -->
                                                         <div :class="{
                                                                 'bg-green-50': line.type === 'change' && line.right?.type === 'addition',
-                                                                'bg-gray-25': line.type === 'context'
+@@ -140,14 +158,19 @@
                                                              }">
                                                             <div class="flex">
                                                                 <!-- Line Number -->
@@ -182,39 +222,13 @@
                                                                     <span x-show="line.right?.type === 'addition'"
                                                                         class="text-green-600">+</span>
                                                                     <span x-show="line.type === 'context'"
-                                                                        class="text-gray-400">&nbsp;</span>
-                                                                    
-                                                                    <!-- Word-level rendering if segments exist -->
-                                                                    <template x-if="line.right?.word_segments">
-                                                                        <span>
-                                                                            <template x-for="segment in line.right.word_segments">
-                                                                                <span :class="{
-                                                                                    'bg-red-200 text-red-800': segment.type === 'deletion',
-                                                                                    'bg-green-200 text-green-800': segment.type === 'addition'
-                                                                                }" x-text="segment.text"></span>
-                                                                            </template>
-                                                                        </span>
-                                                                    </template>
-                                                                    
-                                                                    <!-- Regular content if no word segments -->
-                                                                    <span x-show="!line.right?.word_segments && line.right?.content"
+                                                                        [-class="text-gray-400"> </span>-]{+class="text-gray-400">&nbsp;</span>+}
+                                                                    <span x-show="line.right?.content"
                                                                         x-text="line.right?.content"></span>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                </template>
-                                            </div>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-            </div>
-        </main>
-    </div>
+@@ -167,4 +190,5 @@
 
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
