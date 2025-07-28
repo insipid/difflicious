@@ -13,6 +13,12 @@ function diffApp() {
             git_available: false
         },
         diffs: [],
+        branches: {
+            all: [],
+            current: '',
+            main: '',
+            others: []
+        },
         
         // UI state
         showOnlyChanged: true,
@@ -129,8 +135,24 @@ function diffApp() {
         // Initialize the application
         async init() {
             console.log('🎉 Difflicious initialized');
+            await this.loadBranches(); // Load branches first
             await this.loadGitStatus();
             await this.loadDiffs();
+        },
+
+        // Load branch data from API
+        async loadBranches() {
+            try {
+                const response = await fetch('/api/branches');
+                const data = await response.json();
+                if (data.status === 'ok') {
+                    this.branches = data.branches;
+                    // Set baseBranch to main if available, otherwise current
+                    this.baseBranch = this.branches.main || this.branches.current;
+                }
+            } catch (error) {
+                console.error('Failed to load branches:', error);
+            }
         },
         
         // Load git status from API
