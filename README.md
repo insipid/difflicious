@@ -15,8 +15,11 @@ Perfect for:
 ## Features
 
 - **Side-by-Side Diff Visualization**: Professional-grade side-by-side view with accurate line numbering
+- **Syntax Highlighting**: Beautiful code highlighting for 30+ programming languages using Highlight.js
 - **Intelligent Diff Parsing**: Advanced git diff parser with proper alignment of additions and deletions
+- **Smart UI Controls**: Expand/collapse all buttons with intelligent disabled states
 - **Interactive Interface**: Toggle visibility, search through changes, and filter content
+- **Clean File Paths**: Automatic removal of git diff artifacts (a/, b/ prefixes)
 - **Secure Git Integration**: Safe git command execution with subprocess sanitization
 - **Real-time Status**: Live git repository status and branch information
 - **Modern UI**: Clean Tailwind CSS design with responsive layout
