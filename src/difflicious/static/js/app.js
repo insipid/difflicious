@@ -31,7 +31,7 @@ function diffApp() {
         // Branch and diff options
         baseBranch: 'main',
         unstaged: true,
-        untracked: false,
+        untracked: true,
         
         // Computed properties
         get visibleGroups() {
