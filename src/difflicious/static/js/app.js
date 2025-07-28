@@ -81,7 +81,7 @@ function diffApp() {
                 if (data.status === 'ok') {
                     this.diffs = (data.diffs || []).map(diff => ({
                         ...diff,
-                        expanded: false // Add UI state for each diff
+                        expanded: true // Add UI state for each diff - start expanded
                     }));
                 }
             } catch (error) {
@@ -105,6 +105,20 @@ function diffApp() {
             if (this.diffs[index]) {
                 this.diffs[index].expanded = !this.diffs[index].expanded;
             }
+        },
+        
+        // Expand all diffs
+        expandAll() {
+            this.diffs.forEach(diff => {
+                diff.expanded = true;
+            });
+        },
+        
+        // Collapse all diffs
+        collapseAll() {
+            this.diffs.forEach(diff => {
+                diff.expanded = false;
+            });
         }
     };
 }
