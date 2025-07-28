@@ -12,7 +12,11 @@ function diffApp() {
             files_changed: 0,
             git_available: false
         },
-        diffs: [],
+        groups: {
+            untracked: {files: [], count: 0, visible: true},
+            unstaged: {files: [], count: 0, visible: true},
+            staged: {files: [], count: 0, visible: true}
+        },
         branches: {
             all: [],
             current: '',
@@ -30,35 +34,102 @@ function diffApp() {
         untracked: false,
         
         // Computed properties
-        get filteredDiffs() {
-            let filtered = this.diffs;
+        get visibleGroups() {
+            const groups = [];
+            
+            // Add groups that have content (headers always show, but content may be hidden)
+            if (this.groups.untracked.count > 0) {
+                groups.push({
+                    key: 'untracked',
+                    title: 'Untracked',
+                    files: this.filterFiles(this.groups.untracked.files),
+                    visible: this.groups.untracked.visible,
+                    count: this.groups.untracked.count
+                });
+            }
+            
+            if (this.groups.unstaged.count > 0) {
+                groups.push({
+                    key: 'unstaged', 
+                    title: 'Unstaged',
+                    files: this.filterFiles(this.groups.unstaged.files),
+                    visible: this.groups.unstaged.visible,
+                    count: this.groups.unstaged.count
+                });
+            }
+            
+            if (this.groups.staged.count > 0) {
+                groups.push({
+                    key: 'staged',
+                    title: 'Staged', 
+                    files: this.filterFiles(this.groups.staged.files),
+                    visible: this.groups.staged.visible,
+                    count: this.groups.staged.count
+                });
+            }
+            
+            return groups;
+        },
+        
+        get totalVisibleFiles() {
+            return this.visibleGroups.reduce((total, group) => 
+                total + (group.visible ? group.files.length : 0), 0
+            );
+        },
+        
+        get hasAnyGroups() {
+            return this.visibleGroups.length > 0;
+        },
+        
+        // Check if all visible files are expanded
+        get allExpanded() {
+            const allFiles = this.getAllVisibleFiles();
+            return allFiles.length > 0 && allFiles.every(file => file.expanded);
+        },
+        
+        // Check if all visible files are collapsed  
+        get allCollapsed() {
+            const allFiles = this.getAllVisibleFiles();
+            return allFiles.length > 0 && allFiles.every(file => !file.expanded);
+        },
+        
+        // Helper methods
+        filterFiles(files) {
+            let filtered = files.map((file, originalIndex) => ({
+                ...file,
+                originalIndex // Store the original index for toggleFile to use
+            }));
             
             // Filter by search term
             if (this.searchFilter.trim()) {
                 const search = this.searchFilter.toLowerCase();
-                filtered = filtered.filter(diff => 
-                    diff.path.toLowerCase().includes(search)
+                filtered = filtered.filter(file => 
+                    file.path.toLowerCase().includes(search)
                 );
             }
             
             // Filter by changed files only
             if (this.showOnlyChanged) {
-                filtered = filtered.filter(diff => 
-                    diff.additions > 0 || diff.deletions > 0
+                filtered = filtered.filter(file => 
+                    file.additions > 0 || file.deletions > 0 || file.status === 'untracked'
                 );
             }
             
             return filtered;
         },
         
-        // Check if all visible diffs are expanded
-        get allExpanded() {
-            return this.filteredDiffs.length > 0 && this.filteredDiffs.every(diff => diff.expanded);
+        getAllVisibleFiles() {
+            const allFiles = [];
+            this.visibleGroups.forEach(group => {
+                if (group.visible) {
+                    allFiles.push(...group.files);
+                }
+            });
+            return allFiles;
         },
         
-        // Check if all visible diffs are collapsed
-        get allCollapsed() {
-            return this.filteredDiffs.length > 0 && this.filteredDiffs.every(diff => !diff.expanded);
+        toggleGroupVisibility(groupKey) {
+            this.groups[groupKey].visible = !this.groups[groupKey].visible;
         },
         
         // Detect language from file extension
@@ -206,14 +277,26 @@ function diffApp() {
                 const data = await response.json();
                 
                 if (data.status === 'ok') {
-                    this.diffs = (data.diffs || []).map(diff => ({
-                        ...diff,
-                        expanded: true // Add UI state for each diff - start expanded
-                    }));
+                    // Update groups with new data
+                    const groups = data.groups || {};
+                    
+                    Object.keys(this.groups).forEach(groupKey => {
+                        const groupData = groups[groupKey] || {files: [], count: 0};
+                        this.groups[groupKey].files = (groupData.files || []).map(file => ({
+                            ...file,
+                            expanded: true // Add UI state for each file - start expanded
+                        }));
+                        this.groups[groupKey].count = groupData.count || 0;
+                        // Keep existing visibility state
+                    });
                 }
             } catch (error) {
                 console.error('Failed to load diffs:', error);
-                this.diffs = [];
+                // Reset all groups to empty on error
+                Object.keys(this.groups).forEach(groupKey => {
+                    this.groups[groupKey].files = [];
+                    this.groups[groupKey].count = 0;
+                });
             } finally {
                 this.loading = false;
             }
@@ -227,31 +310,38 @@ function diffApp() {
             ]);
         },
         
-        // Toggle diff file expansion
-        toggleDiff(index) {
-            if (this.diffs[index]) {
-                this.diffs[index].expanded = !this.diffs[index].expanded;
+        // Toggle file expansion
+        toggleFile(groupKey, fileIndex) {
+            if (this.groups[groupKey] && this.groups[groupKey].files[fileIndex]) {
+                this.groups[groupKey].files[fileIndex].expanded = !this.groups[groupKey].files[fileIndex].expanded;
             }
         },
         
-        // Expand all diffs
+        // Expand all files across all groups
         expandAll() {
-            this.diffs.forEach(diff => {
-                diff.expanded = true;
+            Object.keys(this.groups).forEach(groupKey => {
+                this.groups[groupKey].files.forEach(file => {
+                    file.expanded = true;
+                });
             });
         },
         
-        // Collapse all diffs
+        // Collapse all files across all groups
         collapseAll() {
-            this.diffs.forEach(diff => {
-                diff.expanded = false;
+            Object.keys(this.groups).forEach(groupKey => {
+                this.groups[groupKey].files.forEach(file => {
+                    file.expanded = false;
+                });
             });
         },
         
         // Navigate to previous file
-        navigateToPreviousFile(currentIndex) {
-            if (currentIndex > 0) {
-                const previousFileId = `file-${currentIndex - 1}`;
+        navigateToPreviousFile(groupKey, fileIndex) {
+            const allFiles = this.getAllVisibleFiles();
+            const currentGlobalIndex = this.getGlobalFileIndex(groupKey, fileIndex);
+            
+            if (currentGlobalIndex > 0) {
+                const previousFileId = `file-${currentGlobalIndex - 1}`;
                 document.getElementById(previousFileId)?.scrollIntoView({ 
                     behavior: 'smooth', 
                     block: 'start' 
@@ -260,14 +350,47 @@ function diffApp() {
         },
         
         // Navigate to next file
-        navigateToNextFile(currentIndex) {
-            if (currentIndex < this.filteredDiffs.length - 1) {
-                const nextFileId = `file-${currentIndex + 1}`;
+        navigateToNextFile(groupKey, fileIndex) {
+            const allFiles = this.getAllVisibleFiles();
+            const currentGlobalIndex = this.getGlobalFileIndex(groupKey, fileIndex);
+            
+            if (currentGlobalIndex < allFiles.length - 1) {
+                const nextFileId = `file-${currentGlobalIndex + 1}`;
                 document.getElementById(nextFileId)?.scrollIntoView({ 
                     behavior: 'smooth', 
                     block: 'start' 
                 });
             }
+        },
+        
+        // Get global index of a file across all groups (for navigation - only visible groups)
+        getGlobalFileIndex(targetGroupKey, targetFileIndex) {
+            let globalIndex = 0;
+            
+            for (const group of this.visibleGroups) {
+                if (!group.visible) continue;
+                
+                if (group.key === targetGroupKey) {
+                    return globalIndex + targetFileIndex;
+                }
+                globalIndex += group.files.length;
+            }
+            
+            return -1;
+        },
+        
+        // Get unique file ID across all groups (for DOM IDs - includes all groups)
+        getFileId(targetGroupKey, targetFileIndex) {
+            let fileId = 0;
+            
+            for (const group of this.visibleGroups) {
+                if (group.key === targetGroupKey) {
+                    return fileId + targetFileIndex;
+                }
+                fileId += group.files.length;
+            }
+            
+            return fileId;
         }
     };
 }

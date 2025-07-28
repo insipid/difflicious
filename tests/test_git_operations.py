@@ -221,7 +221,10 @@ class TestGitRepository:
         
         diffs = repo.get_diff()
         
-        assert isinstance(diffs, list)
+        assert isinstance(diffs, dict)
+        assert 'untracked' in diffs
+        assert 'unstaged' in diffs
+        assert 'staged' in diffs
         # Note: might be empty if git diff format doesn't match our parsing
     
     def test_parse_diff_output(self, mock_git_repo):
@@ -234,10 +237,10 @@ class TestGitRepository:
         diffs = repo._parse_diff_output(diff_output)
         
         assert len(diffs) == 2
-        assert diffs[0]['file'] == 'test.txt'
+        assert diffs[0]['path'] == 'test.txt'
         assert diffs[0]['additions'] == 5
         assert diffs[0]['deletions'] == 2
-        assert diffs[1]['file'] == 'new.txt'
+        assert diffs[1]['path'] == 'new.txt'
         assert diffs[1]['additions'] == 10
         assert diffs[1]['deletions'] == 0
     
@@ -346,7 +349,10 @@ class TestGitRepositoryCommitComparison:
         
         # Test base_commit + target_commit
         diffs = repo.get_diff(base_commit='abc123', target_commit='def456')
-        assert isinstance(diffs, list)
+        assert isinstance(diffs, dict)
+        assert 'untracked' in diffs
+        assert 'unstaged' in diffs
+        assert 'staged' in diffs
         
         # Verify correct git command was called
         diff_calls = [call for call in mock_execute.call_args_list if 'diff' in call[0][0]]
@@ -372,7 +378,10 @@ class TestGitRepositoryCommitComparison:
         
         # Test base_commit only
         diffs = repo.get_diff(base_commit='abc123')
-        assert isinstance(diffs, list)
+        assert isinstance(diffs, dict)
+        assert 'untracked' in diffs
+        assert 'unstaged' in diffs
+        assert 'staged' in diffs
         
         # Verify correct git command was called
         diff_calls = [call for call in mock_execute.call_args_list if 'diff' in call[0][0]]
@@ -400,7 +409,10 @@ class TestGitRepositoryCommitComparison:
         
         # Test target_commit only (should default base to main)
         diffs = repo.get_diff(target_commit='def456')
-        assert isinstance(diffs, list)
+        assert isinstance(diffs, dict)
+        assert 'untracked' in diffs
+        assert 'unstaged' in diffs
+        assert 'staged' in diffs
         
         # Verify main branch was used as base
         diff_calls = [call for call in mock_execute.call_args_list if 'diff' in call[0][0]]
@@ -431,7 +443,10 @@ class TestGitRepositoryCommitComparison:
         
         # Test target_commit only with main not existing
         diffs = repo.get_diff(target_commit='def456')
-        assert isinstance(diffs, list)
+        assert isinstance(diffs, dict)
+        assert 'untracked' in diffs
+        assert 'unstaged' in diffs
+        assert 'staged' in diffs
         
         # Verify HEAD was used as fallback
         diff_calls = [call for call in mock_execute.call_args_list if 'diff' in call[0][0]]
@@ -444,19 +459,19 @@ class TestGitRepositoryCommitComparison:
         """Test get_diff with invalid base commit."""
         repo = GitRepository(str(mock_git_repo))
         
-        # Should return empty list due to error handling, not raise exception
+        # Should return empty groups due to error handling, not raise exception
         result = repo.get_diff(base_commit='HEAD; rm -rf /')
-        assert isinstance(result, list)
-        assert len(result) == 0
+        assert isinstance(result, dict)
+        assert all(group['count'] == 0 for group in result.values())
     
     def test_get_diff_invalid_target_commit(self, mock_git_repo):
         """Test get_diff with invalid target commit."""
         repo = GitRepository(str(mock_git_repo))
         
-        # Should return empty list due to error handling, not raise exception  
+        # Should return empty groups due to error handling, not raise exception  
         result = repo.get_diff(base_commit='HEAD', target_commit='HEAD | cat')
-        assert isinstance(result, list)
-        assert len(result) == 0
+        assert isinstance(result, dict)
+        assert all(group['count'] == 0 for group in result.values())
     
     @patch('difflicious.git_operations.GitRepository._execute_git_command')
     def test_get_file_diff_with_commits(self, mock_execute, mock_git_repo):
@@ -507,9 +522,15 @@ class TestGitRepositoryCommitComparison:
         
         # Test traditional usage still works
         diffs = repo.get_diff(unstaged=True)
-        assert isinstance(diffs, list)
+        assert isinstance(diffs, dict)
+        assert 'untracked' in diffs
+        assert 'unstaged' in diffs
+        assert 'staged' in diffs
         
         # Test staged diff (through base commit comparison)
         subprocess.run(['git', 'add', 'test.txt'], cwd=temp_git_repo, check=True)
         staged_diffs = repo.get_diff(base_commit='HEAD')
-        assert isinstance(staged_diffs, list)
+        assert isinstance(staged_diffs, dict)
+        assert 'untracked' in staged_diffs
+        assert 'unstaged' in staged_diffs
+        assert 'staged' in staged_diffs

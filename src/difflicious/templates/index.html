@@ -92,7 +92,7 @@
             </div>
 
             <!-- Empty State -->
-            <div x-show="!loading && diffs.length === 0" class="flex items-center justify-center h-full">
+            <div x-show="!loading && !hasAnyGroups" class="flex items-center justify-center h-full">
                 <div class="text-center">
                     <div class="text-6xl mb-4">✨</div>
                     <h2 class="text-xl font-semibold text-gray-900 mb-2">No changes found</h2>
@@ -108,10 +108,10 @@
                 </div>
             </div>
 
-            <!-- File List -->
-            <div x-show="!loading && diffs.length > 0" class="h-full overflow-y-auto">
-                <div class="p-4 space-y-4">
-                    <!-- Expand/Collapse Controls -->
+            <!-- Grouped File List -->
+            <div x-show="!loading && hasAnyGroups" class="h-full overflow-y-auto">
+                <div class="p-4 space-y-6">
+                    <!-- Global Expand/Collapse Controls -->
                     <div class="flex items-center space-x-2 mb-4">
                         <button @click="expandAll()" 
                                 :disabled="allExpanded"
@@ -133,125 +133,143 @@
                         </button>
                     </div>
                     
-                    <template x-for="(diff, index) in filteredDiffs" :key="diff.path">
-                        <div class="bg-white border border-gray-200 rounded-lg shadow-sm mb-4">
-                            <!-- File Header -->
-                            <div @click="diff.expanded = !diff.expanded"
-                                :id="'file-' + index"
-                                class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center space-x-3">
-                                    <span class="text-gray-400 transition-transform duration-200"
-                                        :class="diff.expanded ? 'rotate-90' : ''" x-text="'▶'"></span>
-                                    <span class="font-mono text-sm text-gray-900" x-text="diff.path"></span>
-                                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded"
-                                        x-text="diff.status"></span>
-                                </div>
-
-                                <div class="flex items-center space-x-2 text-xs">
-                                    <!-- Navigation buttons -->
-                                    <div class="flex items-center space-x-1" @click.stop>
-                                        <button x-show="index > 0" 
-                                                @click="navigateToPreviousFile(index)"
-                                                class="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
-                                                title="Previous file">
-                                            <span class="text-sm">↑</span>
-                                        </button>
-                                        <button x-show="index < filteredDiffs.length - 1" 
-                                                @click="navigateToNextFile(index)"
-                                                class="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
-                                                title="Next file">
-                                            <span class="text-sm">↓</span>
-                                        </button>
-                                    </div>
-                                    
-                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded"
-                                        x-text="'+' + diff.additions"></span>
-                                    <span class="bg-red-100 text-red-800 px-2 py-1 rounded"
-                                        x-text="'-' + diff.deletions"></span>
-                                </div>
+                    <!-- Groups -->
+                    <template x-for="group in visibleGroups" :key="group.key">
+                        <div class="space-y-2">
+                            <!-- Group Header -->
+                            <div @click="toggleGroupVisibility(group.key)"
+                                 class="flex items-center space-x-3 px-2 py-2 cursor-pointer hover:bg-gray-50 transition-colors rounded">
+                                <span class="text-gray-400 transition-transform duration-200"
+                                      :class="group.visible ? 'rotate-90' : ''" x-text="'▶'"></span>
+                                <h3 class="text-gray-700" x-text="group.title"></h3>
+                                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded" 
+                                      x-text="group.count + ' files'"></span>
                             </div>
 
-                            <!-- Expanded File Diff -->
-                            <div x-show="diff.expanded" x-transition class="border-t border-gray-200">
-                                <!-- Check if file has hunks -->
-                                <div x-show="!diff.hunks || diff.hunks.length === 0"
-                                    class="p-8 text-center text-gray-500">
-                                    <div class="text-4xl mb-2">📄</div>
-                                    <p>No diff content available</p>
-                                    <p class="text-sm">(Binary file or no changes)</p>
-                                </div>
-
-                                <!-- Render hunks -->
-                                <div x-show="diff.hunks && diff.hunks.length > 0">
-                                    <template x-for="(hunk, hunkIndex) in diff.hunks" :key="hunkIndex">
-                                        <div class="border-b border-gray-100 last:border-b-0">
-                                            <!-- Hunk Header -->
-                                            <div x-show="hunk.section_header"
-                                                class="bg-blue-50 px-4 py-2 text-xs font-mono text-blue-800 border-b border-blue-100">
-                                                <span
-                                                    x-text="'@@ -' + hunk.old_start + ',' + hunk.old_count + ' +' + hunk.new_start + ',' + hunk.new_count + ' @@'"></span>
-                                                <span x-show="hunk.section_header"
-                                                    x-text="' ' + hunk.section_header"></span>
+                            <!-- Group Files -->
+                            <div x-show="group.visible" x-transition class="space-y-4 ml-4">
+                                <template x-for="(file, fileIndex) in group.files" :key="file.path">
+                                    <div class="bg-white border border-gray-200 rounded-lg shadow-sm">
+                                        <!-- File Header -->
+                                        <div @click="toggleFile(group.key, file.originalIndex)"
+                                            :id="'file-' + getFileId(group.key, fileIndex)"
+                                            class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                                            <div class="flex items-center space-x-3">
+                                                <span class="text-gray-400 transition-transform duration-200"
+                                                    :class="file.expanded ? 'rotate-90' : ''" x-text="'▶'"></span>
+                                                <span class="font-mono text-sm text-gray-900" x-text="file.path"></span>
+                                                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded"
+                                                    x-text="file.status"></span>
                                             </div>
 
-                                            <!-- Hunk Lines -->
-                                            <div class="font-mono text-xs">
-                                                <template x-for="(line, lineIndex) in hunk.lines" :key="lineIndex">
-                                                    <div
-                                                        class="grid grid-cols-2 border-b border-gray-50 hover:bg-gray-25">
-                                                        <!-- Left Side (Before) -->
-                                                        <div class="border-r border-gray-200" :class="{
-                                                        'bg-red-50': line.type === 'change' && line.left?.type === 'deletion',
-                                                        'bg-gray-25': line.type === 'context'
-                                                    }">
-                                                            <div class="flex">
-                                                                <!-- Line Number -->
-                                                                <div
-                                                                    class="w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
-                                                                    <span x-show="line.left?.line_num"
-                                                                        x-text="line.left?.line_num"></span>
-                                                                </div>
-                                                                <!-- Content -->
-                                                                <div class="flex-1 px-2 py-1 overflow-x-auto">
-                                                                    <span x-show="line.left?.type === 'deletion'"
-                                                                        class="text-red-600">-</span>
-                                                                    <span x-show="line.type === 'context'"
-                                                                        class="text-gray-400">&nbsp;</span>
-                                                                    <span x-show="line.left?.content"
-                                                                        x-html="highlightCode(line.left?.content, diff.path)"></span>
-                                                                </div>
-                                                            </div>
+                                            <div class="flex items-center space-x-2 text-xs">
+                                                <!-- Navigation buttons -->
+                                                <div class="flex items-center space-x-1" @click.stop>
+                                                    <button x-show="getGlobalFileIndex(group.key, fileIndex) > 0" 
+                                                            @click="navigateToPreviousFile(group.key, fileIndex)"
+                                                            class="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                                                            title="Previous file">
+                                                        <span class="text-sm">↑</span>
+                                                    </button>
+                                                    <button x-show="getGlobalFileIndex(group.key, fileIndex) < totalVisibleFiles - 1" 
+                                                            @click="navigateToNextFile(group.key, fileIndex)"
+                                                            class="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                                                            title="Next file">
+                                                        <span class="text-sm">↓</span>
+                                                    </button>
+                                                </div>
+                                                
+                                                <span x-show="file.additions > 0" class="bg-green-100 text-green-800 px-2 py-1 rounded"
+                                                    x-text="'+' + file.additions"></span>
+                                                <span x-show="file.deletions > 0" class="bg-red-100 text-red-800 px-2 py-1 rounded"
+                                                    x-text="'-' + file.deletions"></span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Expanded File Diff -->
+                                        <div x-show="file.expanded" x-transition class="border-t border-gray-200">
+                                            <!-- Check if file has hunks -->
+                                            <div x-show="!file.hunks || file.hunks.length === 0"
+                                                class="p-8 text-center text-gray-500">
+                                                <div class="text-4xl mb-2">📄</div>
+                                                <p>No diff content available</p>
+                                                <p class="text-sm">(Binary file, untracked, or no changes)</p>
+                                            </div>
+
+                                            <!-- Render hunks -->
+                                            <div x-show="file.hunks && file.hunks.length > 0">
+                                                <template x-for="(hunk, hunkIndex) in file.hunks" :key="hunkIndex">
+                                                    <div class="border-b border-gray-100 last:border-b-0">
+                                                        <!-- Hunk Header -->
+                                                        <div x-show="hunk.section_header"
+                                                            class="bg-blue-50 px-4 py-2 text-xs font-mono text-blue-800 border-b border-blue-100">
+                                                            <span
+                                                                x-text="'@@ -' + hunk.old_start + ',' + hunk.old_count + ' +' + hunk.new_start + ',' + hunk.new_count + ' @@'"></span>
+                                                            <span x-show="hunk.section_header"
+                                                                x-text="' ' + hunk.section_header"></span>
                                                         </div>
 
-                                                        <!-- Right Side (After) -->
-                                                        <div :class="{
-                                                    'bg-green-50': line.type === 'change' && line.right?.type === 'addition',
-                                                    'bg-gray-25': line.type === 'context'
-                                                }">
-                                                            <div class="flex">
-                                                                <!-- Line Number -->
+                                                        <!-- Hunk Lines -->
+                                                        <div class="font-mono text-xs">
+                                                            <template x-for="(line, lineIndex) in hunk.lines" :key="lineIndex">
                                                                 <div
-                                                                    class="w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
-                                                                    <span x-show="line.right?.line_num"
-                                                                        x-text="line.right?.line_num"></span>
+                                                                    class="grid grid-cols-2 border-b border-gray-50 hover:bg-gray-25">
+                                                                    <!-- Left Side (Before) -->
+                                                                    <div class="border-r border-gray-200" :class="{
+                                                                    'bg-red-50': line.type === 'change' && line.left?.type === 'deletion',
+                                                                    'bg-gray-25': line.type === 'context'
+                                                                }">
+                                                                        <div class="flex">
+                                                                            <!-- Line Number -->
+                                                                            <div
+                                                                                class="w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
+                                                                                <span x-show="line.left?.line_num"
+                                                                                    x-text="line.left?.line_num"></span>
+                                                                            </div>
+                                                                            <!-- Content -->
+                                                                            <div class="flex-1 px-2 py-1 overflow-x-auto">
+                                                                                <span x-show="line.left?.type === 'deletion'"
+                                                                                    class="text-red-600">-</span>
+                                                                                <span x-show="line.type === 'context'"
+                                                                                    class="text-gray-400">&nbsp;</span>
+                                                                                <span x-show="line.left?.content"
+                                                                                    x-html="highlightCode(line.left?.content, file.path)"></span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <!-- Right Side (After) -->
+                                                                    <div :class="{
+                                                                'bg-green-50': line.type === 'change' && line.right?.type === 'addition',
+                                                                'bg-gray-25': line.type === 'context'
+                                                            }">
+                                                                        <div class="flex">
+                                                                            <!-- Line Number -->
+                                                                            <div
+                                                                                class="w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
+                                                                                <span x-show="line.right?.line_num"
+                                                                                    x-text="line.right?.line_num"></span>
+                                                                            </div>
+                                                                            <!-- Content -->
+                                                                            <div class="flex-1 px-2 py-1 overflow-x-auto">
+                                                                                <span x-show="line.right?.type === 'addition'"
+                                                                                    class="text-green-600">+</span>
+                                                                                <span x-show="line.type === 'context'"
+                                                                                    class="text-gray-400">&nbsp;</span>
+                                                                                <span x-show="line.right?.content"
+                                                                                    x-html="highlightCode(line.right?.content, file.path)"></span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
-                                                                <!-- Content -->
-                                                                <div class="flex-1 px-2 py-1 overflow-x-auto">
-                                                                    <span x-show="line.right?.type === 'addition'"
-                                                                        class="text-green-600">+</span>
-                                                                    <span x-show="line.type === 'context'"
-                                                                        class="text-gray-400">&nbsp;</span>
-                                                                    <span x-show="line.right?.content"
-                                                                        x-html="highlightCode(line.right?.content, diff.path)"></span>
-                                                                </div>
-                                                            </div>
+                                                            </template>
                                                         </div>
                                                     </div>
                                                 </template>
                                             </div>
                                         </div>
-                                    </template>
-                                </div>
+                                    </div>
+                                </template>
                             </div>
                         </div>
                     </template>

@@ -34,7 +34,7 @@ else:
 
 
 def get_real_git_diff(base_commit: str = None, target_commit: str = None,
-                      unstaged: bool = True, untracked: bool = False, file_path: str = None) -> list:
+                      unstaged: bool = True, untracked: bool = False, file_path: str = None) -> dict:
     """Get real git diff data using git operations.
     
     Args:
@@ -45,29 +45,51 @@ def get_real_git_diff(base_commit: str = None, target_commit: str = None,
         file_path: Optional specific file to diff
         
     Returns:
-        List of diff data or empty list on error
+        Dictionary with grouped diff data or empty groups on error
     """
     try:
         repo = get_git_repository()
-        diffs = repo.get_diff(base_commit=base_commit, target_commit=target_commit,
-                             unstaged=unstaged, untracked=untracked, file_path=file_path)
+        grouped_diffs = repo.get_diff(base_commit=base_commit, target_commit=target_commit,
+                                     unstaged=unstaged, untracked=untracked, file_path=file_path)
 
-        # Convert to format expected by frontend
-        formatted_diffs = []
-        for diff in diffs:
-            # Parse the diff content if available
-            if diff.get('content'):
-                try:
-                    parsed_diff = parse_git_diff_for_rendering(diff['content'])
-                    if parsed_diff:
-                        formatted_diffs.extend(parsed_diff)
-                except DiffParseError as e:
-                    logging.warning(f"Failed to parse diff for {diff['file']}: {e}")
+        # Process each group to parse diff content for rendering
+        for group_name, group_data in grouped_diffs.items():
+            formatted_files = []
+            for diff in group_data['files']:
+                # Parse the diff content if available (but not for untracked files)
+                if diff.get('content') and diff.get('status') != 'untracked':
+                    try:
+                        parsed_diff = parse_git_diff_for_rendering(diff['content'])
+                        if parsed_diff:
+                            # Take the first parsed diff item and update it with our metadata
+                            formatted_diff = parsed_diff[0]
+                            formatted_diff.update({
+                                'path': diff['path'],
+                                'additions': diff['additions'],
+                                'deletions': diff['deletions'],
+                                'changes': diff['changes'],
+                                'status': diff['status']
+                            })
+                            formatted_files.append(formatted_diff)
+                    except DiffParseError as e:
+                        logging.warning(f"Failed to parse diff for {diff['path']}: {e}")
+                        # Add the raw diff info if parsing fails
+                        formatted_files.append(diff)
+                else:
+                    # For files without content or untracked files, add as-is
+                    formatted_files.append(diff)
+            
+            group_data['files'] = formatted_files
+            group_data['count'] = len(formatted_files)
 
-        return formatted_diffs
+        return grouped_diffs
     except GitOperationError as e:
         logging.error(f"Git operation failed: {e}")
-        return []
+        return {
+            'untracked': {'files': [], 'count': 0},
+            'unstaged': {'files': [], 'count': 0},
+            'staged': {'files': [], 'count': 0}
+        }
 
 
 def create_app() -> Flask:
@@ -140,7 +162,7 @@ def create_app() -> Flask:
 
         # Try to get real git diff data
         try:
-            diff_data = get_real_git_diff(
+            grouped_data = get_real_git_diff(
                 base_commit=base_commit,
                 target_commit=target_commit,
                 unstaged=unstaged,
@@ -150,17 +172,24 @@ def create_app() -> Flask:
 
         except Exception as e:
             logger.error(f"Failed to get real git diff: {e}")
-            diff_data = []
+            grouped_data = {
+                'untracked': {'files': [], 'count': 0},
+                'unstaged': {'files': [], 'count': 0},
+                'staged': {'files': [], 'count': 0}
+            }
+
+        # Calculate total files across all groups
+        total_files = sum(group['count'] for group in grouped_data.values())
 
         return jsonify({
             "status": "ok",
-            "diffs": diff_data,
+            "groups": grouped_data,
             "unstaged": unstaged,
             "untracked": untracked,
             "file_filter": file_path,
             "base_commit": base_commit,
             "target_commit": target_commit,
-            "total_files": len(diff_data)
+            "total_files": total_files
         })
 
     return app

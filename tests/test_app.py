@@ -71,8 +71,11 @@ def test_api_diff_route(client):
     data = response.get_json()
     assert 'status' in data
     assert data['status'] == 'ok'
-    assert 'diffs' in data
-    assert isinstance(data['diffs'], list)
+    assert 'groups' in data
+    assert isinstance(data['groups'], dict)
+    assert 'untracked' in data['groups']
+    assert 'unstaged' in data['groups']
+    assert 'staged' in data['groups']
 
 
 class TestAPIDiffCommitComparison:
@@ -88,8 +91,8 @@ class TestAPIDiffCommitComparison:
         assert data['status'] == 'ok'
         assert data['base_commit'] == 'abc123'
         assert data['target_commit'] is None
-        assert 'diffs' in data
-        assert isinstance(data['diffs'], list)
+        assert 'groups' in data
+        assert isinstance(data['groups'], dict)
     
     def test_api_diff_with_target_commit_parameter(self, client):
         """Test API diff endpoint with target_commit parameter."""
@@ -101,8 +104,8 @@ class TestAPIDiffCommitComparison:
         assert data['status'] == 'ok'
         assert data['base_commit'] is None
         assert data['target_commit'] == 'def456'
-        assert 'diffs' in data
-        assert isinstance(data['diffs'], list)
+        assert 'groups' in data
+        assert isinstance(data['groups'], dict)
     
     def test_api_diff_with_both_commits(self, client):
         """Test API diff endpoint with both commit parameters."""
@@ -114,8 +117,8 @@ class TestAPIDiffCommitComparison:
         assert data['status'] == 'ok'
         assert data['base_commit'] == 'abc123'
         assert data['target_commit'] == 'def456'
-        assert 'diffs' in data
-        assert isinstance(data['diffs'], list)
+        assert 'groups' in data
+        assert isinstance(data['groups'], dict)
     
     def test_api_diff_with_all_parameters(self, client):
         """Test API diff endpoint with all parameters combined."""
@@ -138,8 +141,8 @@ class TestAPIDiffCommitComparison:
         assert data['unstaged'] is True
         assert data['untracked'] is False
         assert data['file_filter'] == 'test.txt'
-        assert 'diffs' in data
-        assert isinstance(data['diffs'], list)
+        assert 'groups' in data
+        assert isinstance(data['groups'], dict)
     
     def test_api_diff_backward_compatibility(self, client):
         """Test API diff endpoint maintains backward compatibility."""
@@ -155,8 +158,8 @@ class TestAPIDiffCommitComparison:
         assert data['file_filter'] == 'test.txt'
         assert data['base_commit'] is None
         assert data['target_commit'] is None
-        assert 'diffs' in data
-        assert isinstance(data['diffs'], list)
+        assert 'groups' in data
+        assert isinstance(data['groups'], dict)
     
     def test_api_diff_empty_commit_parameters(self, client):
         """Test API diff endpoint with empty commit parameters."""
@@ -168,8 +171,8 @@ class TestAPIDiffCommitComparison:
         assert data['status'] == 'ok'
         assert data['base_commit'] == ''
         assert data['target_commit'] == ''
-        assert 'diffs' in data
-        assert isinstance(data['diffs'], list)
+        assert 'groups' in data
+        assert isinstance(data['groups'], dict)
     
     def test_api_diff_commit_parameters_with_special_characters(self, client):
         """Test API diff endpoint handles commit parameters with various characters."""
@@ -199,7 +202,7 @@ class TestAPIDiffCommitComparison:
         data2 = response2.get_json()
         
         # Both should have the same basic structure
-        required_fields = ['status', 'diffs', 'unstaged', 'untracked', 'file_filter', 'total_files']
+        required_fields = ['status', 'groups', 'unstaged', 'untracked', 'file_filter', 'total_files']
         for field in required_fields:
             assert field in data1
             assert field in data2
@@ -235,7 +238,11 @@ class TestRealGitDiffIntegration:
         """Test get_real_git_diff handles errors gracefully."""
         from difflicious.app import get_real_git_diff
         
-        # Should return empty list on error, not raise exception
+        # Should return empty groups on error, not raise exception
         result = get_real_git_diff(base_commit='nonexistent_commit')
-        assert isinstance(result, list)
-        assert len(result) == 0
+        assert isinstance(result, dict)
+        assert 'untracked' in result
+        assert 'unstaged' in result
+        assert 'staged' in result
+        # Check that all groups are empty
+        assert all(group['count'] == 0 for group in result.values())
