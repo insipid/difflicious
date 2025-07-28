@@ -148,19 +148,9 @@ def create_app() -> Flask:
                 file_path=file_path
             )
 
-            # If no real data available, fall back to sample data
-            if not diff_data:
-                diff_data = SAMPLE_DIFF_DATA if SAMPLE_DIFF_DATA else []
-                # Filter by file if requested
-                if file_path:
-                    diff_data = [f for f in diff_data if file_path in f.get('path', '')]
-
         except Exception as e:
             logger.error(f"Failed to get real git diff: {e}")
-            # Fall back to sample data on any error
-            diff_data = SAMPLE_DIFF_DATA if SAMPLE_DIFF_DATA else []
-            if file_path:
-                diff_data = [f for f in diff_data if file_path in f.get('path', '')]
+            diff_data = []
 
         return jsonify({
             "status": "ok",
@@ -170,8 +160,7 @@ def create_app() -> Flask:
             "file_filter": file_path,
             "base_commit": base_commit,
             "target_commit": target_commit,
-            "total_files": len(diff_data),
-            "using_sample_data": diff_data == SAMPLE_DIFF_DATA
+            "total_files": len(diff_data)
         })
 
     return app

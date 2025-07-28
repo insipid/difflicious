@@ -94,9 +94,17 @@
             <!-- Empty State -->
             <div x-show="!loading && diffs.length === 0" class="flex items-center justify-center h-full">
                 <div class="text-center">
-                    <div class="text-6xl mb-4">🎉</div>
-                    <h2 class="text-xl font-semibold text-gray-900 mb-2">No changes detected</h2>
-                    <p class="text-gray-600">Your working directory is clean, or git diff data is not available yet.</p>
+                    <div class="text-6xl mb-4">✨</div>
+                    <h2 class="text-xl font-semibold text-gray-900 mb-2">No changes found</h2>
+                    <div class="text-gray-600 space-y-2">
+                        <p x-show="!unstaged && !untracked">Enable "Unstaged" or "Untracked" to see changes.</p>
+                        <p x-show="unstaged && !untracked">No unstaged changes in your working directory.</p>
+                        <p x-show="!unstaged && untracked">No untracked files found.</p>
+                        <p x-show="unstaged && untracked">Your working directory is clean - no unstaged or untracked files.</p>
+                        <p class="text-sm text-gray-500 mt-3" x-show="baseBranch !== 'main'">
+                            Comparing against branch: <span class="font-mono" x-text="baseBranch"></span>
+                        </p>
+                    </div>
                 </div>
             </div>
 
