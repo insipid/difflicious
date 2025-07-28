@@ -118,7 +118,10 @@ function diffApp() {
         },
         
         getFileExpansionStates() {
-            const expansions = {};
+            // Start with previously saved expansions to preserve files that are no longer visible
+            const expansions = { ...this.savedFileExpansions };
+            
+            // Update with current file states
             Object.keys(this.groups).forEach(groupKey => {
                 this.groups[groupKey].files.forEach(file => {
                     if (file.path && typeof file.expanded === 'boolean') {
