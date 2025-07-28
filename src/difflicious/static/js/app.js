@@ -40,6 +40,16 @@ function diffApp() {
             return filtered;
         },
         
+        // Check if all visible diffs are expanded
+        get allExpanded() {
+            return this.filteredDiffs.length > 0 && this.filteredDiffs.every(diff => diff.expanded);
+        },
+        
+        // Check if all visible diffs are collapsed
+        get allCollapsed() {
+            return this.filteredDiffs.length > 0 && this.filteredDiffs.every(diff => !diff.expanded);
+        },
+        
         // Initialize the application
         async init() {
             console.log('🎉 Difflicious initialized');
