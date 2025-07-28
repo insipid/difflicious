@@ -26,9 +26,8 @@ function diffApp() {
         
         // Branch and diff options
         baseBranch: 'main',
-        targetBranch: 'working-directory',
-        stageShowing: true,
-        attractQuestion: false,
+        unstaged: true,
+        untracked: false,
         
         // Computed properties
         get filteredDiffs() {
@@ -191,14 +190,9 @@ function diffApp() {
                     params.set('base_commit', this.baseBranch);
                 }
                 
-                if (this.targetBranch && this.targetBranch !== 'working-directory') {
-                    params.set('target_commit', this.targetBranch);
-                }
-                
-                // Handle staging options
-                if (this.stageShowing) {
-                    params.set('staged', 'true');
-                }
+                // Handle unstaged/untracked options
+                params.set('unstaged', this.unstaged.toString());
+                params.set('untracked', this.untracked.toString());
                 
                 // Add other filters
                 if (this.searchFilter.trim()) {

@@ -506,10 +506,10 @@ class TestGitRepositoryCommitComparison:
         test_file.write_text('Modified content\n')
         
         # Test traditional usage still works
-        diffs = repo.get_diff(staged=False)
+        diffs = repo.get_diff(unstaged=True)
         assert isinstance(diffs, list)
         
-        # Test staged diff
+        # Test staged diff (through base commit comparison)
         subprocess.run(['git', 'add', 'test.txt'], cwd=temp_git_repo, check=True)
-        staged_diffs = repo.get_diff(staged=True)
+        staged_diffs = repo.get_diff(base_commit='HEAD')
         assert isinstance(staged_diffs, list)

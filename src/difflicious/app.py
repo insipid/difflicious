@@ -34,13 +34,14 @@ else:
 
 
 def get_real_git_diff(base_commit: str = None, target_commit: str = None,
-                      staged: bool = False, file_path: str = None) -> list:
+                      unstaged: bool = True, untracked: bool = False, file_path: str = None) -> list:
     """Get real git diff data using git operations.
     
     Args:
         base_commit: Base commit SHA to compare from
-        target_commit: Target commit SHA to compare to  
-        staged: Whether to get staged changes
+        target_commit: Target commit SHA to compare to (defaults to working directory)
+        unstaged: Whether to include unstaged changes
+        untracked: Whether to include untracked files
         file_path: Optional specific file to diff
         
     Returns:
@@ -49,7 +50,7 @@ def get_real_git_diff(base_commit: str = None, target_commit: str = None,
     try:
         repo = get_git_repository()
         diffs = repo.get_diff(base_commit=base_commit, target_commit=target_commit,
-                             staged=staged, file_path=file_path)
+                             unstaged=unstaged, untracked=untracked, file_path=file_path)
 
         # Convert to format expected by frontend
         formatted_diffs = []
@@ -131,27 +132,19 @@ def create_app() -> Flask:
     def api_diff() -> Dict[str, Any]:
         """API endpoint for git diff information."""
         # Get optional query parameters
-        staged = request.args.get('staged', 'false').lower() == 'true'
+        unstaged = request.args.get('unstaged', 'true').lower() == 'true'
+        untracked = request.args.get('untracked', 'false').lower() == 'true'
         file_path = request.args.get('file')
         base_commit = request.args.get('base_commit')
-        target_commit = request.args.get('target_commit')
-
-        # Set hardcoded default commits if not provided and not staged
-        if base_commit is None and target_commit is None and not staged:
-            # Default to comparing recent commits for demonstration
-            # These are actual commits from this repository
-            base_commit = 'a29759f'  # File navigation commit
-            target_commit = 'fa8e68e'  # Commit comparison functionality commit
-            # Reference commits used for testing
-            # base_commit = 'be9d'
-            # target_commit = '871c'
+        target_commit = request.args.get('target_commit')  # Kept for future use, defaults to None
 
         # Try to get real git diff data
         try:
             diff_data = get_real_git_diff(
                 base_commit=base_commit,
                 target_commit=target_commit,
-                staged=staged,
+                unstaged=unstaged,
+                untracked=untracked,
                 file_path=file_path
             )
 
@@ -172,7 +165,8 @@ def create_app() -> Flask:
         return jsonify({
             "status": "ok",
             "diffs": diff_data,
-            "staged": staged,
+            "unstaged": unstaged,
+            "untracked": untracked,
             "file_filter": file_path,
             "base_commit": base_commit,
             "target_commit": target_commit,

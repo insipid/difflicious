@@ -41,35 +41,23 @@
                         </select>
                     </div>
 
-                    <!-- Target Branch Dropdown -->
-                    <div class="flex items-center space-x-2">
-                        <label class="text-sm font-medium text-gray-700">Target:</label>
-                        <select x-model="targetBranch" @change="refreshData()"
-                            class="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="working-directory">Working Directory</option>
-                            <template x-for="branch in branches.all" :key="branch">
-                                <option :value="branch" x-text="branch"></option>
-                            </template>
-                        </select>
-                    </div>
-
-                    <!-- Stage Options -->
+                    <!-- Diff Options -->
                     <div class="flex items-center space-x-4">
-                        <!-- Stage Showing Checkbox -->
+                        <!-- Unstaged Checkbox -->
                         <div class="flex items-center space-x-2">
                             <label class="flex items-center">
-                                <input type="checkbox" x-model="stageShowing" @change="refreshData()"
+                                <input type="checkbox" x-model="unstaged" @change="refreshData()"
                                     class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                <span class="ml-1 text-sm text-gray-700">Stage showing</span>
+                                <span class="ml-1 text-sm text-gray-700">Unstaged</span>
                             </label>
                         </div>
 
-                        <!-- Attract Question Mark Checkbox -->
+                        <!-- Untracked Checkbox -->
                         <div class="flex items-center space-x-2">
                             <label class="flex items-center">
-                                <input type="checkbox" x-model="attractQuestion" @change="refreshData()"
+                                <input type="checkbox" x-model="untracked" @change="refreshData()"
                                     class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                <span class="ml-1 text-sm text-gray-700">Attract ?</span>
+                                <span class="ml-1 text-sm text-gray-700">Untracked</span>
                             </label>
                         </div>
                     </div>

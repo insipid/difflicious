@@ -221,22 +221,23 @@ class GitRepository:
     def get_diff(self,
                  base_commit: Optional[str] = None,
                  target_commit: Optional[str] = None,
-                 staged: bool = False,
+                 unstaged: bool = True,
+                 untracked: bool = False,
                  file_path: Optional[str] = None) -> List[Dict[str, Any]]:
         """Get git diff information between two commits or working directory.
 
         Args:
             base_commit: Base commit SHA to compare from. Defaults to 'main' if target_commit specified.
             target_commit: Target commit SHA to compare to. Defaults to working directory.
-            staged: If True, get staged changes (only used when no commits specified).
+            unstaged: If True, include unstaged changes (only used when no commits specified).
+            untracked: If True, include untracked files (only used when no commits specified).
             file_path: Optional specific file to diff
 
         Returns:
             List of dictionaries containing diff information for each file
         """
         try:
-            # Build diff command
-            diff_args = ['diff']
+            all_diffs = []
 
             # Handle commit comparison
             if base_commit or target_commit:
@@ -254,39 +255,67 @@ class GitRepository:
                 if target_commit:
                     if not self._is_safe_commit_sha(target_commit):
                         raise GitOperationError(f"Invalid or unsafe target commit: {target_commit}")
-                    diff_args.extend([base_commit, target_commit])
+                    diff_args = ['diff', '--numstat', base_commit, target_commit]
                 else:
                     # Compare base_commit to working directory
-                    diff_args.append(base_commit)
+                    diff_args = ['diff', '--numstat', base_commit]
+                
+                if file_path:
+                    if not self._is_safe_file_path(file_path):
+                        raise GitOperationError(f"Unsafe file path: {file_path}")
+                    diff_args.append(file_path)
+
+                # Execute diff command
+                stdout, stderr, return_code = self._execute_git_command(diff_args)
+                if return_code != 0 and stderr:
+                    logger.warning(f"Git diff warning: {stderr}")
+
+                # Parse diff output
+                diffs = self._parse_diff_output(stdout)
+                # Get detailed diff for each file
+                for diff_info in diffs:
+                    detailed_diff = self._get_file_diff(diff_info['file'], base_commit, target_commit, False)
+                    diff_info['content'] = detailed_diff
+                all_diffs.extend(diffs)
             else:
-                # Traditional staged/working directory diff
-                if staged:
-                    diff_args.append('--cached')
+                # Working directory diffs
+                if unstaged:
+                    # Get unstaged changes
+                    diff_args = ['diff', '--numstat']
+                    if file_path:
+                        if not self._is_safe_file_path(file_path):
+                            raise GitOperationError(f"Unsafe file path: {file_path}")
+                        diff_args.append(file_path)
 
-            # Add safe diff options
-            diff_args.append('--numstat')
+                    stdout, stderr, return_code = self._execute_git_command(diff_args)
+                    if return_code != 0 and stderr:
+                        logger.warning(f"Git diff warning: {stderr}")
 
-            if file_path:
-                # Validate file path is within repository
-                if not self._is_safe_file_path(file_path):
-                    raise GitOperationError(f"Unsafe file path: {file_path}")
-                diff_args.append(file_path)
+                    unstaged_diffs = self._parse_diff_output(stdout)
+                    for diff_info in unstaged_diffs:
+                        detailed_diff = self._get_file_diff(diff_info['file'], None, None, False)
+                        diff_info['content'] = detailed_diff
+                    all_diffs.extend(unstaged_diffs)
 
-            # Execute diff command
-            stdout, stderr, return_code = self._execute_git_command(diff_args)
+                if untracked:
+                    # Get untracked files (no diff content, just file list)
+                    status_args = ['status', '--porcelain']
+                    stdout, stderr, return_code = self._execute_git_command(status_args)
+                    if return_code == 0:
+                        for line in stdout.strip().split('\n'):
+                            if line.strip() and line.startswith('??'):
+                                file_name = line[3:].strip()
+                                if not file_path or file_path in file_name:
+                                    all_diffs.append({
+                                        'file': file_name,
+                                        'additions': 0,
+                                        'deletions': 0,
+                                        'changes': 0,
+                                        'status': 'untracked',
+                                        'content': f'New untracked file: {file_name}'
+                                    })
 
-            if return_code != 0 and stderr:
-                logger.warning(f"Git diff warning: {stderr}")
-
-            # Parse diff output
-            diffs = self._parse_diff_output(stdout)
-
-            # Get detailed diff for each file
-            for diff_info in diffs:
-                detailed_diff = self._get_file_diff(diff_info['file'], base_commit, target_commit, staged)
-                diff_info['content'] = detailed_diff
-
-            return diffs
+            return all_diffs
 
         except GitOperationError as e:
             logger.error(f"Failed to get git diff: {e}")
@@ -382,14 +411,14 @@ class GitRepository:
         return diffs
 
     def _get_file_diff(self, file_path: str, base_commit: Optional[str] = None,
-                       target_commit: Optional[str] = None, staged: bool = False) -> str:
+                       target_commit: Optional[str] = None, use_cached: bool = False) -> str:
         """Get detailed diff content for a specific file.
 
         Args:
             file_path: Path to the file
             base_commit: Base commit to compare from
             target_commit: Target commit to compare to
-            staged: Whether to get staged or working directory diff (used when no commits specified)
+            use_cached: Whether to get staged diff (used when no commits specified)
 
         Returns:
             Diff content as string
@@ -407,7 +436,7 @@ class GitRepository:
                 elif base_commit:
                     diff_args.append(base_commit)
             else:
-                if staged:
+                if use_cached:
                     diff_args.append('--cached')
 
             diff_args.extend(['--no-color', file_path])

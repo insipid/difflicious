@@ -122,7 +122,8 @@ class TestAPIDiffCommitComparison:
         params = {
             'base_commit': 'abc123',
             'target_commit': 'def456',
-            'staged': 'true',
+            'unstaged': 'true',
+            'untracked': 'false',
             'file': 'test.txt'
         }
         
@@ -134,7 +135,8 @@ class TestAPIDiffCommitComparison:
         assert data['status'] == 'ok'
         assert data['base_commit'] == 'abc123'
         assert data['target_commit'] == 'def456'
-        assert data['staged'] is True
+        assert data['unstaged'] is True
+        assert data['untracked'] is False
         assert data['file_filter'] == 'test.txt'
         assert 'diffs' in data
         assert isinstance(data['diffs'], list)
@@ -142,13 +144,14 @@ class TestAPIDiffCommitComparison:
     def test_api_diff_backward_compatibility(self, client):
         """Test API diff endpoint maintains backward compatibility."""
         # Test traditional parameters still work
-        response = client.get('/api/diff?staged=true&file=test.txt')
+        response = client.get('/api/diff?unstaged=true&untracked=false&file=test.txt')
         assert response.status_code == 200
         assert response.is_json
         
         data = response.get_json()
         assert data['status'] == 'ok'
-        assert data['staged'] is True
+        assert data['unstaged'] is True
+        assert data['untracked'] is False
         assert data['file_filter'] == 'test.txt'
         assert data['base_commit'] is None
         assert data['target_commit'] is None
@@ -196,7 +199,7 @@ class TestAPIDiffCommitComparison:
         data2 = response2.get_json()
         
         # Both should have the same basic structure
-        required_fields = ['status', 'diffs', 'staged', 'file_filter', 'total_files']
+        required_fields = ['status', 'diffs', 'unstaged', 'untracked', 'file_filter', 'total_files']
         for field in required_fields:
             assert field in data1
             assert field in data2
@@ -224,7 +227,7 @@ class TestRealGitDiffIntegration:
         sig = inspect.signature(get_real_git_diff)
         params = list(sig.parameters.keys())
         
-        expected_params = ['base_commit', 'target_commit', 'staged', 'file_path']
+        expected_params = ['base_commit', 'target_commit', 'unstaged', 'untracked', 'file_path']
         for param in expected_params:
             assert param in params
     
