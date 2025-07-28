@@ -167,11 +167,17 @@ class GitRepository:
                 'error': str(e)
             }
     
-    def get_diff(self, staged: bool = False, file_path: Optional[str] = None) -> List[Dict[str, Any]]:
-        """Get git diff information.
+    def get_diff(self, 
+                 base_commit: Optional[str] = None, 
+                 target_commit: Optional[str] = None, 
+                 staged: bool = False, 
+                 file_path: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Get git diff information between two commits or working directory.
         
         Args:
-            staged: If True, get staged changes. If False, get working directory changes.
+            base_commit: Base commit SHA to compare from. Defaults to 'main' if target_commit specified.
+            target_commit: Target commit SHA to compare to. Defaults to working directory.
+            staged: If True, get staged changes (only used when no commits specified).
             file_path: Optional specific file to diff
             
         Returns:
@@ -181,8 +187,30 @@ class GitRepository:
             # Build diff command
             diff_args = ['diff']
             
-            if staged:
-                diff_args.append('--cached')
+            # Handle commit comparison
+            if base_commit or target_commit:
+                # If comparing commits, validate them
+                if base_commit:
+                    if not self._is_safe_commit_sha(base_commit):
+                        raise GitOperationError(f"Invalid or unsafe base commit: {base_commit}")
+                else:
+                    # Default to main if target_commit is specified
+                    base_commit = 'main'
+                    if not self._is_safe_commit_sha(base_commit):
+                        # Fallback to HEAD if main doesn't exist
+                        base_commit = 'HEAD'
+                
+                if target_commit:
+                    if not self._is_safe_commit_sha(target_commit):
+                        raise GitOperationError(f"Invalid or unsafe target commit: {target_commit}")
+                    diff_args.extend([base_commit, target_commit])
+                else:
+                    # Compare base_commit to working directory
+                    diff_args.append(base_commit)
+            else:
+                # Traditional staged/working directory diff
+                if staged:
+                    diff_args.append('--cached')
             
             # Add safe diff options
             diff_args.extend(['--numstat', '--name-status'])
@@ -204,7 +232,7 @@ class GitRepository:
             
             # Get detailed diff for each file
             for diff_info in diffs:
-                detailed_diff = self._get_file_diff(diff_info['file'], staged)
+                detailed_diff = self._get_file_diff(diff_info['file'], base_commit, target_commit, staged)
                 diff_info['content'] = detailed_diff
             
             return diffs
@@ -212,6 +240,34 @@ class GitRepository:
         except GitOperationError as e:
             logger.error(f"Failed to get git diff: {e}")
             return []
+    
+    def _is_safe_commit_sha(self, sha: str) -> bool:
+        """Validate that a commit SHA is safe to use.
+        
+        Args:
+            sha: Commit SHA or reference to validate
+            
+        Returns:
+            True if SHA is safe, False otherwise
+        """
+        if not isinstance(sha, str):
+            return False
+        
+        # Allow branch names, tag names, and SHAs
+        # Reject dangerous characters
+        if any(char in sha for char in [';', '|', '&', '`', '$', '(', ')', '>', '<', ' ']):
+            return False
+        
+        # Must be reasonable length (branch names, tags, or SHAs)
+        if len(sha) < 1 or len(sha) > 100:
+            return False
+        
+        # Check if it's a valid git reference
+        try:
+            _, _, return_code = self._execute_git_command(['rev-parse', '--verify', sha])
+            return return_code == 0
+        except GitOperationError:
+            return False
     
     def _is_safe_file_path(self, file_path: str) -> bool:
         """Validate that a file path is safe and within the repository.
@@ -274,12 +330,15 @@ class GitRepository:
         
         return diffs
     
-    def _get_file_diff(self, file_path: str, staged: bool = False) -> str:
+    def _get_file_diff(self, file_path: str, base_commit: Optional[str] = None, 
+                       target_commit: Optional[str] = None, staged: bool = False) -> str:
         """Get detailed diff content for a specific file.
         
         Args:
             file_path: Path to the file
-            staged: Whether to get staged or working directory diff
+            base_commit: Base commit to compare from
+            target_commit: Target commit to compare to
+            staged: Whether to get staged or working directory diff (used when no commits specified)
             
         Returns:
             Diff content as string
@@ -289,8 +348,16 @@ class GitRepository:
                 return f"Error: Unsafe file path: {file_path}"
             
             diff_args = ['diff']
-            if staged:
-                diff_args.append('--cached')
+            
+            # Handle commit comparison (same logic as main get_diff method)
+            if base_commit or target_commit:
+                if base_commit and target_commit:
+                    diff_args.extend([base_commit, target_commit])
+                elif base_commit:
+                    diff_args.append(base_commit)
+            else:
+                if staged:
+                    diff_args.append('--cached')
             
             diff_args.extend(['--no-color', file_path])
             

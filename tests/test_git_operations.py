@@ -276,3 +276,240 @@ class TestGitRepositoryFactory:
         """Test factory function with invalid repository."""
         with pytest.raises(GitOperationError):
             get_git_repository("/nonexistent/path")
+
+
+class TestGitRepositoryCommitComparison:
+    """Test cases for commit comparison functionality."""
+    
+    @patch('difflicious.git_operations.GitRepository._execute_git_command')
+    def test_is_safe_commit_sha_valid_references(self, mock_execute, mock_git_repo):
+        """Test SHA validation with valid git references."""
+        repo = GitRepository(str(mock_git_repo))
+        
+        # Mock successful git rev-parse responses
+        mock_execute.return_value = ('abc123def456', '', 0)
+        
+        # Test valid references
+        assert repo._is_safe_commit_sha('HEAD')
+        assert repo._is_safe_commit_sha('HEAD~1') 
+        assert repo._is_safe_commit_sha('main')
+        assert repo._is_safe_commit_sha('abc123def456')
+        assert repo._is_safe_commit_sha('abc123')  # Short SHA
+    
+    def test_is_safe_commit_sha_invalid_references(self, mock_git_repo):
+        """Test SHA validation with invalid references."""
+        repo = GitRepository(str(mock_git_repo))
+        
+        # Test dangerous characters
+        dangerous_refs = [
+            'HEAD; rm -rf /',
+            'HEAD | cat',
+            'HEAD && echo hack',
+            'HEAD `whoami`',
+            'HEAD $(echo hack)',
+            'HEAD > /tmp/hack',
+            'HEAD < /etc/passwd',
+            'HEAD (test)',
+            'HEAD with space'
+        ]
+        
+        for ref in dangerous_refs:
+            assert not repo._is_safe_commit_sha(ref)
+    
+    def test_is_safe_commit_sha_invalid_types_and_lengths(self, mock_git_repo):
+        """Test SHA validation with invalid types and lengths."""
+        repo = GitRepository(str(mock_git_repo))
+        
+        # Test invalid types
+        assert not repo._is_safe_commit_sha(123)
+        assert not repo._is_safe_commit_sha(None)
+        assert not repo._is_safe_commit_sha([])
+        
+        # Test invalid lengths
+        assert not repo._is_safe_commit_sha('')
+        assert not repo._is_safe_commit_sha('a' * 101)  # Too long
+    
+    @patch('difflicious.git_operations.GitRepository._execute_git_command')
+    def test_get_diff_with_commit_comparison(self, mock_execute, mock_git_repo):
+        """Test get_diff with commit comparison parameters."""
+        repo = GitRepository(str(mock_git_repo))
+        
+        # Mock git rev-parse for SHA validation
+        def mock_git_response(args):
+            if 'rev-parse' in args:
+                return 'abc123def456', '', 0
+            elif 'diff' in args:
+                return '5\t2\ttest.txt\n', '', 0
+            return '', '', 1
+        
+        mock_execute.side_effect = mock_git_response
+        
+        # Test base_commit + target_commit
+        diffs = repo.get_diff(base_commit='abc123', target_commit='def456')
+        assert isinstance(diffs, list)
+        
+        # Verify correct git command was called
+        diff_calls = [call for call in mock_execute.call_args_list if 'diff' in call[0][0]]
+        assert len(diff_calls) > 0
+        diff_args = diff_calls[0][0][0]
+        assert 'abc123' in diff_args
+        assert 'def456' in diff_args
+    
+    @patch('difflicious.git_operations.GitRepository._execute_git_command')
+    def test_get_diff_with_base_commit_only(self, mock_execute, mock_git_repo):
+        """Test get_diff with only base commit (compare to working directory)."""
+        repo = GitRepository(str(mock_git_repo))
+        
+        # Mock git rev-parse for SHA validation
+        def mock_git_response(args):
+            if 'rev-parse' in args:
+                return 'abc123def456', '', 0
+            elif 'diff' in args:
+                return '3\t1\tfile.txt\n', '', 0
+            return '', '', 1
+        
+        mock_execute.side_effect = mock_git_response
+        
+        # Test base_commit only
+        diffs = repo.get_diff(base_commit='abc123')
+        assert isinstance(diffs, list)
+        
+        # Verify correct git command was called
+        diff_calls = [call for call in mock_execute.call_args_list if 'diff' in call[0][0]]
+        assert len(diff_calls) > 0
+        diff_args = diff_calls[0][0][0]
+        assert 'abc123' in diff_args
+    
+    @patch('difflicious.git_operations.GitRepository._execute_git_command')
+    def test_get_diff_default_to_main_branch(self, mock_execute, mock_git_repo):
+        """Test get_diff defaults to main branch when target_commit specified."""
+        repo = GitRepository(str(mock_git_repo))
+        
+        # Mock git rev-parse for SHA validation
+        def mock_git_response(args):
+            if 'rev-parse' in args:
+                if 'main' in args:
+                    return 'main_sha', '', 0
+                else:
+                    return 'target_sha', '', 0
+            elif 'diff' in args:
+                return '2\t3\ttest.txt\n', '', 0
+            return '', '', 1
+        
+        mock_execute.side_effect = mock_git_response
+        
+        # Test target_commit only (should default base to main)
+        diffs = repo.get_diff(target_commit='def456')
+        assert isinstance(diffs, list)
+        
+        # Verify main branch was used as base
+        diff_calls = [call for call in mock_execute.call_args_list if 'diff' in call[0][0]]
+        assert len(diff_calls) > 0
+        diff_args = diff_calls[0][0][0]
+        assert 'main' in diff_args
+        assert 'def456' in diff_args
+    
+    @patch('difflicious.git_operations.GitRepository._execute_git_command')
+    def test_get_diff_fallback_to_head(self, mock_execute, mock_git_repo):
+        """Test get_diff falls back to HEAD when main doesn't exist."""
+        repo = GitRepository(str(mock_git_repo))
+        
+        # Mock git rev-parse responses
+        def mock_git_response(args):
+            if 'rev-parse' in args:
+                if 'main' in args:
+                    return '', 'fatal: bad revision', 1  # main doesn't exist
+                elif 'HEAD' in args:
+                    return 'head_sha', '', 0
+                else:
+                    return 'target_sha', '', 0
+            elif 'diff' in args:
+                return '1\t1\tfile.txt\n', '', 0
+            return '', '', 1
+        
+        mock_execute.side_effect = mock_git_response
+        
+        # Test target_commit only with main not existing
+        diffs = repo.get_diff(target_commit='def456')
+        assert isinstance(diffs, list)
+        
+        # Verify HEAD was used as fallback
+        diff_calls = [call for call in mock_execute.call_args_list if 'diff' in call[0][0]]
+        assert len(diff_calls) > 0
+        diff_args = diff_calls[0][0][0]
+        assert 'HEAD' in diff_args
+        assert 'def456' in diff_args
+    
+    def test_get_diff_invalid_base_commit(self, mock_git_repo):
+        """Test get_diff with invalid base commit."""
+        repo = GitRepository(str(mock_git_repo))
+        
+        # Should return empty list due to error handling, not raise exception
+        result = repo.get_diff(base_commit='HEAD; rm -rf /')
+        assert isinstance(result, list)
+        assert len(result) == 0
+    
+    def test_get_diff_invalid_target_commit(self, mock_git_repo):
+        """Test get_diff with invalid target commit."""
+        repo = GitRepository(str(mock_git_repo))
+        
+        # Should return empty list due to error handling, not raise exception  
+        result = repo.get_diff(base_commit='HEAD', target_commit='HEAD | cat')
+        assert isinstance(result, list)
+        assert len(result) == 0
+    
+    @patch('difflicious.git_operations.GitRepository._execute_git_command')
+    def test_get_file_diff_with_commits(self, mock_execute, mock_git_repo):
+        """Test _get_file_diff with commit parameters."""
+        repo = GitRepository(str(mock_git_repo))
+        
+        # Mock git command response
+        mock_execute.return_value = ('diff content', '', 0)
+        
+        # Test with both commits
+        result = repo._get_file_diff('test.txt', 'abc123', 'def456')
+        assert result == 'diff content'
+        
+        # Verify correct git command was called
+        mock_execute.assert_called_once()
+        args = mock_execute.call_args[0][0]
+        assert 'diff' in args
+        assert 'abc123' in args
+        assert 'def456' in args
+        assert 'test.txt' in args
+    
+    @patch('difflicious.git_operations.GitRepository._execute_git_command')
+    def test_get_file_diff_with_base_commit_only(self, mock_execute, mock_git_repo):
+        """Test _get_file_diff with only base commit."""
+        repo = GitRepository(str(mock_git_repo))
+        
+        # Mock git command response
+        mock_execute.return_value = ('diff content', '', 0)
+        
+        # Test with base commit only
+        result = repo._get_file_diff('test.txt', 'abc123')
+        assert result == 'diff content'
+        
+        # Verify correct git command was called
+        mock_execute.assert_called_once()
+        args = mock_execute.call_args[0][0]
+        assert 'diff' in args
+        assert 'abc123' in args
+        assert 'test.txt' in args
+    
+    def test_get_diff_backward_compatibility(self, temp_git_repo):
+        """Test that get_diff maintains backward compatibility."""
+        repo = GitRepository(str(temp_git_repo))
+        
+        # Create a change for diffing
+        test_file = temp_git_repo / 'test.txt'
+        test_file.write_text('Modified content\n')
+        
+        # Test traditional usage still works
+        diffs = repo.get_diff(staged=False)
+        assert isinstance(diffs, list)
+        
+        # Test staged diff
+        subprocess.run(['git', 'add', 'test.txt'], cwd=temp_git_repo, check=True)
+        staged_diffs = repo.get_diff(staged=True)
+        assert isinstance(staged_diffs, list)

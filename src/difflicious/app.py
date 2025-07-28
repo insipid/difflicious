@@ -33,6 +33,42 @@ else:
     SAMPLE_DIFF_DATA = []
 
 
+def get_real_git_diff(base_commit: str = None, target_commit: str = None, 
+                      staged: bool = False, file_path: str = None) -> list:
+    """Get real git diff data using git operations.
+    
+    Args:
+        base_commit: Base commit SHA to compare from
+        target_commit: Target commit SHA to compare to  
+        staged: Whether to get staged changes
+        file_path: Optional specific file to diff
+        
+    Returns:
+        List of diff data or empty list on error
+    """
+    try:
+        repo = get_git_repository()
+        diffs = repo.get_diff(base_commit=base_commit, target_commit=target_commit, 
+                             staged=staged, file_path=file_path)
+        
+        # Convert to format expected by frontend
+        formatted_diffs = []
+        for diff in diffs:
+            # Parse the diff content if available
+            if diff.get('content'):
+                try:
+                    parsed_diff = parse_git_diff_for_rendering(diff['content'])
+                    if parsed_diff:
+                        formatted_diffs.extend(parsed_diff)
+                except DiffParseError as e:
+                    logging.warning(f"Failed to parse diff for {diff['file']}: {e}")
+        
+        return formatted_diffs
+    except GitOperationError as e:
+        logging.error(f"Git operation failed: {e}")
+        return []
+
+
 def create_app() -> Flask:
     """Create and configure the Flask application."""
     app = Flask(__name__)
@@ -67,11 +103,14 @@ def create_app() -> Flask:
     @app.route('/api/diff')
     def api_diff() -> Dict[str, Any]:
         """API endpoint for git diff information."""
-        # Get optional query parameters for future use
+        # Get optional query parameters
         staged = request.args.get('staged', 'false').lower() == 'true'
         file_path = request.args.get('file')
+        base_commit = request.args.get('base_commit')
+        target_commit = request.args.get('target_commit')
 
         # Use parsed sample diff data for demo purposes
+        # TODO: Replace with actual git operations when ready
         diff_data = SAMPLE_DIFF_DATA if SAMPLE_DIFF_DATA else []
 
         # Filter by file if requested
@@ -83,6 +122,8 @@ def create_app() -> Flask:
             "diffs": diff_data,
             "staged": staged,
             "file_filter": file_path,
+            "base_commit": base_commit,
+            "target_commit": target_commit,
             "total_files": len(diff_data)
         })
 
