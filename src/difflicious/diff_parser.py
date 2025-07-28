@@ -72,9 +72,19 @@ def _parse_file(patched_file: PatchedFile) -> Dict[str, Any]:
         total_additions += hunk.added
         total_deletions += hunk.removed
     
+    # Clean up file paths by removing a/ and b/ prefixes
+    target_path = patched_file.target_file or patched_file.source_file
+    source_path = patched_file.source_file
+    
+    # Remove a/ and b/ prefixes commonly found in git diffs
+    if target_path and target_path.startswith(('a/', 'b/')):
+        target_path = target_path[2:]
+    if source_path and source_path.startswith(('a/', 'b/')):
+        source_path = source_path[2:]
+    
     file_data = {
-        "path": patched_file.target_file or patched_file.source_file,
-        "old_path": patched_file.source_file,
+        "path": target_path,
+        "old_path": source_path,
         "status": status,
         "additions": total_additions,
         "deletions": total_deletions,
