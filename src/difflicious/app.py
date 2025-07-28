@@ -90,12 +90,31 @@ def create_app() -> Flask:
     @app.route('/api/status')
     def api_status() -> Dict[str, Any]:
         """API endpoint for git status information."""
-        # Return dummy status data for demo purposes
-        status_data = DUMMY_STATUS_DATA.copy()
-        # Update file count to match our sample diff data
-        if SAMPLE_DIFF_DATA:
-            status_data["files_changed"] = len(SAMPLE_DIFF_DATA)
-        return jsonify(status_data)
+        try:
+            repo = get_git_repository()
+            current_branch = repo.get_current_branch()
+            repo_name = repo.get_repository_name()
+            
+            # Get diff data to count changed files
+            diff_data = repo.get_diff(unstaged=True, untracked=True)
+            total_files = sum(group.get('count', 0) for group in diff_data.values())
+            
+            return jsonify({
+                'status': 'ok',
+                'current_branch': current_branch,
+                'repository_name': repo_name,
+                'files_changed': total_files,
+                'git_available': True
+            })
+        except Exception as e:
+            logger.error(f"Failed to get git status: {e}")
+            return jsonify({
+                'status': 'error',
+                'current_branch': 'unknown',
+                'repository_name': 'unknown',
+                'files_changed': 0,
+                'git_available': False
+            })
 
     @app.route('/api/branches')
     def api_branches() -> Dict[str, Any]:

@@ -177,6 +177,37 @@ class GitRepository:
             logger.error(f"Failed to get current branch: {e}")
             return 'error'
 
+    def get_repository_name(self) -> str:
+        """Get the repository name.
+        
+        Returns:
+            Repository name derived from remote URL or directory name
+        """
+        try:
+            # First try to get from remote origin URL
+            stdout, stderr, return_code = self._execute_git_command(['remote', 'get-url', 'origin'])
+            if return_code == 0 and stdout.strip():
+                remote_url = stdout.strip()
+                # Extract repo name from various URL formats:
+                # https://github.com/user/repo.git -> repo
+                # git@github.com:user/repo.git -> repo
+                # /path/to/repo -> repo
+                if remote_url.endswith('.git'):
+                    remote_url = remote_url[:-4]
+                repo_name = remote_url.split('/')[-1]
+                if repo_name:
+                    return repo_name
+            
+            # Fallback to directory name
+            import os
+            return os.path.basename(self.repo_path)
+            
+        except GitOperationError as e:
+            logger.warning(f"Failed to get repository name from remote: {e}")
+            # Final fallback to directory name
+            import os
+            return os.path.basename(self.repo_path)
+
     def get_branches(self) -> Dict[str, Any]:
         """Get a list of all local and remote branches."""
         try:
