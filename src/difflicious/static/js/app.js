@@ -20,7 +20,7 @@ function diffApp() {
         branches: {
             all: [],
             current: '',
-            main: '',
+            default: '',
             others: []
         },
         
@@ -217,8 +217,8 @@ function diffApp() {
                 const data = await response.json();
                 if (data.status === 'ok') {
                     this.branches = data.branches;
-                    // Set baseBranch to main if available, otherwise current
-                    this.baseBranch = this.branches.main || this.branches.current;
+                    // Set baseBranch to default if available, otherwise current
+                    this.baseBranch = this.branches.default || this.branches.current;
                 }
             } catch (error) {
                 console.error('Failed to load branches:', error);

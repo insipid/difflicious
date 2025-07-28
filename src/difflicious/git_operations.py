@@ -25,7 +25,6 @@ class GitRepository:
             repo_path: Path to git repository. Defaults to current working directory.
         """
         self.repo_path = Path(repo_path) if repo_path else Path.cwd()
-        self._validate_repository()
 
     def _validate_repository(self) -> None:
         """Validate that the path contains a git repository."""
@@ -49,6 +48,7 @@ class GitRepository:
         Raises:
             GitOperationError: If git command fails or times out
         """
+        self._validate_repository()
         # Sanitize command arguments
         sanitized_args = self._sanitize_args(args)
 
@@ -177,7 +177,7 @@ class GitRepository:
             logger.error(f"Failed to get current branch: {e}")
             return 'error'
 
-    def get_branches(self) -> List[str]:
+    def get_branches(self) -> Dict[str, Any]:
         """Get a list of all local and remote branches."""
         try:
             stdout, _, return_code = self._execute_git_command(['branch', '-a'])
@@ -198,10 +198,17 @@ class GitRepository:
 
                 if branch_name not in branches:
                     branches.append(branch_name)
-            return sorted(list(set(branches)))
+            default_branch = self.get_main_branch(branches)
+            return {
+                'branches': sorted(list(set(branches))),
+                'default_branch': default_branch
+            }
         except GitOperationError as e:
             logger.error(f"Failed to get branches: {e}")
-            return []
+            return {
+                'branches': [],
+                'default_branch': None
+            }
 
     def get_main_branch(self, branches: List[str]) -> Optional[str]:
         """Determine the main branch from a list of branches."""

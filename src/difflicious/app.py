@@ -9,91 +9,28 @@ from pathlib import Path
 from difflicious.git_operations import get_git_repository, GitOperationError
 from difflicious.diff_parser import parse_git_diff_for_rendering, DiffParseError
 
-# Load sample diff data for testing
-# SAMPLE_DIFF_PATH = Path(__file__).parent.parent.parent / "tests" / "sample_01.word.diff"
-SAMPLE_DIFF_PATH = Path(__file__).parent.parent.parent / "tests" / "sample_01.diff"
-SAMPLE_DIFF_DATA = None
-
-# Load dummy status data
-DUMMY_DATA_PATH = os.path.join(os.path.dirname(__file__), 'dummy_data.json')
-with open(DUMMY_DATA_PATH, 'r') as f:
-    DUMMY_STATUS_DATA = json.load(f)["status"]
-
-# Parse the sample diff file for realistic diff data
-if SAMPLE_DIFF_PATH.exists():
-    try:
-        sample_diff_content = SAMPLE_DIFF_PATH.read_text()
-        SAMPLE_DIFF_DATA = parse_git_diff_for_rendering(sample_diff_content)
-        print(f"✅ Loaded {len(SAMPLE_DIFF_DATA)} files from sample diff")
-    except Exception as e:
-        print(f"⚠️ Failed to load sample diff: {e}")
-        SAMPLE_DIFF_DATA = []
-else:
-    print(f"⚠️ Sample diff file not found: {SAMPLE_DIFF_PATH}")
-    SAMPLE_DIFF_DATA = []
-
-
-def get_real_git_diff(base_commit: str = None, target_commit: str = None,
-                      unstaged: bool = True, untracked: bool = False, file_path: str = None) -> dict:
-    """Get real git diff data using git operations.
-    
-    Args:
-        base_commit: Base commit SHA to compare from
-        target_commit: Target commit SHA to compare to (defaults to working directory)
-        unstaged: Whether to include unstaged changes
-        untracked: Whether to include untracked files
-        file_path: Optional specific file to diff
-        
-    Returns:
-        Dictionary with grouped diff data or empty groups on error
-    """
-    try:
-        repo = get_git_repository()
-        grouped_diffs = repo.get_diff(base_commit=base_commit, target_commit=target_commit,
-                                     unstaged=unstaged, untracked=untracked, file_path=file_path)
-
-        # Process each group to parse diff content for rendering
-        for group_name, group_data in grouped_diffs.items():
-            formatted_files = []
-            for diff in group_data['files']:
-                # Parse the diff content if available (but not for untracked files)
-                if diff.get('content') and diff.get('status') != 'untracked':
-                    try:
-                        parsed_diff = parse_git_diff_for_rendering(diff['content'])
-                        if parsed_diff:
-                            # Take the first parsed diff item and update it with our metadata
-                            formatted_diff = parsed_diff[0]
-                            formatted_diff.update({
-                                'path': diff['path'],
-                                'additions': diff['additions'],
-                                'deletions': diff['deletions'],
-                                'changes': diff['changes'],
-                                'status': diff['status']
-                            })
-                            formatted_files.append(formatted_diff)
-                    except DiffParseError as e:
-                        logging.warning(f"Failed to parse diff for {diff['path']}: {e}")
-                        # Add the raw diff info if parsing fails
-                        formatted_files.append(diff)
-                else:
-                    # For files without content or untracked files, add as-is
-                    formatted_files.append(diff)
-            
-            group_data['files'] = formatted_files
-            group_data['count'] = len(formatted_files)
-
-        return grouped_diffs
-    except GitOperationError as e:
-        logging.error(f"Git operation failed: {e}")
-        return {
-            'untracked': {'files': [], 'count': 0},
-            'unstaged': {'files': [], 'count': 0},
-            'staged': {'files': [], 'count': 0}
-        }
-
-
 def create_app() -> Flask:
     """Create and configure the Flask application."""
+    # Load sample diff data for testing
+    # SAMPLE_DIFF_PATH = Path(__file__).parent.parent.parent / "tests" / "sample_01.word.diff"
+    SAMPLE_DIFF_PATH = Path(__file__).parent.parent.parent / "tests" / "sample_01.diff"
+    SAMPLE_DIFF_DATA = None
+
+    # Load dummy status data
+    DUMMY_DATA_PATH = os.path.join(os.path.dirname(__file__), 'dummy_data.json')
+    with open(DUMMY_DATA_PATH, 'r') as f:
+        DUMMY_STATUS_DATA = json.load(f)["status"]
+
+    # Parse the sample diff file for realistic diff data
+    if SAMPLE_DIFF_PATH.exists():
+        try:
+            sample_diff_content = SAMPLE_DIFF_PATH.read_text()
+            SAMPLE_DIFF_DATA = parse_git_diff_for_rendering(sample_diff_content)
+        except Exception as e:
+            SAMPLE_DIFF_DATA = []
+    else:
+        SAMPLE_DIFF_DATA = []
+
     app = Flask(__name__)
 
     # Configure template directory to be relative to package
@@ -128,13 +65,14 @@ def create_app() -> Flask:
         """API endpoint for git branch information."""
         try:
             repo = get_git_repository()
-            all_branches = repo.get_branches()
+            branch_info = repo.get_branches()
+            all_branches = branch_info['branches']
+            default_branch = branch_info['default_branch']
             current_branch = repo.get_current_branch()
-            main_branch = repo.get_main_branch(all_branches)
             
             other_branches = [
                 b for b in all_branches 
-                if b != main_branch and b != current_branch
+                if b != default_branch and b != current_branch
             ]
 
             return jsonify({
@@ -142,7 +80,7 @@ def create_app() -> Flask:
                 "branches": {
                     "all": all_branches,
                     "current": current_branch,
-                    "main": main_branch,
+                    "default": default_branch,
                     "others": other_branches,
                 }
             })
