@@ -100,6 +100,33 @@ def create_app() -> Flask:
             status_data["files_changed"] = len(SAMPLE_DIFF_DATA)
         return jsonify(status_data)
 
+    @app.route('/api/branches')
+    def api_branches() -> Dict[str, Any]:
+        """API endpoint for git branch information."""
+        try:
+            repo = get_git_repository()
+            all_branches = repo.get_branches()
+            current_branch = repo.get_current_branch()
+            main_branch = repo.get_main_branch(all_branches)
+            
+            other_branches = [
+                b for b in all_branches 
+                if b != main_branch and b != current_branch
+            ]
+
+            return jsonify({
+                "status": "ok",
+                "branches": {
+                    "all": all_branches,
+                    "current": current_branch,
+                    "main": main_branch,
+                    "others": other_branches,
+                }
+            })
+        except GitOperationError as e:
+            logger.error(f"Failed to get branch info: {e}")
+            return jsonify({"status": "error", "message": str(e)}), 500
+
     @app.route('/api/diff')
     def api_diff() -> Dict[str, Any]:
         """API endpoint for git diff information."""
@@ -109,8 +136,8 @@ def create_app() -> Flask:
         base_commit = request.args.get('base_commit')
         target_commit = request.args.get('target_commit')
 
-        # Set hardcoded default commits if none provided
-        if not base_commit and not target_commit and not staged:
+        # Set hardcoded default commits if not provided and not staged
+        if base_commit is None and target_commit is None and not staged:
             # Default to comparing recent commits for demonstration
             # These are actual commits from this repository
             base_commit = 'a29759f'  # File navigation commit

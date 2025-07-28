@@ -40,6 +40,28 @@ def test_api_status_route(client):
     assert 'files_changed' in data
 
 
+def test_api_branches_route(client):
+    """Test that the API branches endpoint returns JSON."""
+    response = client.get('/api/branches')
+    assert response.status_code == 200
+    assert response.is_json
+    
+    data = response.get_json()
+    assert 'status' in data
+    assert data['status'] == 'ok'
+    assert 'branches' in data
+    
+    branches = data['branches']
+    assert 'all' in branches
+    assert 'current' in branches
+    assert 'main' in branches
+    assert 'others' in branches
+    
+    assert isinstance(branches['all'], list)
+    assert isinstance(branches['others'], list)
+
+
+
 def test_api_diff_route(client):
     """Test that the API diff endpoint returns JSON."""
     response = client.get('/api/diff')
