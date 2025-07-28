@@ -7,6 +7,18 @@
     <title>Difflicious - Git Diff Visualization</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- Common language packs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/markdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 
@@ -157,7 +169,7 @@
                                                                     <span x-show="line.type === 'context'"
                                                                         class="text-gray-400">&nbsp;</span>
                                                                     <span x-show="line.left?.content"
-                                                                        x-text="line.left?.content"></span>
+                                                                        x-html="highlightCode(line.left?.content, diff.path)"></span>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -181,7 +193,7 @@
                                                                     <span x-show="line.type === 'context'"
                                                                         class="text-gray-400">&nbsp;</span>
                                                                     <span x-show="line.right?.content"
-                                                                        x-text="line.right?.content"></span>
+                                                                        x-html="highlightCode(line.right?.content, diff.path)"></span>
                                                                 </div>
                                                             </div>
                                                         </div>
