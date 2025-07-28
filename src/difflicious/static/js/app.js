@@ -18,6 +18,12 @@ function diffApp() {
         showOnlyChanged: true,
         searchFilter: '',
         
+        // Branch and diff options
+        baseBranch: 'main',
+        targetBranch: 'working-directory',
+        stageShowing: true,
+        attractQuestion: false,
+        
         // Computed properties
         get filteredDiffs() {
             let filtered = this.diffs;
@@ -155,7 +161,32 @@ function diffApp() {
             this.loading = true;
             
             try {
-                const response = await fetch('/api/diff');
+                // Build query parameters based on UI state
+                const params = new URLSearchParams();
+                
+                // Handle branch selection
+                if (this.baseBranch && this.baseBranch !== 'main') {
+                    params.set('base_commit', this.baseBranch);
+                }
+                
+                if (this.targetBranch && this.targetBranch !== 'working-directory') {
+                    params.set('target_commit', this.targetBranch);
+                }
+                
+                // Handle staging options
+                if (this.stageShowing) {
+                    params.set('staged', 'true');
+                }
+                
+                // Add other filters
+                if (this.searchFilter.trim()) {
+                    params.set('file', this.searchFilter.trim());
+                }
+                
+                const queryString = params.toString();
+                const url = queryString ? `/api/diff?${queryString}` : '/api/diff';
+                
+                const response = await fetch(url);
                 const data = await response.json();
                 
                 if (data.status === 'ok') {

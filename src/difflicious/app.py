@@ -33,7 +33,7 @@ else:
     SAMPLE_DIFF_DATA = []
 
 
-def get_real_git_diff(base_commit: str = None, target_commit: str = None, 
+def get_real_git_diff(base_commit: str = None, target_commit: str = None,
                       staged: bool = False, file_path: str = None) -> list:
     """Get real git diff data using git operations.
     
@@ -48,9 +48,9 @@ def get_real_git_diff(base_commit: str = None, target_commit: str = None,
     """
     try:
         repo = get_git_repository()
-        diffs = repo.get_diff(base_commit=base_commit, target_commit=target_commit, 
+        diffs = repo.get_diff(base_commit=base_commit, target_commit=target_commit,
                              staged=staged, file_path=file_path)
-        
+
         # Convert to format expected by frontend
         formatted_diffs = []
         for diff in diffs:
@@ -62,7 +62,7 @@ def get_real_git_diff(base_commit: str = None, target_commit: str = None,
                         formatted_diffs.extend(parsed_diff)
                 except DiffParseError as e:
                     logging.warning(f"Failed to parse diff for {diff['file']}: {e}")
-        
+
         return formatted_diffs
     except GitOperationError as e:
         logging.error(f"Git operation failed: {e}")
@@ -109,13 +109,38 @@ def create_app() -> Flask:
         base_commit = request.args.get('base_commit')
         target_commit = request.args.get('target_commit')
 
-        # Use parsed sample diff data for demo purposes
-        # TODO: Replace with actual git operations when ready
-        diff_data = SAMPLE_DIFF_DATA if SAMPLE_DIFF_DATA else []
+        # Set hardcoded default commits if none provided
+        if not base_commit and not target_commit and not staged:
+            # Default to comparing recent commits for demonstration
+            # These are actual commits from this repository
+            base_commit = 'a29759f'  # File navigation commit
+            target_commit = 'fa8e68e'  # Commit comparison functionality commit
+            # Reference commits used for testing
+            # base_commit = 'be9d'
+            # target_commit = '871c'
 
-        # Filter by file if requested
-        if file_path:
-            diff_data = [f for f in diff_data if file_path in f.get('path', '')]
+        # Try to get real git diff data
+        try:
+            diff_data = get_real_git_diff(
+                base_commit=base_commit,
+                target_commit=target_commit,
+                staged=staged,
+                file_path=file_path
+            )
+
+            # If no real data available, fall back to sample data
+            if not diff_data:
+                diff_data = SAMPLE_DIFF_DATA if SAMPLE_DIFF_DATA else []
+                # Filter by file if requested
+                if file_path:
+                    diff_data = [f for f in diff_data if file_path in f.get('path', '')]
+
+        except Exception as e:
+            logger.error(f"Failed to get real git diff: {e}")
+            # Fall back to sample data on any error
+            diff_data = SAMPLE_DIFF_DATA if SAMPLE_DIFF_DATA else []
+            if file_path:
+                diff_data = [f for f in diff_data if file_path in f.get('path', '')]
 
         return jsonify({
             "status": "ok",
@@ -124,7 +149,8 @@ def create_app() -> Flask:
             "file_filter": file_path,
             "base_commit": base_commit,
             "target_commit": target_commit,
-            "total_files": len(diff_data)
+            "total_files": len(diff_data),
+            "using_sample_data": diff_data == SAMPLE_DIFF_DATA
         })
 
     return app

@@ -30,12 +30,45 @@
                 <div class="flex items-center space-x-4">
                     <h1 class="text-xl font-semibold text-gray-900">Difflicious</h1>
 
-                    <!-- Branch Selection Dropdown -->
-                    <div class="relative">
-                        <select
+                    <!-- Base Branch Dropdown -->
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-gray-700">Base:</label>
+                        <select x-model="baseBranch" @change="refreshData()"
                             class="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option x-text="gitStatus.current_branch || 'Select branch'"></option>
+                            <option value="main">main</option>
+                            <!-- TODO: Add more branches from API -->
                         </select>
+                    </div>
+
+                    <!-- Target Branch Dropdown -->
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-gray-700">Target:</label>
+                        <select x-model="targetBranch" @change="refreshData()"
+                            class="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="working-directory">Working Directory</option>
+                            <!-- TODO: Add more branches from API -->
+                        </select>
+                    </div>
+
+                    <!-- Stage Options -->
+                    <div class="flex items-center space-x-4">
+                        <!-- Stage Showing Checkbox -->
+                        <div class="flex items-center space-x-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" x-model="stageShowing" @change="refreshData()"
+                                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <span class="ml-1 text-sm text-gray-700">Stage showing</span>
+                            </label>
+                        </div>
+
+                        <!-- Attract Question Mark Checkbox -->
+                        <div class="flex items-center space-x-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" x-model="attractQuestion" @change="refreshData()"
+                                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <span class="ml-1 text-sm text-gray-700">Attract ?</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
 

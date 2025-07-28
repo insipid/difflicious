@@ -118,7 +118,7 @@ class GitRepository:
             '--stat', '--patch', '--no-patch', '--raw', '--format',
             '--oneline', '--graph', '--decorate', '--all', '--color',
             '--no-color', '--word-diff', '--unified', '--context',
-            '--show-current', '--cached'
+            '--show-current', '--cached', '--verify'
         }
         
         # Allow safe single-dash options
@@ -213,7 +213,7 @@ class GitRepository:
                     diff_args.append('--cached')
             
             # Add safe diff options
-            diff_args.extend(['--numstat', '--name-status'])
+            diff_args.append('--numstat')
             
             if file_path:
                 # Validate file path is within repository
