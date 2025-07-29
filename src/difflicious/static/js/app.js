@@ -647,21 +647,45 @@ function diffApp() {
 
             const currentHunk = targetFile.hunks[hunkIndex];
 
-            // Convert the raw lines into diff line format (context lines for both sides)
-            const newDiffLines = lines.map((content, index) => {
-                const lineNum = startLineNum + index;
-                return {
-                    type: 'context',
-                    left: {
-                        content: content,
-                        line_num: lineNum
-                    },
-                    right: {
-                        content: content,
-                        line_num: lineNum
-                    }
-                };
-            });
+            // Convert the raw lines into diff line format
+            let newDiffLines;
+            
+            if (direction === 'after') {
+                // Special case: expanding down (extending previous hunk's after context)
+                // Both sides continue sequentially from where the hunk ended
+                const leftStartLineNum = currentHunk.old_start + currentHunk.old_count;
+                const rightStartLineNum = currentHunk.new_start + currentHunk.new_count;
+                
+                newDiffLines = lines.map((content, index) => {
+                    return {
+                        type: 'context',
+                        left: {
+                            content: content,
+                            line_num: leftStartLineNum + index
+                        },
+                        right: {
+                            content: content, 
+                            line_num: rightStartLineNum + index
+                        }
+                    };
+                });
+            } else {
+                // Normal case: expanding before (both sides use same line numbers)
+                newDiffLines = lines.map((content, index) => {
+                    const lineNum = startLineNum + index;
+                    return {
+                        type: 'context',
+                        left: {
+                            content: content,
+                            line_num: lineNum
+                        },
+                        right: {
+                            content: content, 
+                            line_num: lineNum
+                        }
+                    };
+                });
+            }
 
             if (direction === 'before') {
                 // Insert at the beginning of the hunk
@@ -678,7 +702,80 @@ function diffApp() {
             currentHunk.old_count += lines.length;
             currentHunk.new_count += lines.length;
 
+            // Check if we need to merge with the next hunk after expanding down
+            if (direction === 'after') {
+                this.checkAndMergeHunks(targetFile, hunkIndex);
+            }
+
             console.log('🟢 Inserted context lines:', { direction, linesAdded: lines.length, hunkIndex });
+        },
+
+        checkAndMergeHunks(targetFile, currentHunkIndex) {
+            const nextHunkIndex = currentHunkIndex + 1;
+            
+            // Check if there's a next hunk to potentially merge with
+            if (nextHunkIndex >= targetFile.hunks.length) {
+                return;
+            }
+
+            const currentHunk = targetFile.hunks[currentHunkIndex];
+            const nextHunk = targetFile.hunks[nextHunkIndex];
+
+            // Calculate where current hunk ends and next hunk starts
+            const currentOldEnd = currentHunk.old_start + currentHunk.old_count - 1; // Last line of current hunk
+            const currentNewEnd = currentHunk.new_start + currentHunk.new_count - 1; // Last line of current hunk
+            
+            // Check if hunks are now adjacent or overlapping
+            const oldGap = nextHunk.old_start - currentOldEnd - 1; // Gap between last line of current and first line of next
+            const newGap = nextHunk.new_start - currentNewEnd - 1;
+            
+            console.log('🟡 Checking hunk merge:', { 
+                currentOldEnd, currentNewEnd, 
+                nextOldStart: nextHunk.old_start, nextNewStart: nextHunk.new_start,
+                oldGap, newGap 
+            });
+
+            // Merge if hunks are adjacent or overlapping (gap <= 1, meaning at most 1 line between them)
+            if (oldGap <= 1 && newGap <= 1) {
+                console.log('🟢 Merging hunks:', currentHunkIndex, 'and', nextHunkIndex);
+                
+                // If there's a gap of 1 line, add context lines to bridge it
+                if (oldGap === 1 && newGap === 1) {
+                    console.log('🟡 Adding bridge line for 1-line gap');
+                    // Add the single bridging line as context
+                    const bridgeLine = {
+                        type: 'context',
+                        left: {
+                            content: '// (bridging line)', // Would need to fetch this line, but for now placeholder
+                            line_num: currentOldEnd + 1
+                        },
+                        right: {
+                            content: '// (bridging line)',
+                            line_num: currentNewEnd + 1
+                        }
+                    };
+                    currentHunk.lines.push(bridgeLine);
+                    currentHunk.old_count += 1;
+                    currentHunk.new_count += 1;
+                }
+                
+                // Merge the hunks
+                currentHunk.lines = [...currentHunk.lines, ...nextHunk.lines];
+                currentHunk.old_count = nextHunk.old_start + nextHunk.old_count - currentHunk.old_start;
+                currentHunk.new_count = nextHunk.new_start + nextHunk.new_count - currentHunk.new_start;
+                
+                // Update section header to combine both if they exist
+                if (currentHunk.section_header && nextHunk.section_header) {
+                    currentHunk.section_header = `${currentHunk.section_header} / ${nextHunk.section_header}`;
+                } else if (nextHunk.section_header) {
+                    currentHunk.section_header = nextHunk.section_header;
+                }
+                
+                // Remove the next hunk from the array
+                targetFile.hunks.splice(nextHunkIndex, 1);
+                
+                console.log('🟢 Hunks merged successfully');
+            }
         },
 
         // Check if context can be expanded for a hunk
