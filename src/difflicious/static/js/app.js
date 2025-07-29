@@ -5,7 +5,7 @@
 
 function diffApp() {
     const contextManager = createContextManager();
-    
+
     const app = {
         // Application state
         loading: false,
@@ -189,7 +189,6 @@ function diffApp() {
                     hideGroupHeader: showingStagedOnly
                 });
             }
-
             return groups;
         },
 
@@ -410,11 +409,15 @@ function diffApp() {
 
                     Object.keys(this.groups).forEach(groupKey => {
                         const groupData = groups[groupKey] || { files: [], count: 0 };
+
+                        // Use the actual files length as count, not the API count
+                        const actualCount = (groupData.files || []).length;
+
                         this.groups[groupKey].files = (groupData.files || []).map(file => ({
                             ...file,
                             expanded: true // Add UI state for each file - start expanded
                         }));
-                        this.groups[groupKey].count = groupData.count || 0;
+                        this.groups[groupKey].count = actualCount;
                         // Keep existing visibility state
                     });
 
@@ -535,30 +538,28 @@ function diffApp() {
 
     };
 
-    // Return the integrated app with context manager methods
-    const finalApp = {
-        ...app,
-        ...contextManager,
-        
-        // Override context manager methods to use correct 'this' context
-        async expandContext(filePath, hunkIndex, direction, contextLines = 10) {
-            // Set up the context manager to use this app's data
-            contextManager._setGroupsReference(this.groups);
-            contextManager._setSaveStateCallback(() => this.saveUIState());
-            return await contextManager.expandContext(filePath, hunkIndex, direction, contextLines);
-        },
-        
-        canExpandContext(filePath, hunkIndex, direction) {
-            contextManager._setGroupsReference(this.groups);
-            return contextManager.canExpandContext(filePath, hunkIndex, direction);
-        },
-        
-        isContextLoading(filePath, hunkIndex, direction) {
-            return contextManager.isContextLoading(filePath, hunkIndex, direction);
-        }
+    // Add context manager methods directly to the app object to preserve getters
+    app.expandContext = async function(filePath, hunkIndex, direction, contextLines = 10) {
+        // Set up the context manager to use this app's data
+        contextManager._setGroupsReference(this.groups);
+        contextManager._setSaveStateCallback(() => this.saveUIState());
+        return await contextManager.expandContext(filePath, hunkIndex, direction, contextLines);
+    };
+    
+    app.canExpandContext = function(filePath, hunkIndex, direction) {
+        contextManager._setGroupsReference(this.groups);
+        return contextManager.canExpandContext(filePath, hunkIndex, direction);
+    };
+    
+    app.isContextLoading = function(filePath, hunkIndex, direction) {
+        return contextManager.isContextLoading(filePath, hunkIndex, direction);
     };
 
-    return finalApp;
+    // Add other context manager properties directly
+    app.contextExpansions = contextManager.contextExpansions;
+    app.contextLoading = contextManager.contextLoading;
+
+    return app;
 }
 // Test line added to create a diff
 // Another test change for debugging context expansion
