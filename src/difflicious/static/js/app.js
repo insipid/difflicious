@@ -677,9 +677,10 @@ function diffApp() {
 
         // Check if context is currently loading
         isContextLoading(filePath, hunkIndex, direction) {
-            return this.contextLoading[filePath] && 
-                   this.contextLoading[filePath][hunkIndex] && 
-                   this.contextLoading[filePath][hunkIndex][direction];
+            // Return false if loading state is not set up yet (undefined means not loading)
+            return !!(this.contextLoading[filePath] && 
+                     this.contextLoading[filePath][hunkIndex] && 
+                     this.contextLoading[filePath][hunkIndex][direction]);
         }
     };
 }
