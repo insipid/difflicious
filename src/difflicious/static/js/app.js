@@ -40,7 +40,6 @@ function diffApp() {
         // Context expansion state tracking
         contextExpansions: {}, // { filePath: { hunkIndex: { beforeExpanded: number, afterExpanded: number } } }
         contextLoading: {}, // { filePath: { hunkIndex: { before: bool, after: bool } } }
-        fileMetadata: {}, // { filePath: { lineCount: number } }
 
         // LocalStorage utility functions
         getStorageKey() {
@@ -329,7 +328,6 @@ function diffApp() {
 
         // Initialize the application
         async init() {
-            console.log('🎉 Difflicious initialized');
             await this.loadBranches(); // Load branches first
             await this.loadGitStatus();
             this.loadUIState(); // Load saved UI state after we have repository name
@@ -533,7 +531,6 @@ function diffApp() {
 
         // Context expansion methods
         async expandContext(filePath, hunkIndex, direction, contextLines = 10) {
-            console.log('🔵 expandContext called:', { filePath, hunkIndex, direction, contextLines });
 
             // Find the target file to determine which hunk to actually expand
             let targetFile = null;
@@ -591,17 +588,14 @@ function diffApp() {
 
                 if (targetDirection === 'before') {
                     // Get lines before the target hunk
-                    const currentExpanded = this.contextExpansions[filePath][targetHunkIndex].beforeExpanded || 0;
                     endLine = targetHunk.new_start - 1;
                     startLine = Math.max(1, endLine - contextLines + 1);
                 } else { // targetDirection === 'after'
                     // Get lines after the target hunk
-                    const currentExpanded = this.contextExpansions[filePath][targetHunkIndex].afterExpanded || 0;
                     startLine = targetHunk.new_start + targetHunk.new_count;
                     endLine = startLine + contextLines - 1;
                 }
 
-                console.log('🟡 Fetching lines for target hunk:', { targetHunkIndex, targetDirection, startLine, endLine });
 
                 const response = await this.fetchFileLines(filePath, startLine, endLine);
                 if (response && response.status === 'ok' && response.lines) {
@@ -649,13 +643,13 @@ function diffApp() {
 
             // Convert the raw lines into diff line format
             let newDiffLines;
-            
+
             if (direction === 'after') {
                 // Special case: expanding down (extending previous hunk's after context)
                 // Both sides continue sequentially from where the hunk ended
                 const leftStartLineNum = currentHunk.old_start + currentHunk.old_count;
                 const rightStartLineNum = currentHunk.new_start + currentHunk.new_count;
-                
+
                 newDiffLines = lines.map((content, index) => {
                     return {
                         type: 'context',
@@ -664,7 +658,7 @@ function diffApp() {
                             line_num: leftStartLineNum + index
                         },
                         right: {
-                            content: content, 
+                            content: content,
                             line_num: rightStartLineNum + index
                         }
                     };
@@ -680,7 +674,7 @@ function diffApp() {
                             line_num: lineNum
                         },
                         right: {
-                            content: content, 
+                            content: content,
                             line_num: lineNum
                         }
                     };
@@ -707,12 +701,11 @@ function diffApp() {
                 this.checkAndMergeHunks(targetFile, hunkIndex);
             }
 
-            console.log('🟢 Inserted context lines:', { direction, linesAdded: lines.length, hunkIndex });
         },
 
         checkAndMergeHunks(targetFile, currentHunkIndex) {
             const nextHunkIndex = currentHunkIndex + 1;
-            
+
             // Check if there's a next hunk to potentially merge with
             if (nextHunkIndex >= targetFile.hunks.length) {
                 return;
@@ -724,33 +717,25 @@ function diffApp() {
             // Calculate where current hunk ends and next hunk starts
             const currentOldEnd = currentHunk.old_start + currentHunk.old_count - 1; // Last line of current hunk
             const currentNewEnd = currentHunk.new_start + currentHunk.new_count - 1; // Last line of current hunk
-            
+
             // Check if hunks are now adjacent or overlapping
             const oldGap = nextHunk.old_start - currentOldEnd - 1; // Gap between last line of current and first line of next
             const newGap = nextHunk.new_start - currentNewEnd - 1;
-            
-            console.log('🟡 Checking hunk merge:', { 
-                currentOldEnd, currentNewEnd, 
-                nextOldStart: nextHunk.old_start, nextNewStart: nextHunk.new_start,
-                oldGap, newGap 
-            });
+
 
             // Merge if hunks are adjacent or overlapping (gap <= 1, meaning at most 1 line between them)
             if (oldGap <= 1 && newGap <= 1) {
-                console.log('🟢 Merging hunks:', currentHunkIndex, 'and', nextHunkIndex);
-                
                 // If there's a gap of 1 line, add context lines to bridge it
                 if (oldGap === 1 && newGap === 1) {
-                    console.log('🟡 Adding bridge line for 1-line gap');
                     // Add the single bridging line as context
                     const bridgeLine = {
                         type: 'context',
                         left: {
-                            content: '// (bridging line)', // Would need to fetch this line, but for now placeholder
+                            content: '', // Empty placeholder for the bridging line
                             line_num: currentOldEnd + 1
                         },
                         right: {
-                            content: '// (bridging line)',
+                            content: '',
                             line_num: currentNewEnd + 1
                         }
                     };
@@ -758,23 +743,21 @@ function diffApp() {
                     currentHunk.old_count += 1;
                     currentHunk.new_count += 1;
                 }
-                
+
                 // Merge the hunks
                 currentHunk.lines = [...currentHunk.lines, ...nextHunk.lines];
                 currentHunk.old_count = nextHunk.old_start + nextHunk.old_count - currentHunk.old_start;
                 currentHunk.new_count = nextHunk.new_start + nextHunk.new_count - currentHunk.new_start;
-                
+
                 // Update section header to combine both if they exist
                 if (currentHunk.section_header && nextHunk.section_header) {
                     currentHunk.section_header = `${currentHunk.section_header} / ${nextHunk.section_header}`;
                 } else if (nextHunk.section_header) {
                     currentHunk.section_header = nextHunk.section_header;
                 }
-                
+
                 // Remove the next hunk from the array
                 targetFile.hunks.splice(nextHunkIndex, 1);
-                
-                console.log('🟢 Hunks merged successfully');
             }
         },
 

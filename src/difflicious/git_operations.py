@@ -528,22 +528,7 @@ class GitRepository:
         except GitOperationError as e:
             return f"Error: {e}"
 
-    def get_extended_context(self, file_path: str, base_commit: Optional[str] = None,
-                           target_commit: Optional[str] = None, use_cached: bool = False,
-                           context_lines: int = 20) -> str:
-        """Get extended context diff for a specific file.
 
-        Args:
-            file_path: Path to the file
-            base_commit: Base commit to compare from
-            target_commit: Target commit to compare to
-            use_cached: Whether to get staged diff (used when no commits specified)
-            context_lines: Number of context lines to include (default: 20)
-
-        Returns:
-            Extended diff content as string
-        """
-        return self._get_file_diff(file_path, base_commit, target_commit, use_cached, context_lines)
 
     def get_file_line_count(self, file_path: str) -> int:
         """Get the total number of lines in a file.
