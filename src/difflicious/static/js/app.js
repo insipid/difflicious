@@ -535,15 +535,30 @@ function diffApp() {
 
     };
 
-    // Setup dependency injection for context manager
-    contextManager._setGroupsReference(app.groups);
-    contextManager._setSaveStateCallback(() => app.saveUIState());
-
     // Return the integrated app with context manager methods
-    return {
+    const finalApp = {
         ...app,
-        ...contextManager
+        ...contextManager,
+        
+        // Override context manager methods to use correct 'this' context
+        async expandContext(filePath, hunkIndex, direction, contextLines = 10) {
+            // Set up the context manager to use this app's data
+            contextManager._setGroupsReference(this.groups);
+            contextManager._setSaveStateCallback(() => this.saveUIState());
+            return await contextManager.expandContext(filePath, hunkIndex, direction, contextLines);
+        },
+        
+        canExpandContext(filePath, hunkIndex, direction) {
+            contextManager._setGroupsReference(this.groups);
+            return contextManager.canExpandContext(filePath, hunkIndex, direction);
+        },
+        
+        isContextLoading(filePath, hunkIndex, direction) {
+            return contextManager.isContextLoading(filePath, hunkIndex, direction);
+        }
     };
+
+    return finalApp;
 }
 // Test line added to create a diff
 // Another test change for debugging context expansion
