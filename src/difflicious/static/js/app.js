@@ -14,9 +14,9 @@ function diffApp() {
             git_available: false
         },
         groups: {
-            untracked: {files: [], count: 0, visible: true},
-            unstaged: {files: [], count: 0, visible: true},
-            staged: {files: [], count: 0, visible: true}
+            untracked: { files: [], count: 0, visible: true },
+            unstaged: { files: [], count: 0, visible: true },
+            staged: { files: [], count: 0, visible: true }
         },
         branches: {
             all: [],
@@ -24,33 +24,33 @@ function diffApp() {
             default: '',
             others: []
         },
-        
+
         // UI state
         showOnlyChanged: true,
         searchFilter: '',
-        
+
         // Branch and diff options
         baseBranch: 'main',
         unstaged: true,
         untracked: true,
-        
+
         // Saved state for restoration
         savedFileExpansions: {},
-        
+
         // Context expansion state tracking
         contextExpansions: {}, // { filePath: { hunkIndex: { beforeExpanded: number, afterExpanded: number } } }
         contextLoading: {}, // { filePath: { hunkIndex: { before: bool, after: bool } } }
         fileMetadata: {}, // { filePath: { lineCount: number } }
-        
+
         // LocalStorage utility functions
         getStorageKey() {
             const repoName = this.gitStatus.repository_name || 'unknown';
             return `difflicious.repo.${repoName}`;
         },
-        
+
         saveUIState() {
             if (!this.gitStatus.repository_name) return; // Don't save if no repo name yet
-            
+
             const state = {
                 // UI Controls
                 baseBranch: this.baseBranch,
@@ -58,44 +58,43 @@ function diffApp() {
                 untracked: this.untracked,
                 showOnlyChanged: this.showOnlyChanged,
                 searchFilter: this.searchFilter,
-                
+
                 // Group visibility
                 groupVisibility: {
                     untracked: this.groups.untracked.visible,
                     unstaged: this.groups.unstaged.visible,
                     staged: this.groups.staged.visible
                 },
-                
+
                 // File expansion states (by file path)
-                fileExpansions: this.getFileExpansionStates(),
-                
-                // Context expansion states
-                contextExpansions: this.contextExpansions
+                fileExpansions: this.getFileExpansionStates()
+
+                // Note: contextExpansions are NOT persisted - they should start fresh each session
             };
-            
+
             try {
                 localStorage.setItem(this.getStorageKey(), JSON.stringify(state));
             } catch (error) {
                 console.warn('Failed to save UI state to localStorage:', error);
             }
         },
-        
+
         loadUIState() {
             if (!this.gitStatus.repository_name) return; // Don't load if no repo name yet
-            
+
             try {
                 const saved = localStorage.getItem(this.getStorageKey());
                 if (!saved) return;
-                
+
                 const state = JSON.parse(saved);
-                
+
                 // Restore UI controls
                 if (state.baseBranch) this.baseBranch = state.baseBranch;
                 if (typeof state.unstaged === 'boolean') this.unstaged = state.unstaged;
                 if (typeof state.untracked === 'boolean') this.untracked = state.untracked;
                 if (typeof state.showOnlyChanged === 'boolean') this.showOnlyChanged = state.showOnlyChanged;
                 if (state.searchFilter !== undefined) this.searchFilter = state.searchFilter;
-                
+
                 // Restore group visibility
                 if (state.groupVisibility) {
                     if (typeof state.groupVisibility.untracked === 'boolean') {
@@ -108,12 +107,11 @@ function diffApp() {
                         this.groups.staged.visible = state.groupVisibility.staged;
                     }
                 }
-                
+
                 // Restore file expansion states
                 this.savedFileExpansions = state.fileExpansions || {};
-                
-                // Restore context expansion states
-                this.contextExpansions = state.contextExpansions || {};
+
+                // Note: contextExpansions are NOT restored - they start fresh each session
                 if (this.savedFileExpansions) {
                     Object.keys(this.groups).forEach(groupKey => {
                         this.groups[groupKey].files.forEach(file => {
@@ -123,12 +121,12 @@ function diffApp() {
                         });
                     });
                 }
-                
+
             } catch (error) {
                 console.warn('Failed to load UI state from localStorage:', error);
             }
         },
-        
+
         clearUIState() {
             try {
                 localStorage.removeItem(this.getStorageKey());
@@ -136,11 +134,11 @@ function diffApp() {
                 console.warn('Failed to clear UI state from localStorage:', error);
             }
         },
-        
+
         getFileExpansionStates() {
             // Start with previously saved expansions to preserve files that are no longer visible
             const expansions = { ...this.savedFileExpansions };
-            
+
             // Update with current file states
             Object.keys(this.groups).forEach(groupKey => {
                 this.groups[groupKey].files.forEach(file => {
@@ -151,15 +149,15 @@ function diffApp() {
             });
             return expansions;
         },
-        
+
 
         // Computed properties
         get visibleGroups() {
             const groups = [];
-            
+
             // Special case: if only staged changes are displayed, show files without grouping
             const showingStagedOnly = !this.unstaged && !this.untracked;
-            
+
             // Add groups that have content (headers always show, but content may be hidden)
             if (this.groups.untracked.count > 0) {
                 groups.push({
@@ -171,10 +169,10 @@ function diffApp() {
                     hideGroupHeader: false
                 });
             }
-            
+
             if (this.groups.unstaged.count > 0) {
                 groups.push({
-                    key: 'unstaged', 
+                    key: 'unstaged',
                     title: 'Unstaged',
                     files: this.filterFiles(this.groups.unstaged.files),
                     visible: this.groups.unstaged.visible,
@@ -182,68 +180,68 @@ function diffApp() {
                     hideGroupHeader: false
                 });
             }
-            
+
             if (this.groups.staged.count > 0) {
                 groups.push({
                     key: 'staged',
-                    title: 'Staged', 
+                    title: 'Staged',
                     files: this.filterFiles(this.groups.staged.files),
                     visible: this.groups.staged.visible,
                     count: this.groups.staged.count,
                     hideGroupHeader: showingStagedOnly
                 });
             }
-            
+
             return groups;
         },
-        
+
         get totalVisibleFiles() {
-            return this.visibleGroups.reduce((total, group) => 
+            return this.visibleGroups.reduce((total, group) =>
                 total + (group.visible ? group.files.length : 0), 0
             );
         },
-        
+
         get hasAnyGroups() {
             return this.visibleGroups.length > 0;
         },
-        
+
         // Check if all visible files are expanded
         get allExpanded() {
             const allFiles = this.getAllVisibleFiles();
             return allFiles.length > 0 && allFiles.every(file => file.expanded);
         },
-        
-        // Check if all visible files are collapsed  
+
+        // Check if all visible files are collapsed
         get allCollapsed() {
             const allFiles = this.getAllVisibleFiles();
             return allFiles.length > 0 && allFiles.every(file => !file.expanded);
         },
-        
+
         // Helper methods
         filterFiles(files) {
             let filtered = files.map((file, originalIndex) => ({
                 ...file,
                 originalIndex // Store the original index for toggleFile to use
             }));
-            
+
             // Filter by search term
             if (this.searchFilter.trim()) {
                 const search = this.searchFilter.toLowerCase();
-                filtered = filtered.filter(file => 
+                filtered = filtered.filter(file =>
                     file.path.toLowerCase().includes(search)
                 );
             }
-            
+
             // Filter by changed files only
             if (this.showOnlyChanged) {
-                filtered = filtered.filter(file => 
+                filtered = filtered.filter(file =>
                     file.additions > 0 || file.deletions > 0 || file.status === 'untracked' || file.status === 'staged'
                 );
             }
-            
+
             return filtered;
         },
-        
+
         getAllVisibleFiles() {
             const allFiles = [];
             this.visibleGroups.forEach(group => {
@@ -253,12 +251,12 @@ function diffApp() {
             });
             return allFiles;
         },
-        
+
         toggleGroupVisibility(groupKey) {
             this.groups[groupKey].visible = !this.groups[groupKey].visible;
             this.saveUIState();
         },
-        
+
         // Detect language from file extension
         detectLanguage(filePath) {
             const ext = filePath.split('.').pop()?.toLowerCase();
@@ -306,11 +304,11 @@ function diffApp() {
             };
             return languageMap[ext] || 'plaintext';
         },
-        
+
         // Apply syntax highlighting to code content
         highlightCode(content, filePath) {
             if (!content || !window.hljs) return content;
-            
+
             try {
                 const language = this.detectLanguage(filePath);
                 if (language === 'plaintext') {
@@ -328,7 +326,7 @@ function diffApp() {
                 return content;
             }
         },
-        
+
         // Initialize the application
         async init() {
             console.log('🎉 Difflicious initialized');
@@ -352,13 +350,13 @@ function diffApp() {
                 console.error('Failed to load branches:', error);
             }
         },
-        
+
         // Load git status from API
         async loadGitStatus() {
             try {
                 const response = await fetch('/api/status');
                 const data = await response.json();
-                
+
                 if (data.status === 'ok') {
                     this.gitStatus = {
                         current_branch: data.current_branch || 'unknown',
@@ -377,44 +375,44 @@ function diffApp() {
                 };
             }
         },
-        
+
         // Load diff data from API
         async loadDiffs() {
             this.loading = true;
-            
+
             // Save current UI state before fetching new diff data
             this.saveUIState();
-            
+
             try {
                 // Build query parameters based on UI state
                 const params = new URLSearchParams();
-                
+
                 // Handle branch selection
                 if (this.baseBranch && this.baseBranch !== 'main') {
                     params.set('base_commit', this.baseBranch);
                 }
-                
+
                 // Handle unstaged/untracked options
                 params.set('unstaged', this.unstaged.toString());
                 params.set('untracked', this.untracked.toString());
-                
+
                 // Add other filters
                 if (this.searchFilter.trim()) {
                     params.set('file', this.searchFilter.trim());
                 }
-                
+
                 const queryString = params.toString();
                 const url = queryString ? `/api/diff?${queryString}` : '/api/diff';
-                
+
                 const response = await fetch(url);
                 const data = await response.json();
-                
+
                 if (data.status === 'ok') {
                     // Update groups with new data
                     const groups = data.groups || {};
-                    
+
                     Object.keys(this.groups).forEach(groupKey => {
-                        const groupData = groups[groupKey] || {files: [], count: 0};
+                        const groupData = groups[groupKey] || { files: [], count: 0 };
                         this.groups[groupKey].files = (groupData.files || []).map(file => ({
                             ...file,
                             expanded: true // Add UI state for each file - start expanded
@@ -422,7 +420,7 @@ function diffApp() {
                         this.groups[groupKey].count = groupData.count || 0;
                         // Keep existing visibility state
                     });
-                    
+
                     // Load UI state after processing new diff data (includes file expansion restoration)
                     this.loadUIState();
                 }
@@ -437,7 +435,7 @@ function diffApp() {
                 this.loading = false;
             }
         },
-        
+
         // Refresh all data
         async refreshData() {
             await Promise.all([
@@ -445,7 +443,7 @@ function diffApp() {
                 this.loadDiffs()
             ]);
         },
-        
+
         // Toggle file expansion
         toggleFile(groupKey, fileIndex) {
             if (this.groups[groupKey] && this.groups[groupKey].files[fileIndex]) {
@@ -453,7 +451,7 @@ function diffApp() {
                 this.saveUIState();
             }
         },
-        
+
         // Expand all files across all groups
         expandAll() {
             Object.keys(this.groups).forEach(groupKey => {
@@ -463,7 +461,7 @@ function diffApp() {
             });
             this.saveUIState();
         },
-        
+
         // Collapse all files across all groups
         collapseAll() {
             Object.keys(this.groups).forEach(groupKey => {
@@ -473,34 +471,34 @@ function diffApp() {
             });
             this.saveUIState();
         },
-        
+
         // Navigate to previous file
         navigateToPreviousFile(groupKey, fileIndex) {
             const currentGlobalIndex = this.getGlobalFileIndex(groupKey, fileIndex);
-            
+
             if (currentGlobalIndex > 0) {
                 const previousFileId = `file-${currentGlobalIndex - 1}`;
-                document.getElementById(previousFileId)?.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start' 
+                document.getElementById(previousFileId)?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
                 });
             }
         },
-        
+
         // Navigate to next file
         navigateToNextFile(groupKey, fileIndex) {
             const totalFiles = this.getTotalVisibleFiles();
             const currentGlobalIndex = this.getGlobalFileIndex(groupKey, fileIndex);
-            
+
             if (currentGlobalIndex < totalFiles - 1) {
                 const nextFileId = `file-${currentGlobalIndex + 1}`;
-                document.getElementById(nextFileId)?.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'start' 
+                document.getElementById(nextFileId)?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
                 });
             }
         },
-        
+
         // Get total count of visible files across all visible groups
         getTotalVisibleFiles() {
             let total = 0;
@@ -511,92 +509,128 @@ function diffApp() {
             }
             return total;
         },
-        
+
         // Get global index of a file across all groups (for navigation)
         getGlobalFileIndex(targetGroupKey, targetFileIndex) {
             let globalIndex = 0;
-            
+
             for (const group of this.visibleGroups) {
                 if (!group.visible) continue;
-                
+
                 if (group.key === targetGroupKey) {
                     return globalIndex + targetFileIndex;
                 }
                 globalIndex += group.files.length;
             }
-            
+
             return -1;
         },
-        
+
         // Get unique file ID for DOM (same as global index for consistency)
         getFileId(targetGroupKey, targetFileIndex) {
             return this.getGlobalFileIndex(targetGroupKey, targetFileIndex);
         },
-        
+
         // Context expansion methods
         async expandContext(filePath, hunkIndex, direction, contextLines = 10) {
             console.log('🔵 expandContext called:', { filePath, hunkIndex, direction, contextLines });
-            // Initialize context state if not exists
+
+            // Find the target file to determine which hunk to actually expand
+            let targetFile = null;
+            for (const groupKey of Object.keys(this.groups)) {
+                const file = this.groups[groupKey].files.find(f => f.path === filePath);
+                if (file) {
+                    targetFile = file;
+                    break;
+                }
+            }
+
+            if (!targetFile || !targetFile.hunks) {
+                console.error('Target file not found');
+                return;
+            }
+
+            let targetHunkIndex, targetDirection;
+
+            if (direction === 'before') {
+                // "Expand up" - expand the "before" context of the CURRENT hunk
+                targetHunkIndex = hunkIndex;
+                targetDirection = 'before';
+            } else { // direction === 'after'
+                // "Expand down" - expand the "after" context of the PREVIOUS hunk
+                targetHunkIndex = hunkIndex - 1;
+                targetDirection = 'after';
+            }
+
+            // Validate target hunk exists
+            if (!targetFile.hunks[targetHunkIndex]) {
+                console.error('Target hunk not found');
+                return;
+            }
+
+            // Initialize context state for target hunk
             if (!this.contextExpansions[filePath]) {
                 this.contextExpansions[filePath] = {};
             }
-            if (!this.contextExpansions[filePath][hunkIndex]) {
-                this.contextExpansions[filePath][hunkIndex] = { beforeExpanded: 0, afterExpanded: 0 };
+            if (!this.contextExpansions[filePath][targetHunkIndex]) {
+                this.contextExpansions[filePath][targetHunkIndex] = { beforeExpanded: 0, afterExpanded: 0 };
             }
             if (!this.contextLoading[filePath]) {
                 this.contextLoading[filePath] = {};
             }
-            if (!this.contextLoading[filePath][hunkIndex]) {
-                this.contextLoading[filePath][hunkIndex] = { before: false, after: false };
+            if (!this.contextLoading[filePath][targetHunkIndex]) {
+                this.contextLoading[filePath][targetHunkIndex] = { before: false, after: false };
             }
 
-            // Set loading state
-            this.contextLoading[filePath][hunkIndex][direction] = true;
+            // Set loading state for target hunk
+            this.contextLoading[filePath][targetHunkIndex][targetDirection] = true;
 
             try {
-                // Calculate total context needed (default 3 + already expanded + new expansion)
-                const currentlyExpanded = this.contextExpansions[filePath][hunkIndex][direction + 'Expanded'] || 0;
-                const totalContextNeeded = 3 + currentlyExpanded + contextLines;
-                
-                const response = await this.fetchContextLines(filePath, totalContextNeeded);
-                if (response && response.status === 'ok' && response.file) {
-                    await this.mergeExtendedContext(filePath, hunkIndex, direction, response.file, contextLines);
-                    this.contextExpansions[filePath][hunkIndex][direction + 'Expanded'] += contextLines;
+                const targetHunk = targetFile.hunks[targetHunkIndex];
+                let startLine, endLine;
+
+                if (targetDirection === 'before') {
+                    // Get lines before the target hunk
+                    const currentExpanded = this.contextExpansions[filePath][targetHunkIndex].beforeExpanded || 0;
+                    endLine = targetHunk.new_start - 1;
+                    startLine = Math.max(1, endLine - contextLines + 1);
+                } else { // targetDirection === 'after'
+                    // Get lines after the target hunk
+                    const currentExpanded = this.contextExpansions[filePath][targetHunkIndex].afterExpanded || 0;
+                    startLine = targetHunk.new_start + targetHunk.new_count;
+                    endLine = startLine + contextLines - 1;
+                }
+
+                console.log('🟡 Fetching lines for target hunk:', { targetHunkIndex, targetDirection, startLine, endLine });
+
+                const response = await this.fetchFileLines(filePath, startLine, endLine);
+                if (response && response.status === 'ok' && response.lines) {
+                    this.insertContextLines(filePath, targetHunkIndex, targetDirection, response.lines, startLine);
+                    this.contextExpansions[filePath][targetHunkIndex][targetDirection + 'Expanded'] += response.lines.length;
                     // Save state after successful expansion
                     this.saveUIState();
                 }
             } catch (error) {
                 console.error('Failed to expand context:', error);
             } finally {
-                // Clear loading state
-                this.contextLoading[filePath][hunkIndex][direction] = false;
+                // Clear loading state for target hunk
+                this.contextLoading[filePath][targetHunkIndex][targetDirection] = false;
             }
         },
 
-        async fetchContextLines(filePath, totalContextLines) {
+        async fetchFileLines(filePath, startLine, endLine) {
             const params = new URLSearchParams();
             params.set('file_path', filePath);
-            params.set('context_lines', totalContextLines.toString());
-            
-            // Add current diff parameters to maintain consistency
-            if (this.baseBranch && this.baseBranch !== 'main') {
-                params.set('base_commit', this.baseBranch);
-            }
+            params.set('start_line', startLine.toString());
+            params.set('end_line', endLine.toString());
 
-            const url = `/api/diff/context?${params.toString()}`;
+            const url = `/api/file/lines?${params.toString()}`;
             const response = await fetch(url);
             return await response.json();
         },
 
-        async mergeExtendedContext(filePath, hunkIndex, direction, extendedFileData, contextLines) {
-            // Store file metadata if available
-            if (extendedFileData.file_line_count) {
-                this.fileMetadata[filePath] = {
-                    lineCount: extendedFileData.file_line_count
-                };
-            }
-
-            // Find the file in our current data structure
+        insertContextLines(filePath, hunkIndex, direction, lines, startLineNum) {
+            // Find the target file and hunk
             let targetFile = null;
             for (const groupKey of Object.keys(this.groups)) {
                 const file = this.groups[groupKey].files.find(f => f.path === filePath);
@@ -607,32 +641,49 @@ function diffApp() {
             }
 
             if (!targetFile || !targetFile.hunks || !targetFile.hunks[hunkIndex]) {
-                console.warn('Target file or hunk not found for context expansion');
-                return;
-            }
-
-            if (!extendedFileData.hunks || !extendedFileData.hunks[hunkIndex]) {
-                console.warn('Extended file data missing expected hunk');
+                console.warn('Target file or hunk not found for context insertion');
                 return;
             }
 
             const currentHunk = targetFile.hunks[hunkIndex];
-            const extendedHunk = extendedFileData.hunks[hunkIndex];
 
-            // Replace the entire hunk with extended version
-            // This approach works for progressive expansion by always using the latest extended context
-            if (extendedHunk.lines && extendedHunk.lines.length > 0) {
-                currentHunk.lines = extendedHunk.lines;
-                currentHunk.old_count = extendedHunk.old_count;
-                currentHunk.new_count = extendedHunk.new_count;
-                currentHunk.old_start = extendedHunk.old_start;
-                currentHunk.new_start = extendedHunk.new_start;
+            // Convert the raw lines into diff line format (context lines for both sides)
+            const newDiffLines = lines.map((content, index) => {
+                const lineNum = startLineNum + index;
+                return {
+                    type: 'context',
+                    left: {
+                        content: content,
+                        line_num: lineNum
+                    },
+                    right: {
+                        content: content,
+                        line_num: lineNum
+                    }
+                };
+            });
+
+            if (direction === 'before') {
+                // Insert at the beginning of the hunk
+                currentHunk.lines = [...newDiffLines, ...currentHunk.lines];
+                // Update hunk start positions
+                currentHunk.old_start = Math.max(1, currentHunk.old_start - lines.length);
+                currentHunk.new_start = Math.max(1, currentHunk.new_start - lines.length);
+            } else { // direction === 'after'
+                // Insert at the end of the hunk
+                currentHunk.lines = [...currentHunk.lines, ...newDiffLines];
             }
+
+            // Update hunk counts
+            currentHunk.old_count += lines.length;
+            currentHunk.new_count += lines.length;
+
+            console.log('🟢 Inserted context lines:', { direction, linesAdded: lines.length, hunkIndex });
         },
 
         // Check if context can be expanded for a hunk
         canExpandContext(filePath, hunkIndex, direction) {
-            // Find the file and hunk to check boundaries
+            // Find the file to get all hunks
             let targetFile = null;
             for (const groupKey of Object.keys(this.groups)) {
                 const file = this.groups[groupKey].files.find(f => f.path === filePath);
@@ -646,41 +697,38 @@ function diffApp() {
                 return false;
             }
 
-            const hunk = targetFile.hunks[hunkIndex];
-            
-            // Check file boundaries
+            const hunks = targetFile.hunks;
+
             if (direction === 'before') {
-                // Can't expand before if we're already at line 1
-                return hunk.old_start > 1;
-            } else if (direction === 'after') {
-                // Check if we're near the end of the file
-                if (this.fileMetadata[filePath] && this.fileMetadata[filePath].lineCount) {
-                    const fileLineCount = this.fileMetadata[filePath].lineCount;
-                    const hunkEndLine = hunk.old_start + hunk.old_count - 1;
-                    
-                    // Don't show "show more after" if we're within 10 lines of the end of file
-                    return hunkEndLine < fileLineCount - 10;
+                // "Expand up" button visibility:
+                if (hunkIndex === 0) {
+                    // First hunk: show if it doesn't start at line 1
+                    return hunks[0].old_start > 1;
                 } else {
-                    // No file metadata, allow expansion (will be determined by backend)
+                    // All other hunks: always show (expands before context of current hunk)
+                    return true;
+                }
+
+            } else if (direction === 'after') {
+                // "Expand down" button visibility:
+                if (hunkIndex === 0) {
+                    // First hunk: never show "Expand down"
+                    return false;
+                } else {
+                    // All other hunks: always show (expands after context of previous hunk)
                     return true;
                 }
             }
 
-            // Check expansion limits (max 50 lines in each direction)
-            const maxExpansion = 50;
-            if (!this.contextExpansions[filePath] || !this.contextExpansions[filePath][hunkIndex]) {
-                return true;
-            }
-            const expanded = this.contextExpansions[filePath][hunkIndex][direction + 'Expanded'] || 0;
-            return expanded < maxExpansion;
+            return false;
         },
 
         // Check if context is currently loading
         isContextLoading(filePath, hunkIndex, direction) {
             // Return false if loading state is not set up yet (undefined means not loading)
-            return !!(this.contextLoading[filePath] && 
-                     this.contextLoading[filePath][hunkIndex] && 
-                     this.contextLoading[filePath][hunkIndex][direction]);
+            return !!(this.contextLoading[filePath] &&
+                this.contextLoading[filePath][hunkIndex] &&
+                this.contextLoading[filePath][hunkIndex][direction]);
         }
     };
 }

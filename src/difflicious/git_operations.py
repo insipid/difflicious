@@ -1,5 +1,6 @@
 """Secure git command execution wrapper for Difflicious."""
 
+import os
 import subprocess
 import shlex
 import logging
@@ -584,6 +585,52 @@ class GitRepository:
 
         except (subprocess.TimeoutExpired, subprocess.CalledProcessError, ValueError) as e:
             raise GitOperationError(f"Failed to get file line count: {e}")
+
+    def get_file_lines(self, file_path: str, start_line: int, end_line: int) -> List[str]:
+        """Get specific lines from a file using fast bash tools.
+        
+        Args:
+            file_path: Path to the file relative to repository root
+            start_line: Starting line number (1-based, inclusive)
+            end_line: Ending line number (1-based, inclusive)
+            
+        Returns:
+            List of lines from the file
+            
+        Raises:
+            GitOperationError: If operation fails
+        """
+        if start_line < 1 or end_line < start_line:
+            raise GitOperationError(f"Invalid line range: {start_line}-{end_line}")
+            
+        # Sanitize file path
+        if not self._is_safe_file_path(file_path):
+            raise GitOperationError(f"Unsafe file path: {file_path}")
+            
+        full_path = os.path.join(self.repo_path, file_path)
+        if not os.path.isfile(full_path):
+            raise GitOperationError(f"File not found: {file_path}")
+            
+        try:
+            # Use sed for efficient line extraction: sed -n 'start,end p' file
+            # This is faster than head/tail combination for random ranges
+            cmd = ['sed', '-n', f'{start_line},{end_line}p', full_path]
+            
+            result = subprocess.run(
+                cmd,
+                cwd=self.repo_path,
+                capture_output=True,
+                text=True,
+                timeout=30,
+                check=True
+            )
+            
+            # Return lines, preserving empty lines but removing final newline if present
+            lines = result.stdout.splitlines()
+            return lines
+            
+        except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as e:
+            raise GitOperationError(f"Failed to get file lines {start_line}-{end_line}: {e}")
 
 
 def get_git_repository(repo_path: Optional[str] = None) -> GitRepository:
