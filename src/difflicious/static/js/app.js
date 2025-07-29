@@ -534,6 +534,7 @@ function diffApp() {
         
         // Context expansion methods
         async expandContext(filePath, hunkIndex, direction, contextLines = 10) {
+            console.log('Expand context called:', { filePath, hunkIndex, direction, contextLines });
             // Initialize context state if not exists
             if (!this.contextExpansions[filePath]) {
                 this.contextExpansions[filePath] = {};
