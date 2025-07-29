@@ -216,6 +216,12 @@ def create_app() -> Flask:
                 use_cached=use_cached,
                 context_lines=context_lines
             )
+            
+            # Get file line count for boundary detection
+            try:
+                file_line_count = repo.get_file_line_count(file_path)
+            except Exception:
+                file_line_count = None
 
             # Parse the extended diff content
             if extended_diff and not extended_diff.startswith('Error'):
@@ -225,12 +231,14 @@ def create_app() -> Flask:
                         extended_file_data = parsed_diff[0]
                         extended_file_data.update({
                             'path': file_path,
-                            'context_lines': context_lines
+                            'context_lines': context_lines,
+                            'file_line_count': file_line_count
                         })
                         return jsonify({
                             "status": "ok",
                             "file": extended_file_data,
-                            "context_lines": context_lines
+                            "context_lines": context_lines,
+                            "file_line_count": file_line_count
                         })
                 except DiffParseError as e:
                     logger.warning(f"Failed to parse extended diff for {file_path}: {e}")
@@ -239,6 +247,7 @@ def create_app() -> Flask:
                 "status": "ok",
                 "file": None,
                 "context_lines": context_lines,
+                "file_line_count": file_line_count,
                 "message": "No extended context available"
             })
 

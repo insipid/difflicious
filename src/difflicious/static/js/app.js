@@ -40,6 +40,7 @@ function diffApp() {
         // Context expansion state tracking
         contextExpansions: {}, // { filePath: { hunkIndex: { beforeExpanded: number, afterExpanded: number } } }
         contextLoading: {}, // { filePath: { hunkIndex: { before: bool, after: bool } } }
+        fileMetadata: {}, // { filePath: { lineCount: number } }
         
         // LocalStorage utility functions
         getStorageKey() {
@@ -588,6 +589,13 @@ function diffApp() {
         },
 
         async mergeExtendedContext(filePath, hunkIndex, direction, extendedFileData, contextLines) {
+            // Store file metadata if available
+            if (extendedFileData.file_line_count) {
+                this.fileMetadata[filePath] = {
+                    lineCount: extendedFileData.file_line_count
+                };
+            }
+
             // Find the file in our current data structure
             let targetFile = null;
             for (const groupKey of Object.keys(this.groups)) {
@@ -647,9 +655,16 @@ function diffApp() {
                     return false;
                 }
             } else if (direction === 'after') {
-                // This is a simplified check - we don't know the total file length
-                // In a more sophisticated implementation, we'd need file length info from the backend
-                // For now, we'll rely on the backend to return empty results when at EOF
+                // Check if we're near the end of the file
+                if (this.fileMetadata[filePath] && this.fileMetadata[filePath].lineCount) {
+                    const fileLineCount = this.fileMetadata[filePath].lineCount;
+                    const hunkEndLine = hunk.old_start + hunk.old_count - 1;
+                    
+                    // Don't show "show more after" if we're within 10 lines of the end of file
+                    if (hunkEndLine >= fileLineCount - 10) {
+                        return false;
+                    }
+                }
             }
 
             // Check expansion limits (max 50 lines in each direction)
@@ -669,3 +684,4 @@ function diffApp() {
         }
     };
 }
+// Test line added to create a diff

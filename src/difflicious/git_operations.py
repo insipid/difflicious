@@ -544,6 +544,47 @@ class GitRepository:
         """
         return self._get_file_diff(file_path, base_commit, target_commit, use_cached, context_lines)
 
+    def get_file_line_count(self, file_path: str) -> int:
+        """Get the total number of lines in a file.
+
+        Args:
+            file_path: Path to the file
+
+        Returns:
+            Number of lines in the file
+
+        Raises:
+            GitOperationError: If file cannot be read or counted
+        """
+        try:
+            if not self._is_safe_file_path(file_path):
+                raise GitOperationError(f"Unsafe file path: {file_path}")
+
+            # Use wc -l to count lines
+            import subprocess
+            import shlex
+            
+            full_path = self.repo_path / file_path
+            if not full_path.exists():
+                raise GitOperationError(f"File does not exist: {file_path}")
+
+            result = subprocess.run(
+                ['wc', '-l', str(full_path)],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+
+            if result.returncode != 0:
+                raise GitOperationError(f"Failed to count lines: {result.stderr}")
+
+            # wc -l output format: "   123 filename"
+            line_count = int(result.stdout.strip().split()[0])
+            return line_count
+
+        except (subprocess.TimeoutExpired, subprocess.CalledProcessError, ValueError) as e:
+            raise GitOperationError(f"Failed to get file line count: {e}")
+
 
 def get_git_repository(repo_path: Optional[str] = None) -> GitRepository:
     """Factory function to create a GitRepository instance.
