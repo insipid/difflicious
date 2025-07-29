@@ -112,6 +112,8 @@ class GitRepository:
         Returns:
             True if option is safe, False otherwise
         """
+        import re
+        
         safe_options = {
             '--porcelain', '--short', '--branch', '--ahead-behind',
             '--no-renames', '--name-only', '--name-status', '--numstat',
@@ -123,6 +125,10 @@ class GitRepository:
 
         # Allow safe single-dash options
         safe_short_options = {'-s', '-b', '-u', '-z', '-n', '-p', '-w', '-a'}
+        
+        # Check for -U<number> pattern (unified diff with context lines)
+        if re.match(r'^-U\d+$', option):
+            return True
 
         return option in safe_options or option in safe_short_options
 
@@ -477,7 +483,7 @@ class GitRepository:
         return diffs
 
     def _get_file_diff(self, file_path: str, base_commit: Optional[str] = None,
-                       target_commit: Optional[str] = None, use_cached: bool = False) -> str:
+                       target_commit: Optional[str] = None, use_cached: bool = False, context_lines: int = 3) -> str:
         """Get detailed diff content for a specific file.
 
         Args:
@@ -485,6 +491,7 @@ class GitRepository:
             base_commit: Base commit to compare from
             target_commit: Target commit to compare to
             use_cached: Whether to get staged diff (used when no commits specified)
+            context_lines: Number of context lines to include (default: 3)
 
         Returns:
             Diff content as string
@@ -494,6 +501,9 @@ class GitRepository:
                 return f"Error: Unsafe file path: {file_path}"
 
             diff_args = ['diff']
+
+            # Add context lines argument
+            diff_args.append(f'-U{context_lines}')
 
             # Handle commit comparison (same logic as main get_diff method)
             if base_commit or target_commit:
@@ -516,6 +526,23 @@ class GitRepository:
 
         except GitOperationError as e:
             return f"Error: {e}"
+
+    def get_extended_context(self, file_path: str, base_commit: Optional[str] = None,
+                           target_commit: Optional[str] = None, use_cached: bool = False,
+                           context_lines: int = 20) -> str:
+        """Get extended context diff for a specific file.
+
+        Args:
+            file_path: Path to the file
+            base_commit: Base commit to compare from
+            target_commit: Target commit to compare to
+            use_cached: Whether to get staged diff (used when no commits specified)
+            context_lines: Number of context lines to include (default: 20)
+
+        Returns:
+            Extended diff content as string
+        """
+        return self._get_file_diff(file_path, base_commit, target_commit, use_cached, context_lines)
 
 
 def get_git_repository(repo_path: Optional[str] = None) -> GitRepository:

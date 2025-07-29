@@ -37,6 +37,10 @@ function diffApp() {
         // Saved state for restoration
         savedFileExpansions: {},
         
+        // Context expansion state tracking
+        contextExpansions: {}, // { filePath: { hunkIndex: { beforeExpanded: number, afterExpanded: number } } }
+        contextLoading: {}, // { filePath: { hunkIndex: { before: bool, after: bool } } }
+        
         // LocalStorage utility functions
         getStorageKey() {
             const repoName = this.gitStatus.repository_name || 'unknown';
@@ -62,7 +66,10 @@ function diffApp() {
                 },
                 
                 // File expansion states (by file path)
-                fileExpansions: this.getFileExpansionStates()
+                fileExpansions: this.getFileExpansionStates(),
+                
+                // Context expansion states
+                contextExpansions: this.contextExpansions
             };
             
             try {
@@ -103,6 +110,9 @@ function diffApp() {
                 
                 // Restore file expansion states
                 this.savedFileExpansions = state.fileExpansions || {};
+                
+                // Restore context expansion states
+                this.contextExpansions = state.contextExpansions || {};
                 if (this.savedFileExpansions) {
                     Object.keys(this.groups).forEach(groupKey => {
                         this.groups[groupKey].files.forEach(file => {
@@ -520,6 +530,110 @@ function diffApp() {
         // Get unique file ID for DOM (same as global index for consistency)
         getFileId(targetGroupKey, targetFileIndex) {
             return this.getGlobalFileIndex(targetGroupKey, targetFileIndex);
+        },
+        
+        // Context expansion methods
+        async expandContext(filePath, hunkIndex, direction, contextLines = 10) {
+            // Initialize context state if not exists
+            if (!this.contextExpansions[filePath]) {
+                this.contextExpansions[filePath] = {};
+            }
+            if (!this.contextExpansions[filePath][hunkIndex]) {
+                this.contextExpansions[filePath][hunkIndex] = { beforeExpanded: 0, afterExpanded: 0 };
+            }
+            if (!this.contextLoading[filePath]) {
+                this.contextLoading[filePath] = {};
+            }
+            if (!this.contextLoading[filePath][hunkIndex]) {
+                this.contextLoading[filePath][hunkIndex] = { before: false, after: false };
+            }
+
+            // Set loading state
+            this.contextLoading[filePath][hunkIndex][direction] = true;
+
+            try {
+                const response = await this.fetchContextLines(filePath, contextLines);
+                if (response && response.status === 'ok' && response.file) {
+                    await this.mergeExtendedContext(filePath, hunkIndex, direction, response.file, contextLines);
+                    this.contextExpansions[filePath][hunkIndex][direction + 'Expanded'] += contextLines;
+                    // Save state after successful expansion
+                    this.saveUIState();
+                }
+            } catch (error) {
+                console.error('Failed to expand context:', error);
+            } finally {
+                // Clear loading state
+                this.contextLoading[filePath][hunkIndex][direction] = false;
+            }
+        },
+
+        async fetchContextLines(filePath, contextLines) {
+            const params = new URLSearchParams();
+            params.set('file_path', filePath);
+            params.set('context_lines', contextLines.toString());
+            
+            // Add current diff parameters to maintain consistency
+            if (this.baseBranch && this.baseBranch !== 'main') {
+                params.set('base_commit', this.baseBranch);
+            }
+
+            const url = `/api/diff/context?${params.toString()}`;
+            const response = await fetch(url);
+            return await response.json();
+        },
+
+        async mergeExtendedContext(filePath, hunkIndex, direction, extendedFileData, contextLines) {
+            // Find the file in our current data structure
+            let targetFile = null;
+            for (const groupKey of Object.keys(this.groups)) {
+                const file = this.groups[groupKey].files.find(f => f.path === filePath);
+                if (file) {
+                    targetFile = file;
+                    break;
+                }
+            }
+
+            if (!targetFile || !targetFile.hunks || !targetFile.hunks[hunkIndex]) {
+                console.warn('Target file or hunk not found for context expansion');
+                return;
+            }
+
+            if (!extendedFileData.hunks || !extendedFileData.hunks[hunkIndex]) {
+                console.warn('Extended file data missing expected hunk');
+                return;
+            }
+
+            const currentHunk = targetFile.hunks[hunkIndex];
+            const extendedHunk = extendedFileData.hunks[hunkIndex];
+
+            // Simple merging strategy: for now, replace the entire hunk with extended version
+            // In a more sophisticated implementation, we would merge only the additional lines
+            // and avoid duplicates, but this simpler approach works for the initial implementation
+            if (extendedHunk.lines && extendedHunk.lines.length > currentHunk.lines.length) {
+                currentHunk.lines = extendedHunk.lines;
+                currentHunk.old_count = extendedHunk.old_count;
+                currentHunk.new_count = extendedHunk.new_count;
+                currentHunk.old_start = extendedHunk.old_start;
+                currentHunk.new_start = extendedHunk.new_start;
+            }
+        },
+
+        // Check if context can be expanded for a hunk
+        canExpandContext(filePath, hunkIndex, direction) {
+            // For now, allow expansion up to 50 lines in each direction
+            const maxExpansion = 50;
+            if (!this.contextExpansions[filePath] || !this.contextExpansions[filePath][hunkIndex]) {
+                return true;
+            }
+            const expanded = this.contextExpansions[filePath][hunkIndex][direction + 'Expanded'] || 0;
+            return expanded < maxExpansion;
+        },
+
+        // Check if context is currently loading
+        isContextLoading(filePath, hunkIndex, direction) {
+            return this.contextLoading[filePath] && 
+                   this.contextLoading[filePath][hunkIndex] && 
+                   this.contextLoading[filePath][hunkIndex][direction];
         }
     };
 }

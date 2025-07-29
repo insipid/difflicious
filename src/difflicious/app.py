@@ -186,6 +186,66 @@ def create_app() -> Flask:
             "total_files": total_files
         })
 
+    @app.route('/api/diff/context')
+    def api_diff_context() -> Dict[str, Any]:
+        """API endpoint for fetching extended context for a specific file."""
+        # Get required parameters
+        file_path = request.args.get('file_path')
+        if not file_path:
+            return jsonify({"status": "error", "message": "file_path parameter is required"}), 400
+
+        # Get optional parameters
+        base_commit = request.args.get('base_commit')
+        target_commit = request.args.get('target_commit')
+        use_cached = request.args.get('use_cached', 'false').lower() == 'true'
+        context_lines = request.args.get('context_lines', '20')
+
+        try:
+            context_lines = int(context_lines)
+            if context_lines < 1 or context_lines > 100:
+                return jsonify({"status": "error", "message": "context_lines must be between 1 and 100"}), 400
+        except ValueError:
+            return jsonify({"status": "error", "message": "context_lines must be a valid number"}), 400
+
+        try:
+            repo = get_git_repository()
+            extended_diff = repo.get_extended_context(
+                file_path=file_path,
+                base_commit=base_commit,
+                target_commit=target_commit,
+                use_cached=use_cached,
+                context_lines=context_lines
+            )
+
+            # Parse the extended diff content
+            if extended_diff and not extended_diff.startswith('Error'):
+                try:
+                    parsed_diff = parse_git_diff_for_rendering(extended_diff)
+                    if parsed_diff:
+                        extended_file_data = parsed_diff[0]
+                        extended_file_data.update({
+                            'path': file_path,
+                            'context_lines': context_lines
+                        })
+                        return jsonify({
+                            "status": "ok",
+                            "file": extended_file_data,
+                            "context_lines": context_lines
+                        })
+                except DiffParseError as e:
+                    logger.warning(f"Failed to parse extended diff for {file_path}: {e}")
+
+            return jsonify({
+                "status": "ok",
+                "file": None,
+                "context_lines": context_lines,
+                "message": "No extended context available"
+            })
+
+        except Exception as e:
+            logger.error(f"Failed to get extended context for {file_path}: {e}")
+            return jsonify({"status": "error", "message": str(e)}), 500
+
     return app
 
 
