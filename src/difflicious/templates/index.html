@@ -215,22 +215,24 @@
                                                             <div class="flex items-center space-x-1">
                                                                 <!-- Expand context before -->
                                                                 <button 
-                                                                    x-show="true"
+                                                                    x-show="canExpandContext(file.path, hunkIndex, 'before')"
                                                                     @click="expandContext(file.path, hunkIndex, 'before', 10)"
-                                                                    :disabled="false"
+                                                                    :disabled="isContextLoading(file.path, hunkIndex, 'before')"
                                                                     class="px-2 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                                    title="Show 10 more lines above">
-                                                                    <span>↑ Show more</span>
+                                                                    :title="isContextLoading(file.path, hunkIndex, 'before') ? 'Loading...' : 'Show 10 more lines above'">
+                                                                    <span x-show="!isContextLoading(file.path, hunkIndex, 'before')">↑ Show more</span>
+                                                                    <span x-show="isContextLoading(file.path, hunkIndex, 'before')">Loading...</span>
                                                                 </button>
                                                                 
                                                                 <!-- Expand context after -->
                                                                 <button 
-                                                                    x-show="true"
+                                                                    x-show="canExpandContext(file.path, hunkIndex, 'after')"
                                                                     @click="expandContext(file.path, hunkIndex, 'after', 10)"
-                                                                    :disabled="false"
+                                                                    :disabled="isContextLoading(file.path, hunkIndex, 'after')"
                                                                     class="px-2 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                                                    title="Show 10 more lines below">
-                                                                    <span>↓ Show more</span>
+                                                                    :title="isContextLoading(file.path, hunkIndex, 'after') ? 'Loading...' : 'Show 10 more lines below'">
+                                                                    <span x-show="!isContextLoading(file.path, hunkIndex, 'after')">↓ Show more</span>
+                                                                    <span x-show="isContextLoading(file.path, hunkIndex, 'after')">Loading...</span>
                                                                 </button>
                                                             </div>
                                                         </div>

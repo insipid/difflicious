@@ -553,7 +553,11 @@ function diffApp() {
             this.contextLoading[filePath][hunkIndex][direction] = true;
 
             try {
-                const response = await this.fetchContextLines(filePath, contextLines);
+                // Calculate total context needed (default 3 + already expanded + new expansion)
+                const currentlyExpanded = this.contextExpansions[filePath][hunkIndex][direction + 'Expanded'] || 0;
+                const totalContextNeeded = 3 + currentlyExpanded + contextLines;
+                
+                const response = await this.fetchContextLines(filePath, totalContextNeeded);
                 if (response && response.status === 'ok' && response.file) {
                     await this.mergeExtendedContext(filePath, hunkIndex, direction, response.file, contextLines);
                     this.contextExpansions[filePath][hunkIndex][direction + 'Expanded'] += contextLines;
@@ -568,10 +572,10 @@ function diffApp() {
             }
         },
 
-        async fetchContextLines(filePath, contextLines) {
+        async fetchContextLines(filePath, totalContextLines) {
             const params = new URLSearchParams();
             params.set('file_path', filePath);
-            params.set('context_lines', contextLines.toString());
+            params.set('context_lines', totalContextLines.toString());
             
             // Add current diff parameters to maintain consistency
             if (this.baseBranch && this.baseBranch !== 'main') {
@@ -607,10 +611,9 @@ function diffApp() {
             const currentHunk = targetFile.hunks[hunkIndex];
             const extendedHunk = extendedFileData.hunks[hunkIndex];
 
-            // Simple merging strategy: for now, replace the entire hunk with extended version
-            // In a more sophisticated implementation, we would merge only the additional lines
-            // and avoid duplicates, but this simpler approach works for the initial implementation
-            if (extendedHunk.lines && extendedHunk.lines.length > currentHunk.lines.length) {
+            // Replace the entire hunk with extended version
+            // This approach works for progressive expansion by always using the latest extended context
+            if (extendedHunk.lines && extendedHunk.lines.length > 0) {
                 currentHunk.lines = extendedHunk.lines;
                 currentHunk.old_count = extendedHunk.old_count;
                 currentHunk.new_count = extendedHunk.new_count;
@@ -621,7 +624,35 @@ function diffApp() {
 
         // Check if context can be expanded for a hunk
         canExpandContext(filePath, hunkIndex, direction) {
-            // For now, allow expansion up to 50 lines in each direction
+            // Find the file and hunk to check boundaries
+            let targetFile = null;
+            for (const groupKey of Object.keys(this.groups)) {
+                const file = this.groups[groupKey].files.find(f => f.path === filePath);
+                if (file) {
+                    targetFile = file;
+                    break;
+                }
+            }
+
+            if (!targetFile || !targetFile.hunks || !targetFile.hunks[hunkIndex]) {
+                return false;
+            }
+
+            const hunk = targetFile.hunks[hunkIndex];
+            
+            // Check file boundaries
+            if (direction === 'before') {
+                // Can't expand before if we're already at line 1
+                if (hunk.old_start <= 1) {
+                    return false;
+                }
+            } else if (direction === 'after') {
+                // This is a simplified check - we don't know the total file length
+                // In a more sophisticated implementation, we'd need file length info from the backend
+                // For now, we'll rely on the backend to return empty results when at EOF
+            }
+
+            // Check expansion limits (max 50 lines in each direction)
             const maxExpansion = 50;
             if (!this.contextExpansions[filePath] || !this.contextExpansions[filePath][hunkIndex]) {
                 return true;
