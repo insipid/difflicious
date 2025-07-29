@@ -203,7 +203,7 @@
                                                 <template x-for="(hunk, hunkIndex) in file.hunks" :key="hunkIndex">
                                                     <div class="border-b border-gray-100 last:border-b-0">
                                                         <!-- Hunk Header -->
-                                                        <div x-show="hunk.section_header || canExpandContext(file.path, hunkIndex, 'before') || canExpandContext(file.path, hunkIndex, 'after')"
+                                                        <div x-show="canExpandContext(file.path, hunkIndex, 'before') || canExpandContext(file.path, hunkIndex, 'after')"
                                                             class="bg-blue-50 px-4 py-2 text-xs font-mono text-blue-800 border-b border-blue-100 flex items-center justify-between">
                                                             <div class="flex items-center space-x-2">
                                                                 <span
