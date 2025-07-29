@@ -19,9 +19,6 @@ describe('ContextManager', () => {
         // Reset mocks
         fetch.mockClear();
         
-        // Create fresh context manager
-        contextManager = createContextManager();
-        
         // Mock groups data structure
         mockGroups = {
             unstaged: {
@@ -62,9 +59,8 @@ describe('ContextManager', () => {
         // Mock save state callback
         mockSaveState = jest.fn();
 
-        // Setup dependencies
-        contextManager._setGroupsReference(mockGroups);
-        contextManager._setSaveStateCallback(mockSaveState);
+        // Create context manager with dependencies
+        contextManager = createContextManager(mockGroups, mockSaveState);
     });
 
     describe('canExpandContext', () => {
@@ -347,15 +343,13 @@ describe('ContextManager', () => {
     });
 });
 
-// Integration tests with dependency injection
+// Integration tests with constructor parameters
 describe('ContextManager Integration', () => {
-    test('should work correctly with dependency injection setup', () => {
-        const contextManager = createContextManager();
+    test('should work correctly with constructor parameters', () => {
         const mockGroups = { test: { files: [] } };
         const mockSaveCallback = jest.fn();
-
-        contextManager._setGroupsReference(mockGroups);
-        contextManager._setSaveStateCallback(mockSaveCallback);
+        
+        const contextManager = createContextManager(mockGroups, mockSaveCallback);
 
         // These should not throw errors
         expect(() => contextManager.canExpandContext('test.js', 0, 'before')).not.toThrow();
