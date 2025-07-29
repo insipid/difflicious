@@ -2,23 +2,11 @@
  * Context Expansion Manager
  * Handles expanding diff context lines and hunk merging
  */
-function createContextManager() {
-    let groupsRef = null;
-    let saveStateCallback = null;
-    
+function createContextManager(groupsRef, saveStateCallback) {
     return {
         // State
         contextExpansions: {}, // { filePath: { hunkIndex: { beforeExpanded: number, afterExpanded: number } } }
         contextLoading: {}, // { filePath: { hunkIndex: { before: bool, after: bool } } }
-
-        // Setup methods for dependency injection
-        _setGroupsReference(groups) {
-            groupsRef = groups;
-        },
-        
-        _setSaveStateCallback(callback) {
-            saveStateCallback = callback;
-        },
 
         // Public API
         async expandContext(filePath, hunkIndex, direction, contextLines = 10) {

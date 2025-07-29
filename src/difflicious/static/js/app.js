@@ -4,8 +4,6 @@
  */
 
 function diffApp() {
-    const contextManager = createContextManager();
-
     const app = {
         // Application state
         loading: false,
@@ -530,32 +528,15 @@ function diffApp() {
         getFileId(targetGroupKey, targetFileIndex) {
             return this.getGlobalFileIndex(targetGroupKey, targetFileIndex);
         },
-
-
-
-
-
-
     };
 
-    // Add context manager methods directly to the app object to preserve getters
-    app.expandContext = async function(filePath, hunkIndex, direction, contextLines = 10) {
-        // Set up the context manager to use this app's data
-        contextManager._setGroupsReference(this.groups);
-        contextManager._setSaveStateCallback(() => this.saveUIState());
-        return await contextManager.expandContext(filePath, hunkIndex, direction, contextLines);
-    };
-    
-    app.canExpandContext = function(filePath, hunkIndex, direction) {
-        contextManager._setGroupsReference(this.groups);
-        return contextManager.canExpandContext(filePath, hunkIndex, direction);
-    };
-    
-    app.isContextLoading = function(filePath, hunkIndex, direction) {
-        return contextManager.isContextLoading(filePath, hunkIndex, direction);
-    };
+    // Create context manager with dependencies
+    const contextManager = createContextManager(app.groups, () => app.saveUIState());
 
-    // Add other context manager properties directly
+    // Add context manager methods and properties to app
+    app.expandContext = contextManager.expandContext.bind(contextManager);
+    app.canExpandContext = contextManager.canExpandContext.bind(contextManager);
+    app.isContextLoading = contextManager.isContextLoading.bind(contextManager);
     app.contextExpansions = contextManager.contextExpansions;
     app.contextLoading = contextManager.contextLoading;
 
