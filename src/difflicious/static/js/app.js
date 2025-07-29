@@ -535,7 +535,7 @@ function diffApp() {
         
         // Context expansion methods
         async expandContext(filePath, hunkIndex, direction, contextLines = 10) {
-            console.log('Expand context called:', { filePath, hunkIndex, direction, contextLines });
+            console.log('🔵 expandContext called:', { filePath, hunkIndex, direction, contextLines });
             // Initialize context state if not exists
             if (!this.contextExpansions[filePath]) {
                 this.contextExpansions[filePath] = {};
@@ -651,9 +651,7 @@ function diffApp() {
             // Check file boundaries
             if (direction === 'before') {
                 // Can't expand before if we're already at line 1
-                if (hunk.old_start <= 1) {
-                    return false;
-                }
+                return hunk.old_start > 1;
             } else if (direction === 'after') {
                 // Check if we're near the end of the file
                 if (this.fileMetadata[filePath] && this.fileMetadata[filePath].lineCount) {
@@ -661,9 +659,10 @@ function diffApp() {
                     const hunkEndLine = hunk.old_start + hunk.old_count - 1;
                     
                     // Don't show "show more after" if we're within 10 lines of the end of file
-                    if (hunkEndLine >= fileLineCount - 10) {
-                        return false;
-                    }
+                    return hunkEndLine < fileLineCount - 10;
+                } else {
+                    // No file metadata, allow expansion (will be determined by backend)
+                    return true;
                 }
             }
 
@@ -685,3 +684,4 @@ function diffApp() {
     };
 }
 // Test line added to create a diff
+// Another test change for debugging context expansion

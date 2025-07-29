@@ -209,6 +209,12 @@
                                                                     x-text="'@@ -' + hunk.old_start + ',' + hunk.old_count + ' +' + hunk.new_start + ',' + hunk.new_count + ' @@'"></span>
                                                                 <span x-show="hunk.section_header"
                                                                     x-text="' ' + hunk.section_header"></span>
+                                                                <!-- Debug info -->
+                                                                <span class="text-xs bg-yellow-100 px-1 rounded">
+                                                                    <span x-text="'start=' + hunk.old_start"></span>
+                                                                    <span x-text="' before=' + canExpandContext(file.path, hunkIndex, 'before')"></span>
+                                                                    <span x-text="' after=' + canExpandContext(file.path, hunkIndex, 'after')"></span>
+                                                                </span>
                                                             </div>
                                                             
                                                             <!-- Context expansion buttons -->
