@@ -664,18 +664,20 @@ function diffApp() {
                     };
                 });
             } else {
-                // Normal case: expanding before (both sides use same line numbers)
+                // Expanding before: calculate separate line numbers for left and right sides
+                const leftStartLineNum = currentHunk.old_start - lines.length;
+                const rightStartLineNum = currentHunk.new_start - lines.length;
+
                 newDiffLines = lines.map((content, index) => {
-                    const lineNum = startLineNum + index;
                     return {
                         type: 'context',
                         left: {
                             content: content,
-                            line_num: lineNum
+                            line_num: leftStartLineNum + index
                         },
                         right: {
                             content: content,
-                            line_num: lineNum
+                            line_num: rightStartLineNum + index
                         }
                     };
                 });
@@ -696,9 +698,12 @@ function diffApp() {
             currentHunk.old_count += lines.length;
             currentHunk.new_count += lines.length;
 
-            // Check if we need to merge with the next hunk after expanding down
+            // Check if we need to merge hunks after expansion
             if (direction === 'after') {
                 this.checkAndMergeHunks(targetFile, hunkIndex);
+            } else if (direction === 'before') {
+                // When expanding up, check if we can merge with the previous hunk
+                this.checkAndMergeHunksReverse(targetFile, hunkIndex);
             }
 
         },
@@ -714,6 +719,9 @@ function diffApp() {
             const currentHunk = targetFile.hunks[currentHunkIndex];
             const nextHunk = targetFile.hunks[nextHunkIndex];
 
+            console.log('🟡 Current hunk:', currentHunk);
+            console.log('🟡 Next hunk:', nextHunk);
+
             // Calculate where current hunk ends and next hunk starts
             const currentOldEnd = currentHunk.old_start + currentHunk.old_count - 1; // Last line of current hunk
             const currentNewEnd = currentHunk.new_start + currentHunk.new_count - 1; // Last line of current hunk
@@ -722,6 +730,7 @@ function diffApp() {
             const oldGap = nextHunk.old_start - currentOldEnd - 1; // Gap between last line of current and first line of next
             const newGap = nextHunk.new_start - currentNewEnd - 1;
 
+            console.log('🟡 Old gap, new gap:', oldGap, newGap);
 
             // Merge if hunks are adjacent or overlapping (gap <= 1, meaning at most 1 line between them)
             if (oldGap <= 1 && newGap <= 1) {
@@ -744,8 +753,19 @@ function diffApp() {
                     currentHunk.new_count += 1;
                 }
 
-                // Merge the hunks
-                currentHunk.lines = [...currentHunk.lines, ...nextHunk.lines];
+                // Merge the hunks with deduplication
+                // Find overlapping lines by comparing line numbers
+                const currentLastLeftLine = currentHunk.lines[currentHunk.lines.length - 1]?.left?.line_num || 0;
+                const currentLastRightLine = currentHunk.lines[currentHunk.lines.length - 1]?.right?.line_num || 0;
+
+                // Filter out duplicate lines
+                const uniqueNextLines = nextHunk.lines.filter(line => {
+                    const leftLineNum = line.left?.line_num || 0;
+                    const rightLineNum = line.right?.line_num || 0;
+                    return leftLineNum > currentLastLeftLine || rightLineNum > currentLastRightLine;
+                });
+
+                currentHunk.lines = [...currentHunk.lines, ...uniqueNextLines];
                 currentHunk.old_count = nextHunk.old_start + nextHunk.old_count - currentHunk.old_start;
                 currentHunk.new_count = nextHunk.new_start + nextHunk.new_count - currentHunk.new_start;
 
@@ -758,6 +778,73 @@ function diffApp() {
 
                 // Remove the next hunk from the array
                 targetFile.hunks.splice(nextHunkIndex, 1);
+            }
+        },
+
+        checkAndMergeHunksReverse(targetFile, currentHunkIndex) {
+            const previousHunkIndex = currentHunkIndex - 1;
+
+            // Check if there's a previous hunk to potentially merge with
+            if (previousHunkIndex < 0) {
+                return;
+            }
+
+            const currentHunk = targetFile.hunks[currentHunkIndex];
+            const previousHunk = targetFile.hunks[previousHunkIndex];
+
+            // Calculate where previous hunk ends and current hunk starts
+            const previousOldEnd = previousHunk.old_start + previousHunk.old_count - 1;
+            const previousNewEnd = previousHunk.new_start + previousHunk.new_count - 1;
+
+            // Check if hunks are now adjacent or overlapping
+            const oldGap = currentHunk.old_start - previousOldEnd - 1;
+            const newGap = currentHunk.new_start - previousNewEnd - 1;
+
+            // Merge if hunks are adjacent or overlapping (gap <= 1, meaning at most 1 line between them)
+            if (oldGap <= 1 && newGap <= 1) {
+                // If there's a gap of 1 line, add context lines to bridge it
+                if (oldGap === 1 && newGap === 1) {
+                    // Add the single bridging line as context
+                    const bridgeLine = {
+                        type: 'context',
+                        left: {
+                            content: '', // Empty placeholder for the bridging line
+                            line_num: previousOldEnd + 1
+                        },
+                        right: {
+                            content: '',
+                            line_num: previousNewEnd + 1
+                        }
+                    };
+                    previousHunk.lines.push(bridgeLine);
+                    previousHunk.old_count += 1;
+                    previousHunk.new_count += 1;
+                }
+
+                // Find overlapping lines by comparing line numbers
+                const previousLastLeftLine = previousHunk.lines[previousHunk.lines.length - 1]?.left?.line_num || 0;
+                const previousLastRightLine = previousHunk.lines[previousHunk.lines.length - 1]?.right?.line_num || 0;
+
+                // Filter out duplicate lines
+                const uniqueCurrentLines = currentHunk.lines.filter(line => {
+                    const leftLineNum = line.left?.line_num || 0;
+                    const rightLineNum = line.right?.line_num || 0;
+                    return leftLineNum > previousLastLeftLine || rightLineNum > previousLastRightLine;
+                });
+
+                previousHunk.lines = [...previousHunk.lines, ...uniqueCurrentLines];
+                previousHunk.old_count = currentHunk.old_start + currentHunk.old_count - previousHunk.old_start;
+                previousHunk.new_count = currentHunk.new_start + currentHunk.new_count - previousHunk.new_start;
+
+                // Update section header to combine both if they exist
+                if (previousHunk.section_header && currentHunk.section_header) {
+                    previousHunk.section_header = `${previousHunk.section_header} / ${currentHunk.section_header}`;
+                } else if (currentHunk.section_header) {
+                    previousHunk.section_header = currentHunk.section_header;
+                }
+
+                // Remove the current hunk from the array
+                targetFile.hunks.splice(currentHunkIndex, 1);
             }
         },
 
