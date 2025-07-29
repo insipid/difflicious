@@ -14,6 +14,12 @@ Difflicious is a lightweight web-based git diff visualization tool built with Fl
 - Real-time: Server-Sent Events (SSE) for live git status monitoring
 - Security: Proper subprocess sanitization for git command execution
 
+**Frontend Architecture:**
+- Main application: `app.js` - Core Alpine.js application with UI state management
+- Context expansion: `context-manager.js` - Dedicated module for diff context expansion functionality
+- Modular design with dependency injection for testability and maintainability
+- Object spreading integration maintains Alpine.js reactivity while enabling code separation
+
 **Distribution Strategy:**
 1. PyPI package (primary) - `pip install difflicious`
 2. Docker image (secondary) - containerized deployment  
@@ -88,8 +94,26 @@ uv build
 - ✅ **Git Integration**: Live git status and structured diff data from real repositories
 - ✅ **Command-line Interface**: Full CLI with host, port, debug options
 - ✅ **Modern UI**: Tailwind CSS styling with responsive design
+- ✅ **Modular Architecture**: Context expansion extracted into dedicated, testable module
 - 🚧 **Real-time Updates**: Server-Sent Events implementation planned
 - 🚧 **Word-level Diffs**: Advanced word-diff parsing (available in separate branch)
+
+## Recent Architecture Improvements
+
+**Context Expansion Module Extraction (2025-07-29):**
+- ✅ Extracted 365+ lines of context expansion logic from monolithic `app.js` 
+- ✅ Created dedicated `context-manager.js` module with dependency injection
+- ✅ Implemented comprehensive unit test suite (24 test cases)
+- ✅ Maintained identical functionality through object spreading integration
+- ✅ Improved code maintainability and testability
+- ✅ All Alpine.js reactive properties continue working unchanged
+
+**Benefits Achieved:**
+- Reduced main `app.js` complexity from 900+ to ~550 lines
+- Enhanced testability with isolated context expansion logic  
+- Better separation of concerns between UI state and diff manipulation
+- Improved debugging capabilities for context expansion issues
+- Foundation for future modular architecture improvements
 
 ## Security Requirements (IMPLEMENTED)
 
