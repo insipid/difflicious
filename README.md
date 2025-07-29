@@ -54,6 +54,7 @@ git clone https://github.com/insipid/difflicious.git
 cd difflicious
 
 # Install uv if not already installed
+xoxo
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Create virtual environment and install dependencies
@@ -101,4 +102,3 @@ This project is in early development. More contribution guidelines will be avail
 ## License
 
 MIT License - see LICENSE file for details.
-

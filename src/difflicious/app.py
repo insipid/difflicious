@@ -186,6 +186,52 @@ def create_app() -> Flask:
             "total_files": total_files
         })
 
+
+
+    @app.route('/api/file/lines')
+    def api_file_lines() -> Dict[str, Any]:
+        """API endpoint for fetching specific lines from a file."""
+        # Get required parameters
+        file_path = request.args.get('file_path')
+        if not file_path:
+            return jsonify({"status": "error", "message": "file_path parameter is required"}), 400
+
+        start_line = request.args.get('start_line')
+        end_line = request.args.get('end_line')
+        
+        if not start_line or not end_line:
+            return jsonify({"status": "error", "message": "start_line and end_line parameters are required"}), 400
+
+        try:
+            start_line = int(start_line)
+            end_line = int(end_line)
+            
+            if start_line < 1 or end_line < start_line:
+                return jsonify({"status": "error", "message": "Invalid line range"}), 400
+                
+            if end_line - start_line > 100:
+                return jsonify({"status": "error", "message": "Line range too large (max 100 lines)"}), 400
+                
+        except ValueError:
+            return jsonify({"status": "error", "message": "start_line and end_line must be valid numbers"}), 400
+
+        try:
+            repo = get_git_repository()
+            lines = repo.get_file_lines(file_path, start_line, end_line)
+            
+            return jsonify({
+                "status": "ok",
+                "file_path": file_path,
+                "start_line": start_line,
+                "end_line": end_line,
+                "lines": lines,
+                "line_count": len(lines)
+            })
+
+        except Exception as e:
+            logger.error(f"Failed to get file lines for {file_path} ({start_line}-{end_line}): {e}")
+            return jsonify({"status": "error", "message": str(e)}), 500
+
     return app
 
 

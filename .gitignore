@@ -109,3 +109,4 @@ Cargo.lock
 vendor/
 
 .coverage
+vendor/

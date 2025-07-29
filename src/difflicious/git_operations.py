@@ -1,5 +1,6 @@
 """Secure git command execution wrapper for Difflicious."""
 
+import os
 import subprocess
 import shlex
 import logging
@@ -112,6 +113,8 @@ class GitRepository:
         Returns:
             True if option is safe, False otherwise
         """
+        import re
+        
         safe_options = {
             '--porcelain', '--short', '--branch', '--ahead-behind',
             '--no-renames', '--name-only', '--name-status', '--numstat',
@@ -123,6 +126,10 @@ class GitRepository:
 
         # Allow safe single-dash options
         safe_short_options = {'-s', '-b', '-u', '-z', '-n', '-p', '-w', '-a'}
+        
+        # Check for -U<number> pattern (unified diff with context lines)
+        if re.match(r'^-U\d+$', option):
+            return True
 
         return option in safe_options or option in safe_short_options
 
@@ -477,7 +484,7 @@ class GitRepository:
         return diffs
 
     def _get_file_diff(self, file_path: str, base_commit: Optional[str] = None,
-                       target_commit: Optional[str] = None, use_cached: bool = False) -> str:
+                       target_commit: Optional[str] = None, use_cached: bool = False, context_lines: int = 3) -> str:
         """Get detailed diff content for a specific file.
 
         Args:
@@ -485,6 +492,7 @@ class GitRepository:
             base_commit: Base commit to compare from
             target_commit: Target commit to compare to
             use_cached: Whether to get staged diff (used when no commits specified)
+            context_lines: Number of context lines to include (default: 3)
 
         Returns:
             Diff content as string
@@ -494,6 +502,9 @@ class GitRepository:
                 return f"Error: Unsafe file path: {file_path}"
 
             diff_args = ['diff']
+
+            # Add context lines argument
+            diff_args.append(f'-U{context_lines}')
 
             # Handle commit comparison (same logic as main get_diff method)
             if base_commit or target_commit:
@@ -516,6 +527,95 @@ class GitRepository:
 
         except GitOperationError as e:
             return f"Error: {e}"
+
+
+
+    def get_file_line_count(self, file_path: str) -> int:
+        """Get the total number of lines in a file.
+
+        Args:
+            file_path: Path to the file
+
+        Returns:
+            Number of lines in the file
+
+        Raises:
+            GitOperationError: If file cannot be read or counted
+        """
+        try:
+            if not self._is_safe_file_path(file_path):
+                raise GitOperationError(f"Unsafe file path: {file_path}")
+
+            # Use wc -l to count lines
+            import subprocess
+            import shlex
+            
+            full_path = self.repo_path / file_path
+            if not full_path.exists():
+                raise GitOperationError(f"File does not exist: {file_path}")
+
+            result = subprocess.run(
+                ['wc', '-l', str(full_path)],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+
+            if result.returncode != 0:
+                raise GitOperationError(f"Failed to count lines: {result.stderr}")
+
+            # wc -l output format: "   123 filename"
+            line_count = int(result.stdout.strip().split()[0])
+            return line_count
+
+        except (subprocess.TimeoutExpired, subprocess.CalledProcessError, ValueError) as e:
+            raise GitOperationError(f"Failed to get file line count: {e}")
+
+    def get_file_lines(self, file_path: str, start_line: int, end_line: int) -> List[str]:
+        """Get specific lines from a file using fast bash tools.
+        
+        Args:
+            file_path: Path to the file relative to repository root
+            start_line: Starting line number (1-based, inclusive)
+            end_line: Ending line number (1-based, inclusive)
+            
+        Returns:
+            List of lines from the file
+            
+        Raises:
+            GitOperationError: If operation fails
+        """
+        if start_line < 1 or end_line < start_line:
+            raise GitOperationError(f"Invalid line range: {start_line}-{end_line}")
+            
+        # Sanitize file path
+        if not self._is_safe_file_path(file_path):
+            raise GitOperationError(f"Unsafe file path: {file_path}")
+            
+        full_path = os.path.join(self.repo_path, file_path)
+        if not os.path.isfile(full_path):
+            raise GitOperationError(f"File not found: {file_path}")
+            
+        try:
+            # Use sed for efficient line extraction: sed -n 'start,end p' file
+            # This is faster than head/tail combination for random ranges
+            cmd = ['sed', '-n', f'{start_line},{end_line}p', full_path]
+            
+            result = subprocess.run(
+                cmd,
+                cwd=self.repo_path,
+                capture_output=True,
+                text=True,
+                timeout=30,
+                check=True
+            )
+            
+            # Return lines, preserving empty lines but removing final newline if present
+            lines = result.stdout.splitlines()
+            return lines
+            
+        except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as e:
+            raise GitOperationError(f"Failed to get file lines {start_line}-{end_line}: {e}")
 
 
 def get_git_repository(repo_path: Optional[str] = None) -> GitRepository:
