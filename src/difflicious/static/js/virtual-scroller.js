@@ -229,24 +229,135 @@ class VirtualDiffScroller {
         // Remove elements outside visible range
         this.cleanupInvisibleElements(start, end);
 
-        // Render new visible elements (Phase 1: just log what would be rendered)
+        // Render new visible elements
         for (let i = start; i < end; i++) {
             if (i >= this.allLines.length) break;
 
             const lineData = this.allLines[i];
             if (!this.lineToElement.has(i)) {
-                // Phase 1: Just track what would be rendered
-                console.log(`Would render line ${i}: ${lineData.type} - ${lineData.filePath || 'unknown'}`);
-
-                // Create placeholder for now
-                const placeholder = { type: lineData.type, globalIndex: i };
-                this.lineToElement.set(i, placeholder);
+                this.renderLine(lineData, i);
             }
         }
 
         this.renderedRange = { start, end };
         console.timeEnd('VirtualScroller: Render');
-        console.log(`Rendered range: ${start} - ${end}, Total lines: ${this.allLines.length}`);
+    }
+
+    renderLine(lineData, globalIndex) {
+        const element = this.getDOMElement(lineData.type);
+
+        // Configure element based on line type
+        switch (lineData.type) {
+        case 'file-header':
+            this.configureFileHeader(element, lineData);
+            break;
+        case 'hunk-header':
+            this.configureHunkHeader(element, lineData);
+            break;
+        case 'diff-line':
+            this.configureDiffLine(element, lineData);
+            break;
+        }
+
+        // Position element
+        element.style.position = 'absolute';
+        element.style.top = `${globalIndex * this.lineHeight}px`;
+        element.style.left = '0';
+        element.style.right = '0';
+        element.style.height = `${this.lineHeight}px`;
+        element.dataset.globalIndex = globalIndex;
+
+        // Add to viewport
+        this.viewport.appendChild(element);
+        this.lineToElement.set(globalIndex, element);
+
+        // Lazy syntax highlighting for diff lines
+        if (lineData.type === 'diff-line' && lineData.needsHighlighting) {
+            this.scheduleHighlighting(element, lineData);
+        }
+    }
+
+    getDOMElement(type) {
+        // Try to reuse from pool first
+        const poolKey = `${type}-pool`;
+        if (this.domPool[poolKey] && this.domPool[poolKey].length > 0) {
+            return this.domPool[poolKey].pop();
+        }
+
+        // Create new element if pool is empty
+        return this.createNewElement(type);
+    }
+
+    createNewElement(type) {
+        let element;
+
+        switch (type) {
+        case 'file-header':
+            element = document.createElement('div');
+            element.className = 'virtual-file-header bg-white border border-gray-200 rounded-lg shadow-sm';
+            element.innerHTML = `
+                <div class="file-header-content flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center space-x-3">
+                        <span class="toggle-icon text-gray-400 transition-transform duration-200">▶</span>
+                        <span class="file-path font-mono text-sm text-gray-900"></span>
+                        <span class="file-status text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded"></span>
+                    </div>
+                    <div class="file-stats flex items-center space-x-2 text-xs">
+                        <span class="additions bg-green-100 text-green-800 px-2 py-1 rounded hidden"></span>
+                        <span class="deletions bg-red-100 text-red-800 px-2 py-1 rounded hidden"></span>
+                    </div>
+                </div>
+            `;
+            break;
+
+        case 'hunk-header':
+            element = document.createElement('div');
+            element.className = 'virtual-hunk-header bg-blue-50 text-xs font-mono text-blue-800 border-b border-blue-100';
+            element.innerHTML = `
+                <div class="hunk-content px-4 py-2">
+                    <span class="section-header"></span>
+                </div>
+            `;
+            break;
+
+        case 'diff-line':
+            element = document.createElement('div');
+            element.className = 'virtual-diff-line grid grid-cols-2 border-b border-gray-50 hover:bg-gray-25 font-mono text-xs';
+            element.innerHTML = `
+                <div class="line-left border-r border-gray-200">
+                    <div class="flex">
+                        <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none"></div>
+                        <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
+                            <span class="line-marker"></span>
+                            <span class="line-text"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="line-right">
+                    <div class="flex">
+                        <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none"></div>
+                        <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
+                            <span class="line-marker"></span>
+                            <span class="line-text"></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            break;
+        }
+
+        return element;
+    }
+
+    returnElementToPool(element, type) {
+        // Clean element for reuse
+        element.style.transform = '';
+        element.removeAttribute('data-global-index');
+
+        // Return to appropriate pool
+        const poolKey = `${type}-pool`;
+        if (!this.domPool[poolKey]) this.domPool[poolKey] = [];
+        this.domPool[poolKey].push(element);
     }
 
     cleanupInvisibleElements(visibleStart, visibleEnd) {
@@ -259,8 +370,14 @@ class VirtualDiffScroller {
         });
 
         elementsToRemove.forEach(globalIndex => {
-            console.log(`Cleaning up line ${globalIndex}`);
-            this.lineToElement.delete(globalIndex);
+            const element = this.lineToElement.get(globalIndex);
+            if (element && element.parentNode) {
+                const lineType = this.allLines[globalIndex]?.type || 'diff-line';
+
+                element.parentNode.removeChild(element);
+                this.lineToElement.delete(globalIndex);
+                this.returnElementToPool(element, lineType);
+            }
         });
     }
 
@@ -289,6 +406,144 @@ class VirtualDiffScroller {
     // Method to check if scroller is properly initialized
     isInitialized() {
         return !!(this.container && this.viewport && this.spacer);
+    }
+
+    // --- Placeholder methods for later phases ---
+
+    configureFileHeader(element, lineData) {
+        // Placeholder for Phase 2
+        const filePathSpan = element.querySelector('.file-path');
+        if (filePathSpan) {
+            filePathSpan.textContent = lineData.filePath;
+        }
+    }
+
+    configureHunkHeader(element, lineData) {
+        // Placeholder for Phase 2
+        const sectionHeaderSpan = element.querySelector('.section-header');
+        if (sectionHeaderSpan) {
+            sectionHeaderSpan.textContent = lineData.sectionHeader;
+        }
+    }
+
+    configureDiffLine(element, lineData) {
+        // Content is now set by the highlighting function
+    }
+
+    scheduleHighlighting(element, lineData) {
+        // Use requestIdleCallback for non-blocking highlighting
+        if (window.requestIdleCallback) {
+            requestIdleCallback(() => this.highlightLine(element, lineData), { timeout: 100 });
+        } else {
+            // Fallback for browsers without requestIdleCallback
+            setTimeout(() => this.highlightLine(element, lineData), 0);
+        }
+    }
+
+    highlightLine(element, lineData) {
+        if (!lineData.lineData || !element.isConnected) return;
+
+        const line = lineData.lineData;
+        const filePath = lineData.filePath;
+
+        // Get DOM elements for left and right sides
+        const leftContent = element.querySelector('.line-left .line-text');
+        const rightContent = element.querySelector('.line-right .line-text');
+        const leftMarker = element.querySelector('.line-left .line-marker');
+        const rightMarker = element.querySelector('.line-right .line-marker');
+        const leftNum = element.querySelector('.line-left .line-num');
+        const rightNum = element.querySelector('.line-right .line-num');
+
+        if (!leftContent || !rightContent) return;
+
+        try {
+            // Clear previous state
+            leftContent.innerHTML = '';
+            rightContent.innerHTML = '';
+            leftNum.textContent = '';
+            rightNum.textContent = '';
+            leftMarker.innerHTML = '&nbsp;';
+            rightMarker.innerHTML = '&nbsp;';
+            element.querySelector('.line-left').classList.remove('bg-red-50');
+            element.querySelector('.line-right').classList.remove('bg-green-50');
+
+            // Configure left side
+            if (line.left && line.left.content) {
+                leftNum.textContent = line.left.line_num || '';
+                leftContent.innerHTML = this.highlightCode(line.left.content, filePath);
+
+                if (line.left.type === 'deletion') {
+                    leftMarker.textContent = '-';
+                    leftMarker.className = 'line-marker text-red-600';
+                    element.querySelector('.line-left').classList.add('bg-red-50');
+                } else if (line.type === 'context') {
+                    leftMarker.innerHTML = '&nbsp;';
+                    leftMarker.className = 'line-marker text-gray-400';
+                }
+            }
+
+            // Configure right side
+            if (line.right && line.right.content) {
+                rightNum.textContent = line.right.line_num || '';
+                rightContent.innerHTML = this.highlightCode(line.right.content, filePath);
+
+                if (line.right.type === 'addition') {
+                    rightMarker.textContent = '+';
+                    rightMarker.className = 'line-marker text-green-600';
+                    element.querySelector('.line-right').classList.add('bg-green-50');
+                } else if (line.type === 'context') {
+                    rightMarker.innerHTML = '&nbsp;';
+                    rightMarker.className = 'line-marker text-gray-400';
+                }
+            }
+
+            // Mark as highlighted
+            lineData.needsHighlighting = false;
+        } catch (error) {
+            console.warn('Syntax highlighting failed for line:', error);
+            // Fallback to plain text
+            if (line.left?.content) leftContent.textContent = line.left.content;
+            if (line.right?.content) rightContent.textContent = line.right.content;
+        }
+    }
+
+    highlightCode(content, filePath) {
+        if (!content || !window.hljs) return content;
+
+        try {
+            const language = this.detectLanguage(filePath);
+            if (language === 'plaintext') {
+                const result = window.hljs.highlightAuto(content);
+                return result.value;
+            } else {
+                const result = window.hljs.highlight(content, { language });
+                return result.value;
+            }
+        } catch (error) {
+            return content;
+        }
+    }
+
+    detectLanguage(filePath) {
+        // Reuse existing language detection logic
+        const ext = filePath.split('.').pop()?.toLowerCase();
+        const languageMap = {
+            js: 'javascript',
+            jsx: 'javascript',
+            ts: 'typescript',
+            tsx: 'typescript',
+            py: 'python',
+            html: 'html',
+            css: 'css',
+            json: 'json',
+            md: 'markdown',
+            sh: 'bash',
+            bash: 'bash',
+            rb: 'ruby',
+            go: 'go',
+            rs: 'rust'
+        };
+        return languageMap[ext] || 'plaintext';
     }
 }
 
