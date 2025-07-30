@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 class GitOperationError(Exception):
     """Exception raised when git operations fail."""
+
     pass
 
 
@@ -35,7 +36,9 @@ class GitRepository:
         if not (git_dir.exists() or (self.repo_path / ".git").is_file()):
             raise GitOperationError(f"Not a git repository: {self.repo_path}")
 
-    def _execute_git_command(self, args: List[str], timeout: int = 30) -> Tuple[str, str, int]:
+    def _execute_git_command(
+        self, args: List[str], timeout: int = 30
+    ) -> Tuple[str, str, int]:
         """Execute a git command with proper security and error handling.
 
         Args:
@@ -64,16 +67,20 @@ class GitRepository:
                 capture_output=True,
                 text=True,
                 timeout=timeout,
-                check=False  # We'll handle return codes manually
+                check=False,  # We'll handle return codes manually
             )
 
             logger.debug(f"Git command completed with return code: {result.returncode}")
             return result.stdout, result.stderr, result.returncode
 
         except subprocess.TimeoutExpired:
-            raise GitOperationError(f"Git command timed out after {timeout}s: {' '.join(cmd)}") from None
+            raise GitOperationError(
+                f"Git command timed out after {timeout}s: {' '.join(cmd)}"
+            ) from None
         except FileNotFoundError:
-            raise GitOperationError("Git executable not found. Please ensure git is installed.") from None
+            raise GitOperationError(
+                "Git executable not found. Please ensure git is installed."
+            ) from None
         except Exception as e:
             raise GitOperationError(f"Failed to execute git command: {e}") from e
 
@@ -92,11 +99,15 @@ class GitRepository:
                 raise GitOperationError(f"Invalid argument type: {type(arg)}")
 
             # Remove dangerous characters and patterns
-            if any(char in arg for char in [';', '|', '&', '`', '$', '(', ')', '>', '<']):
-                raise GitOperationError(f"Dangerous characters detected in argument: {arg}")
+            if any(
+                char in arg for char in [";", "|", "&", "`", "$", "(", ")", ">", "<"]
+            ):
+                raise GitOperationError(
+                    f"Dangerous characters detected in argument: {arg}"
+                )
 
             # Prevent command injection via git options
-            if arg.startswith('-') and not self._is_safe_git_option(arg):
+            if arg.startswith("-") and not self._is_safe_git_option(arg):
                 raise GitOperationError(f"Unsafe git option: {arg}")
 
             sanitized.append(shlex.quote(arg))
@@ -115,19 +126,38 @@ class GitRepository:
         import re
 
         safe_options = {
-            '--porcelain', '--short', '--branch', '--ahead-behind',
-            '--no-renames', '--name-only', '--name-status', '--numstat',
-            '--stat', '--patch', '--no-patch', '--raw', '--format',
-            '--oneline', '--graph', '--decorate', '--all', '--color',
-            '--no-color', '--word-diff', '--unified', '--context',
-            '--show-current', '--cached', '--verify'
+            "--porcelain",
+            "--short",
+            "--branch",
+            "--ahead-behind",
+            "--no-renames",
+            "--name-only",
+            "--name-status",
+            "--numstat",
+            "--stat",
+            "--patch",
+            "--no-patch",
+            "--raw",
+            "--format",
+            "--oneline",
+            "--graph",
+            "--decorate",
+            "--all",
+            "--color",
+            "--no-color",
+            "--word-diff",
+            "--unified",
+            "--context",
+            "--show-current",
+            "--cached",
+            "--verify",
         }
 
         # Allow safe single-dash options
-        safe_short_options = {'-s', '-b', '-u', '-z', '-n', '-p', '-w', '-a'}
+        safe_short_options = {"-s", "-b", "-u", "-z", "-n", "-p", "-w", "-a"}
 
         # Check for -U<number> pattern (unified diff with context lines)
-        if re.match(r'^-U\d+$', option):
+        if re.match(r"^-U\d+$", option):
             return True
 
         return option in safe_options or option in safe_short_options
@@ -143,45 +173,51 @@ class GitRepository:
             current_branch = self.get_current_branch()
 
             # Get repository status
-            status_stdout, _, status_code = self._execute_git_command(['status', '--porcelain'])
+            status_stdout, _, status_code = self._execute_git_command(
+                ["status", "--porcelain"]
+            )
 
             # Parse status output
             files_changed = 0
             if status_code == 0:
-                files_changed = len([line for line in status_stdout.strip().split('\n') if line.strip()])
+                files_changed = len(
+                    [line for line in status_stdout.strip().split("\n") if line.strip()]
+                )
 
             # Check if git is available and working
-            git_available = current_branch != 'error' or status_code == 0
+            git_available = current_branch != "error" or status_code == 0
 
             return {
-                'git_available': git_available,
-                'current_branch': current_branch,
-                'files_changed': files_changed,
-                'repository_path': str(self.repo_path),
-                'is_clean': files_changed == 0
+                "git_available": git_available,
+                "current_branch": current_branch,
+                "files_changed": files_changed,
+                "repository_path": str(self.repo_path),
+                "is_clean": files_changed == 0,
             }
 
         except GitOperationError as e:
             logger.error(f"Failed to get git status: {e}")
             return {
-                'git_available': False,
-                'current_branch': 'error',
-                'files_changed': 0,
-                'repository_path': str(self.repo_path),
-                'is_clean': True,
-                'error': str(e)
+                "git_available": False,
+                "current_branch": "error",
+                "files_changed": 0,
+                "repository_path": str(self.repo_path),
+                "is_clean": True,
+                "error": str(e),
             }
 
     def get_current_branch(self) -> str:
         """Get the currently checked-out branch."""
         try:
-            stdout, _, return_code = self._execute_git_command(['branch', '--show-current'])
+            stdout, _, return_code = self._execute_git_command(
+                ["branch", "--show-current"]
+            )
             if return_code == 0:
                 return stdout.strip()
-            return 'unknown'
+            return "unknown"
         except GitOperationError as e:
             logger.error(f"Failed to get current branch: {e}")
-            return 'error'
+            return "error"
 
     def get_repository_name(self) -> str:
         """Get the repository name.
@@ -191,83 +227,82 @@ class GitRepository:
         """
         try:
             # First try to get from remote origin URL
-            stdout, stderr, return_code = self._execute_git_command(['remote', 'get-url', 'origin'])
+            stdout, stderr, return_code = self._execute_git_command(
+                ["remote", "get-url", "origin"]
+            )
             if return_code == 0 and stdout.strip():
                 remote_url = stdout.strip()
                 # Extract repo name from various URL formats:
                 # https://github.com/user/repo.git -> repo
                 # git@github.com:user/repo.git -> repo
                 # /path/to/repo -> repo
-                if remote_url.endswith('.git'):
+                if remote_url.endswith(".git"):
                     remote_url = remote_url[:-4]
-                repo_name = remote_url.split('/')[-1]
+                repo_name = remote_url.split("/")[-1]
                 if repo_name:
                     return repo_name
 
             # Fallback to directory name
             import os
+
             return os.path.basename(self.repo_path)
 
         except GitOperationError as e:
             logger.warning(f"Failed to get repository name from remote: {e}")
             # Final fallback to directory name
             import os
+
             return os.path.basename(self.repo_path)
 
     def get_branches(self) -> Dict[str, Any]:
         """Get a list of all local and remote branches."""
         try:
-            stdout, _, return_code = self._execute_git_command(['branch', '-a'])
+            stdout, _, return_code = self._execute_git_command(["branch", "-a"])
             if return_code != 0:
                 return []
 
             branches = []
-            for line in stdout.strip().split('\n'):
+            for line in stdout.strip().split("\n"):
                 branch_name = line.strip()
-                if '->' in branch_name:
+                if "->" in branch_name:
                     continue
-                if branch_name.startswith('* '):
+                if branch_name.startswith("* "):
                     branch_name = branch_name[2:]
 
                 # Clean up remote branch names
-                if branch_name.startswith('remotes/origin/'):
-                    branch_name = branch_name[len('remotes/origin/'):]
+                if branch_name.startswith("remotes/origin/"):
+                    branch_name = branch_name[len("remotes/origin/") :]
 
                 if branch_name not in branches:
                     branches.append(branch_name)
             default_branch = self.get_main_branch(branches)
-            return {
-                'branches': sorted(set(branches)),
-                'default_branch': default_branch
-            }
+            return {"branches": sorted(set(branches)), "default_branch": default_branch}
         except GitOperationError as e:
             logger.error(f"Failed to get branches: {e}")
-            return {
-                'branches': [],
-                'default_branch': None
-            }
+            return {"branches": [], "default_branch": None}
 
     def get_main_branch(self, branches: List[str]) -> Optional[str]:
         """Determine the main branch from a list of branches."""
-        if 'main' in branches:
-            return 'main'
-        if 'master' in branches:
-            return 'master'
+        if "main" in branches:
+            return "main"
+        if "master" in branches:
+            return "master"
 
         # Fallback: look for a branch with a remote counterpart
         for branch in branches:
-            if f'remotes/origin/{branch}' in branches:
+            if f"remotes/origin/{branch}" in branches:
                 return branch
 
         return None
 
-
-    def get_diff(self,
-                 base_commit: Optional[str] = None,
-                 target_commit: Optional[str] = None,
-                 unstaged: bool = True,
-                 untracked: bool = False,
-                 file_path: Optional[str] = None) -> Dict[str, Any]:
+    def get_diff(
+        self,
+        base_commit: Optional[str] = None,
+        target_commit: Optional[str] = None,
+        unstaged: bool = True,
+        untracked: bool = False,
+        file_path: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """Get git diff information grouped by type.
 
         Args:
@@ -282,31 +317,37 @@ class GitRepository:
         """
         try:
             groups = {
-                'untracked': {'files': [], 'count': 0},
-                'unstaged': {'files': [], 'count': 0},
-                'staged': {'files': [], 'count': 0}
+                "untracked": {"files": [], "count": 0},
+                "unstaged": {"files": [], "count": 0},
+                "staged": {"files": [], "count": 0},
             }
 
             # Handle commit comparison
-            if (base_commit and base_commit.strip()) or (target_commit and target_commit.strip()):
+            if (base_commit and base_commit.strip()) or (
+                target_commit and target_commit.strip()
+            ):
                 # If comparing commits, validate them
                 if base_commit:
                     if not self._is_safe_commit_sha(base_commit):
-                        raise GitOperationError(f"Invalid or unsafe base commit: {base_commit}")
+                        raise GitOperationError(
+                            f"Invalid or unsafe base commit: {base_commit}"
+                        )
                 else:
                     # Default to main if target_commit is specified
-                    base_commit = 'main'
+                    base_commit = "main"
                     if not self._is_safe_commit_sha(base_commit):
                         # Fallback to HEAD if main doesn't exist
-                        base_commit = 'HEAD'
+                        base_commit = "HEAD"
 
                 if target_commit:
                     if not self._is_safe_commit_sha(target_commit):
-                        raise GitOperationError(f"Invalid or unsafe target commit: {target_commit}")
-                    diff_args = ['diff', '--numstat', base_commit, target_commit]
+                        raise GitOperationError(
+                            f"Invalid or unsafe target commit: {target_commit}"
+                        )
+                    diff_args = ["diff", "--numstat", base_commit, target_commit]
                 else:
                     # Compare base_commit to working directory
-                    diff_args = ['diff', '--numstat', base_commit]
+                    diff_args = ["diff", "--numstat", base_commit]
 
                 if file_path:
                     if not self._is_safe_file_path(file_path):
@@ -321,34 +362,38 @@ class GitRepository:
                 # Parse diff output and put in unstaged group for commit comparisons
                 diffs = self._parse_diff_output(stdout)
                 for diff_info in diffs:
-                    detailed_diff = self._get_file_diff(diff_info['path'], base_commit, target_commit, False)
-                    diff_info['content'] = detailed_diff
-                    groups['unstaged']['files'].append(diff_info)
-                groups['unstaged']['count'] = len(groups['unstaged']['files'])
+                    detailed_diff = self._get_file_diff(
+                        diff_info["path"], base_commit, target_commit, False
+                    )
+                    diff_info["content"] = detailed_diff
+                    groups["unstaged"]["files"].append(diff_info)
+                groups["unstaged"]["count"] = len(groups["unstaged"]["files"])
             else:
                 # Working directory diffs
                 if untracked:
                     # Get untracked files (no diff content, just file list)
-                    status_args = ['status', '--porcelain']
+                    status_args = ["status", "--porcelain"]
                     stdout, stderr, return_code = self._execute_git_command(status_args)
                     if return_code == 0:
-                        for line in stdout.strip().split('\n'):
-                            if line.strip() and line.startswith('??'):
+                        for line in stdout.strip().split("\n"):
+                            if line.strip() and line.startswith("??"):
                                 file_name = line[3:].strip()
                                 if not file_path or file_path in file_name:
-                                    groups['untracked']['files'].append({
-                                        'path': file_name,
-                                        'additions': 0,
-                                        'deletions': 0,
-                                        'changes': 0,
-                                        'status': 'untracked',
-                                        'content': f'New untracked file: {file_name}'
-                                    })
-                    groups['untracked']['count'] = len(groups['untracked']['files'])
+                                    groups["untracked"]["files"].append(
+                                        {
+                                            "path": file_name,
+                                            "additions": 0,
+                                            "deletions": 0,
+                                            "changes": 0,
+                                            "status": "untracked",
+                                            "content": f"New untracked file: {file_name}",
+                                        }
+                                    )
+                    groups["untracked"]["count"] = len(groups["untracked"]["files"])
 
                 if unstaged:
                     # Get unstaged changes
-                    diff_args = ['diff', '--numstat']
+                    diff_args = ["diff", "--numstat"]
                     if file_path:
                         if not self._is_safe_file_path(file_path):
                             raise GitOperationError(f"Unsafe file path: {file_path}")
@@ -360,14 +405,16 @@ class GitRepository:
 
                     unstaged_diffs = self._parse_diff_output(stdout)
                     for diff_info in unstaged_diffs:
-                        detailed_diff = self._get_file_diff(diff_info['path'], None, None, False)
-                        diff_info['content'] = detailed_diff
-                        diff_info['status'] = 'unstaged'
-                        groups['unstaged']['files'].append(diff_info)
-                    groups['unstaged']['count'] = len(groups['unstaged']['files'])
+                        detailed_diff = self._get_file_diff(
+                            diff_info["path"], None, None, False
+                        )
+                        diff_info["content"] = detailed_diff
+                        diff_info["status"] = "unstaged"
+                        groups["unstaged"]["files"].append(diff_info)
+                    groups["unstaged"]["count"] = len(groups["unstaged"]["files"])
 
                 # Always check for staged changes
-                staged_args = ['diff', '--cached', '--numstat']
+                staged_args = ["diff", "--cached", "--numstat"]
                 if file_path:
                     if not self._is_safe_file_path(file_path):
                         raise GitOperationError(f"Unsafe file path: {file_path}")
@@ -377,20 +424,22 @@ class GitRepository:
                 if return_code == 0:  # Don't warn for staged diffs, often empty
                     staged_diffs = self._parse_diff_output(stdout)
                     for diff_info in staged_diffs:
-                        detailed_diff = self._get_file_diff(diff_info['path'], None, None, True)
-                        diff_info['content'] = detailed_diff
-                        diff_info['status'] = 'staged'
-                        groups['staged']['files'].append(diff_info)
-                    groups['staged']['count'] = len(groups['staged']['files'])
+                        detailed_diff = self._get_file_diff(
+                            diff_info["path"], None, None, True
+                        )
+                        diff_info["content"] = detailed_diff
+                        diff_info["status"] = "staged"
+                        groups["staged"]["files"].append(diff_info)
+                    groups["staged"]["count"] = len(groups["staged"]["files"])
 
             return groups
 
         except GitOperationError as e:
             logger.error(f"Failed to get git diff: {e}")
             return {
-                'untracked': {'files': [], 'count': 0},
-                'unstaged': {'files': [], 'count': 0},
-                'staged': {'files': [], 'count': 0}
+                "untracked": {"files": [], "count": 0},
+                "unstaged": {"files": [], "count": 0},
+                "staged": {"files": [], "count": 0},
             }
 
     def _is_safe_commit_sha(self, sha: str) -> bool:
@@ -407,7 +456,9 @@ class GitRepository:
 
         # Allow branch names, tag names, and SHAs
         # Reject dangerous characters
-        if any(char in sha for char in [';', '|', '&', '`', '$', '(', ')', '>', '<', ' ']):
+        if any(
+            char in sha for char in [";", "|", "&", "`", "$", "(", ")", ">", "<", " "]
+        ):
             return False
 
         # Must be reasonable length (branch names, tags, or SHAs)
@@ -416,7 +467,9 @@ class GitRepository:
 
         # Check if it's a valid git reference
         try:
-            _, _, return_code = self._execute_git_command(['rev-parse', '--verify', sha])
+            _, _, return_code = self._execute_git_command(
+                ["rev-parse", "--verify", sha]
+            )
             return return_code == 0
         except GitOperationError:
             return False
@@ -454,36 +507,44 @@ class GitRepository:
         if not output.strip():
             return diffs
 
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         for line in lines:
             if not line.strip():
                 continue
 
             # Parse numstat format: "additions\tdeletions\tfilename"
-            parts = line.split('\t')
+            parts = line.split("\t")
             if len(parts) >= 3:
                 try:
-                    additions = int(parts[0]) if parts[0] != '-' else 0
-                    deletions = int(parts[1]) if parts[1] != '-' else 0
+                    additions = int(parts[0]) if parts[0] != "-" else 0
+                    deletions = int(parts[1]) if parts[1] != "-" else 0
                     filename = parts[2]
 
-                    diffs.append({
-                        'path': filename,
-                        'additions': additions,
-                        'deletions': deletions,
-                        'changes': additions + deletions,
-                        'status': 'modified',  # TODO: Parse actual status
-                        'content': ''  # Will be filled by caller
-                    })
+                    diffs.append(
+                        {
+                            "path": filename,
+                            "additions": additions,
+                            "deletions": deletions,
+                            "changes": additions + deletions,
+                            "status": "modified",  # TODO: Parse actual status
+                            "content": "",  # Will be filled by caller
+                        }
+                    )
                 except ValueError:
                     # Skip lines that don't parse correctly
                     continue
 
         return diffs
 
-    def _get_file_diff(self, file_path: str, base_commit: Optional[str] = None,
-                       target_commit: Optional[str] = None, use_cached: bool = False, context_lines: int = 3) -> str:
+    def _get_file_diff(
+        self,
+        file_path: str,
+        base_commit: Optional[str] = None,
+        target_commit: Optional[str] = None,
+        use_cached: bool = False,
+        context_lines: int = 3,
+    ) -> str:
         """Get detailed diff content for a specific file.
 
         Args:
@@ -500,10 +561,10 @@ class GitRepository:
             if not self._is_safe_file_path(file_path):
                 return f"Error: Unsafe file path: {file_path}"
 
-            diff_args = ['diff']
+            diff_args = ["diff"]
 
             # Add context lines argument
-            diff_args.append(f'-U{context_lines}')
+            diff_args.append(f"-U{context_lines}")
 
             # Handle commit comparison (same logic as main get_diff method)
             if base_commit or target_commit:
@@ -513,9 +574,9 @@ class GitRepository:
                     diff_args.append(base_commit)
             else:
                 if use_cached:
-                    diff_args.append('--cached')
+                    diff_args.append("--cached")
 
-            diff_args.extend(['--no-color', file_path])
+            diff_args.extend(["--no-color", file_path])
 
             stdout, stderr, return_code = self._execute_git_command(diff_args)
 
@@ -526,8 +587,6 @@ class GitRepository:
 
         except GitOperationError as e:
             return f"Error: {e}"
-
-
 
     def get_file_line_count(self, file_path: str) -> int:
         """Get the total number of lines in a file.
@@ -553,10 +612,7 @@ class GitRepository:
                 raise GitOperationError(f"File does not exist: {file_path}")
 
             result = subprocess.run(
-                ['wc', '-l', str(full_path)],
-                capture_output=True,
-                text=True,
-                timeout=5
+                ["wc", "-l", str(full_path)], capture_output=True, text=True, timeout=5
             )
 
             if result.returncode != 0:
@@ -566,10 +622,16 @@ class GitRepository:
             line_count = int(result.stdout.strip().split()[0])
             return line_count
 
-        except (subprocess.TimeoutExpired, subprocess.CalledProcessError, ValueError) as e:
+        except (
+            subprocess.TimeoutExpired,
+            subprocess.CalledProcessError,
+            ValueError,
+        ) as e:
             raise GitOperationError(f"Failed to get file line count: {e}") from e
 
-    def get_file_lines(self, file_path: str, start_line: int, end_line: int) -> List[str]:
+    def get_file_lines(
+        self, file_path: str, start_line: int, end_line: int
+    ) -> List[str]:
         """Get specific lines from a file using fast bash tools.
 
         Args:
@@ -597,7 +659,7 @@ class GitRepository:
         try:
             # Use sed for efficient line extraction: sed -n 'start,end p' file
             # This is faster than head/tail combination for random ranges
-            cmd = ['sed', '-n', f'{start_line},{end_line}p', full_path]
+            cmd = ["sed", "-n", f"{start_line},{end_line}p", full_path]
 
             result = subprocess.run(
                 cmd,
@@ -605,7 +667,7 @@ class GitRepository:
                 capture_output=True,
                 text=True,
                 timeout=30,
-                check=True
+                check=True,
             )
 
             # Return lines, preserving empty lines but removing final newline if present
@@ -613,7 +675,9 @@ class GitRepository:
             return lines
 
         except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as e:
-            raise GitOperationError(f"Failed to get file lines {start_line}-{end_line}: {e}") from e
+            raise GitOperationError(
+                f"Failed to get file lines {start_line}-{end_line}: {e}"
+            ) from e
 
 
 def get_git_repository(repo_path: Optional[str] = None) -> GitRepository:

@@ -11,15 +11,18 @@ from .exceptions import DiffServiceError
 
 logger = logging.getLogger(__name__)
 
+
 class DiffService(BaseService):
     """Service for diff-related operations and business logic."""
 
-    def get_grouped_diffs(self,
-                         base_commit: Optional[str] = None,
-                         target_commit: Optional[str] = None,
-                         unstaged: bool = True,
-                         untracked: bool = False,
-                         file_path: Optional[str] = None) -> Dict[str, Any]:
+    def get_grouped_diffs(
+        self,
+        base_commit: Optional[str] = None,
+        target_commit: Optional[str] = None,
+        unstaged: bool = True,
+        untracked: bool = False,
+        file_path: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """Get processed diff data grouped by type.
 
         This method extracts the business logic currently in get_real_git_diff()
@@ -45,7 +48,7 @@ class DiffService(BaseService):
                 target_commit=target_commit,
                 unstaged=unstaged,
                 untracked=untracked,
-                file_path=file_path
+                file_path=file_path,
             )
 
             # Process each group to parse diff content for rendering
@@ -70,12 +73,12 @@ class DiffService(BaseService):
         for _group_name, group_data in grouped_diffs.items():
             formatted_files = []
 
-            for diff in group_data['files']:
+            for diff in group_data["files"]:
                 processed_diff = self._process_single_diff(diff)
                 formatted_files.append(processed_diff)
 
-            group_data['files'] = formatted_files
-            group_data['count'] = len(formatted_files)
+            group_data["files"] = formatted_files
+            group_data["count"] = len(formatted_files)
 
         return grouped_diffs
 
@@ -89,19 +92,21 @@ class DiffService(BaseService):
             Processed diff data
         """
         # Parse the diff content if available (but not for untracked files)
-        if diff.get('content') and diff.get('status') != 'untracked':
+        if diff.get("content") and diff.get("status") != "untracked":
             try:
-                parsed_diff = parse_git_diff_for_rendering(diff['content'])
+                parsed_diff = parse_git_diff_for_rendering(diff["content"])
                 if parsed_diff:
                     # Take the first parsed diff item and update it with our metadata
                     formatted_diff = parsed_diff[0]
-                    formatted_diff.update({
-                        'path': diff['path'],
-                        'additions': diff['additions'],
-                        'deletions': diff['deletions'],
-                        'changes': diff['changes'],
-                        'status': diff['status']
-                    })
+                    formatted_diff.update(
+                        {
+                            "path": diff["path"],
+                            "additions": diff["additions"],
+                            "deletions": diff["deletions"],
+                            "changes": diff["changes"],
+                            "status": diff["status"],
+                        }
+                    )
                     return formatted_diff
             except DiffParseError as e:
                 logger.warning(f"Failed to parse diff for {diff['path']}: {e}")
@@ -122,21 +127,23 @@ class DiffService(BaseService):
         try:
             grouped_diffs = self.get_grouped_diffs(**kwargs)
 
-            total_files = sum(group['count'] for group in grouped_diffs.values())
+            total_files = sum(group["count"] for group in grouped_diffs.values())
             total_additions = 0
             total_deletions = 0
 
             for group in grouped_diffs.values():
-                for file_data in group['files']:
-                    total_additions += file_data.get('additions', 0)
-                    total_deletions += file_data.get('deletions', 0)
+                for file_data in group["files"]:
+                    total_additions += file_data.get("additions", 0)
+                    total_deletions += file_data.get("deletions", 0)
 
             return {
-                'total_files': total_files,
-                'total_additions': total_additions,
-                'total_deletions': total_deletions,
-                'total_changes': total_additions + total_deletions,
-                'groups': {name: group['count'] for name, group in grouped_diffs.items()}
+                "total_files": total_files,
+                "total_additions": total_additions,
+                "total_deletions": total_deletions,
+                "total_changes": total_additions + total_deletions,
+                "groups": {
+                    name: group["count"] for name, group in grouped_diffs.items()
+                },
             }
 
         except DiffServiceError:

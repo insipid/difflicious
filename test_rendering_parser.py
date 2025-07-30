@@ -28,60 +28,88 @@ def main():
         rendered_files = parse_git_diff_for_rendering(diff_content)
 
         print(f"\n📊 Parsed {len(rendered_files)} files for rendering")
-        print("="*80)
+        print("=" * 80)
 
         # Show structure for each file
         for i, file_data in enumerate(rendered_files, 1):
             print(f"\n{i}. 📁 {file_data['path']}")
-            print(f"   Status: {file_data['status']} (+{file_data['additions']} -{file_data['deletions']})")
+            print(
+                f"   Status: {file_data['status']} (+{file_data['additions']} -{file_data['deletions']})"
+            )
             print(f"   Hunks: {len(file_data['hunks'])}")
 
             # Show detail for first hunk of first few files
-            if i <= 3 and file_data['hunks']:
-                hunk = file_data['hunks'][0]
-                print(f"   First hunk: {hunk['old_start']}-{hunk['old_start']+hunk['old_count']-1} -> {hunk['new_start']}-{hunk['new_start']+hunk['new_count']-1}")
-                if hunk['section_header']:
+            if i <= 3 and file_data["hunks"]:
+                hunk = file_data["hunks"][0]
+                print(
+                    f"   First hunk: {hunk['old_start']}-{hunk['old_start']+hunk['old_count']-1} -> {hunk['new_start']}-{hunk['new_start']+hunk['new_count']-1}"
+                )
+                if hunk["section_header"]:
                     print(f"   Section: {hunk['section_header']}")
                 print(f"   Lines: {len(hunk['lines'])} side-by-side pairs")
 
                 # Show first few line pairs
-                for j, line_pair in enumerate(hunk['lines'][:5]):
-                    if line_pair['type'] == 'context':
-                        left_num = line_pair['left']['line_num']
-                        right_num = line_pair['right']['line_num']
-                        content = line_pair['left']['content'][:40] + "..." if len(line_pair['left']['content']) > 40 else line_pair['left']['content']
-                        print(f"     {j+1:2d}. CONTEXT: {left_num:3d} | {right_num:3d} | {content}")
+                for j, line_pair in enumerate(hunk["lines"][:5]):
+                    if line_pair["type"] == "context":
+                        left_num = line_pair["left"]["line_num"]
+                        right_num = line_pair["right"]["line_num"]
+                        content = (
+                            line_pair["left"]["content"][:40] + "..."
+                            if len(line_pair["left"]["content"]) > 40
+                            else line_pair["left"]["content"]
+                        )
+                        print(
+                            f"     {j+1:2d}. CONTEXT: {left_num:3d} | {right_num:3d} | {content}"
+                        )
 
-                    elif line_pair['type'] == 'change':
-                        left = line_pair['left']
-                        right = line_pair['right']
-                        left_num = f"{left['line_num']:3d}" if left.get('line_num') else "---"
-                        right_num = f"{right['line_num']:3d}" if right.get('line_num') else "---"
+                    elif line_pair["type"] == "change":
+                        left = line_pair["left"]
+                        right = line_pair["right"]
+                        left_num = (
+                            f"{left['line_num']:3d}" if left.get("line_num") else "---"
+                        )
+                        right_num = (
+                            f"{right['line_num']:3d}"
+                            if right.get("line_num")
+                            else "---"
+                        )
                         print(f"     {j+1:2d}. CHANGE:  {left_num} | {right_num} |")
 
-                        if left.get('type') == 'deletion':
-                            content = left['content'][:35] + "..." if len(left['content']) > 35 else left['content']
+                        if left.get("type") == "deletion":
+                            content = (
+                                left["content"][:35] + "..."
+                                if len(left["content"]) > 35
+                                else left["content"]
+                            )
                             print(f"                - | --- | {content}")
-                        elif left.get('type') == 'empty':
+                        elif left.get("type") == "empty":
                             print("                - | --- | (empty)")
 
-                        if right.get('type') == 'addition':
-                            content = right['content'][:35] + "..." if len(right['content']) > 35 else right['content']
+                        if right.get("type") == "addition":
+                            content = (
+                                right["content"][:35] + "..."
+                                if len(right["content"]) > 35
+                                else right["content"]
+                            )
                             print(f"                --- | + | {content}")
-                        elif right.get('type') == 'empty':
+                        elif right.get("type") == "empty":
                             print("                --- | + | (empty)")
 
-                if len(hunk['lines']) > 5:
+                if len(hunk["lines"]) > 5:
                     print(f"     ... ({len(hunk['lines'])-5} more line pairs)")
 
         # Save sample output for inspection
         print("\n💾 Saving sample rendering output...")
         sample_output = {
             "total_files": len(rendered_files),
-            "sample_file": rendered_files[1] if len(rendered_files) > 1 else rendered_files[0] if rendered_files else None
+            "sample_file": (
+                rendered_files[1]
+                if len(rendered_files) > 1
+                else rendered_files[0] if rendered_files else None
+            ),
         }
 
-        with open("rendering_output_sample.json", 'w') as f:
+        with open("rendering_output_sample.json", "w") as f:
             json.dump(sample_output, f, indent=2)
 
         print("✅ Saved sample to rendering_output_sample.json")
@@ -95,6 +123,7 @@ def main():
     except Exception as e:
         print(f"\n💥 Unexpected error: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 

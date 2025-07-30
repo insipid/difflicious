@@ -37,9 +37,9 @@ def main():
         summary = get_file_summary(parsed_files)
 
         # Display results
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("📊 DIFF PARSING RESULTS")
-        print("="*60)
+        print("=" * 60)
 
         print("\n📈 Summary:")
         print(f"  Total files: {summary['total_files']}")
@@ -56,33 +56,43 @@ def main():
             print(f"   Hunks: {len(file_data['hunks'])}")
 
             # Show first few lines of first hunk if available
-            if file_data['hunks']:
-                hunk = file_data['hunks'][0]
-                print(f"   First hunk: lines {hunk['old_start']}-{hunk['old_start']+hunk['old_count']-1} -> {hunk['new_start']}-{hunk['new_start']+hunk['new_count']-1}")
-                if hunk['lines'][:3]:  # Show first 3 lines
+            if file_data["hunks"]:
+                hunk = file_data["hunks"][0]
+                print(
+                    f"   First hunk: lines {hunk['old_start']}-{hunk['old_start']+hunk['old_count']-1} -> {hunk['new_start']}-{hunk['new_start']+hunk['new_count']-1}"
+                )
+                if hunk["lines"][:3]:  # Show first 3 lines
                     print("   Sample lines:")
-                    for line in hunk['lines'][:3]:
-                        prefix = {'context': ' ', 'deletion': '-', 'addition': '+'}[line['type']]
+                    for line in hunk["lines"][:3]:
+                        prefix = {"context": " ", "deletion": "-", "addition": "+"}[
+                            line["type"]
+                        ]
                         print(f"     {prefix} {line['content']}")
-                    if len(hunk['lines']) > 3:
+                    if len(hunk["lines"]) > 3:
                         print(f"     ... ({len(hunk['lines'])-3} more lines)")
 
         # Test side-by-side conversion for first file
         if parsed_files:
-            print(f"\n🔄 Testing side-by-side conversion for '{parsed_files[0]['path']}':")
-            side_by_side = create_side_by_side_lines(parsed_files[0]['hunks'])
+            print(
+                f"\n🔄 Testing side-by-side conversion for '{parsed_files[0]['path']}':"
+            )
+            side_by_side = create_side_by_side_lines(parsed_files[0]["hunks"])
             print(f"   Generated {len(side_by_side)} side-by-side line pairs")
 
             # Show a few examples
             for i, line_pair in enumerate(side_by_side[:5]):
-                if line_pair['type'] == 'context':
-                    print(f"   {i+1:2d}. CONTEXT: {line_pair['left']['line_num']:3d} | {line_pair['right']['line_num']:3d} | {line_pair['left']['content'][:50]}")
-                elif line_pair['type'] == 'change':
-                    left_type = line_pair['left'].get('type', 'empty')
-                    right_type = line_pair['right'].get('type', 'empty')
-                    left_num = line_pair['left']['line_num'] or '---'
-                    right_num = line_pair['right']['line_num'] or '---'
-                    print(f"   {i+1:2d}. CHANGE:  {left_num:>3} | {right_num:>3} | L:{left_type[:3]} R:{right_type[:3]}")
+                if line_pair["type"] == "context":
+                    print(
+                        f"   {i+1:2d}. CONTEXT: {line_pair['left']['line_num']:3d} | {line_pair['right']['line_num']:3d} | {line_pair['left']['content'][:50]}"
+                    )
+                elif line_pair["type"] == "change":
+                    left_type = line_pair["left"].get("type", "empty")
+                    right_type = line_pair["right"].get("type", "empty")
+                    left_num = line_pair["left"]["line_num"] or "---"
+                    right_num = line_pair["right"]["line_num"] or "---"
+                    print(
+                        f"   {i+1:2d}. CHANGE:  {left_num:>3} | {right_num:>3} | L:{left_type[:3]} R:{right_type[:3]}"
+                    )
 
             if len(side_by_side) > 5:
                 print(f"   ... ({len(side_by_side)-5} more line pairs)")
@@ -91,12 +101,9 @@ def main():
         print("\n💾 Saving full JSON output...")
         if True:
             output_file = Path("parsed_diff_output.json")
-            output_data = {
-                "summary": summary,
-                "files": parsed_files
-            }
+            output_data = {"summary": summary, "files": parsed_files}
 
-            with open(output_file, 'w') as f:
+            with open(output_file, "w") as f:
                 json.dump(output_data, f, indent=2)
 
             print(f"✅ Saved full output to {output_file}")

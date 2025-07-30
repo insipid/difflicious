@@ -7,6 +7,7 @@ from difflicious.git_operations import GitRepository, get_git_repository
 
 logger = logging.getLogger(__name__)
 
+
 class BaseService:
     """Base class for all services with common functionality."""
 

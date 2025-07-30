@@ -19,24 +19,24 @@ def test_frontend():
     with app.test_client() as client:
         # Test the main page loads
         print("\n🏠 Testing main page...")
-        main_response = client.get('/')
+        main_response = client.get("/")
 
         if main_response.status_code == 200:
             print("   ✅ Main page loads successfully")
             content = main_response.get_data(as_text=True)
 
             # Check for key elements in the HTML
-            if 'diff.path' in content:
+            if "diff.path" in content:
                 print("   ✅ Template uses new diff.path property")
             else:
                 print("   ⚠️ Template might still use old diff.file property")
 
-            if 'diff.hunks' in content:
+            if "diff.hunks" in content:
                 print("   ✅ Template handles new hunk structure")
             else:
                 print("   ❌ Template missing hunk handling")
 
-            if 'line.left?.line_num' in content:
+            if "line.left?.line_num" in content:
                 print("   ✅ Template handles side-by-side line structure")
             else:
                 print("   ❌ Template missing side-by-side structure")
@@ -46,34 +46,36 @@ def test_frontend():
 
         # Test the API returns new structure
         print("\n📡 Testing API structure...")
-        api_response = client.get('/api/diff')
+        api_response = client.get("/api/diff")
 
         if api_response.status_code == 200:
             data = api_response.get_json()
-            diffs = data.get('diffs', [])
+            diffs = data.get("diffs", [])
 
             if diffs:
                 first_file = diffs[0]
                 print(f"   ✅ API returns {len(diffs)} files")
                 print(f"   📁 First file: {first_file.get('path', 'unknown')}")
 
-                if 'hunks' in first_file:
-                    hunks = first_file.get('hunks', [])
+                if "hunks" in first_file:
+                    hunks = first_file.get("hunks", [])
                     print(f"   📝 File has {len(hunks)} hunks")
 
                     if hunks:
                         first_hunk = hunks[0]
-                        lines = first_hunk.get('lines', [])
+                        lines = first_hunk.get("lines", [])
                         print(f"   📋 First hunk has {len(lines)} line pairs")
 
                         if lines:
                             first_line = lines[0]
-                            if 'left' in first_line and 'right' in first_line:
+                            if "left" in first_line and "right" in first_line:
                                 print("   ✅ Line pairs have left/right structure")
                             else:
                                 print("   ❌ Line pairs missing left/right structure")
                         else:
-                            print("   📄 First hunk has no lines (possibly binary file)")
+                            print(
+                                "   📄 First hunk has no lines (possibly binary file)"
+                            )
                     else:
                         print("   📄 File has no hunks (possibly binary file)")
                 else:

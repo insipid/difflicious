@@ -23,23 +23,23 @@ class GitService(BaseService):
 
             # Get diff data to count changed files
             diff_data = self.repo.get_diff(unstaged=True, untracked=True)
-            total_files = sum(group.get('count', 0) for group in diff_data.values())
+            total_files = sum(group.get("count", 0) for group in diff_data.values())
 
             return {
-                'current_branch': current_branch,
-                'repository_name': repo_name,
-                'files_changed': total_files,
-                'git_available': True,
-                'status': 'ok'
+                "current_branch": current_branch,
+                "repository_name": repo_name,
+                "files_changed": total_files,
+                "git_available": True,
+                "status": "ok",
             }
         except GitOperationError as e:
             return {
-                'current_branch': 'unknown',
-                'repository_name': 'unknown',
-                'files_changed': 0,
-                'git_available': False,
-                'status': 'error',
-                'error': str(e)
+                "current_branch": "unknown",
+                "repository_name": "unknown",
+                "files_changed": 0,
+                "git_available": False,
+                "status": "error",
+                "error": str(e),
             }
 
     def get_branch_information(self) -> Dict[str, Any]:
@@ -52,12 +52,11 @@ class GitService(BaseService):
             branch_info = self.repo.get_branches()
             current_branch = self.repo.get_current_branch()
 
-            all_branches = branch_info['branches']
-            default_branch = branch_info['default_branch']
+            all_branches = branch_info["branches"]
+            default_branch = branch_info["default_branch"]
 
             other_branches = [
-                b for b in all_branches
-                if b != default_branch and b != current_branch
+                b for b in all_branches if b != default_branch and b != current_branch
             ]
 
             return {
@@ -67,12 +66,14 @@ class GitService(BaseService):
                     "current": current_branch,
                     "default": default_branch,
                     "others": other_branches,
-                }
+                },
             }
         except GitOperationError as e:
             raise GitServiceError(f"Failed to get branch information: {e}") from e
 
-    def get_file_lines(self, file_path: str, start_line: int, end_line: int) -> Dict[str, Any]:
+    def get_file_lines(
+        self, file_path: str, start_line: int, end_line: int
+    ) -> Dict[str, Any]:
         """Get specific lines from a file with validation.
 
         Args:
@@ -102,7 +103,7 @@ class GitService(BaseService):
                 "start_line": start_line,
                 "end_line": end_line,
                 "lines": lines,
-                "line_count": len(lines)
+                "line_count": len(lines),
             }
         except GitOperationError as e:
             raise GitServiceError(f"Failed to get file lines: {e}") from e

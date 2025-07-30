@@ -24,7 +24,7 @@ def test_cli_help():
     assert "Start the Difflicious web application" in result.output
 
 
-@patch('difflicious.cli.run_server')
+@patch("difflicious.cli.run_server")
 def test_cli_default_run(mock_run_server):
     """Test that the CLI runs with default options."""
     runner = CliRunner()
@@ -35,7 +35,7 @@ def test_cli_default_run(mock_run_server):
     mock_run_server.assert_called_once_with(host="127.0.0.1", port=5000, debug=False)
 
 
-@patch('difflicious.cli.run_server')
+@patch("difflicious.cli.run_server")
 def test_cli_custom_port_and_host(mock_run_server):
     """Test that the CLI accepts custom port and host options."""
     runner = CliRunner()
@@ -45,7 +45,7 @@ def test_cli_custom_port_and_host(mock_run_server):
     mock_run_server.assert_called_once_with(host="0.0.0.0", port=8080, debug=False)
 
 
-@patch('difflicious.cli.run_server')
+@patch("difflicious.cli.run_server")
 def test_cli_debug_mode(mock_run_server):
     """Test that the CLI accepts debug flag."""
     runner = CliRunner()

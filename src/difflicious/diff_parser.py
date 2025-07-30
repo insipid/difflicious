@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 class DiffParseError(Exception):
     """Exception raised when diff parsing fails."""
+
     pass
 
 
@@ -77,9 +78,9 @@ def _parse_file(patched_file: PatchedFile) -> Dict[str, Any]:
     source_path = patched_file.source_file
 
     # Remove a/ and b/ prefixes commonly found in git diffs
-    if target_path and target_path.startswith(('a/', 'b/')):
+    if target_path and target_path.startswith(("a/", "b/")):
         target_path = target_path[2:]
-    if source_path and source_path.startswith(('a/', 'b/')):
+    if source_path and source_path.startswith(("a/", "b/")):
         source_path = source_path[2:]
 
     file_data = {
@@ -89,7 +90,7 @@ def _parse_file(patched_file: PatchedFile) -> Dict[str, Any]:
         "additions": total_additions,
         "deletions": total_deletions,
         "changes": total_additions + total_deletions,
-        "hunks": []
+        "hunks": [],
     }
 
     # Parse each hunk
@@ -115,7 +116,7 @@ def _parse_hunk(hunk: Hunk) -> Dict[str, Any]:
         "new_start": hunk.target_start,
         "new_count": hunk.target_length,
         "section_header": hunk.section_header or "",
-        "lines": []
+        "lines": [],
     }
 
     # Convert linear hunk into side-by-side structure
@@ -127,12 +128,12 @@ def _parse_hunk(hunk: Hunk) -> Dict[str, Any]:
         hunk_data["lines"].append(line_data)
 
         # Update line numbers based on line type
-        if line.line_type == ' ':  # Context line
+        if line.line_type == " ":  # Context line
             old_line_num += 1
             new_line_num += 1
-        elif line.line_type == '-':  # Deletion
+        elif line.line_type == "-":  # Deletion
             old_line_num += 1
-        elif line.line_type == '+':  # Addition
+        elif line.line_type == "+":  # Addition
             new_line_num += 1
 
     return hunk_data
@@ -150,15 +151,15 @@ def _parse_line(line, old_line_num: int, new_line_num: int) -> Dict[str, Any]:
         Dictionary containing line data for side-by-side view
     """
     # Determine line type
-    if line.line_type == ' ':
+    if line.line_type == " ":
         line_type = "context"
         old_num = old_line_num
         new_num = new_line_num
-    elif line.line_type == '-':
+    elif line.line_type == "-":
         line_type = "deletion"
         old_num = old_line_num
         new_num = None
-    elif line.line_type == '+':
+    elif line.line_type == "+":
         line_type = "addition"
         old_num = None
         new_num = new_line_num
@@ -171,7 +172,7 @@ def _parse_line(line, old_line_num: int, new_line_num: int) -> Dict[str, Any]:
         "type": line_type,
         "old_line_num": old_num,
         "new_line_num": new_num,
-        "content": line.value.rstrip('\n\r')  # Remove trailing newlines
+        "content": line.value.rstrip("\n\r"),  # Remove trailing newlines
     }
 
 
@@ -193,12 +194,14 @@ def create_side_by_side_lines(hunks: List[Dict[str, Any]]) -> List[Dict[str, Any
     for hunk in hunks:
         # Add hunk header if present
         if hunk.get("section_header"):
-            side_by_side_lines.append({
-                "type": "hunk_header",
-                "content": hunk["section_header"],
-                "old_start": hunk["old_start"],
-                "new_start": hunk["new_start"]
-            })
+            side_by_side_lines.append(
+                {
+                    "type": "hunk_header",
+                    "content": hunk["section_header"],
+                    "old_start": hunk["old_start"],
+                    "new_start": hunk["new_start"],
+                }
+            )
 
         # Group consecutive additions and deletions for better alignment
         i = 0
@@ -207,17 +210,19 @@ def create_side_by_side_lines(hunks: List[Dict[str, Any]]) -> List[Dict[str, Any
 
             if line["type"] == "context":
                 # Context lines appear on both sides
-                side_by_side_lines.append({
-                    "type": "context",
-                    "left": {
-                        "line_num": line["old_line_num"],
-                        "content": line["content"]
-                    },
-                    "right": {
-                        "line_num": line["new_line_num"],
-                        "content": line["content"]
+                side_by_side_lines.append(
+                    {
+                        "type": "context",
+                        "left": {
+                            "line_num": line["old_line_num"],
+                            "content": line["content"],
+                        },
+                        "right": {
+                            "line_num": line["new_line_num"],
+                            "content": line["content"],
+                        },
                     }
-                })
+                )
                 i += 1
 
             elif line["type"] == "deletion":
@@ -241,35 +246,39 @@ def create_side_by_side_lines(hunks: List[Dict[str, Any]]) -> List[Dict[str, Any
                     left_line = deletions[j] if j < len(deletions) else None
                     right_line = additions[j] if j < len(additions) else None
 
-                    side_by_side_lines.append({
-                        "type": "change",
-                        "left": {
-                            "line_num": left_line["old_line_num"] if left_line else None,
-                            "content": left_line["content"] if left_line else "",
-                            "type": "deletion" if left_line else "empty"
-                        },
-                        "right": {
-                            "line_num": right_line["new_line_num"] if right_line else None,
-                            "content": right_line["content"] if right_line else "",
-                            "type": "addition" if right_line else "empty"
+                    side_by_side_lines.append(
+                        {
+                            "type": "change",
+                            "left": {
+                                "line_num": (
+                                    left_line["old_line_num"] if left_line else None
+                                ),
+                                "content": left_line["content"] if left_line else "",
+                                "type": "deletion" if left_line else "empty",
+                            },
+                            "right": {
+                                "line_num": (
+                                    right_line["new_line_num"] if right_line else None
+                                ),
+                                "content": right_line["content"] if right_line else "",
+                                "type": "addition" if right_line else "empty",
+                            },
                         }
-                    })
+                    )
 
             elif line["type"] == "addition":
                 # Handle standalone addition (no preceding deletion)
-                side_by_side_lines.append({
-                    "type": "change",
-                    "left": {
-                        "line_num": None,
-                        "content": "",
-                        "type": "empty"
-                    },
-                    "right": {
-                        "line_num": line["new_line_num"],
-                        "content": line["content"],
-                        "type": "addition"
+                side_by_side_lines.append(
+                    {
+                        "type": "change",
+                        "left": {"line_num": None, "content": "", "type": "empty"},
+                        "right": {
+                            "line_num": line["new_line_num"],
+                            "content": line["content"],
+                            "type": "addition",
+                        },
                     }
-                })
+                )
                 i += 1
             else:
                 i += 1
@@ -328,7 +337,9 @@ def parse_git_diff_for_rendering(diff_text: str) -> List[Dict[str, Any]]:
             side_by_side_lines = create_side_by_side_lines(file_data["hunks"])
 
             # Group side-by-side lines back into hunks for rendering
-            rendered_hunks = _group_lines_into_hunks(side_by_side_lines, file_data["hunks"])
+            rendered_hunks = _group_lines_into_hunks(
+                side_by_side_lines, file_data["hunks"]
+            )
 
             rendered_file = {
                 "path": file_data["path"],
@@ -337,7 +348,7 @@ def parse_git_diff_for_rendering(diff_text: str) -> List[Dict[str, Any]]:
                 "additions": file_data["additions"],
                 "deletions": file_data["deletions"],
                 "changes": file_data["changes"],
-                "hunks": rendered_hunks
+                "hunks": rendered_hunks,
             }
 
             rendered_files.append(rendered_file)
@@ -349,7 +360,9 @@ def parse_git_diff_for_rendering(diff_text: str) -> List[Dict[str, Any]]:
         raise DiffParseError(f"Diff parsing for rendering failed: {e}") from e
 
 
-def _group_lines_into_hunks(side_by_side_lines: List[Dict[str, Any]], original_hunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def _group_lines_into_hunks(
+    side_by_side_lines: List[Dict[str, Any]], original_hunks: List[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
     """Group side-by-side lines back into hunks for structured rendering.
 
     Args:
@@ -373,7 +386,9 @@ def _group_lines_into_hunks(side_by_side_lines: List[Dict[str, Any]], original_h
                 rendered_hunks.append(current_hunk)
 
             # Get original hunk metadata if available
-            original_hunk = original_hunks[hunk_index] if hunk_index < len(original_hunks) else {}
+            original_hunk = (
+                original_hunks[hunk_index] if hunk_index < len(original_hunks) else {}
+            )
 
             current_hunk = {
                 "old_start": line_pair["old_start"],
@@ -381,7 +396,7 @@ def _group_lines_into_hunks(side_by_side_lines: List[Dict[str, Any]], original_h
                 "new_start": line_pair["new_start"],
                 "new_count": original_hunk.get("new_count", 0),
                 "section_header": line_pair["content"],
-                "lines": []
+                "lines": [],
             }
             hunk_index += 1
 
@@ -395,7 +410,7 @@ def _group_lines_into_hunks(side_by_side_lines: List[Dict[str, Any]], original_h
                     "new_start": original_hunk.get("new_start", 1),
                     "new_count": original_hunk.get("new_count", 0),
                     "section_header": "",
-                    "lines": []
+                    "lines": [],
                 }
 
             # Add the line pair to current hunk
@@ -431,5 +446,5 @@ def get_file_summary(files: List[Dict[str, Any]]) -> Dict[str, Any]:
         "total_additions": total_additions,
         "total_deletions": total_deletions,
         "total_changes": total_additions + total_deletions,
-        "files_by_status": files_by_status
+        "files_by_status": files_by_status,
     }
