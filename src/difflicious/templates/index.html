@@ -354,6 +354,47 @@
                                                         </div>
                                                     </div>
                                                 </template>
+
+                                                <!-- Bottom Expand Button (if file has more lines) -->
+                                                <div x-show="shouldShowBottomExpand(file)" 
+                                                    class="bg-blue-50 text-xs font-mono text-blue-800 border-b border-blue-100 grid grid-cols-2">
+                                                    <!-- Left Side -->
+                                                    <div class="border-r border-blue-200">
+                                                        <div class="flex">
+                                                            <!-- Left Line Number Column -->
+                                                            <div class="w-12 bg-blue-100 border-r border-blue-200 select-none flex flex-col">
+                                                                <button
+                                                                    @click="expandBottomContext(file.path, 10)"
+                                                                    class="w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center h-full"
+                                                                    :title="`Expand ${getRemainingLines(file)} more lines`">
+                                                                    <span x-show="!isBottomContextLoading(file.path)">▼</span>
+                                                                    <span x-show="isBottomContextLoading(file.path)">...</span>
+                                                                </button>
+                                                            </div>
+                                                            <!-- Left Content Column -->
+                                                            <div class="flex-1 px-2 py-2 overflow-hidden whitespace-nowrap flex items-center">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Right Side -->
+                                                    <div>
+                                                        <div class="flex">
+                                                            <!-- Right Line Number Column -->
+                                                            <div class="w-12 bg-blue-100 border-r border-blue-200 select-none flex flex-col">
+                                                                <button
+                                                                    @click="expandBottomContext(file.path, 10)"
+                                                                    class="w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center h-full"
+                                                                    :title="`Expand ${getRemainingLines(file)} more lines`">
+                                                                    <span x-show="!isBottomContextLoading(file.path)">▼</span>
+                                                                    <span x-show="isBottomContextLoading(file.path)">...</span>
+                                                                </button>
+                                                            </div>
+                                                            <!-- Right Content Column -->
+                                                            <div class="flex-1 px-2 py-2 overflow-hidden whitespace-nowrap flex items-center">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
