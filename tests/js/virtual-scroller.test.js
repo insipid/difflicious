@@ -380,24 +380,26 @@ describe('VirtualDiffScroller - Phase 1', () => {
         });
 
         test('should cleanup invisible elements', () => {
-            // Create elements in the lineToElement map
-            scroller.lineToElement.set(0, { type: 'file-header' });
-            scroller.lineToElement.set(1, { type: 'file-header' });
-            scroller.lineToElement.set(10, { type: 'file-header' });
-            scroller.lineToElement.set(20, { type: 'file-header' });
+            // Render some lines into the DOM
+            scroller.allLines = [
+                { type: 'file-header', filePath: 'a.js', globalIndex: 0 },
+                { type: 'file-header', filePath: 'b.js', globalIndex: 1 },
+                { type: 'file-header', filePath: 'c.js', globalIndex: 2 }
+            ];
+            scroller.renderLine(scroller.allLines[0], 0);
+            scroller.renderLine(scroller.allLines[1], 1);
+            scroller.renderLine(scroller.allLines[2], 2);
 
-            const initialCount = scroller.lineToElement.size;
-            expect(initialCount).toBe(4);
+            expect(scroller.lineToElement.size).toBe(3);
+            expect(scroller.viewport.children.length).toBe(4); // 3 lines + spacer
 
-            // Cleanup elements outside range 5-15
-            scroller.cleanupInvisibleElements(5, 15);
+            // Now, cleanup, keeping only line 1 visible
+            scroller.cleanupInvisibleElements(1, 2);
 
-            // Should have removed elements 0, 1, and 20 (outside range)
             expect(scroller.lineToElement.size).toBe(1);
-            expect(scroller.lineToElement.has(10)).toBe(true);
-            expect(scroller.lineToElement.has(0)).toBe(false);
-            expect(scroller.lineToElement.has(1)).toBe(false);
-            expect(scroller.lineToElement.has(20)).toBe(false);
+            expect(scroller.lineToElement.has(1)).toBe(true);
+            expect(scroller.viewport.children.length).toBe(2); // 1 line + spacer
+            expect(scroller.domPool['file-header-pool']).toHaveLength(2);
         });
 
         test('should handle empty lines array gracefully', () => {
@@ -484,6 +486,165 @@ describe('VirtualDiffScroller - Phase 1', () => {
                 expect(scroller.isScrolling).toBe(false);
                 done();
             }, 200);
+        });
+    });
+});
+
+describe('VirtualDiffScroller - Phase 2', () => {
+    let mockContainer;
+    let scroller;
+
+    beforeEach(() => {
+        // Setup DOM mock
+        document.body.innerHTML = '';
+        
+        // Create mock container
+        mockContainer = document.createElement('div');
+        mockContainer.id = 'test-container';
+        mockContainer.style.height = '500px';
+        document.body.appendChild(mockContainer);
+        
+        // Mock getBoundingClientRect
+        Element.prototype.getBoundingClientRect = jest.fn(() => ({
+            width: 800,
+            height: 500,
+            top: 0,
+            left: 0,
+            bottom: 500,
+            right: 800
+        }));
+
+        scroller = new VirtualDiffScroller({
+            container: '#test-container',
+            lineHeight: 20,
+            visibleCount: 10,
+            bufferCount: 5
+        });
+    });
+
+    afterEach(() => {
+        if (scroller) {
+            scroller = null;
+        }
+        document.body.innerHTML = '';
+        jest.clearAllMocks();
+    });
+
+    describe('DOM Element Creation and Pooling', () => {
+        test('should create a new element if pool is empty', () => {
+            const element = scroller.getDOMElement('diff-line');
+            expect(element).toBeInstanceOf(HTMLElement);
+            expect(element.className).toContain('virtual-diff-line');
+            expect(scroller.domPool['diff-line-pool']).toBeUndefined();
+        });
+
+        test('should reuse an element from the pool', () => {
+            const element1 = scroller.createNewElement('diff-line');
+            scroller.returnElementToPool(element1, 'diff-line');
+            
+            expect(scroller.domPool['diff-line-pool']).toHaveLength(1);
+
+            const element2 = scroller.getDOMElement('diff-line');
+            expect(element2).toBe(element1);
+            expect(scroller.domPool['diff-line-pool']).toHaveLength(0);
+        });
+
+        test('should create different element types', () => {
+            const fileHeader = scroller.createNewElement('file-header');
+            expect(fileHeader.className).toContain('virtual-file-header');
+
+            const hunkHeader = scroller.createNewElement('hunk-header');
+            expect(hunkHeader.className).toContain('virtual-hunk-header');
+
+            const diffLine = scroller.createNewElement('diff-line');
+            expect(diffLine.className).toContain('virtual-diff-line');
+        });
+
+        test('should return element to the correct pool', () => {
+            const fileHeader = scroller.createNewElement('file-header');
+            scroller.returnElementToPool(fileHeader, 'file-header');
+            expect(scroller.domPool['file-header-pool']).toHaveLength(1);
+            expect(scroller.domPool['diff-line-pool']).toBeUndefined();
+        });
+    });
+
+    describe('Rendering Logic', () => {
+        test('should render a line and add it to the DOM', () => {
+            const lineData = {
+                type: 'file-header',
+                filePath: 'test.js',
+                globalIndex: 0
+            };
+
+            scroller.renderLine(lineData, 0);
+
+            const element = scroller.lineToElement.get(0);
+            expect(element).toBeInstanceOf(HTMLElement);
+            expect(element.style.top).toBe('0px');
+            expect(element.dataset.globalIndex).toBe('0');
+            expect(scroller.viewport.contains(element)).toBe(true);
+        });
+
+        test('should configure file header correctly', () => {
+            const lineData = {
+                type: 'file-header',
+                filePath: 'src/app.js',
+                globalIndex: 0
+            };
+            const element = scroller.createNewElement('file-header');
+            scroller.configureFileHeader(element, lineData);
+            expect(element.querySelector('.file-path').textContent).toBe('src/app.js');
+        });
+
+        test('should configure hunk header correctly', () => {
+            const lineData = {
+                type: 'hunk-header',
+                sectionHeader: '@@ -1,1 +1,1 @@',
+                globalIndex: 1
+            };
+            const element = scroller.createNewElement('hunk-header');
+            scroller.configureHunkHeader(element, lineData);
+            expect(element.querySelector('.section-header').textContent).toBe('@@ -1,1 +1,1 @@');
+        });
+
+        test('should configure diff line correctly', () => {
+            const lineData = {
+                type: 'diff-line',
+                lineData: {
+                    left: { content: 'hello' },
+                    right: { content: 'world' }
+                },
+                globalIndex: 2
+            };
+            const element = scroller.createNewElement('diff-line');
+            scroller.configureDiffLine(element, lineData);
+            expect(element.querySelector('.line-left .line-text').textContent).toBe('hello');
+            expect(element.querySelector('.line-right .line-text').textContent).toBe('world');
+        });
+    });
+
+    describe('Element Cleanup', () => {
+        test('should remove invisible elements from DOM and return to pool', () => {
+            // Render some lines
+            scroller.allLines = [
+                { type: 'file-header', filePath: 'a.js', globalIndex: 0 },
+                { type: 'file-header', filePath: 'b.js', globalIndex: 1 },
+                { type: 'file-header', filePath: 'c.js', globalIndex: 2 }
+            ];
+            scroller.renderLine(scroller.allLines[0], 0);
+            scroller.renderLine(scroller.allLines[1], 1);
+            scroller.renderLine(scroller.allLines[2], 2);
+
+            expect(scroller.lineToElement.size).toBe(3);
+            expect(scroller.viewport.children.length).toBe(4); // 3 lines + spacer
+
+            // Now, cleanup, keeping only line 1 visible
+            scroller.cleanupInvisibleElements(1, 2);
+
+            expect(scroller.lineToElement.size).toBe(1);
+            expect(scroller.lineToElement.has(1)).toBe(true);
+            expect(scroller.viewport.children.length).toBe(2); // 1 line + spacer
+            expect(scroller.domPool['file-header-pool']).toHaveLength(2);
         });
     });
 });
