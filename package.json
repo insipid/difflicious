@@ -39,8 +39,19 @@
       "Alpine": "readonly"
     },
     "rules": {
-      "indent": ["error", 4],
-      "semi": ["error", "always"]
+      "indent": [
+        "error",
+        4
+      ],
+      "semi": [
+        "error",
+        "always"
+      ],
+      "space-before-function-paren": [
+        "error",
+        "never"
+      ],
+      "quote-props": "off"
     }
   }
 }
