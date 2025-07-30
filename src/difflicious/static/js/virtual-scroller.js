@@ -427,20 +427,123 @@ class VirtualDiffScroller {
     }
 
     configureDiffLine(element, lineData) {
-        // Placeholder for Phase 2
-        const lineTextSpan = element.querySelector('.line-left .line-text');
-        if (lineTextSpan) {
-            lineTextSpan.textContent = lineData.lineData.left ? lineData.lineData.left.content : '';
-        }
-        const lineTextSpanRight = element.querySelector('.line-right .line-text');
-        if (lineTextSpanRight) {
-            lineTextSpanRight.textContent = lineData.lineData.right ? lineData.lineData.right.content : '';
-        }
+        // Content is now set by the highlighting function
     }
 
     scheduleHighlighting(element, lineData) {
-        // Placeholder for Phase 3
-        // In this phase, we do nothing. Highlighting will be implemented in Phase 3.
+        // Use requestIdleCallback for non-blocking highlighting
+        if (window.requestIdleCallback) {
+            requestIdleCallback(() => this.highlightLine(element, lineData), { timeout: 100 });
+        } else {
+            // Fallback for browsers without requestIdleCallback
+            setTimeout(() => this.highlightLine(element, lineData), 0);
+        }
+    }
+
+    highlightLine(element, lineData) {
+        if (!lineData.lineData || !element.isConnected) return;
+
+        const line = lineData.lineData;
+        const filePath = lineData.filePath;
+
+        // Get DOM elements for left and right sides
+        const leftContent = element.querySelector('.line-left .line-text');
+        const rightContent = element.querySelector('.line-right .line-text');
+        const leftMarker = element.querySelector('.line-left .line-marker');
+        const rightMarker = element.querySelector('.line-right .line-marker');
+        const leftNum = element.querySelector('.line-left .line-num');
+        const rightNum = element.querySelector('.line-right .line-num');
+
+        if (!leftContent || !rightContent) return;
+
+        try {
+            // Clear previous state
+            leftContent.innerHTML = '';
+            rightContent.innerHTML = '';
+            leftNum.textContent = '';
+            rightNum.textContent = '';
+            leftMarker.innerHTML = '&nbsp;';
+            rightMarker.innerHTML = '&nbsp;';
+            element.querySelector('.line-left').classList.remove('bg-red-50');
+            element.querySelector('.line-right').classList.remove('bg-green-50');
+
+            // Configure left side
+            if (line.left && line.left.content) {
+                leftNum.textContent = line.left.line_num || '';
+                leftContent.innerHTML = this.highlightCode(line.left.content, filePath);
+
+                if (line.left.type === 'deletion') {
+                    leftMarker.textContent = '-';
+                    leftMarker.className = 'line-marker text-red-600';
+                    element.querySelector('.line-left').classList.add('bg-red-50');
+                } else if (line.type === 'context') {
+                    leftMarker.innerHTML = '&nbsp;';
+                    leftMarker.className = 'line-marker text-gray-400';
+                }
+            }
+
+            // Configure right side
+            if (line.right && line.right.content) {
+                rightNum.textContent = line.right.line_num || '';
+                rightContent.innerHTML = this.highlightCode(line.right.content, filePath);
+
+                if (line.right.type === 'addition') {
+                    rightMarker.textContent = '+';
+                    rightMarker.className = 'line-marker text-green-600';
+                    element.querySelector('.line-right').classList.add('bg-green-50');
+                } else if (line.type === 'context') {
+                    rightMarker.innerHTML = '&nbsp;';
+                    rightMarker.className = 'line-marker text-gray-400';
+                }
+            }
+
+            // Mark as highlighted
+            lineData.needsHighlighting = false;
+        } catch (error) {
+            console.warn('Syntax highlighting failed for line:', error);
+            // Fallback to plain text
+            if (line.left?.content) leftContent.textContent = line.left.content;
+            if (line.right?.content) rightContent.textContent = line.right.content;
+        }
+    }
+
+    highlightCode(content, filePath) {
+        if (!content || !window.hljs) return content;
+
+        try {
+            const language = this.detectLanguage(filePath);
+            if (language === 'plaintext') {
+                const result = window.hljs.highlightAuto(content);
+                return result.value;
+            } else {
+                const result = window.hljs.highlight(content, { language });
+                return result.value;
+            }
+        } catch (error) {
+            return content;
+        }
+    }
+
+    detectLanguage(filePath) {
+        // Reuse existing language detection logic
+        const ext = filePath.split('.').pop()?.toLowerCase();
+        const languageMap = {
+            js: 'javascript',
+            jsx: 'javascript',
+            ts: 'typescript',
+            tsx: 'typescript',
+            py: 'python',
+            html: 'html',
+            css: 'css',
+            json: 'json',
+            md: 'markdown',
+            sh: 'bash',
+            bash: 'bash',
+            rb: 'ruby',
+            go: 'go',
+            rs: 'rust'
+        };
+        return languageMap[ext] || 'plaintext';
     }
 }
 

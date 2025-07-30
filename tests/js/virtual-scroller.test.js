@@ -606,21 +606,6 @@ describe('VirtualDiffScroller - Phase 2', () => {
             scroller.configureHunkHeader(element, lineData);
             expect(element.querySelector('.section-header').textContent).toBe('@@ -1,1 +1,1 @@');
         });
-
-        test('should configure diff line correctly', () => {
-            const lineData = {
-                type: 'diff-line',
-                lineData: {
-                    left: { content: 'hello' },
-                    right: { content: 'world' }
-                },
-                globalIndex: 2
-            };
-            const element = scroller.createNewElement('diff-line');
-            scroller.configureDiffLine(element, lineData);
-            expect(element.querySelector('.line-left .line-text').textContent).toBe('hello');
-            expect(element.querySelector('.line-right .line-text').textContent).toBe('world');
-        });
     });
 
     describe('Element Cleanup', () => {
@@ -645,6 +630,165 @@ describe('VirtualDiffScroller - Phase 2', () => {
             expect(scroller.lineToElement.has(1)).toBe(true);
             expect(scroller.viewport.children.length).toBe(2); // 1 line + spacer
             expect(scroller.domPool['file-header-pool']).toHaveLength(2);
+        });
+    });
+});
+
+describe('VirtualDiffScroller - Phase 3', () => {
+    let scroller;
+    let mockElement;
+
+    beforeEach(() => {
+        document.body.innerHTML = '<div id="test-container" style="height: 500px;"></div>';
+        scroller = new VirtualDiffScroller({ container: '#test-container' });
+
+        // Mock hljs
+        window.hljs = {
+            highlight: jest.fn((content, options) => ({ value: `highlighted ${content}` })),
+            highlightAuto: jest.fn(content => ({ value: `auto-highlighted ${content}` }))
+        };
+
+        // Mock requestIdleCallback
+        window.requestIdleCallback = jest.fn((callback) => callback());
+
+        // Create a mock element to work with
+        mockElement = scroller.createNewElement('diff-line');
+        // Mock isConnected property
+        Object.defineProperty(mockElement, 'isConnected', { get: () => true });
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+        delete window.hljs;
+        delete window.requestIdleCallback;
+    });
+
+    describe('Language Detection', () => {
+        test('should detect common languages by extension', () => {
+            expect(scroller.detectLanguage('test.js')).toBe('javascript');
+            expect(scroller.detectLanguage('test.py')).toBe('python');
+            expect(scroller.detectLanguage('test.css')).toBe('css');
+            expect(scroller.detectLanguage('test.html')).toBe('html');
+            expect(scroller.detectLanguage('test.rs')).toBe('rust');
+        });
+
+        test('should fallback to plaintext for unknown extensions', () => {
+            expect(scroller.detectLanguage('test.unknown')).toBe('plaintext');
+            expect(scroller.detectLanguage('README')).toBe('plaintext');
+        });
+    });
+
+    describe('Code Highlighting', () => {
+        test('should call hljs.highlight for known languages', () => {
+            const result = scroller.highlightCode('let x = 1;', 'test.js');
+            expect(window.hljs.highlight).toHaveBeenCalledWith('let x = 1;', { language: 'javascript' });
+            expect(result).toBe('highlighted let x = 1;');
+        });
+
+        test('should call hljs.highlightAuto for plaintext', () => {
+            const result = scroller.highlightCode('some text', 'test.txt');
+            expect(window.hljs.highlightAuto).toHaveBeenCalledWith('some text');
+            expect(result).toBe('auto-highlighted some text');
+        });
+
+        test('should handle missing hljs gracefully', () => {
+            delete window.hljs;
+            const result = scroller.highlightCode('let x = 1;', 'test.js');
+            expect(result).toBe('let x = 1;');
+        });
+    });
+
+    describe('Highlight Scheduling', () => {
+        test('should use requestIdleCallback when available', () => {
+            const lineData = { type: 'diff-line', needsHighlighting: true };
+            jest.spyOn(scroller, 'highlightLine');
+            scroller.scheduleHighlighting(mockElement, lineData);
+            expect(window.requestIdleCallback).toHaveBeenCalled();
+            expect(scroller.highlightLine).toHaveBeenCalledWith(mockElement, lineData);
+        });
+
+        test('should use setTimeout as a fallback', (done) => {
+            delete window.requestIdleCallback;
+            jest.spyOn(global, 'setTimeout');
+            jest.spyOn(scroller, 'highlightLine');
+
+            const lineData = { type: 'diff-line', needsHighlighting: true };
+            scroller.scheduleHighlighting(mockElement, lineData);
+            
+            expect(setTimeout).toHaveBeenCalled();
+            
+            // Allow setTimeout to run
+            setTimeout(() => {
+                expect(scroller.highlightLine).toHaveBeenCalledWith(mockElement, lineData);
+                done();
+            }, 10);
+        });
+    });
+
+    describe('Line Highlighting Logic', () => {
+        test('should highlight an addition line correctly', () => {
+            const lineData = {
+                filePath: 'test.js',
+                lineData: {
+                    right: { type: 'addition', content: 'new line', line_num: 5 }
+                },
+                needsHighlighting: true
+            };
+
+            scroller.highlightLine(mockElement, lineData);
+
+            const rightContent = mockElement.querySelector('.line-right .line-text');
+            const rightMarker = mockElement.querySelector('.line-right .line-marker');
+            const rightNum = mockElement.querySelector('.line-right .line-num');
+
+            expect(rightContent.innerHTML).toBe('highlighted new line');
+            expect(rightMarker.textContent).toBe('+');
+            expect(rightNum.textContent).toBe('5');
+            expect(mockElement.querySelector('.line-right').classList.contains('bg-green-50')).toBe(true);
+            expect(lineData.needsHighlighting).toBe(false);
+        });
+
+        test('should highlight a deletion line correctly', () => {
+            const lineData = {
+                filePath: 'test.py',
+                lineData: {
+                    left: { type: 'deletion', content: 'old line', line_num: 2 }
+                },
+                needsHighlighting: true
+            };
+
+            scroller.highlightLine(mockElement, lineData);
+
+            const leftContent = mockElement.querySelector('.line-left .line-text');
+            const leftMarker = mockElement.querySelector('.line-left .line-marker');
+            const leftNum = mockElement.querySelector('.line-left .line-num');
+
+            expect(leftContent.innerHTML).toBe('highlighted old line');
+            expect(leftMarker.textContent).toBe('-');
+            expect(leftNum.textContent).toBe('2');
+            expect(mockElement.querySelector('.line-left').classList.contains('bg-red-50')).toBe(true);
+        });
+
+        test('should handle context lines', () => {
+            const lineData = {
+                filePath: 'test.css',
+                lineData: {
+                    type: 'context',
+                    left: { content: 'same line', line_num: 10 },
+                    right: { content: 'same line', line_num: 11 }
+                },
+                needsHighlighting: true
+            };
+
+            scroller.highlightLine(mockElement, lineData);
+
+            const leftMarker = mockElement.querySelector('.line-left .line-marker');
+            const rightMarker = mockElement.querySelector('.line-right .line-marker');
+
+            expect(leftMarker.innerHTML).toBe('&nbsp;');
+            expect(rightMarker.innerHTML).toBe('&nbsp;');
+            expect(mockElement.querySelector('.line-left').classList.contains('bg-red-50')).toBe(false);
+            expect(mockElement.querySelector('.line-right').classList.contains('bg-green-50')).toBe(false);
         });
     });
 });
