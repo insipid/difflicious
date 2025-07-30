@@ -98,6 +98,7 @@ uv build
 - ✅ **Service Architecture**: Clean separation of concerns with testable business logic
 - ✅ **Command-line Interface**: Full CLI with host, port, debug options
 - ✅ **Modern UI**: Tailwind CSS styling with responsive design
+- ✅ **Template Components**: Reusable Jinja2 partial templates for maintainable UI architecture
 - 🚧 **Real-time Updates**: Server-Sent Events implementation planned
 - 🚧 **Word-level Diffs**: Advanced word-diff parsing (available in separate branch)
 
@@ -110,6 +111,28 @@ uv build
 - ✅ Timeout protection for git commands to prevent resource exhaustion
 - ✅ No exposure of sensitive git repository information
 - ✅ Local-only operation (no external network calls for core functionality)
+
+## Template Architecture (IMPLEMENTED)
+
+**Reusable Template Components with Jinja2 Partials:**
+- ✅ **Template Organization**: Static UI sections extracted to reusable partial components
+- ✅ **jinja-partials Integration**: Server-side partial rendering with Flask integration
+- ✅ **Component Separation**: Clean separation between static templates and dynamic Alpine.js content
+- ✅ **Maintainability**: 24% reduction in main template complexity (372 → 282 lines)
+
+**Implemented Components:**
+- ✅ `partials/toolbar.html` - Header with navigation, branch selector, and controls (56 lines)
+- ✅ `partials/loading-state.html` - Loading spinner and message (6 lines)
+- ✅ `partials/empty-state.html` - No changes found state with contextual messages (16 lines)
+- ✅ `partials/global-controls.html` - Expand/collapse all buttons (16 lines)
+- ✅ **Comprehensive Testing**: All partial components tested individually and together
+
+**Benefits Achieved:**
+- **Improved Maintainability**: Static sections in focused, reusable components
+- **Better Organization**: Clear separation of UI concerns
+- **Enhanced Testing**: Individual component testing capabilities
+- **Template Reduction**: Main template complexity reduced by 90 lines (24%)
+- **Future Extensibility**: Foundation for additional component extraction
 
 ## Code Quality Requirements
 
