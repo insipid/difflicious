@@ -9,10 +9,18 @@ Difflicious is a lightweight web-based git diff visualization tool built with Fl
 ## Architecture
 
 **Technology Stack:**
-- Backend: Python Flask with secure subprocess calls for git operations
+- Backend: Python Flask with service layer architecture for business logic separation
+- Services: Dedicated service classes (DiffService, GitService) with secure subprocess calls
 - Frontend: Alpine.js (~15KB) + vanilla CSS with Grid/Flexbox
 - Real-time: Server-Sent Events (SSE) for live git status monitoring
 - Security: Proper subprocess sanitization for git command execution
+
+**Service Layer Architecture:**
+- `BaseService`: Common functionality and lazy-loaded git repository access
+- `DiffService`: Business logic for diff processing and rendering
+- `GitService`: Git repository operations (status, branches, file access)
+- Service exceptions: `DiffServiceError`, `GitServiceError` for proper error handling
+- Clear separation between HTTP concerns (Flask routes) and business logic
 
 **Distribution Strategy:**
 1. PyPI package (primary) - `pip install difflicious`
@@ -73,9 +81,10 @@ uv build
 **Implementation Completed:**
 - ✅ Git command wrapper: Secure subprocess sanitization with comprehensive security validation
 - ✅ Flask backend: Complete API with `/api/status` and `/api/diff` endpoints
+- ✅ Service Layer: Business logic extracted to DiffService and GitService with 100% test coverage
 - ✅ Frontend: Alpine.js reactive interface with search, filtering, and diff visualization
 - ✅ Security: All git commands properly sanitized, injection prevention, path validation
-- ✅ Testing: 28 tests with 73% coverage including security and functionality tests
+- ✅ Testing: Comprehensive test suite including dedicated service layer tests
 
 ## Core Features Status
 
@@ -86,6 +95,7 @@ uv build
 - ✅ **Clean File Paths**: Automatic removal of git diff artifacts (a/, b/ prefixes)
 - ✅ **Interactive Controls**: Toggle visibility, search/filter capabilities implemented
 - ✅ **Git Integration**: Live git status and structured diff data from real repositories
+- ✅ **Service Architecture**: Clean separation of concerns with testable business logic
 - ✅ **Command-line Interface**: Full CLI with host, port, debug options
 - ✅ **Modern UI**: Tailwind CSS styling with responsive design
 - 🚧 **Real-time Updates**: Server-Sent Events implementation planned
