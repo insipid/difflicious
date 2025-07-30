@@ -3,7 +3,7 @@
  * Main application logic for git diff visualization
  */
 
-function diffApp() {
+function diffliciousApp() { // eslint-disable-line no-unused-vars
     return {
         // Application state
         loading: false,
@@ -114,13 +114,12 @@ function diffApp() {
                 if (this.savedFileExpansions) {
                     Object.keys(this.groups).forEach(groupKey => {
                         this.groups[groupKey].files.forEach(file => {
-                            if (file.path && this.savedFileExpansions.hasOwnProperty(file.path)) {
+                            if (file.path && Object.prototype.hasOwnProperty.call(this.savedFileExpansions, file.path)) {
                                 file.expanded = this.savedFileExpansions[file.path];
                             }
                         });
                     });
                 }
-
             } catch (error) {
                 console.warn('Failed to load UI state from localStorage:', error);
             }
@@ -148,7 +147,6 @@ function diffApp() {
             });
             return expansions;
         },
-
 
         // Computed properties
         get visibleGroups() {
@@ -531,7 +529,6 @@ function diffApp() {
 
         // Context expansion methods
         async expandContext(filePath, hunkIndex, direction, contextLines = 10) {
-
             // Find the target file to determine which hunk to actually expand
             let targetFile = null;
             for (const groupKey of Object.keys(this.groups)) {
@@ -596,7 +593,6 @@ function diffApp() {
                     endLine = startLine + contextLines - 1;
                 }
 
-
                 const response = await this.fetchFileLines(filePath, startLine, endLine);
                 if (response && response.status === 'ok' && response.lines) {
                     this.insertContextLines(filePath, targetHunkIndex, targetDirection, response.lines, startLine);
@@ -654,11 +650,11 @@ function diffApp() {
                     return {
                         type: 'context',
                         left: {
-                            content: content,
+                            content,
                             line_num: leftStartLineNum + index
                         },
                         right: {
-                            content: content,
+                            content,
                             line_num: rightStartLineNum + index
                         }
                     };
@@ -672,11 +668,11 @@ function diffApp() {
                     return {
                         type: 'context',
                         left: {
-                            content: content,
+                            content,
                             line_num: leftStartLineNum + index
                         },
                         right: {
-                            content: content,
+                            content,
                             line_num: rightStartLineNum + index
                         }
                     };
@@ -705,7 +701,6 @@ function diffApp() {
                 // When expanding up, check if we can merge with the previous hunk
                 this.checkAndMergeHunksReverse(targetFile, hunkIndex);
             }
-
         },
 
         checkAndMergeHunks(targetFile, currentHunkIndex) {
@@ -875,7 +870,6 @@ function diffApp() {
                     // All other hunks: always show (expands before context of current hunk)
                     return true;
                 }
-
             } else if (direction === 'after') {
                 // "Expand down" button visibility:
                 if (hunkIndex === 0) {
@@ -899,5 +893,3 @@ function diffApp() {
         }
     };
 }
-// Test line added to create a diff
-// Another test change for debugging context expansion

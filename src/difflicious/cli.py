@@ -1,6 +1,7 @@
 """Command-line interface for Difflicious."""
 
 import click
+
 from difflicious import __version__
 from difflicious.app import run_server
 
@@ -26,10 +27,10 @@ def main(port: int, host: str, debug: bool) -> None:
     """Start the Difflicious web application for git diff visualization."""
     click.echo(f"Starting Difflicious v{__version__}")
     click.echo(f"Server will run at http://{host}:{port}")
-    
+
     if debug:
         click.echo("🔧 Debug mode enabled - server will auto-reload on changes")
-    
+
     try:
         run_server(host=host, port=port, debug=debug)
     except KeyboardInterrupt:

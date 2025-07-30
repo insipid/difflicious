@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  python-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9]
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        version: "latest"
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      run: uv python install ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: uv sync --all-extras --dev
+    
+    - name: Run Python linting with ruff
+      run: uv run ruff check
+    
+    - name: Run Python formatting check with black
+      run: uv run black --check .
+    
+    - name: Run type checking with mypy
+      run: uv run mypy src/
+    
+    - name: Run Python tests with pytest
+      run: uv run pytest
+
+  javascript-lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install JavaScript dependencies
+      run: npm install
+    
+    - name: Run JavaScript linting with ESLint
+      run: npm run lint:js
+    
+    - name: Run JavaScript tests with Jest (if available)
+      run: npm run test:js
+      continue-on-error: true  # Allow this to fail if no tests exist yet
