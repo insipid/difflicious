@@ -30,6 +30,7 @@ dependencies = [
     "flask>=2.3.0",
     "click>=8.0.0",
     "unidiff>=0.7.5",
+    "jinja-partials>=0.3.0",
 ]
 
 [project.optional-dependencies]

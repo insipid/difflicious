@@ -5,6 +5,7 @@ from typing import Dict, Any
 import os
 import logging
 from pathlib import Path
+import jinja_partials
 
 # Import services
 from difflicious.services.diff_service import DiffService
@@ -21,6 +22,9 @@ def create_app() -> Flask:
     app = Flask(__name__,
                 template_folder=template_dir,
                 static_folder=static_dir)
+
+    # Register jinja_partials extensions
+    jinja_partials.register_extensions(app)
 
     # Configure logging
     logging.basicConfig(level=logging.INFO)

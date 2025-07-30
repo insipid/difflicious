@@ -78,6 +78,43 @@ def test_api_diff_route(client):
     assert 'staged' in data['groups']
 
 
+def test_jinja_partials_integration(app):
+    """Test that jinja_partials is properly integrated with the Flask app."""
+    with app.app_context():
+        # Test that render_partial function is available in the Jinja environment globals
+        assert 'render_partial' in app.jinja_env.globals
+        
+        # Verify that the render_partial function is callable
+        render_partial_func = app.jinja_env.globals['render_partial']
+        assert callable(render_partial_func)
+        
+        # Test that render_partial function is available in templates
+        from flask import render_template_string
+        
+        # Test template that just checks for render_partial availability
+        test_template = '''
+        <!DOCTYPE html>
+        <html>
+        <body>
+            <h1>Main Template</h1>
+            {% if render_partial %}
+                <p>render_partial function is available</p>
+            {% else %}
+                <p>render_partial function is NOT available</p>
+            {% endif %}
+        </body>
+        </html>
+        '''
+        
+        # Render the template - this tests that jinja_partials is registered
+        rendered = render_template_string(test_template)
+        
+        # Check that the template rendered without errors
+        assert 'Main Template' in rendered
+        assert 'html' in rendered.lower()
+        assert 'render_partial function is available' in rendered
+
+
 class TestAPIDiffCommitComparison:
     """Test cases for API diff endpoint commit comparison functionality."""
     
