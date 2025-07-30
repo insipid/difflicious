@@ -1,15 +1,15 @@
 """Flask web application for Difflicious git diff visualization."""
 
-from flask import Flask, render_template, jsonify, request
-from typing import Dict, Any
-import os
 import logging
-from pathlib import Path
+import os
+from typing import Any, Dict
+
+from flask import Flask, jsonify, render_template, request
 
 # Import services
 from difflicious.services.diff_service import DiffService
-from difflicious.services.git_service import GitService
 from difflicious.services.exceptions import DiffServiceError, GitServiceError
+from difflicious.services.git_service import GitService
 
 
 def create_app() -> Flask:
@@ -114,7 +114,7 @@ def create_app() -> Flask:
 
         start_line = request.args.get('start_line')
         end_line = request.args.get('end_line')
-        
+
         if not start_line or not end_line:
             return jsonify({"status": "error", "message": "start_line and end_line parameters are required"}), 400
 

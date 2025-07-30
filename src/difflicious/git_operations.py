@@ -1,12 +1,11 @@
 """Secure git command execution wrapper for Difflicious."""
 
-import os
-import subprocess
-import shlex
 import logging
-from typing import Dict, List, Optional, Any, Tuple
+import os
+import shlex
+import subprocess
 from pathlib import Path
-
+from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +70,7 @@ class GitRepository:
             logger.debug(f"Git command completed with return code: {result.returncode}")
             return result.stdout, result.stderr, result.returncode
 
-        except subprocess.TimeoutExpired as e:
+        except subprocess.TimeoutExpired:
             raise GitOperationError(f"Git command timed out after {timeout}s: {' '.join(cmd)}")
         except FileNotFoundError:
             raise GitOperationError("Git executable not found. Please ensure git is installed.")
@@ -114,7 +113,7 @@ class GitRepository:
             True if option is safe, False otherwise
         """
         import re
-        
+
         safe_options = {
             '--porcelain', '--short', '--branch', '--ahead-behind',
             '--no-renames', '--name-only', '--name-status', '--numstat',
@@ -126,7 +125,7 @@ class GitRepository:
 
         # Allow safe single-dash options
         safe_short_options = {'-s', '-b', '-u', '-z', '-n', '-p', '-w', '-a'}
-        
+
         # Check for -U<number> pattern (unified diff with context lines)
         if re.match(r'^-U\d+$', option):
             return True
@@ -204,11 +203,11 @@ class GitRepository:
                 repo_name = remote_url.split('/')[-1]
                 if repo_name:
                     return repo_name
-            
+
             # Fallback to directory name
             import os
             return os.path.basename(self.repo_path)
-            
+
         except GitOperationError as e:
             logger.warning(f"Failed to get repository name from remote: {e}")
             # Final fallback to directory name
@@ -308,7 +307,7 @@ class GitRepository:
                 else:
                     # Compare base_commit to working directory
                     diff_args = ['diff', '--numstat', base_commit]
-                
+
                 if file_path:
                     if not self._is_safe_file_path(file_path):
                         raise GitOperationError(f"Unsafe file path: {file_path}")
@@ -380,7 +379,7 @@ class GitRepository:
                     for diff_info in staged_diffs:
                         detailed_diff = self._get_file_diff(diff_info['path'], None, None, True)
                         diff_info['content'] = detailed_diff
-                        diff_info['status'] = 'staged' 
+                        diff_info['status'] = 'staged'
                         groups['staged']['files'].append(diff_info)
                     groups['staged']['count'] = len(groups['staged']['files'])
 
@@ -548,8 +547,7 @@ class GitRepository:
 
             # Use wc -l to count lines
             import subprocess
-            import shlex
-            
+
             full_path = self.repo_path / file_path
             if not full_path.exists():
                 raise GitOperationError(f"File does not exist: {file_path}")
@@ -587,20 +585,20 @@ class GitRepository:
         """
         if start_line < 1 or end_line < start_line:
             raise GitOperationError(f"Invalid line range: {start_line}-{end_line}")
-            
+
         # Sanitize file path
         if not self._is_safe_file_path(file_path):
             raise GitOperationError(f"Unsafe file path: {file_path}")
-            
+
         full_path = os.path.join(self.repo_path, file_path)
         if not os.path.isfile(full_path):
             raise GitOperationError(f"File not found: {file_path}")
-            
+
         try:
             # Use sed for efficient line extraction: sed -n 'start,end p' file
             # This is faster than head/tail combination for random ranges
             cmd = ['sed', '-n', f'{start_line},{end_line}p', full_path]
-            
+
             result = subprocess.run(
                 cmd,
                 cwd=self.repo_path,
@@ -609,11 +607,11 @@ class GitRepository:
                 timeout=30,
                 check=True
             )
-            
+
             # Return lines, preserving empty lines but removing final newline if present
             lines = result.stdout.splitlines()
             return lines
-            
+
         except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as e:
             raise GitOperationError(f"Failed to get file lines {start_line}-{end_line}: {e}")
 

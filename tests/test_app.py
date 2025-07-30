@@ -1,6 +1,7 @@
 """Tests for the Flask application."""
 
 import pytest
+
 from difflicious.app import create_app
 
 
@@ -31,7 +32,7 @@ def test_api_status_route(client):
     response = client.get('/api/status')
     assert response.status_code == 200
     assert response.is_json
-    
+
     data = response.get_json()
     assert 'status' in data
     assert data['status'] == 'ok'
@@ -45,18 +46,18 @@ def test_api_branches_route(client):
     response = client.get('/api/branches')
     assert response.status_code == 200
     assert response.is_json
-    
+
     data = response.get_json()
     assert 'status' in data
     assert data['status'] == 'ok'
     assert 'branches' in data
-    
+
     branches = data['branches']
     assert 'all' in branches
     assert 'current' in branches
     assert 'main' in branches
     assert 'others' in branches
-    
+
     assert isinstance(branches['all'], list)
     assert isinstance(branches['others'], list)
 
@@ -67,7 +68,7 @@ def test_api_diff_route(client):
     response = client.get('/api/diff')
     assert response.status_code == 200
     assert response.is_json
-    
+
     data = response.get_json()
     assert 'status' in data
     assert data['status'] == 'ok'
@@ -80,46 +81,46 @@ def test_api_diff_route(client):
 
 class TestAPIDiffCommitComparison:
     """Test cases for API diff endpoint commit comparison functionality."""
-    
+
     def test_api_diff_with_base_commit_parameter(self, client):
         """Test API diff endpoint with base_commit parameter."""
         response = client.get('/api/diff?base_commit=abc123')
         assert response.status_code == 200
         assert response.is_json
-        
+
         data = response.get_json()
         assert data['status'] == 'ok'
         assert data['base_commit'] == 'abc123'
         assert data['target_commit'] is None
         assert 'groups' in data
         assert isinstance(data['groups'], dict)
-    
+
     def test_api_diff_with_target_commit_parameter(self, client):
         """Test API diff endpoint with target_commit parameter."""
         response = client.get('/api/diff?target_commit=def456')
         assert response.status_code == 200
         assert response.is_json
-        
+
         data = response.get_json()
         assert data['status'] == 'ok'
         assert data['base_commit'] is None
         assert data['target_commit'] == 'def456'
         assert 'groups' in data
         assert isinstance(data['groups'], dict)
-    
+
     def test_api_diff_with_both_commits(self, client):
         """Test API diff endpoint with both commit parameters."""
         response = client.get('/api/diff?base_commit=abc123&target_commit=def456')
         assert response.status_code == 200
         assert response.is_json
-        
+
         data = response.get_json()
         assert data['status'] == 'ok'
         assert data['base_commit'] == 'abc123'
         assert data['target_commit'] == 'def456'
         assert 'groups' in data
         assert isinstance(data['groups'], dict)
-    
+
     def test_api_diff_with_all_parameters(self, client):
         """Test API diff endpoint with all parameters combined."""
         params = {
@@ -129,11 +130,11 @@ class TestAPIDiffCommitComparison:
             'untracked': 'false',
             'file': 'test.txt'
         }
-        
+
         response = client.get('/api/diff', query_string=params)
         assert response.status_code == 200
         assert response.is_json
-        
+
         data = response.get_json()
         assert data['status'] == 'ok'
         assert data['base_commit'] == 'abc123'
@@ -143,14 +144,14 @@ class TestAPIDiffCommitComparison:
         assert data['file_filter'] == 'test.txt'
         assert 'groups' in data
         assert isinstance(data['groups'], dict)
-    
+
     def test_api_diff_backward_compatibility(self, client):
         """Test API diff endpoint maintains backward compatibility."""
         # Test traditional parameters still work
         response = client.get('/api/diff?unstaged=true&untracked=false&file=test.txt')
         assert response.status_code == 200
         assert response.is_json
-        
+
         data = response.get_json()
         assert data['status'] == 'ok'
         assert data['unstaged'] is True
@@ -160,53 +161,53 @@ class TestAPIDiffCommitComparison:
         assert data['target_commit'] is None
         assert 'groups' in data
         assert isinstance(data['groups'], dict)
-    
+
     def test_api_diff_empty_commit_parameters(self, client):
         """Test API diff endpoint with empty commit parameters."""
         response = client.get('/api/diff?base_commit=&target_commit=')
         assert response.status_code == 200
         assert response.is_json
-        
+
         data = response.get_json()
         assert data['status'] == 'ok'
         assert data['base_commit'] == ''
         assert data['target_commit'] == ''
         assert 'groups' in data
         assert isinstance(data['groups'], dict)
-    
+
     def test_api_diff_commit_parameters_with_special_characters(self, client):
         """Test API diff endpoint handles commit parameters with various characters."""
         # Test with branch name containing slashes
         response = client.get('/api/diff?base_commit=feature/new-ui')
         assert response.status_code == 200
-        
+
         data = response.get_json()
         assert data['base_commit'] == 'feature/new-ui'
-        
+
         # Test with HEAD references
         response = client.get('/api/diff?base_commit=HEAD~1&target_commit=HEAD')
         assert response.status_code == 200
-        
+
         data = response.get_json()
         assert data['base_commit'] == 'HEAD~1'
         assert data['target_commit'] == 'HEAD'
-    
+
     def test_api_diff_response_format_consistency(self, client):
         """Test API diff endpoint response format is consistent."""
         # Test without commit parameters
         response1 = client.get('/api/diff')
         data1 = response1.get_json()
-        
+
         # Test with commit parameters
         response2 = client.get('/api/diff?base_commit=abc123')
         data2 = response2.get_json()
-        
+
         # Both should have the same basic structure
         required_fields = ['status', 'groups', 'unstaged', 'untracked', 'file_filter', 'total_files']
         for field in required_fields:
             assert field in data1
             assert field in data2
-        
+
         # Commit-specific fields should be present in both
         commit_fields = ['base_commit', 'target_commit']
         for field in commit_fields:
@@ -216,28 +217,29 @@ class TestAPIDiffCommitComparison:
 
 class TestRealGitDiffIntegration:
     """Test cases for get_real_git_diff helper function integration."""
-    
+
     def test_get_real_git_diff_import(self):
         """Test that get_real_git_diff function can be imported."""
         from difflicious.app import get_real_git_diff
         assert callable(get_real_git_diff)
-    
+
     def test_get_real_git_diff_parameters(self):
         """Test get_real_git_diff function signature."""
-        from difflicious.app import get_real_git_diff
         import inspect
-        
+
+        from difflicious.app import get_real_git_diff
+
         sig = inspect.signature(get_real_git_diff)
         params = list(sig.parameters.keys())
-        
+
         expected_params = ['base_commit', 'target_commit', 'unstaged', 'untracked', 'file_path']
         for param in expected_params:
             assert param in params
-    
+
     def test_get_real_git_diff_error_handling(self):
         """Test get_real_git_diff handles errors gracefully."""
         from difflicious.app import get_real_git_diff
-        
+
         # Should return empty groups on error, not raise exception
         result = get_real_git_diff(base_commit='nonexistent_commit')
         assert isinstance(result, dict)

@@ -1,10 +1,11 @@
 """Tests for the CLI module."""
 
-import pytest
 from unittest.mock import patch
+
 from click.testing import CliRunner
-from difflicious.cli import main
+
 from difflicious import __version__
+from difflicious.cli import main
 
 
 def test_cli_version():

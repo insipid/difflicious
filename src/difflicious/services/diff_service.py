@@ -1,18 +1,20 @@
 """Service for handling diff-related business logic."""
 
 import logging
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
+from difflicious.diff_parser import DiffParseError, parse_git_diff_for_rendering
+from difflicious.git_operations import GitOperationError
+
 from .base_service import BaseService
 from .exceptions import DiffServiceError
-from difflicious.git_operations import GitOperationError
-from difflicious.diff_parser import parse_git_diff_for_rendering, DiffParseError
 
 logger = logging.getLogger(__name__)
 
 class DiffService(BaseService):
     """Service for diff-related operations and business logic."""
-    
-    def get_grouped_diffs(self, 
+
+    def get_grouped_diffs(self,
                          base_commit: Optional[str] = None,
                          target_commit: Optional[str] = None,
                          unstaged: bool = True,
@@ -48,14 +50,14 @@ class DiffService(BaseService):
 
             # Process each group to parse diff content for rendering
             return self._process_diff_groups(grouped_diffs)
-            
+
         except GitOperationError as e:
             self._log_error("Git operation failed during diff retrieval", e)
             raise DiffServiceError(f"Failed to retrieve diff data: {e}") from e
         except Exception as e:
             self._log_error("Unexpected error during diff processing", e)
             raise DiffServiceError(f"Diff processing failed: {e}") from e
-    
+
     def _process_diff_groups(self, grouped_diffs: Dict[str, Any]) -> Dict[str, Any]:
         """Process raw diff groups into rendered format.
         
@@ -67,16 +69,16 @@ class DiffService(BaseService):
         """
         for group_name, group_data in grouped_diffs.items():
             formatted_files = []
-            
+
             for diff in group_data['files']:
                 processed_diff = self._process_single_diff(diff)
                 formatted_files.append(processed_diff)
-            
+
             group_data['files'] = formatted_files
             group_data['count'] = len(formatted_files)
 
         return grouped_diffs
-    
+
     def _process_single_diff(self, diff: Dict[str, Any]) -> Dict[str, Any]:
         """Process a single diff file.
         
@@ -104,10 +106,10 @@ class DiffService(BaseService):
             except DiffParseError as e:
                 logger.warning(f"Failed to parse diff for {diff['path']}: {e}")
                 # Fall through to return raw diff
-        
+
         # For files without content or parsing failures, return as-is
         return diff
-    
+
     def get_diff_summary(self, **kwargs) -> Dict[str, Any]:
         """Get summary statistics for diffs.
         
@@ -119,16 +121,16 @@ class DiffService(BaseService):
         """
         try:
             grouped_diffs = self.get_grouped_diffs(**kwargs)
-            
+
             total_files = sum(group['count'] for group in grouped_diffs.values())
             total_additions = 0
             total_deletions = 0
-            
+
             for group in grouped_diffs.values():
                 for file_data in group['files']:
                     total_additions += file_data.get('additions', 0)
                     total_deletions += file_data.get('deletions', 0)
-            
+
             return {
                 'total_files': total_files,
                 'total_additions': total_additions,
@@ -136,7 +138,7 @@ class DiffService(BaseService):
                 'total_changes': total_additions + total_deletions,
                 'groups': {name: group['count'] for name, group in grouped_diffs.items()}
             }
-            
+
         except DiffServiceError:
             raise
         except Exception as e:

@@ -1,13 +1,16 @@
 """Service for git-related business logic."""
 
-from typing import Dict, Any, List
+from typing import Any, Dict
+
+from difflicious.git_operations import GitOperationError
+
 from .base_service import BaseService
 from .exceptions import GitServiceError
-from difflicious.git_operations import GitOperationError
+
 
 class GitService(BaseService):
     """Service for git repository operations."""
-    
+
     def get_repository_status(self) -> Dict[str, Any]:
         """Get comprehensive repository status.
         
@@ -17,11 +20,11 @@ class GitService(BaseService):
         try:
             current_branch = self.repo.get_current_branch()
             repo_name = self.repo.get_repository_name()
-            
+
             # Get diff data to count changed files
             diff_data = self.repo.get_diff(unstaged=True, untracked=True)
             total_files = sum(group.get('count', 0) for group in diff_data.values())
-            
+
             return {
                 'current_branch': current_branch,
                 'repository_name': repo_name,
@@ -38,7 +41,7 @@ class GitService(BaseService):
                 'status': 'error',
                 'error': str(e)
             }
-    
+
     def get_branch_information(self) -> Dict[str, Any]:
         """Get branch information with error handling.
         
@@ -48,12 +51,12 @@ class GitService(BaseService):
         try:
             branch_info = self.repo.get_branches()
             current_branch = self.repo.get_current_branch()
-            
+
             all_branches = branch_info['branches']
             default_branch = branch_info['default_branch']
-            
+
             other_branches = [
-                b for b in all_branches 
+                b for b in all_branches
                 if b != default_branch and b != current_branch
             ]
 
@@ -68,7 +71,7 @@ class GitService(BaseService):
             }
         except GitOperationError as e:
             raise GitServiceError(f"Failed to get branch information: {e}") from e
-    
+
     def get_file_lines(self, file_path: str, start_line: int, end_line: int) -> Dict[str, Any]:
         """Get specific lines from a file with validation.
         
@@ -86,13 +89,13 @@ class GitService(BaseService):
         # Validation
         if start_line < 1 or end_line < start_line:
             raise GitServiceError("Invalid line range")
-            
+
         if end_line - start_line > 100:
             raise GitServiceError("Line range too large (max 100 lines)")
-        
+
         try:
             lines = self.repo.get_file_lines(file_path, start_line, end_line)
-            
+
             return {
                 "status": "ok",
                 "file_path": file_path,
