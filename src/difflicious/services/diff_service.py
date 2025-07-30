@@ -21,20 +21,20 @@ class DiffService(BaseService):
                          untracked: bool = False,
                          file_path: Optional[str] = None) -> Dict[str, Any]:
         """Get processed diff data grouped by type.
-        
+
         This method extracts the business logic currently in get_real_git_diff()
         from app.py and makes it independently testable.
-        
+
         Args:
             base_commit: Base commit SHA to compare from
             target_commit: Target commit SHA to compare to
             unstaged: Whether to include unstaged changes
             untracked: Whether to include untracked files
             file_path: Optional specific file to diff
-            
+
         Returns:
             Dictionary with grouped diff data
-            
+
         Raises:
             DiffServiceError: If diff processing fails
         """
@@ -60,14 +60,14 @@ class DiffService(BaseService):
 
     def _process_diff_groups(self, grouped_diffs: Dict[str, Any]) -> Dict[str, Any]:
         """Process raw diff groups into rendered format.
-        
+
         Args:
             grouped_diffs: Raw diff data from git operations
-            
+
         Returns:
             Processed diff data ready for frontend consumption
         """
-        for group_name, group_data in grouped_diffs.items():
+        for _group_name, group_data in grouped_diffs.items():
             formatted_files = []
 
             for diff in group_data['files']:
@@ -81,10 +81,10 @@ class DiffService(BaseService):
 
     def _process_single_diff(self, diff: Dict[str, Any]) -> Dict[str, Any]:
         """Process a single diff file.
-        
+
         Args:
             diff: Raw diff data for a single file
-            
+
         Returns:
             Processed diff data
         """
@@ -112,10 +112,10 @@ class DiffService(BaseService):
 
     def get_diff_summary(self, **kwargs) -> Dict[str, Any]:
         """Get summary statistics for diffs.
-        
+
         Args:
             **kwargs: Arguments passed to get_grouped_diffs
-            
+
         Returns:
             Summary statistics dictionary
         """

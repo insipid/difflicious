@@ -185,7 +185,7 @@ class GitRepository:
 
     def get_repository_name(self) -> str:
         """Get the repository name.
-        
+
         Returns:
             Repository name derived from remote URL or directory name
         """
@@ -237,7 +237,7 @@ class GitRepository:
                     branches.append(branch_name)
             default_branch = self.get_main_branch(branches)
             return {
-                'branches': sorted(list(set(branches))),
+                'branches': sorted(set(branches)),
                 'default_branch': default_branch
             }
         except GitOperationError as e:
@@ -571,15 +571,15 @@ class GitRepository:
 
     def get_file_lines(self, file_path: str, start_line: int, end_line: int) -> List[str]:
         """Get specific lines from a file using fast bash tools.
-        
+
         Args:
             file_path: Path to the file relative to repository root
             start_line: Starting line number (1-based, inclusive)
             end_line: Ending line number (1-based, inclusive)
-            
+
         Returns:
             List of lines from the file
-            
+
         Raises:
             GitOperationError: If operation fails
         """

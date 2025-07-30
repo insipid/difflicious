@@ -15,13 +15,13 @@ class DiffParseError(Exception):
 
 def parse_git_diff(diff_text: str) -> List[Dict[str, Any]]:
     """Parse git diff output into structured side-by-side format.
-    
+
     Args:
         diff_text: Raw git diff output in unified format
-        
+
     Returns:
         List of file dictionaries with structured diff data
-        
+
     Raises:
         DiffParseError: If parsing fails
     """
@@ -46,10 +46,10 @@ def parse_git_diff(diff_text: str) -> List[Dict[str, Any]]:
 
 def _parse_file(patched_file: PatchedFile) -> Dict[str, Any]:
     """Parse a single file's diff data.
-    
+
     Args:
         patched_file: PatchedFile object from unidiff
-        
+
     Returns:
         Dictionary containing file metadata and hunks
     """
@@ -102,10 +102,10 @@ def _parse_file(patched_file: PatchedFile) -> Dict[str, Any]:
 
 def _parse_hunk(hunk: Hunk) -> Dict[str, Any]:
     """Parse a single hunk into side-by-side structure.
-    
+
     Args:
         hunk: Hunk object from unidiff
-        
+
     Returns:
         Dictionary containing hunk metadata and side-by-side lines
     """
@@ -140,12 +140,12 @@ def _parse_hunk(hunk: Hunk) -> Dict[str, Any]:
 
 def _parse_line(line, old_line_num: int, new_line_num: int) -> Dict[str, Any]:
     """Parse a single diff line.
-    
+
     Args:
         line: Line object from unidiff
         old_line_num: Current old file line number
         new_line_num: Current new file line number
-        
+
     Returns:
         Dictionary containing line data for side-by-side view
     """
@@ -177,14 +177,14 @@ def _parse_line(line, old_line_num: int, new_line_num: int) -> Dict[str, Any]:
 
 def create_side_by_side_lines(hunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Convert hunks into side-by-side line pairs for rendering.
-    
+
     This function takes the parsed hunks and creates a structure optimized
     for side-by-side rendering, handling cases where additions and deletions
     don't match up 1:1.
-    
+
     Args:
         hunks: List of parsed hunk dictionaries
-        
+
     Returns:
         List of line pair dictionaries for side-by-side rendering
     """
@@ -279,20 +279,20 @@ def create_side_by_side_lines(hunks: List[Dict[str, Any]]) -> List[Dict[str, Any
 
 def parse_git_diff_for_rendering(diff_text: str) -> List[Dict[str, Any]]:
     """Parse git diff output into side-by-side structure optimized for rendering.
-    
+
     This is the main method to use for converting git diff output into the final
     structure needed for frontend rendering. Each file contains hunks, and each
     hunk contains side-by-side line pairs ready for display.
-    
+
     Args:
         diff_text: Raw git diff output in unified format
-        
+
     Returns:
         List of files with side-by-side structure:
         [
           {
             "path": "file.js",
-            "old_path": "file.js", 
+            "old_path": "file.js",
             "status": "modified",
             "additions": 5,
             "deletions": 2,
@@ -313,7 +313,7 @@ def parse_git_diff_for_rendering(diff_text: str) -> List[Dict[str, Any]]:
             ]
           }
         ]
-        
+
     Raises:
         DiffParseError: If parsing fails
     """
@@ -351,11 +351,11 @@ def parse_git_diff_for_rendering(diff_text: str) -> List[Dict[str, Any]]:
 
 def _group_lines_into_hunks(side_by_side_lines: List[Dict[str, Any]], original_hunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Group side-by-side lines back into hunks for structured rendering.
-    
+
     Args:
         side_by_side_lines: List of side-by-side line pairs
         original_hunks: Original hunk metadata for reference
-        
+
     Returns:
         List of hunks with side-by-side lines grouped appropriately
     """
@@ -410,10 +410,10 @@ def _group_lines_into_hunks(side_by_side_lines: List[Dict[str, Any]], original_h
 
 def get_file_summary(files: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Generate summary statistics for a set of parsed diff files.
-    
+
     Args:
         files: List of parsed file dictionaries
-        
+
     Returns:
         Dictionary containing summary statistics
     """

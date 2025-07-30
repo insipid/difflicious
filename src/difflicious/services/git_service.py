@@ -13,7 +13,7 @@ class GitService(BaseService):
 
     def get_repository_status(self) -> Dict[str, Any]:
         """Get comprehensive repository status.
-        
+
         Returns:
             Repository status dictionary
         """
@@ -44,7 +44,7 @@ class GitService(BaseService):
 
     def get_branch_information(self) -> Dict[str, Any]:
         """Get branch information with error handling.
-        
+
         Returns:
             Branch information dictionary
         """
@@ -74,15 +74,15 @@ class GitService(BaseService):
 
     def get_file_lines(self, file_path: str, start_line: int, end_line: int) -> Dict[str, Any]:
         """Get specific lines from a file with validation.
-        
+
         Args:
             file_path: Path to file
-            start_line: Starting line number  
+            start_line: Starting line number
             end_line: Ending line number
-            
+
         Returns:
             File lines data
-            
+
         Raises:
             GitServiceError: If operation fails
         """

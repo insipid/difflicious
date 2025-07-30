@@ -12,7 +12,7 @@ class BaseService:
 
     def __init__(self, repo_path: Optional[str] = None):
         """Initialize service with git repository.
-        
+
         Args:
             repo_path: Optional path to git repository
         """
