@@ -41,6 +41,12 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
         contextExpansions: {}, // { filePath: { hunkIndex: { beforeExpanded: number, afterExpanded: number } } }
         contextLoading: {}, // { filePath: { hunkIndex: { before: bool, after: bool } } }
 
+        // Virtual scrolling integration
+        virtualScroller: null,
+        useVirtualScrolling: false, // Default to false, will be enabled if conditions are met
+        renderingMode: 'auto', // 'virtual', 'standard', 'auto'
+        virtualScrollingThreshold: 500, // Switch to virtual at 500+ lines
+
         // LocalStorage utility functions
         getStorageKey() {
             const repoName = this.gitStatus.repository_name || 'unknown';
@@ -324,12 +330,76 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
             }
         },
 
-        // Initialize the application
+        // Enhanced init method
         async init() {
-            await this.loadBranches(); // Load branches first
+            await this.loadBranches();
             await this.loadGitStatus();
-            this.loadUIState(); // Load saved UI state after we have repository name
+            this.loadUIState();
             await this.loadDiffs();
+
+            // Initialize virtual scrolling if needed
+            this.initializeVirtualScrolling();
+        },
+
+        initializeVirtualScrolling() {
+            // Determine if virtual scrolling should be used
+            const totalLines = this.calculateTotalLines();
+            const shouldUseVirtual = this.renderingMode === 'virtual' ||
+                (this.renderingMode === 'auto' && totalLines > this.virtualScrollingThreshold);
+
+            if (shouldUseVirtual) {
+                console.log(`Enabling virtual scrolling for ${totalLines} lines`);
+                this.useVirtualScrolling = true;
+
+                // Initialize virtual scroller
+                this.virtualScroller = new window.VirtualDiffScroller({
+                    container: '#diff-content-container',
+                    lineHeight: 22,
+                    visibleCount: 50,
+                    bufferCount: 15
+                });
+
+                // Load current diff data into virtual scroller
+                this.virtualScroller.loadDiffData({
+                    groups: this.groups
+                });
+
+                // Hide standard Alpine.js rendering
+                this.hideStandardRendering();
+            } else {
+                console.log(`Using standard rendering for ${totalLines} lines`);
+                this.useVirtualScrolling = false;
+            }
+        },
+
+        calculateTotalLines() {
+            let total = 0;
+            Object.values(this.groups).forEach(group => {
+                (group.files || []).forEach(file => {
+                    if (file.expanded && file.hunks) {
+                        file.hunks.forEach(hunk => {
+                            total += (hunk.lines || []).length;
+                            if (hunk.section_header) {
+                                total += 1; // +1 for hunk header
+                            }
+                        });
+                    }
+                    total += 1; // File header
+                });
+            });
+            return total;
+        },
+
+        hideStandardRendering() {
+            // Hide Alpine.js templates when virtual scrolling is active
+            const standardContainer = document.querySelector('#standard-diff-container');
+            if (standardContainer) {
+                standardContainer.style.display = 'none';
+            }
+            const virtualContainer = document.querySelector('#diff-content-container');
+            if (virtualContainer) {
+                virtualContainer.style.display = 'block';
+            }
         },
 
         // Load branch data from API
@@ -372,30 +442,18 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
             }
         },
 
-        // Load diff data from API
+        // Enhanced loadDiffs method
         async loadDiffs() {
             this.loading = true;
-
-            // Save current UI state before fetching new diff data
             this.saveUIState();
 
             try {
                 // Build query parameters based on UI state
                 const params = new URLSearchParams();
-
-                // Handle branch selection
-                if (this.baseBranch) {
-                    params.set('base_commit', this.baseBranch);
-                }
-
-                // Handle unstaged/untracked options
+                if (this.baseBranch) params.set('base_commit', this.baseBranch);
                 params.set('unstaged', this.unstaged.toString());
                 params.set('untracked', this.untracked.toString());
-
-                // Add other filters
-                if (this.searchFilter.trim()) {
-                    params.set('file', this.searchFilter.trim());
-                }
+                if (this.searchFilter.trim()) params.set('file', this.searchFilter.trim());
 
                 const queryString = params.toString();
                 const url = queryString ? `/api/diff?${queryString}` : '/api/diff';
@@ -404,25 +462,26 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
                 const data = await response.json();
 
                 if (data.status === 'ok') {
-                    // Update groups with new data
                     const groups = data.groups || {};
-
                     Object.keys(this.groups).forEach(groupKey => {
                         const groupData = groups[groupKey] || { files: [], count: 0 };
                         this.groups[groupKey].files = (groupData.files || []).map(file => ({
                             ...file,
-                            expanded: true // Add UI state for each file - start expanded
+                            expanded: true // Start expanded by default
                         }));
                         this.groups[groupKey].count = groupData.count || 0;
-                        // Keep existing visibility state
                     });
+                    this.loadUIState(); // Restore expansions
+                }
 
-                    // Load UI state after processing new diff data (includes file expansion restoration)
-                    this.loadUIState();
+                // If virtual scrolling is active, update it, otherwise re-evaluate
+                if (this.virtualScroller) {
+                    this.virtualScroller.loadDiffData({ groups: this.groups });
+                } else {
+                    this.initializeVirtualScrolling();
                 }
             } catch (error) {
                 console.error('Failed to load diffs:', error);
-                // Reset all groups to empty on error
                 Object.keys(this.groups).forEach(groupKey => {
                     this.groups[groupKey].files = [];
                     this.groups[groupKey].count = 0;
@@ -440,11 +499,18 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
             ]);
         },
 
-        // Toggle file expansion
+        // Enhanced file toggle for virtual scrolling
         toggleFile(groupKey, fileIndex) {
             if (this.groups[groupKey] && this.groups[groupKey].files[fileIndex]) {
                 this.groups[groupKey].files[fileIndex].expanded = !this.groups[groupKey].files[fileIndex].expanded;
                 this.saveUIState();
+
+                // Update virtual scroller if active
+                if (this.virtualScroller) {
+                    this.virtualScroller.loadDiffData({
+                        groups: this.groups
+                    });
+                }
             }
         },
 
@@ -456,6 +522,9 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
                 });
             });
             this.saveUIState();
+            if (this.virtualScroller) {
+                this.virtualScroller.loadDiffData({ groups: this.groups });
+            }
         },
 
         // Collapse all files across all groups
@@ -466,6 +535,25 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
                 });
             });
             this.saveUIState();
+            if (this.virtualScroller) {
+                this.virtualScroller.loadDiffData({ groups: this.groups });
+            }
+        },
+
+        // Performance monitoring
+        getPerformanceMetrics() {
+            const totalLines = this.calculateTotalLines();
+            const renderingMode = this.useVirtualScrolling ? 'virtual' : 'standard';
+            const memoryUsage = window.performance.memory
+                ? Math.round(window.performance.memory.usedJSHeapSize / 1024 / 1024)
+                : 'unknown';
+
+            return {
+                totalLines,
+                renderingMode,
+                memoryUsage: `${memoryUsage}MB`,
+                virtualScrollingActive: !!this.virtualScroller
+            };
         },
 
         // Navigate to previous file
