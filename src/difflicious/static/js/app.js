@@ -890,6 +890,109 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
             return !!(this.contextLoading[filePath] &&
                 this.contextLoading[filePath][hunkIndex] &&
                 this.contextLoading[filePath][hunkIndex][direction]);
+        },
+
+        // Bottom expand functionality
+        shouldShowBottomExpand(file) {
+            // Only show if file has line_count and hunks
+            if (!file.line_count || !file.hunks || file.hunks.length === 0) {
+                return false;
+            }
+
+            // Find the last line number from the last hunk
+            const lastHunk = file.hunks[file.hunks.length - 1];
+            if (!lastHunk.lines || lastHunk.lines.length === 0) {
+                return false;
+            }
+
+            let lastRightLineNum = 0;
+            // Look through lines in reverse to find the last line number
+            for (let i = lastHunk.lines.length - 1; i >= 0; i--) {
+                const line = lastHunk.lines[i];
+                if (line.type === 'context' || line.type === 'change') {
+                    if (line.right && line.right.line_num) {
+                        lastRightLineNum = line.right.line_num;
+                        break;
+                    }
+                }
+            }
+
+            // Show button if file has more lines beyond the last shown line
+            return file.line_count > lastRightLineNum;
+        },
+
+        getRemainingLines(file) {
+            if (!file.line_count || !file.hunks || file.hunks.length === 0) {
+                return 0;
+            }
+
+            // Find the last line number from the last hunk
+            const lastHunk = file.hunks[file.hunks.length - 1];
+            if (!lastHunk.lines || lastHunk.lines.length === 0) {
+                return 0;
+            }
+
+            let lastRightLineNum = 0;
+            // Look through lines in reverse to find the last line number
+            for (let i = lastHunk.lines.length - 1; i >= 0; i--) {
+                const line = lastHunk.lines[i];
+                if (line.type === 'context' || line.type === 'change') {
+                    if (line.right && line.right.line_num) {
+                        lastRightLineNum = line.right.line_num;
+                        break;
+                    }
+                }
+            }
+
+            return file.line_count - lastRightLineNum;
+        },
+
+        async expandBottomContext(filePath, contextLines = 10) {
+            // Find the target file
+            let targetFile = null;
+            for (const groupKey of Object.keys(this.groups)) {
+                const file = this.groups[groupKey].files.find(f => f.path === filePath);
+                if (file) {
+                    targetFile = file;
+                    break;
+                }
+            }
+
+            if (!targetFile || !targetFile.hunks || targetFile.hunks.length === 0) {
+                console.error('Target file not found or has no hunks');
+                return;
+            }
+
+            // Set loading state
+            this.setBottomContextLoading(filePath, true);
+
+            try {
+                // For bottom expand, we need to expand after the last hunk
+                // But expandContext with direction='after' targets hunkIndex-1
+                // So we need to pass lastHunkIndex+1 to target the last hunk
+                const lastHunkIndex = targetFile.hunks.length - 1;
+                await this.expandContext(filePath, lastHunkIndex + 1, 'after', contextLines);
+            } catch (error) {
+                console.error('Failed to expand bottom context:', error);
+            } finally {
+                // Clear loading state
+                this.setBottomContextLoading(filePath, false);
+            }
+        },
+
+        isBottomContextLoading(filePath) {
+            return !!(this.bottomContextLoading && this.bottomContextLoading[filePath]);
+        },
+
+        setBottomContextLoading(filePath, loading) {
+            if (!this.bottomContextLoading) {
+                this.bottomContextLoading = {};
+            }
+            if (loading) {
+                this.bottomContextLoading[filePath] = true;
+            } else {
+                delete this.bottomContextLoading[filePath];
+            }
         }
     };
 }

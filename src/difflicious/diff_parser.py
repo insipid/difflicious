@@ -1,11 +1,43 @@
 """Git diff parser for converting unified diff format to side-by-side structure."""
 
 import logging
-from typing import Any
+import os
+import subprocess
+from typing import Any, Optional
 
 from unidiff import Hunk, PatchedFile, PatchSet
 
 logger = logging.getLogger(__name__)
+
+
+def _get_file_line_count(file_path: str) -> Optional[int]:
+    """Get the number of lines in a file using wc -l.
+
+    Args:
+        file_path: Path to the file to count lines in
+
+    Returns:
+        Number of lines in the file, or None if file doesn't exist or count fails
+    """
+    try:
+        if not file_path or not os.path.isfile(file_path):
+            return None
+
+        result = subprocess.run(
+            ["wc", "-l", file_path], capture_output=True, text=True, timeout=5
+        )
+
+        if result.returncode == 0:
+            # wc -l output format: "  123 filename"
+            line_count = int(result.stdout.strip().split()[0])
+            return line_count
+        else:
+            logger.warning(f"wc command failed for {file_path}: {result.stderr}")
+            return None
+
+    except (subprocess.TimeoutExpired, ValueError, IndexError, OSError) as e:
+        logger.warning(f"Failed to count lines in {file_path}: {e}")
+        return None
 
 
 class DiffParseError(Exception):
@@ -83,6 +115,9 @@ def _parse_file(patched_file: PatchedFile) -> dict[str, Any]:
     if source_path and source_path.startswith(("a/", "b/")):
         source_path = source_path[2:]
 
+    # Get line count for the current file (target_path)
+    line_count = _get_file_line_count(target_path) if target_path else None
+
     file_data: dict[str, Any] = {
         "path": target_path,
         "old_path": source_path,
@@ -90,6 +125,7 @@ def _parse_file(patched_file: PatchedFile) -> dict[str, Any]:
         "additions": total_additions,
         "deletions": total_deletions,
         "changes": total_additions + total_deletions,
+        "line_count": line_count,
         "hunks": [],
     }
 
@@ -306,6 +342,7 @@ def parse_git_diff_for_rendering(diff_text: str) -> list[dict[str, Any]]:
             "additions": 5,
             "deletions": 2,
             "changes": 7,
+            "line_count": 150,
             "hunks": [
               {
                 "old_start": 10, "old_count": 5,
@@ -348,6 +385,7 @@ def parse_git_diff_for_rendering(diff_text: str) -> list[dict[str, Any]]:
                 "additions": file_data["additions"],
                 "deletions": file_data["deletions"],
                 "changes": file_data["changes"],
+                "line_count": file_data["line_count"],
                 "hunks": rendered_hunks,
             }
 
