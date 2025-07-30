@@ -152,14 +152,15 @@ def create_app() -> Flask:
 
         try:
             git_service = GitService()
-            return jsonify(git_service.get_file_lines(file_path, start_line_int, end_line_int))
+            return jsonify(
+                git_service.get_file_lines(file_path, start_line_int, end_line_int)
+            )
 
         except GitServiceError as e:
             logger.error(f"Git service error: {e}")
             return jsonify({"status": "error", "message": str(e)}), 500
 
     return app
-
 
 
 def run_server(host: str = "127.0.0.1", port: int = 5000, debug: bool = False) -> None:

@@ -219,5 +219,3 @@ class TestAPIDiffCommitComparison:
         for field in commit_fields:
             assert field in data1
             assert field in data2
-
-
