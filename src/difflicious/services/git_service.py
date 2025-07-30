@@ -1,6 +1,6 @@
 """Service for git-related business logic."""
 
-from typing import Any, Dict
+from typing import Any
 
 from difflicious.git_operations import GitOperationError
 
@@ -11,7 +11,7 @@ from .exceptions import GitServiceError
 class GitService(BaseService):
     """Service for git repository operations."""
 
-    def get_repository_status(self) -> Dict[str, Any]:
+    def get_repository_status(self) -> dict[str, Any]:
         """Get comprehensive repository status.
 
         Returns:
@@ -42,7 +42,7 @@ class GitService(BaseService):
                 "error": str(e),
             }
 
-    def get_branch_information(self) -> Dict[str, Any]:
+    def get_branch_information(self) -> dict[str, Any]:
         """Get branch information with error handling.
 
         Returns:
@@ -73,7 +73,7 @@ class GitService(BaseService):
 
     def get_file_lines(
         self, file_path: str, start_line: int, end_line: int
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get specific lines from a file with validation.
 
         Args:

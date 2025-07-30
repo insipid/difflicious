@@ -1,7 +1,7 @@
 """Git diff parser for converting unified diff format to side-by-side structure."""
 
 import logging
-from typing import Any, Dict, List
+from typing import Any
 
 from unidiff import Hunk, PatchedFile, PatchSet
 
@@ -14,7 +14,7 @@ class DiffParseError(Exception):
     pass
 
 
-def parse_git_diff(diff_text: str) -> List[Dict[str, Any]]:
+def parse_git_diff(diff_text: str) -> list[dict[str, Any]]:
     """Parse git diff output into structured side-by-side format.
 
     Args:
@@ -45,7 +45,7 @@ def parse_git_diff(diff_text: str) -> List[Dict[str, Any]]:
         raise DiffParseError(f"Diff parsing failed: {e}") from e
 
 
-def _parse_file(patched_file: PatchedFile) -> Dict[str, Any]:
+def _parse_file(patched_file: PatchedFile) -> dict[str, Any]:
     """Parse a single file's diff data.
 
     Args:
@@ -83,7 +83,7 @@ def _parse_file(patched_file: PatchedFile) -> Dict[str, Any]:
     if source_path and source_path.startswith(("a/", "b/")):
         source_path = source_path[2:]
 
-    file_data: Dict[str, Any] = {
+    file_data: dict[str, Any] = {
         "path": target_path,
         "old_path": source_path,
         "status": status,
@@ -101,7 +101,7 @@ def _parse_file(patched_file: PatchedFile) -> Dict[str, Any]:
     return file_data
 
 
-def _parse_hunk(hunk: Hunk) -> Dict[str, Any]:
+def _parse_hunk(hunk: Hunk) -> dict[str, Any]:
     """Parse a single hunk into side-by-side structure.
 
     Args:
@@ -110,7 +110,7 @@ def _parse_hunk(hunk: Hunk) -> Dict[str, Any]:
     Returns:
         Dictionary containing hunk metadata and side-by-side lines
     """
-    hunk_data: Dict[str, Any] = {
+    hunk_data: dict[str, Any] = {
         "old_start": hunk.source_start,
         "old_count": hunk.source_length,
         "new_start": hunk.target_start,
@@ -139,7 +139,7 @@ def _parse_hunk(hunk: Hunk) -> Dict[str, Any]:
     return hunk_data
 
 
-def _parse_line(line: Any, old_line_num: int, new_line_num: int) -> Dict[str, Any]:
+def _parse_line(line: Any, old_line_num: int, new_line_num: int) -> dict[str, Any]:
     """Parse a single diff line.
 
     Args:
@@ -176,7 +176,7 @@ def _parse_line(line: Any, old_line_num: int, new_line_num: int) -> Dict[str, An
     }
 
 
-def create_side_by_side_lines(hunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def create_side_by_side_lines(hunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Convert hunks into side-by-side line pairs for rendering.
 
     This function takes the parsed hunks and creates a structure optimized
@@ -286,7 +286,7 @@ def create_side_by_side_lines(hunks: List[Dict[str, Any]]) -> List[Dict[str, Any
     return side_by_side_lines
 
 
-def parse_git_diff_for_rendering(diff_text: str) -> List[Dict[str, Any]]:
+def parse_git_diff_for_rendering(diff_text: str) -> list[dict[str, Any]]:
     """Parse git diff output into side-by-side structure optimized for rendering.
 
     This is the main method to use for converting git diff output into the final
@@ -361,8 +361,8 @@ def parse_git_diff_for_rendering(diff_text: str) -> List[Dict[str, Any]]:
 
 
 def _group_lines_into_hunks(
-    side_by_side_lines: List[Dict[str, Any]], original_hunks: List[Dict[str, Any]]
-) -> List[Dict[str, Any]]:
+    side_by_side_lines: list[dict[str, Any]], original_hunks: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
     """Group side-by-side lines back into hunks for structured rendering.
 
     Args:
@@ -423,7 +423,7 @@ def _group_lines_into_hunks(
     return rendered_hunks
 
 
-def get_file_summary(files: List[Dict[str, Any]]) -> Dict[str, Any]:
+def get_file_summary(files: list[dict[str, Any]]) -> dict[str, Any]:
     """Generate summary statistics for a set of parsed diff files.
 
     Args:
@@ -436,7 +436,7 @@ def get_file_summary(files: List[Dict[str, Any]]) -> Dict[str, Any]:
     total_additions = sum(file_data["additions"] for file_data in files)
     total_deletions = sum(file_data["deletions"] for file_data in files)
 
-    files_by_status: Dict[str, int] = {}
+    files_by_status: dict[str, int] = {}
     for file_data in files:
         status = file_data["status"]
         files_by_status[status] = files_by_status.get(status, 0) + 1

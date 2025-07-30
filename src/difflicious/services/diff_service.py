@@ -1,7 +1,7 @@
 """Service for handling diff-related business logic."""
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from difflicious.diff_parser import DiffParseError, parse_git_diff_for_rendering
 from difflicious.git_operations import GitOperationError
@@ -22,7 +22,7 @@ class DiffService(BaseService):
         unstaged: bool = True,
         untracked: bool = False,
         file_path: Optional[str] = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get processed diff data grouped by type.
 
         This method extracts the business logic currently in get_real_git_diff()
@@ -61,7 +61,7 @@ class DiffService(BaseService):
             self._log_error("Unexpected error during diff processing", e)
             raise DiffServiceError(f"Diff processing failed: {e}") from e
 
-    def _process_diff_groups(self, grouped_diffs: Dict[str, Any]) -> Dict[str, Any]:
+    def _process_diff_groups(self, grouped_diffs: dict[str, Any]) -> dict[str, Any]:
         """Process raw diff groups into rendered format.
 
         Args:
@@ -82,7 +82,7 @@ class DiffService(BaseService):
 
         return grouped_diffs
 
-    def _process_single_diff(self, diff: Dict[str, Any]) -> Dict[str, Any]:
+    def _process_single_diff(self, diff: dict[str, Any]) -> dict[str, Any]:
         """Process a single diff file.
 
         Args:
@@ -115,7 +115,7 @@ class DiffService(BaseService):
         # For files without content or parsing failures, return as-is
         return diff
 
-    def get_diff_summary(self, **kwargs: Any) -> Dict[str, Any]:
+    def get_diff_summary(self, **kwargs: Any) -> dict[str, Any]:
         """Get summary statistics for diffs.
 
         Args:

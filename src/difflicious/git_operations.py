@@ -5,7 +5,7 @@ import os
 import shlex
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +26,7 @@ class GitRepository:
             repo_path: Path to git repository. Defaults to current working directory.
         """
         self.repo_path = Path(repo_path) if repo_path else Path.cwd()
+        self._validate_repository()
 
     def _validate_repository(self) -> None:
         """Validate that the path contains a git repository."""
@@ -37,8 +38,8 @@ class GitRepository:
             raise GitOperationError(f"Not a git repository: {self.repo_path}")
 
     def _execute_git_command(
-        self, args: List[str], timeout: int = 30
-    ) -> Tuple[str, str, int]:
+        self, args: list[str], timeout: int = 30
+    ) -> tuple[str, str, int]:
         """Execute a git command with proper security and error handling.
 
         Args:
@@ -84,7 +85,7 @@ class GitRepository:
         except Exception as e:
             raise GitOperationError(f"Failed to execute git command: {e}") from e
 
-    def _sanitize_args(self, args: List[str]) -> List[str]:
+    def _sanitize_args(self, args: list[str]) -> list[str]:
         """Sanitize git command arguments to prevent injection attacks.
 
         Args:
@@ -162,7 +163,7 @@ class GitRepository:
 
         return option in safe_options or option in safe_short_options
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """Get git repository status information.
 
         Returns:
@@ -254,7 +255,7 @@ class GitRepository:
 
             return os.path.basename(self.repo_path)
 
-    def get_branches(self) -> Dict[str, Any]:
+    def get_branches(self) -> dict[str, Any]:
         """Get a list of all local and remote branches."""
         try:
             stdout, _, return_code = self._execute_git_command(["branch", "-a"])
@@ -281,7 +282,7 @@ class GitRepository:
             logger.error(f"Failed to get branches: {e}")
             return {"branches": [], "default_branch": None}
 
-    def get_main_branch(self, branches: List[str]) -> Optional[str]:
+    def get_main_branch(self, branches: list[str]) -> Optional[str]:
         """Determine the main branch from a list of branches."""
         if "main" in branches:
             return "main"
@@ -302,7 +303,7 @@ class GitRepository:
         unstaged: bool = True,
         untracked: bool = False,
         file_path: Optional[str] = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get git diff information grouped by type.
 
         Args:
@@ -316,7 +317,7 @@ class GitRepository:
             Dictionary containing grouped diff information
         """
         try:
-            groups: Dict[str, Dict[str, Any]] = {
+            groups: dict[str, dict[str, Any]] = {
                 "untracked": {"files": [], "count": 0},
                 "unstaged": {"files": [], "count": 0},
                 "staged": {"files": [], "count": 0},
@@ -493,7 +494,7 @@ class GitRepository:
         except Exception:
             return False
 
-    def _parse_diff_output(self, output: str) -> List[Dict[str, Any]]:
+    def _parse_diff_output(self, output: str) -> list[dict[str, Any]]:
         """Parse git diff --numstat --name-status output.
 
         Args:
@@ -502,7 +503,7 @@ class GitRepository:
         Returns:
             List of file diff information
         """
-        diffs: List[Dict[str, Any]] = []
+        diffs: list[dict[str, Any]] = []
 
         if not output.strip():
             return diffs
@@ -631,7 +632,7 @@ class GitRepository:
 
     def get_file_lines(
         self, file_path: str, start_line: int, end_line: int
-    ) -> List[str]:
+    ) -> list[str]:
         """Get specific lines from a file using fast bash tools.
 
         Args:
