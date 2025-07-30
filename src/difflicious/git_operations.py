@@ -259,7 +259,7 @@ class GitRepository:
         try:
             stdout, _, return_code = self._execute_git_command(["branch", "-a"])
             if return_code != 0:
-                return []
+                return {"branches": [], "default_branch": None}
 
             branches = []
             for line in stdout.strip().split("\n"):
@@ -316,7 +316,7 @@ class GitRepository:
             Dictionary containing grouped diff information
         """
         try:
-            groups = {
+            groups: Dict[str, Dict[str, Any]] = {
                 "untracked": {"files": [], "count": 0},
                 "unstaged": {"files": [], "count": 0},
                 "staged": {"files": [], "count": 0},
@@ -502,7 +502,7 @@ class GitRepository:
         Returns:
             List of file diff information
         """
-        diffs = []
+        diffs: List[Dict[str, Any]] = []
 
         if not output.strip():
             return diffs

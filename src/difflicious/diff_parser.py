@@ -83,7 +83,7 @@ def _parse_file(patched_file: PatchedFile) -> Dict[str, Any]:
     if source_path and source_path.startswith(("a/", "b/")):
         source_path = source_path[2:]
 
-    file_data = {
+    file_data: Dict[str, Any] = {
         "path": target_path,
         "old_path": source_path,
         "status": status,
@@ -110,7 +110,7 @@ def _parse_hunk(hunk: Hunk) -> Dict[str, Any]:
     Returns:
         Dictionary containing hunk metadata and side-by-side lines
     """
-    hunk_data = {
+    hunk_data: Dict[str, Any] = {
         "old_start": hunk.source_start,
         "old_count": hunk.source_length,
         "new_start": hunk.target_start,
@@ -139,7 +139,7 @@ def _parse_hunk(hunk: Hunk) -> Dict[str, Any]:
     return hunk_data
 
 
-def _parse_line(line, old_line_num: int, new_line_num: int) -> Dict[str, Any]:
+def _parse_line(line: Any, old_line_num: int, new_line_num: int) -> Dict[str, Any]:
     """Parse a single diff line.
 
     Args:
@@ -436,7 +436,7 @@ def get_file_summary(files: List[Dict[str, Any]]) -> Dict[str, Any]:
     total_additions = sum(file_data["additions"] for file_data in files)
     total_deletions = sum(file_data["deletions"] for file_data in files)
 
-    files_by_status = {}
+    files_by_status: Dict[str, int] = {}
     for file_data in files:
         status = file_data["status"]
         files_by_status[status] = files_by_status.get(status, 0) + 1

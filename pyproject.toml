@@ -94,4 +94,5 @@ dev = [
     "pytest>=8.3.5",
     "pytest-cov>=5.0.0",
     "ruff>=0.12.5",
+    "types-unidiff>=0.7.0.20240505",
 ]

@@ -17,7 +17,7 @@ class BaseService:
         Args:
             repo_path: Optional path to git repository
         """
-        self._repo = None
+        self._repo: Optional[GitRepository] = None
         self._repo_path = repo_path
 
     @property

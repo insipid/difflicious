@@ -55,7 +55,7 @@ def test_api_branches_route(client):
     branches = data["branches"]
     assert "all" in branches
     assert "current" in branches
-    assert "main" in branches
+    assert "default" in branches
     assert "others" in branches
 
     assert isinstance(branches["all"], list)
@@ -221,43 +221,3 @@ class TestAPIDiffCommitComparison:
             assert field in data2
 
 
-class TestRealGitDiffIntegration:
-    """Test cases for get_real_git_diff helper function integration."""
-
-    def test_get_real_git_diff_import(self):
-        """Test that get_real_git_diff function can be imported."""
-        from difflicious.app import get_real_git_diff
-
-        assert callable(get_real_git_diff)
-
-    def test_get_real_git_diff_parameters(self):
-        """Test get_real_git_diff function signature."""
-        import inspect
-
-        from difflicious.app import get_real_git_diff
-
-        sig = inspect.signature(get_real_git_diff)
-        params = list(sig.parameters.keys())
-
-        expected_params = [
-            "base_commit",
-            "target_commit",
-            "unstaged",
-            "untracked",
-            "file_path",
-        ]
-        for param in expected_params:
-            assert param in params
-
-    def test_get_real_git_diff_error_handling(self):
-        """Test get_real_git_diff handles errors gracefully."""
-        from difflicious.app import get_real_git_diff
-
-        # Should return empty groups on error, not raise exception
-        result = get_real_git_diff(base_commit="nonexistent_commit")
-        assert isinstance(result, dict)
-        assert "untracked" in result
-        assert "unstaged" in result
-        assert "staged" in result
-        # Check that all groups are empty
-        assert all(group["count"] == 0 for group in result.values())

@@ -115,7 +115,7 @@ class DiffService(BaseService):
         # For files without content or parsing failures, return as-is
         return diff
 
-    def get_diff_summary(self, **kwargs) -> Dict[str, Any]:
+    def get_diff_summary(self, **kwargs: Any) -> Dict[str, Any]:
         """Get summary statistics for diffs.
 
         Args:

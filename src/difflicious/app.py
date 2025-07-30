@@ -2,9 +2,9 @@
 
 import logging
 import os
-from typing import Any, Dict
+from typing import Union
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, Response, jsonify, render_template, request
 
 # Import services
 from difflicious.services.diff_service import DiffService
@@ -30,7 +30,7 @@ def create_app() -> Flask:
         return render_template("index.html")
 
     @app.route("/api/status")
-    def api_status() -> Dict[str, Any]:
+    def api_status() -> Response:
         """API endpoint for git status information."""
         try:
             git_service = GitService()
@@ -48,7 +48,7 @@ def create_app() -> Flask:
             )
 
     @app.route("/api/branches")
-    def api_branches() -> Dict[str, Any]:
+    def api_branches() -> Union[Response, tuple[Response, int]]:
         """API endpoint for git branch information."""
         try:
             git_service = GitService()
@@ -58,7 +58,7 @@ def create_app() -> Flask:
             return jsonify({"status": "error", "message": str(e)}), 500
 
     @app.route("/api/diff")
-    def api_diff() -> Dict[str, Any]:
+    def api_diff() -> Union[Response, tuple[Response, int]]:
         """API endpoint for git diff information."""
         # Get optional query parameters
         unstaged = request.args.get("unstaged", "true").lower() == "true"
@@ -111,7 +111,7 @@ def create_app() -> Flask:
             )
 
     @app.route("/api/file/lines")
-    def api_file_lines() -> Dict[str, Any]:
+    def api_file_lines() -> Union[Response, tuple[Response, int]]:
         """API endpoint for fetching specific lines from a file."""
         file_path = request.args.get("file_path")
         if not file_path:
@@ -137,8 +137,8 @@ def create_app() -> Flask:
             )
 
         try:
-            start_line = int(start_line)
-            end_line = int(end_line)
+            start_line_int = int(start_line)
+            end_line_int = int(end_line)
         except ValueError:
             return (
                 jsonify(
@@ -152,13 +152,14 @@ def create_app() -> Flask:
 
         try:
             git_service = GitService()
-            return jsonify(git_service.get_file_lines(file_path, start_line, end_line))
+            return jsonify(git_service.get_file_lines(file_path, start_line_int, end_line_int))
 
         except GitServiceError as e:
             logger.error(f"Git service error: {e}")
             return jsonify({"status": "error", "message": str(e)}), 500
 
     return app
+
 
 
 def run_server(host: str = "127.0.0.1", port: int = 5000, debug: bool = False) -> None:
