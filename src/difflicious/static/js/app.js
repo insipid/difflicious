@@ -3,7 +3,7 @@
  * Main application logic for git diff visualization
  */
 
-function diffApp() {
+function diffliciousApp() { // eslint-disable-line no-unused-vars
     return {
         // Application state
         loading: false,
@@ -114,7 +114,7 @@ function diffApp() {
                 if (this.savedFileExpansions) {
                     Object.keys(this.groups).forEach(groupKey => {
                         this.groups[groupKey].files.forEach(file => {
-                            if (file.path && this.savedFileExpansions.hasOwnProperty(file.path)) {
+                            if (file.path && Object.prototype.hasOwnProperty.call(this.savedFileExpansions, file.path)) {
                                 file.expanded = this.savedFileExpansions[file.path];
                             }
                         });
@@ -893,5 +893,3 @@ function diffApp() {
         }
     };
 }
-// Test line added to create a diff
-// Another test change for debugging context expansion
