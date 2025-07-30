@@ -13,6 +13,12 @@ Object.defineProperty(window, 'performance', {
     }
 });
 
+// Mock PerformanceObserver
+global.PerformanceObserver = jest.fn(() => ({
+    observe: jest.fn(),
+    disconnect: jest.fn()
+}));
+
 // Import the VirtualDiffScroller
 const VirtualDiffScroller = require('../../src/difflicious/static/js/virtual-scroller.js');
 

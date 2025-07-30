@@ -359,6 +359,11 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
                     bufferCount: 15
                 });
 
+                // Integrate performance monitoring
+                if (window.diffPerformanceMonitor) {
+                    window.diffPerformanceMonitor.integrateWithVirtualScroller(this.virtualScroller);
+                }
+
                 // Load current diff data into virtual scroller
                 this.virtualScroller.loadDiffData({
                     groups: this.groups
