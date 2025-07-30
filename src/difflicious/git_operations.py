@@ -71,11 +71,11 @@ class GitRepository:
             return result.stdout, result.stderr, result.returncode
 
         except subprocess.TimeoutExpired:
-            raise GitOperationError(f"Git command timed out after {timeout}s: {' '.join(cmd)}")
+            raise GitOperationError(f"Git command timed out after {timeout}s: {' '.join(cmd)}") from None
         except FileNotFoundError:
-            raise GitOperationError("Git executable not found. Please ensure git is installed.")
+            raise GitOperationError("Git executable not found. Please ensure git is installed.") from None
         except Exception as e:
-            raise GitOperationError(f"Failed to execute git command: {e}")
+            raise GitOperationError(f"Failed to execute git command: {e}") from e
 
     def _sanitize_args(self, args: List[str]) -> List[str]:
         """Sanitize git command arguments to prevent injection attacks.
@@ -567,7 +567,7 @@ class GitRepository:
             return line_count
 
         except (subprocess.TimeoutExpired, subprocess.CalledProcessError, ValueError) as e:
-            raise GitOperationError(f"Failed to get file line count: {e}")
+            raise GitOperationError(f"Failed to get file line count: {e}") from e
 
     def get_file_lines(self, file_path: str, start_line: int, end_line: int) -> List[str]:
         """Get specific lines from a file using fast bash tools.
@@ -613,7 +613,7 @@ class GitRepository:
             return lines
 
         except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as e:
-            raise GitOperationError(f"Failed to get file lines {start_line}-{end_line}: {e}")
+            raise GitOperationError(f"Failed to get file lines {start_line}-{end_line}: {e}") from e
 
 
 def get_git_repository(repo_path: Optional[str] = None) -> GitRepository:

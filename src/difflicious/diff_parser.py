@@ -41,7 +41,7 @@ def parse_git_diff(diff_text: str) -> List[Dict[str, Any]]:
 
     except Exception as e:
         logger.error(f"Failed to parse diff: {e}")
-        raise DiffParseError(f"Diff parsing failed: {e}")
+        raise DiffParseError(f"Diff parsing failed: {e}") from e
 
 
 def _parse_file(patched_file: PatchedFile) -> Dict[str, Any]:
@@ -346,7 +346,7 @@ def parse_git_diff_for_rendering(diff_text: str) -> List[Dict[str, Any]]:
 
     except Exception as e:
         logger.error(f"Failed to parse diff for rendering: {e}")
-        raise DiffParseError(f"Diff parsing for rendering failed: {e}")
+        raise DiffParseError(f"Diff parsing for rendering failed: {e}") from e
 
 
 def _group_lines_into_hunks(side_by_side_lines: List[Dict[str, Any]], original_hunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
