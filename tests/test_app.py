@@ -115,6 +115,149 @@ def test_jinja_partials_integration(app):
         assert 'render_partial function is available' in rendered
 
 
+def test_toolbar_partial_component(app):
+    """Test that the toolbar partial component renders correctly."""
+    with app.app_context():
+        from flask import render_template_string
+        
+        # Test template that renders the toolbar partial
+        test_template = '''
+        <!DOCTYPE html>
+        <html>
+        <body>
+            {{ render_partial('partials/toolbar.html') }}
+        </body>
+        </html>
+        '''
+        
+        # Render the template
+        rendered = render_template_string(test_template)
+        
+        # Check that toolbar elements are present
+        assert 'Difflicious' in rendered
+        assert 'Base:' in rendered
+        assert 'Unstaged' in rendered
+        assert 'Untracked' in rendered
+        assert 'Search files...' in rendered
+        assert 'Refresh' in rendered
+        assert 'header' in rendered.lower()
+
+
+def test_loading_state_partial_component(app):
+    """Test that the loading state partial component renders correctly."""
+    with app.app_context():
+        from flask import render_template_string
+        
+        # Test template that renders the loading state partial
+        test_template = '''
+        <!DOCTYPE html>
+        <html>
+        <body>
+            {{ render_partial('partials/loading-state.html') }}
+        </body>
+        </html>
+        '''
+        
+        # Render the template
+        rendered = render_template_string(test_template)
+        
+        # Check that loading state elements are present
+        assert 'x-show="loading"' in rendered
+        assert 'Loading git diff data...' in rendered
+        assert 'animate-spin' in rendered
+        assert 'border-blue-600' in rendered
+
+
+def test_empty_state_partial_component(app):
+    """Test that the empty state partial component renders correctly."""
+    with app.app_context():
+        from flask import render_template_string
+        
+        # Test template that renders the empty state partial
+        test_template = '''
+        <!DOCTYPE html>
+        <html>
+        <body>
+            {{ render_partial('partials/empty-state.html') }}
+        </body>
+        </html>
+        '''
+        
+        # Render the template
+        rendered = render_template_string(test_template)
+        
+        # Check that empty state elements are present
+        assert 'x-show="!loading && !hasAnyGroups"' in rendered
+        assert 'No changes found' in rendered
+        assert '✨' in rendered
+        assert 'Enable "Unstaged" or "Untracked"' in rendered
+        assert 'working directory is clean' in rendered
+
+
+def test_global_controls_partial_component(app):
+    """Test that the global controls partial component renders correctly."""
+    with app.app_context():
+        from flask import render_template_string
+        
+        # Test template that renders the global controls partial
+        test_template = '''
+        <!DOCTYPE html>
+        <html>
+        <body>
+            {{ render_partial('partials/global-controls.html') }}
+        </body>
+        </html>
+        '''
+        
+        # Render the template
+        rendered = render_template_string(test_template)
+        
+        # Check that global controls elements are present
+        assert 'Expand All' in rendered
+        assert 'Collapse All' in rendered
+        assert '@click="expandAll()"' in rendered
+        assert '@click="collapseAll()"' in rendered
+        assert ':disabled="allExpanded"' in rendered
+        assert ':disabled="allCollapsed"' in rendered
+
+
+def test_all_partial_components_together(app):
+    """Test that all partial components can be rendered together without conflicts."""
+    with app.app_context():
+        from flask import render_template_string
+        
+        # Test template that renders all partials together (similar to index.html structure)
+        test_template = '''
+        <!DOCTYPE html>
+        <html>
+        <body>
+            {{ render_partial('partials/toolbar.html') }}
+            <main>
+                {{ render_partial('partials/loading-state.html') }}
+                {{ render_partial('partials/empty-state.html') }}
+                <div>
+                    {{ render_partial('partials/global-controls.html') }}
+                </div>
+            </main>
+        </body>
+        </html>
+        '''
+        
+        # Render the template
+        rendered = render_template_string(test_template)
+        
+        # Check that all components are present
+        assert 'Difflicious' in rendered  # toolbar
+        assert 'Loading git diff data...' in rendered  # loading state
+        assert 'No changes found' in rendered  # empty state
+        assert 'Expand All' in rendered  # global controls
+        assert 'Collapse All' in rendered  # global controls
+        
+        # Verify no duplicate IDs or classes that might conflict
+        assert rendered.count('<header') == 1  # Only one header element
+        assert rendered.count('<main') == 1   # Only one main element
+
+
 class TestAPIDiffCommitComparison:
     """Test cases for API diff endpoint commit comparison functionality."""
     
