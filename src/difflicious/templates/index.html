@@ -25,111 +25,21 @@
 <body class="bg-gray-50 min-h-screen">
     <div id="app" x-data="diffApp()" x-init="init()" class="flex flex-col min-h-screen">
         <!-- Toolbar -->
-        <header class="bg-white border-b border-gray-200 px-4 py-3">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <h1 class="text-xl font-semibold text-gray-900">Difflicious</h1>
-
-                    <!-- Base Branch Dropdown -->
-                    <div class="flex items-center space-x-2">
-                        <label class="text-sm font-medium text-gray-700">Base:</label>
-                        <select x-model="baseBranch" @change="saveUIState(); refreshData()"
-                            class="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <template x-for="branch in branches.all" :key="branch">
-                                <option :value="branch" x-text="branch" x-bind:selected="branch === branches.default">
-                                </option>
-                            </template>
-                        </select>
-                    </div>
-
-                    <!-- Diff Options -->
-                    <div class="flex items-center space-x-4">
-                        <!-- Unstaged Checkbox -->
-                        <div class="flex items-center space-x-2">
-                            <label class="flex items-center">
-                                <input type="checkbox" x-model="unstaged" @change="saveUIState(); refreshData()"
-                                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                <span class="ml-1 text-sm text-gray-700">Unstaged</span>
-                            </label>
-                        </div>
-
-                        <!-- Untracked Checkbox -->
-                        <div class="flex items-center space-x-2">
-                            <label class="flex items-center">
-                                <input type="checkbox" x-model="untracked" @change="saveUIState(); refreshData()"
-                                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                                <span class="ml-1 text-sm text-gray-700">Untracked</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Status and Controls -->
-                <div class="flex items-center space-x-4">
-                    <div class="text-sm text-gray-600" x-show="gitStatus.files_changed !== undefined">
-                        <span x-text="gitStatus.files_changed"></span> files changed
-                    </div>
-
-                    <input type="text" x-model="searchFilter" @input="saveUIState()" placeholder="Search files..."
-                        class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-
-                    <button @click="refreshData()"
-                        class="bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <span x-show="!loading">Refresh</span>
-                        <span x-show="loading">Loading...</span>
-                    </button>
-                </div>
-            </div>
-        </header>
+        {{ render_partial('partials/toolbar.html') }}
 
         <!-- Main Content -->
         <main class="flex-1 overflow-hidden">
             <!-- Loading State -->
-            <div x-show="loading" class="flex items-center justify-center h-full">
-                <div class="text-center">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                    <p class="mt-2 text-gray-600">Loading git diff data...</p>
-                </div>
-            </div>
+            {{ render_partial('partials/loading-state.html') }}
 
             <!-- Empty State -->
-            <div x-show="!loading && !hasAnyGroups" class="flex items-center justify-center h-full">
-                <div class="text-center">
-                    <div class="text-6xl mb-4">✨</div>
-                    <h2 class="text-xl font-semibold text-gray-900 mb-2">No changes found</h2>
-                    <div class="text-gray-600 space-y-2">
-                        <p x-show="!unstaged && !untracked">Enable "Unstaged" or "Untracked" to see changes.</p>
-                        <p x-show="unstaged && !untracked">No unstaged changes in your working directory.</p>
-                        <p x-show="!unstaged && untracked">No untracked files found.</p>
-                        <p x-show="unstaged && untracked">Your working directory is clean - no unstaged or untracked
-                            files.</p>
-                        <p class="text-sm text-gray-500 mt-3" x-show="baseBranch !== 'main'">
-                            Comparing against branch: <span class="font-mono" x-text="baseBranch"></span>
-                        </p>
-                    </div>
-                </div>
-            </div>
+            {{ render_partial('partials/empty-state.html') }}
 
             <!-- Grouped File List -->
             <div x-show="!loading && hasAnyGroups" class="h-full overflow-y-auto">
                 <div class="p-4 space-y-6">
                     <!-- Global Expand/Collapse Controls -->
-                    <div class="flex items-center space-x-2 mb-4">
-                        <button @click="expandAll()" :disabled="allExpanded" :class="{
-                                    'bg-gray-100 text-gray-700 hover:bg-gray-200': !allExpanded,
-                                    'bg-gray-50 text-gray-400 cursor-not-allowed': allExpanded
-                                }"
-                            class="px-3 py-1.5 rounded text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors">
-                            Expand All
-                        </button>
-                        <button @click="collapseAll()" :disabled="allCollapsed" :class="{
-                                    'bg-gray-100 text-gray-700 hover:bg-gray-200': !allCollapsed,
-                                    'bg-gray-50 text-gray-400 cursor-not-allowed': allCollapsed
-                                }"
-                            class="px-3 py-1.5 rounded text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors">
-                            Collapse All
-                        </button>
-                    </div>
+                    {{ render_partial('partials/global-controls.html') }}
 
                     <!-- Groups -->
                     <template x-for="group in visibleGroups" :key="group.key">

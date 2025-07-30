@@ -1,0 +1,57 @@
+<!-- Toolbar Component -->
+<header class="bg-white border-b border-gray-200 px-4 py-3">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <h1 class="text-xl font-semibold text-gray-900">Difflicious</h1>
+
+            <!-- Base Branch Dropdown -->
+            <div class="flex items-center space-x-2">
+                <label class="text-sm font-medium text-gray-700">Base:</label>
+                <select x-model="baseBranch" @change="saveUIState(); refreshData()"
+                    class="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <template x-for="branch in branches.all" :key="branch">
+                        <option :value="branch" x-text="branch" x-bind:selected="branch === branches.default">
+                        </option>
+                    </template>
+                </select>
+            </div>
+
+            <!-- Diff Options -->
+            <div class="flex items-center space-x-4">
+                <!-- Unstaged Checkbox -->
+                <div class="flex items-center space-x-2">
+                    <label class="flex items-center">
+                        <input type="checkbox" x-model="unstaged" @change="saveUIState(); refreshData()"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-1 text-sm text-gray-700">Unstaged</span>
+                    </label>
+                </div>
+
+                <!-- Untracked Checkbox -->
+                <div class="flex items-center space-x-2">
+                    <label class="flex items-center">
+                        <input type="checkbox" x-model="untracked" @change="saveUIState(); refreshData()"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-1 text-sm text-gray-700">Untracked</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status and Controls -->
+        <div class="flex items-center space-x-4">
+            <div class="text-sm text-gray-600" x-show="gitStatus.files_changed !== undefined">
+                <span x-text="gitStatus.files_changed"></span> files changed
+            </div>
+
+            <input type="text" x-model="searchFilter" @input="saveUIState()" placeholder="Search files..."
+                class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+
+            <button @click="refreshData()"
+                class="bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <span x-show="!loading">Refresh</span>
+                <span x-show="loading">Loading...</span>
+            </button>
+        </div>
+    </div>
+</header>
