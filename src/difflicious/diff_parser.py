@@ -3,14 +3,14 @@
 import logging
 import os
 import subprocess
-from typing import Any
+from typing import Any, Optional
 
 from unidiff import Hunk, PatchedFile, PatchSet
 
 logger = logging.getLogger(__name__)
 
 
-def _get_file_line_count(file_path: str) -> int | None:
+def _get_file_line_count(file_path: str) -> Optional[int]:
     """Get the number of lines in a file using wc -l.
 
     Args:
