@@ -1,0 +1,38 @@
+<!-- File Header Component -->
+<div @click="toggleFile('{{ group_key }}', {{ file.originalIndex }})"
+     :id="'file-' + getFileId('{{ group_key }}', {{ file_index }})"
+     class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+    <div class="flex items-center space-x-3">
+        <span class="text-gray-400 transition-transform duration-200"
+              :class="file.expanded ? 'rotate-90' : ''" x-text="'▶'"></span>
+        <span class="font-mono text-sm text-gray-900" x-text="file.path"></span>
+        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded"
+              x-text="file.status"></span>
+    </div>
+
+    <div class="flex items-center space-x-2 text-xs">
+        <!-- Navigation buttons -->
+        <div class="flex items-center space-x-1" @click.stop>
+            <button x-show="getGlobalFileIndex('{{ group_key }}', {{ file_index }}) > 0"
+                    @click="navigateToPreviousFile('{{ group_key }}', {{ file_index }})"
+                    class="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                    title="Previous file">
+                <span class="text-sm">↑</span>
+            </button>
+            <button
+                    x-show="getGlobalFileIndex('{{ group_key }}', {{ file_index }}) < getTotalVisibleFiles() - 1"
+                    @click="navigateToNextFile('{{ group_key }}', {{ file_index }})"
+                    class="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                    title="Next file">
+                <span class="text-sm">↓</span>
+            </button>
+        </div>
+
+        <span x-show="file.additions > 0"
+              class="bg-green-100 text-green-800 px-2 py-1 rounded"
+              x-text="'+' + file.additions"></span>
+        <span x-show="file.deletions > 0"
+              class="bg-red-100 text-red-800 px-2 py-1 rounded"
+              x-text="'-' + file.deletions"></span>
+    </div>
+</div>
