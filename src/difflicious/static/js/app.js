@@ -384,7 +384,7 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
                 const params = new URLSearchParams();
 
                 // Handle branch selection
-                if (this.baseBranch && this.baseBranch !== 'main') {
+                if (this.baseBranch) {
                     params.set('base_commit', this.baseBranch);
                 }
 
