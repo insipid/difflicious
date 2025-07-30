@@ -364,6 +364,11 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
                     window.diffPerformanceMonitor.integrateWithVirtualScroller(this.virtualScroller);
                 }
 
+                // Initialize debugger
+                if (window.createVirtualScrollerDebugger) {
+                    window.createVirtualScrollerDebugger(this.virtualScroller);
+                }
+
                 // Load current diff data into virtual scroller
                 this.virtualScroller.loadDiffData({
                     groups: this.groups
