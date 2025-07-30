@@ -324,52 +324,13 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
             }
         },
 
-        // Initialize the application
+        // Enhanced init method
         async init() {
-            await this.loadBranches(); // Load branches first
+            await this.loadBranches();
             await this.loadGitStatus();
-            this.loadUIState(); // Load saved UI state after we have repository name
+            this.loadUIState();
             await this.loadDiffs();
-        },
-
-        // Load branch data from API
-        async loadBranches() {
-            try {
-                const response = await fetch('/api/branches');
-                const data = await response.json();
-                if (data.status === 'ok') {
-                    this.branches = data.branches;
-                    // Set baseBranch to default if available, otherwise current
-                    this.baseBranch = this.branches.default || this.branches.current;
-                }
-            } catch (error) {
-                console.error('Failed to load branches:', error);
-            }
-        },
-
-        // Load git status from API
-        async loadGitStatus() {
-            try {
-                const response = await fetch('/api/status');
-                const data = await response.json();
-
-                if (data.status === 'ok') {
-                    this.gitStatus = {
-                        current_branch: data.current_branch || 'unknown',
-                        repository_name: data.repository_name || 'unknown',
-                        files_changed: data.files_changed || 0,
-                        git_available: data.git_available || false
-                    };
-                }
-            } catch (error) {
-                console.error('Failed to load git status:', error);
-                this.gitStatus = {
-                    current_branch: 'error',
-                    repository_name: 'error',
-                    files_changed: 0,
-                    git_available: false
-                };
-            }
+            this.initializeVirtualScrolling();
         },
 
         // Load diff data from API
@@ -419,6 +380,11 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
 
                     // Load UI state after processing new diff data (includes file expansion restoration)
                     this.loadUIState();
+                }
+
+                // If virtual scrolling is active, update it
+                if (this.virtualScroller) {
+                    this.virtualScroller.loadDiffData({ groups: this.groups });
                 }
             } catch (error) {
                 console.error('Failed to load diffs:', error);
