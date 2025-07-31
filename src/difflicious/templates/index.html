@@ -110,8 +110,13 @@
                 </div>
             </div>
 
-            <!-- Grouped File List -->
-            <div x-show="!loading && hasAnyGroups" class="h-full overflow-y-auto">
+            <!-- Virtual Scrolling Container -->
+            <div id="diff-content-container" class="h-full overflow-hidden" style="display: none; position: relative;">
+                <!-- Virtual scroller will inject content here -->
+            </div>
+
+            <!-- Standard Alpine.js Rendering -->
+            <div id="standard-diff-container" x-show="!loading && hasAnyGroups" class="h-full overflow-y-auto">
                 <div class="p-4 space-y-6">
                     <!-- Global Expand/Collapse Controls -->
                     <div class="flex items-center space-x-2 mb-4">
@@ -407,6 +412,7 @@
         </main>
     </div>
 
+    <script src="{{ url_for('static', filename='js/virtual-scroller.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 

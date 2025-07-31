@@ -1,8 +1,3 @@
-/**
- * Difflicious Alpine.js Application
- * Main application logic for git diff visualization
- */
-
 function diffliciousApp() { // eslint-disable-line no-unused-vars
     return {
         // Application state
@@ -40,6 +35,12 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
         // Context expansion state tracking
         contextExpansions: {}, // { filePath: { hunkIndex: { beforeExpanded: number, afterExpanded: number } } }
         contextLoading: {}, // { filePath: { hunkIndex: { before: bool, after: bool } } }
+
+        // Virtual scrolling integration
+        virtualScroller: null,
+        useVirtualScrolling: true, // Enable virtual scrolling by default
+        renderingMode: 'auto', // 'virtual', 'standard', 'auto'
+        virtualScrollingThreshold: 100, // Switch to virtual at 100+ lines (lower threshold for testing)
 
         // LocalStorage utility functions
         getStorageKey() {
@@ -324,13 +325,52 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
             }
         },
 
-        // Enhanced init method
+        // Initialize the application
         async init() {
             await this.loadBranches();
             await this.loadGitStatus();
             this.loadUIState();
             await this.loadDiffs();
-            this.initializeVirtualScrolling();
+        },
+
+        // Load branch data from API
+        async loadBranches() {
+            try {
+                const response = await fetch('/api/branches');
+                const data = await response.json();
+                if (data.status === 'ok') {
+                    this.branches = data.branches;
+                    // Set baseBranch to default if available, otherwise current
+                    this.baseBranch = this.branches.default || this.branches.current;
+                }
+            } catch (error) {
+                console.error('Failed to load branches:', error);
+            }
+        },
+
+        // Load git status from API
+        async loadGitStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+
+                if (data.status === 'ok') {
+                    this.gitStatus = {
+                        current_branch: data.current_branch || 'unknown',
+                        repository_name: data.repository_name || 'unknown',
+                        files_changed: data.files_changed || 0,
+                        git_available: data.git_available || false
+                    };
+                }
+            } catch (error) {
+                console.error('Failed to load git status:', error);
+                this.gitStatus = {
+                    current_branch: 'error',
+                    repository_name: 'error',
+                    files_changed: 0,
+                    git_available: false
+                };
+            }
         },
 
         // Load diff data from API
@@ -382,10 +422,8 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
                     this.loadUIState();
                 }
 
-                // If virtual scrolling is active, update it
-                if (this.virtualScroller) {
-                    this.virtualScroller.loadDiffData({ groups: this.groups });
-                }
+                // Initialize or update virtual scrolling
+                this.initializeVirtualScrolling();
             } catch (error) {
                 console.error('Failed to load diffs:', error);
                 // Reset all groups to empty on error
@@ -406,13 +444,6 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
             ]);
         },
 
-        // Toggle file expansion
-        toggleFile(groupKey, fileIndex) {
-            if (this.groups[groupKey] && this.groups[groupKey].files[fileIndex]) {
-                this.groups[groupKey].files[fileIndex].expanded = !this.groups[groupKey].files[fileIndex].expanded;
-                this.saveUIState();
-            }
-        },
 
         // Expand all files across all groups
         expandAll() {
@@ -959,6 +990,112 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
             } else {
                 delete this.bottomContextLoading[filePath];
             }
+        },
+
+        // Virtual scrolling implementation
+        initializeVirtualScrolling() {
+            // Determine if virtual scrolling should be used
+            const totalLines = this.calculateTotalLines();
+            const shouldUseVirtual = this.renderingMode === 'virtual' || 
+                (this.renderingMode === 'auto' && totalLines > this.virtualScrollingThreshold);
+
+            if (shouldUseVirtual && this.useVirtualScrolling) {
+                console.log(`Enabling virtual scrolling for ${totalLines} lines`);
+                
+                // Show virtual container and hide standard rendering
+                this.showVirtualScrolling();
+                
+                // Initialize virtual scroller if not already created
+                if (!this.virtualScroller) {
+                    this.virtualScroller = new window.VirtualDiffScroller({
+                        container: '#diff-content-container',
+                        lineHeight: 24,
+                        visibleCount: 30,
+                        bufferCount: 10
+                    });
+                }
+                
+                // Load current diff data into virtual scroller
+                this.virtualScroller.loadDiffData({
+                    groups: this.groups
+                });
+                
+            } else {
+                console.log(`Using standard rendering for ${totalLines} lines`);
+                this.showStandardRendering();
+                this.useVirtualScrolling = false;
+            }
+        },
+
+        calculateTotalLines() {
+            let total = 0;
+            Object.values(this.groups).forEach(group => {
+                group.files.forEach(file => {
+                    if (file.expanded && file.hunks) {
+                        file.hunks.forEach(hunk => {
+                            total += hunk.lines.length + 1; // +1 for hunk header
+                        });
+                    }
+                    total += 1; // File header
+                });
+            });
+            return total;
+        },
+
+        showVirtualScrolling() {
+            const virtualContainer = document.querySelector('#diff-content-container');
+            const standardContainer = document.querySelector('#standard-diff-container');
+            
+            if (virtualContainer) {
+                virtualContainer.style.display = 'block';
+            }
+            if (standardContainer) {
+                standardContainer.style.display = 'none';
+            }
+        },
+
+        showStandardRendering() {
+            const virtualContainer = document.querySelector('#diff-content-container');
+            const standardContainer = document.querySelector('#standard-diff-container');
+            
+            if (virtualContainer) {
+                virtualContainer.style.display = 'none';
+            }
+            if (standardContainer) {
+                standardContainer.style.display = 'block';
+            }
+        },
+
+        // Enhanced file toggle for virtual scrolling
+        toggleFile(groupKey, fileIndex) {
+            // Update data model
+            if (this.groups[groupKey] && this.groups[groupKey].files[fileIndex]) {
+                this.groups[groupKey].files[fileIndex].expanded = 
+                    !this.groups[groupKey].files[fileIndex].expanded;
+                this.saveUIState();
+                
+                // Update virtual scroller if active
+                if (this.virtualScroller) {
+                    this.virtualScroller.loadDiffData({
+                        groups: this.groups
+                    });
+                }
+            }
+        },
+
+        // Performance monitoring
+        getPerformanceMetrics() {
+            const totalLines = this.calculateTotalLines();
+            const renderingMode = this.useVirtualScrolling ? 'virtual' : 'standard';
+            const memoryUsage = performance.memory ? 
+                Math.round(performance.memory.usedJSHeapSize / 1024 / 1024) : 'unknown';
+                
+            return {
+                totalLines,
+                renderingMode,
+                memoryUsage: `${memoryUsage}MB`,
+                virtualScrollingActive: !!this.virtualScroller
+            };
         }
     };
 }

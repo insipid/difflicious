@@ -6,8 +6,8 @@
 class VirtualDiffScroller {
     constructor(options = {}) {
         // Configuration
-        this.containerSelector = options.container || '#diff-container';
-        this.lineHeight = options.lineHeight || 22;
+        this.containerSelector = options.container || '#diff-content-container';
+        this.lineHeight = options.lineHeight || 24;
         this.visibleCount = options.visibleCount || 50;
         this.bufferCount = options.bufferCount || 15;
         this.scrollThrottle = options.scrollThrottle || 16; // ~60fps
@@ -110,6 +110,15 @@ class VirtualDiffScroller {
 
         // Initial render
         this.recalculateViewport();
+        
+        // Force initial visible range if not set
+        if (this.visibleRange.end === 0 && this.allLines.length > 0) {
+            this.visibleRange = { 
+                start: 0, 
+                end: Math.min(this.allLines.length, this.visibleCount + this.bufferCount) 
+            };
+        }
+        
         this.renderVisibleRange();
     }
 
@@ -264,12 +273,19 @@ class VirtualDiffScroller {
         element.style.top = `${globalIndex * this.lineHeight}px`;
         element.style.left = '0';
         element.style.right = '0';
-        element.style.height = `${this.lineHeight}px`;
+        element.style.width = '100%';
+        element.style.minHeight = `${this.lineHeight}px`;
+        element.style.zIndex = '1';
         element.dataset.globalIndex = globalIndex;
 
-        // Add to viewport
-        this.viewport.appendChild(element);
-        this.lineToElement.set(globalIndex, element);
+        // Add to viewport (after spacer)
+        if (this.viewport) {
+            this.viewport.appendChild(element);
+            this.lineToElement.set(globalIndex, element);
+            // Debug: console.log(`Rendered ${lineData.type} at position ${globalIndex * this.lineHeight}px`);
+        } else {
+            console.error('Viewport not available for element rendering');
+        }
 
         // Lazy syntax highlighting for diff lines
         if (lineData.type === 'diff-line' && lineData.needsHighlighting) {
@@ -294,9 +310,9 @@ class VirtualDiffScroller {
         switch (type) {
         case 'file-header':
             element = document.createElement('div');
-            element.className = 'virtual-file-header bg-white border border-gray-200 rounded-lg shadow-sm';
+            element.className = 'virtual-file-header bg-white border border-gray-200 rounded-lg shadow-sm mb-1';
             element.innerHTML = `
-                <div class="file-header-content flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                <div class="file-header-content flex items-center justify-between p-3 cursor-pointer hover:bg-gray-50 transition-colors">
                     <div class="flex items-center space-x-3">
                         <span class="toggle-icon text-gray-400 transition-transform duration-200">▶</span>
                         <span class="file-path font-mono text-sm text-gray-900"></span>
@@ -411,18 +427,54 @@ class VirtualDiffScroller {
     // --- Placeholder methods for later phases ---
 
     configureFileHeader(element, lineData) {
-        // Placeholder for Phase 2
         const filePathSpan = element.querySelector('.file-path');
+        const fileStatusSpan = element.querySelector('.file-status');
+        const toggleIcon = element.querySelector('.toggle-icon');
+        const additionsSpan = element.querySelector('.additions');
+        const deletionsSpan = element.querySelector('.deletions');
+        
         if (filePathSpan) {
             filePathSpan.textContent = lineData.filePath;
         }
+        if (fileStatusSpan) {
+            fileStatusSpan.textContent = lineData.fileData.status || 'modified';
+        }
+        if (toggleIcon) {
+            toggleIcon.style.transform = lineData.fileData.expanded ? 'rotate(90deg)' : 'rotate(0deg)';
+        }
+        
+        // Show additions/deletions if available
+        if (additionsSpan && lineData.fileData.additions > 0) {
+            additionsSpan.textContent = `+${lineData.fileData.additions}`;
+            additionsSpan.classList.remove('hidden');
+        } else if (additionsSpan) {
+            additionsSpan.classList.add('hidden');
+        }
+        
+        if (deletionsSpan && lineData.fileData.deletions > 0) {
+            deletionsSpan.textContent = `-${lineData.fileData.deletions}`;
+            deletionsSpan.classList.remove('hidden');
+        } else if (deletionsSpan) {
+            deletionsSpan.classList.add('hidden');
+        }
+        
+        // Add click handler for expansion
+        element.onclick = () => {
+            // Access the Alpine.js app through the DOM
+            const appElement = document.querySelector('#app');
+            if (appElement && appElement._x_dataStack && appElement._x_dataStack[0]) {
+                const app = appElement._x_dataStack[0];
+                if (app.toggleFile) {
+                    app.toggleFile(lineData.groupKey, lineData.fileIndex);
+                }
+            }
+        };
     }
 
     configureHunkHeader(element, lineData) {
-        // Placeholder for Phase 2
         const sectionHeaderSpan = element.querySelector('.section-header');
         if (sectionHeaderSpan) {
-            sectionHeaderSpan.textContent = lineData.sectionHeader;
+            sectionHeaderSpan.textContent = lineData.sectionHeader || '';
         }
     }
 
