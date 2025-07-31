@@ -72,8 +72,14 @@
     <!-- Empty State -->
     <div class="flex items-center justify-center h-full">
         <div class="text-center">
+            {% if error %}
+            <div class="text-4xl mb-4">⚠️</div>
+            <h2 class="text-xl font-semibold text-red-600 mb-2">Error</h2>
+            <p class="text-red-500 mb-4">{{ error }}</p>
+            {% else %}
             <div class="text-6xl mb-4">✨</div>
             <h2 class="text-xl font-semibold text-gray-900 mb-2">No changes found</h2>
+            {% endif %}
             <div class="text-gray-600 space-y-2">
                 {% if not unstaged and not untracked %}
                 <p>Enable "Unstaged" or "Untracked" to see changes.</p>
@@ -98,11 +104,11 @@
         <div class="p-4 space-y-6">
             <!-- Global Controls -->
             <div class="flex items-center space-x-2 mb-4">
-                <button onclick="expandAllFiles()" 
+                <button id="expandAll" onclick="expandAllFiles()" 
                     class="bg-gray-100 text-gray-700 hover:bg-gray-200 px-3 py-1.5 rounded text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors">
                     Expand All
                 </button>
-                <button onclick="collapseAllFiles()"
+                <button id="collapseAll" onclick="collapseAllFiles()"
                     class="bg-gray-100 text-gray-700 hover:bg-gray-200 px-3 py-1.5 rounded text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors">
                     Collapse All  
                 </button>

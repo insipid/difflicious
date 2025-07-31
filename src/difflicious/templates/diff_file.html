@@ -45,8 +45,8 @@
     </div>
 
     <!-- File Content -->
-    {% if file.expanded %}
-    <div class="file-content border-t border-gray-200" data-file-content="{{ file.path }}">
+    <div class="file-content border-t border-gray-200" data-file-content="{{ file.path }}" 
+         style="display: {{ 'block' if file.expanded else 'none' }};">
         {% if not file.hunks or file.hunks|length == 0 %}
         <!-- No content available -->
         <div class="p-8 text-center text-gray-500">
@@ -57,9 +57,8 @@
         {% else %}
         <!-- Render hunks -->
         {% for hunk in file.hunks %}
-        {% include "diff_hunk.html" %}
+        {% include "diff_hunk.html" with context %}
         {% endfor %}
         {% endif %}
     </div>
-    {% endif %}
 </div>

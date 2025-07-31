@@ -34,12 +34,29 @@ const DiffState = {
     },
     
     restoreState() {
-        // Restore from localStorage if available
+        // First, sync with server-rendered state by checking which files are initially visible
+        $$('[data-file-content]').forEach(contentElement => {
+            const filePath = contentElement.dataset.fileContent;
+            const isVisible = contentElement.style.display !== 'none';
+            if (isVisible) {
+                this.expandedFiles.add(filePath);
+            }
+        });
+        
+        // Then try to restore from localStorage if available (but don't override server state)
         const saved = localStorage.getItem('difflicious-state');
         if (saved) {
             try {
                 const state = JSON.parse(saved);
-                this.expandedFiles = new Set(state.expandedFiles || []);
+                // Only add files from localStorage that aren't already handled by server state
+                if (state.expandedFiles) {
+                    state.expandedFiles.forEach(filePath => {
+                        const contentElement = $(`[data-file-content="${filePath}"]`);
+                        if (contentElement) {
+                            this.expandedFiles.add(filePath);
+                        }
+                    });
+                }
                 this.expandedGroups = new Set(state.expandedGroups || ['untracked', 'unstaged', 'staged']);
             } catch (e) {
                 console.warn('Failed to restore state:', e);
@@ -191,14 +208,23 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Apply initial state
     setTimeout(() => {
-        // Show/hide content based on saved state
-        DiffState.expandedFiles.forEach(filePath => {
+        // Sync toggle icons with current display state
+        $$('[data-file]').forEach(fileElement => {
+            const filePath = fileElement.dataset.file;
             const contentElement = $(`[data-file-content="${filePath}"]`);
-            const toggleIcon = $(`[data-file="${filePath}"] .toggle-icon`);
+            const toggleIcon = fileElement.querySelector('.toggle-icon');
+            
             if (contentElement && toggleIcon) {
-                contentElement.style.display = 'block';
-                toggleIcon.textContent = '▼';
-                toggleIcon.dataset.expanded = 'true';
+                const isVisible = contentElement.style.display !== 'none';
+                toggleIcon.textContent = isVisible ? '▼' : '▶';
+                toggleIcon.dataset.expanded = isVisible ? 'true' : 'false';
+                
+                // Make sure our state matches the display
+                if (isVisible) {
+                    DiffState.expandedFiles.add(filePath);
+                } else {
+                    DiffState.expandedFiles.delete(filePath);
+                }
             }
         });
         

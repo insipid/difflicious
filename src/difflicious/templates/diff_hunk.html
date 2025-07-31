@@ -8,14 +8,14 @@
             <div class="flex">
                 <div class="w-12 bg-blue-100 border-r border-blue-200 select-none flex flex-col">
                     {% if hunk.can_expand_after %}
-                    <button onclick="expandContext('{{ file.path }}', {{ loop.index0 }}, 'after', 10)"
+                    <button onclick="expandContext('{{ file.path }}', {{ hunk.index }}, 'after', 10)"
                         class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center {{ 'border-b border-blue-300 flex-1' if hunk.can_expand_before else 'h-full' }}"
                         title="Expand 10 lines down">
                         ▼
                     </button>
                     {% endif %}
                     {% if hunk.can_expand_before %}
-                    <button onclick="expandContext('{{ file.path }}', {{ loop.index0 }}, 'before', 10)"
+                    <button onclick="expandContext('{{ file.path }}', {{ hunk.index }}, 'before', 10)"
                         class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center {{ 'flex-1' if hunk.can_expand_after else 'h-full' }}"
                         title="Expand 10 lines up">
                         ▲
@@ -35,14 +35,14 @@
             <div class="flex">
                 <div class="w-12 bg-blue-100 border-r border-blue-200 select-none flex flex-col">
                     {% if hunk.can_expand_after %}
-                    <button onclick="expandContext('{{ file.path }}', {{ loop.index0 }}, 'after', 10)"
+                    <button onclick="expandContext('{{ file.path }}', {{ hunk.index }}, 'after', 10)"
                         class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center {{ 'border-b border-blue-300 flex-1' if hunk.can_expand_before else 'h-full' }}"
                         title="Expand 10 lines down">
                         ▼
                     </button>
                     {% endif %}
                     {% if hunk.can_expand_before %}
-                    <button onclick="expandContext('{{ file.path }}', {{ loop.index0 }}, 'before', 10)"
+                    <button onclick="expandContext('{{ file.path }}', {{ hunk.index }}, 'before', 10)"
                         class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center {{ 'flex-1' if hunk.can_expand_after else 'h-full' }}"
                         title="Expand 10 lines up">
                         ▲

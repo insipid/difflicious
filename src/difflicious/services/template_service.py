@@ -146,6 +146,7 @@ class TemplateRenderingService(BaseService):
         for hunk_index, hunk in enumerate(hunks):
             processed_hunk = {
                 **hunk,
+                "index": hunk_index,
                 "can_expand_before": self._can_expand_context(hunks, hunk_index, "before"),
                 "can_expand_after": self._can_expand_context(hunks, hunk_index, "after"),
                 "lines": []

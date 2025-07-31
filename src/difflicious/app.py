@@ -62,7 +62,11 @@ def create_app() -> Flask:
                 "total_files": 0,
                 "error": str(e),
                 "loading": False,
-                "syntax_css": ""
+                "syntax_css": "",
+                "unstaged": True,
+                "untracked": False,
+                "search_filter": "",
+                "current_base_branch": "main"
             }
             return render_template("index.html", **error_data), 500
 
