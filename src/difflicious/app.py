@@ -103,11 +103,18 @@ def create_app() -> Flask:
         hunk_index = request.args.get("hunk_index", type=int)
         direction = request.args.get("direction")  # 'before' or 'after'
         context_lines = request.args.get("context_lines", 10, type=int)
+        output_format = request.args.get("format", "plain")  # 'plain' or 'pygments'
 
         if not all([file_path, hunk_index is not None, direction]):
             return jsonify({
                 "status": "error",
                 "message": "Missing required parameters"
+            }), 400
+
+        if output_format not in ["plain", "pygments"]:
+            return jsonify({
+                "status": "error", 
+                "message": "Invalid format parameter. Must be 'plain' or 'pygments'"
             }), 400
 
         try:
@@ -117,6 +124,32 @@ def create_app() -> Flask:
                 1,  # Will be calculated based on hunk and direction
                 context_lines
             )
+            
+            # If pygments format requested, enhance the result with syntax highlighting
+            if output_format == "pygments" and result.get("status") == "ok":
+                from difflicious.services.syntax_service import SyntaxHighlightingService
+                syntax_service = SyntaxHighlightingService()
+                
+                enhanced_lines = []
+                for line_content in result.get("lines", []):
+                    if line_content:
+                        highlighted_content = syntax_service.highlight_diff_line(line_content, file_path)
+                        enhanced_lines.append({
+                            "content": line_content,
+                            "highlighted_content": highlighted_content
+                        })
+                    else:
+                        enhanced_lines.append({
+                            "content": line_content,
+                            "highlighted_content": line_content
+                        })
+                
+                result["lines"] = enhanced_lines
+                result["format"] = "pygments"
+                result["css_styles"] = syntax_service.get_css_styles()
+            else:
+                result["format"] = "plain"
+            
             return jsonify(result)
 
         except GitServiceError as e:

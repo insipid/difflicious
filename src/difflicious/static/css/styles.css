@@ -274,6 +274,45 @@ body {
     color: var(--color-text-secondary);
 }
 
+/* Expanded Context Styles */
+.expanded-context {
+    border-left: 3px solid #3b82f6;
+    background-color: #eff6ff;
+    opacity: 0.95;
+}
+
+.expanded-context .diff-line {
+    background-color: #f0f9ff;
+}
+
+.expanded-context .line-num {
+    background-color: #dbeafe !important;
+    color: #1e40af;
+    font-style: italic;
+}
+
+.expanded-context .line-content {
+    color: #374151;
+}
+
+/* Expanded context animation */
+.expanded-context {
+    animation: expandIn 0.3s ease-out;
+}
+
+@keyframes expandIn {
+    from {
+        opacity: 0;
+        max-height: 0;
+        transform: scaleY(0);
+    }
+    to {
+        opacity: 0.95;
+        max-height: 1000px;
+        transform: scaleY(1);
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .header .container {
