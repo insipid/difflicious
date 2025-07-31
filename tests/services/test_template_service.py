@@ -1,8 +1,6 @@
 """Tests for TemplateRenderingService."""
 
-from unittest.mock import Mock, patch
-
-import pytest
+from unittest.mock import patch
 
 from difflicious.services.template_service import TemplateRenderingService
 
@@ -29,13 +27,13 @@ class TestTemplateRenderingService:
         mock_diff_instance = mock_diff_service.return_value
         mock_git_instance = mock_git_service.return_value
         mock_syntax_instance = mock_syntax_service.return_value
-        
+
         # Mock repository status
         mock_git_instance.get_repository_status.return_value = {
             "current_branch": "main",
             "git_available": True
         }
-        
+
         # Mock branch information
         mock_git_instance.get_branch_information.return_value = {
             "branches": {
@@ -44,7 +42,7 @@ class TestTemplateRenderingService:
                 "default": "main"
             }
         }
-        
+
         # Mock grouped diffs
         mock_diff_instance.get_grouped_diffs.return_value = {
             "unstaged": {
@@ -70,17 +68,17 @@ class TestTemplateRenderingService:
                 "count": 1
             }
         }
-        
+
         # Mock syntax highlighting
         mock_syntax_instance.highlight_diff_line.return_value = "highlighted code"
         mock_syntax_instance.get_css_styles.return_value = ".highlight { color: blue; }"
-        
+
         # Create new service instance to use mocks
         service = TemplateRenderingService()
-        
+
         # Test
         result = service.prepare_diff_data_for_template(unstaged=True)
-        
+
         # Assertions
         assert "repo_status" in result
         assert "branches" in result
@@ -100,11 +98,11 @@ class TestTemplateRenderingService:
         mock_diff_instance = mock_diff_service.return_value
         mock_git_instance = mock_git_service.return_value
         mock_syntax_instance = mock_syntax_service.return_value
-        
+
         # Mock repository status and branch info
         mock_git_instance.get_repository_status.return_value = {"current_branch": "main"}
         mock_git_instance.get_branch_information.return_value = {"branches": {"all": ["main"], "default": "main"}}
-        
+
         # Mock grouped diffs with multiple files
         mock_diff_instance.get_grouped_diffs.return_value = {
             "unstaged": {
@@ -116,15 +114,15 @@ class TestTemplateRenderingService:
                 "count": 3
             }
         }
-        
+
         mock_syntax_instance.get_css_styles.return_value = ""
-        
+
         # Create new service instance
         service = TemplateRenderingService()
-        
+
         # Test with search filter
         result = service.prepare_diff_data_for_template(search_filter="test")
-        
+
         # Should only include files matching "test"
         assert result["groups"]["unstaged"]["count"] == 1
         assert result["groups"]["unstaged"]["files"][0]["path"] == "test.py"
@@ -136,9 +134,9 @@ class TestTemplateRenderingService:
             "line_num": 1,
             "type": "addition"
         }
-        
+
         result = self.service._process_line_side(line_side, "test.py")
-        
+
         assert result is not None
         assert "highlighted_content" in result
         assert result["content"] == "def hello():"
@@ -148,15 +146,15 @@ class TestTemplateRenderingService:
     def test_process_line_side_without_content(self):
         """Test processing line side without content."""
         line_side = {"line_num": 1, "type": "context"}
-        
+
         result = self.service._process_line_side(line_side, "test.py")
-        
+
         assert result == line_side  # Should return unchanged
 
     def test_process_line_side_none(self):
         """Test processing None line side."""
         result = self.service._process_line_side(None, "test.py")
-        
+
         assert result is None
 
     def test_can_expand_context_first_hunk_before(self):
@@ -165,7 +163,7 @@ class TestTemplateRenderingService:
             {"new_start": 5, "lines": []},  # Starts at line 5, can expand before
             {"new_start": 10, "lines": []}
         ]
-        
+
         result = self.service._can_expand_context(hunks, 0, "before")
         assert result is True  # Can expand because doesn't start at line 1
 
@@ -175,7 +173,7 @@ class TestTemplateRenderingService:
             {"new_start": 1, "lines": []},  # Starts at line 1, cannot expand before
             {"new_start": 10, "lines": []}
         ]
-        
+
         result = self.service._can_expand_context(hunks, 0, "before")
         assert result is False  # Cannot expand because starts at line 1
 
@@ -185,7 +183,7 @@ class TestTemplateRenderingService:
             {"new_start": 1, "lines": []},
             {"new_start": 10, "lines": []}
         ]
-        
+
         result = self.service._can_expand_context(hunks, 1, "before")
         assert result is True  # Can always expand before for non-first hunks
 
@@ -195,11 +193,11 @@ class TestTemplateRenderingService:
             {"new_start": 1, "lines": []},
             {"new_start": 10, "lines": []}
         ]
-        
+
         # First hunk cannot expand after
         result = self.service._can_expand_context(hunks, 0, "after")
         assert result is False
-        
+
         # Second hunk can expand after
         result = self.service._can_expand_context(hunks, 1, "after")
         assert result is True
@@ -217,9 +215,9 @@ class TestTemplateRenderingService:
                 ]
             }
         ]
-        
+
         result = self.service._process_hunks_for_template(hunks, "test.py")
-        
+
         assert len(result) == 1
         assert "can_expand_before" in result[0]
         assert "can_expand_after" in result[0]
@@ -241,9 +239,9 @@ class TestTemplateRenderingService:
                 ]
             }
         }
-        
+
         result = self.service._enhance_diff_data_for_templates(grouped_diffs, expand_files=True)
-        
+
         assert "unstaged" in result
         assert result["unstaged"]["count"] == 1
         assert len(result["unstaged"]["files"]) == 1
@@ -259,9 +257,9 @@ class TestTemplateRenderingService:
                 ]
             }
         }
-        
+
         result = self.service._enhance_diff_data_for_templates(grouped_diffs, search_filter="test")
-        
+
         assert result["unstaged"]["count"] == 1
         assert result["unstaged"]["files"][0]["path"] == "test.py"
 
@@ -272,13 +270,13 @@ class TestTemplateRenderingService:
         # Setup mocks to raise exception
         mock_git_instance = mock_git_service.return_value
         mock_git_instance.get_repository_status.side_effect = Exception("Git error")
-        
+
         # Create new service instance
         service = TemplateRenderingService()
-        
+
         # Test
         result = service.prepare_diff_data_for_template()
-        
+
         # Should return error template data
         assert "error" in result
         assert result["total_files"] == 0
@@ -287,12 +285,13 @@ class TestTemplateRenderingService:
     def test_get_error_template_data(self):
         """Test error template data generation."""
         error_msg = "Test error"
-        
+
         result = self.service._get_error_template_data(error_msg)
-        
+
         assert result["error"] == error_msg
         assert result["total_files"] == 0
         assert result["loading"] is False
         assert "repo_status" in result
         assert "branches" in result
         assert "groups" in result
+

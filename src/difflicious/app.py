@@ -5,7 +5,6 @@ import os
 from typing import Union
 
 from flask import Flask, Response, jsonify, render_template, request
-from markupsafe import Markup
 
 # Import services
 from difflicious.services.diff_service import DiffService
@@ -78,7 +77,7 @@ def create_app() -> Flask:
             return jsonify({
                 "status": "error",
                 "current_branch": "unknown",
-                "repository_name": "unknown", 
+                "repository_name": "unknown",
                 "files_changed": 0,
                 "git_available": False,
             })
@@ -103,14 +102,14 @@ def create_app() -> Flask:
 
         if not all([file_path, hunk_index is not None, direction]):
             return jsonify({
-                "status": "error", 
+                "status": "error",
                 "message": "Missing required parameters"
             }), 400
 
         try:
             git_service = GitService()
             result = git_service.get_file_lines(
-                file_path, 
+                file_path,
                 1,  # Will be calculated based on hunk and direction
                 context_lines
             )

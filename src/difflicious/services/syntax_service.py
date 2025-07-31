@@ -2,7 +2,6 @@
 
 import logging
 from pathlib import Path
-from typing import Dict, Optional
 
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
@@ -14,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class SyntaxHighlightingService:
     """Service for server-side code syntax highlighting."""
-    
+
     def __init__(self):
         """Initialize the syntax highlighting service."""
         # Configure HTML formatter
@@ -24,14 +23,14 @@ class SyntaxHighlightingService:
             style='default',       # Use default theme for compatibility
             cssclass='highlight'   # CSS class for highlighted code
         )
-        
+
         # Cache lexers by file extension for performance
-        self._lexer_cache: Dict[str, object] = {}
-        
+        self._lexer_cache: dict[str, object] = {}
+
         # Language detection mapping (same as current frontend)
         self.language_map = {
             'js': 'javascript',
-            'jsx': 'javascript', 
+            'jsx': 'javascript',
             'ts': 'typescript',
             'tsx': 'typescript',
             'py': 'python',
@@ -71,20 +70,20 @@ class SyntaxHighlightingService:
             'exs': 'elixir',
             'dockerfile': 'dockerfile'
         }
-    
+
     def highlight_diff_line(self, content: str, file_path: str) -> str:
         """Highlight a single line of diff content.
-        
+
         Args:
             content: The code content to highlight
             file_path: Path to determine language
-            
+
         Returns:
             HTML-highlighted code content
         """
         if not content or not content.strip():
             return content
-            
+
         try:
             lexer = self._get_cached_lexer(file_path)
             highlighted = highlight(content, lexer, self.formatter)
@@ -92,11 +91,11 @@ class SyntaxHighlightingService:
         except Exception as e:
             logger.debug(f"Highlighting failed for {file_path}: {e}")
             return content  # Fallback to plain text
-    
+
     def _get_cached_lexer(self, file_path: str):
         """Get lexer for file, using cache for performance."""
         file_ext = Path(file_path).suffix.lower().lstrip('.')
-        
+
         if file_ext not in self._lexer_cache:
             try:
                 # Try mapped language first
@@ -106,22 +105,23 @@ class SyntaxHighlightingService:
                 else:
                     # Fall back to filename-based detection
                     lexer = guess_lexer_for_filename(file_path, '')
-                    
+
                 self._lexer_cache[file_ext] = lexer
                 logger.debug(f"Cached lexer for {file_ext}: {lexer.name}")
-                
+
             except ClassNotFound:
                 # Default to text lexer for unknown files
                 lexer = get_lexer_by_name('text')
                 self._lexer_cache[file_ext] = lexer
                 logger.debug(f"Using text lexer for unknown extension: {file_ext}")
-        
+
         return self._lexer_cache[file_ext]
-    
+
     def get_css_styles(self) -> str:
         """Get CSS styles for syntax highlighting.
-        
+
         Returns:
             CSS styles as string
         """
         return self.formatter.get_style_defs('.highlight')
+
