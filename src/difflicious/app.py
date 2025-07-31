@@ -5,11 +5,13 @@ import os
 from typing import Union
 
 from flask import Flask, Response, jsonify, render_template, request
+from markupsafe import Markup
 
 # Import services
 from difflicious.services.diff_service import DiffService
 from difflicious.services.exceptions import DiffServiceError, GitServiceError
 from difflicious.services.git_service import GitService
+from difflicious.services.template_service import TemplateRenderingService
 
 
 def create_app() -> Flask:
@@ -26,35 +28,96 @@ def create_app() -> Flask:
 
     @app.route("/")
     def index() -> str:
-        """Main diff visualization page."""
-        return render_template("index.html")
+        """Main diff visualization page with server-side rendering."""
+        try:
+            # Get query parameters
+            base_branch = request.args.get("base_branch")
+            target_commit = request.args.get("target_commit")
+            unstaged = request.args.get("unstaged", "true").lower() == "true"
+            untracked = request.args.get("untracked", "false").lower() == "true"
+            file_path = request.args.get("file")
+            search_filter = request.args.get("search", "").strip()
+            expand_files = request.args.get("expand", "false").lower() == "true"
+
+            # Prepare template data
+            template_service = TemplateRenderingService()
+            template_data = template_service.prepare_diff_data_for_template(
+                base_commit=base_branch,
+                target_commit=target_commit,
+                unstaged=unstaged,
+                untracked=untracked,
+                file_path=file_path,
+                search_filter=search_filter if search_filter else None,
+                expand_files=expand_files
+            )
+
+            return render_template("index.html", **template_data)
+
+        except Exception as e:
+            logger.error(f"Failed to render index page: {e}")
+            # Render error page
+            error_data = {
+                "repo_status": {"current_branch": "error", "git_available": False},
+                "branches": {"all": [], "current": "error", "default": "main"},
+                "groups": {},
+                "total_files": 0,
+                "error": str(e),
+                "loading": False,
+                "syntax_css": ""
+            }
+            return render_template("index.html", **error_data), 500
 
     @app.route("/api/status")
     def api_status() -> Response:
-        """API endpoint for git status information."""
+        """API endpoint for git status information (kept for compatibility)."""
         try:
             git_service = GitService()
             return jsonify(git_service.get_repository_status())
         except Exception as e:
             logger.error(f"Failed to get git status: {e}")
-            return jsonify(
-                {
-                    "status": "error",
-                    "current_branch": "unknown",
-                    "repository_name": "unknown",
-                    "files_changed": 0,
-                    "git_available": False,
-                }
-            )
+            return jsonify({
+                "status": "error",
+                "current_branch": "unknown",
+                "repository_name": "unknown", 
+                "files_changed": 0,
+                "git_available": False,
+            })
 
     @app.route("/api/branches")
     def api_branches() -> Union[Response, tuple[Response, int]]:
-        """API endpoint for git branch information."""
+        """API endpoint for git branch information (kept for compatibility)."""
         try:
             git_service = GitService()
             return jsonify(git_service.get_branch_information())
         except GitServiceError as e:
             logger.error(f"Failed to get branch info: {e}")
+            return jsonify({"status": "error", "message": str(e)}), 500
+
+    @app.route("/api/expand-context")
+    def api_expand_context() -> Union[Response, tuple[Response, int]]:
+        """API endpoint for context expansion (AJAX for dynamic updates)."""
+        file_path = request.args.get("file_path")
+        hunk_index = request.args.get("hunk_index", type=int)
+        direction = request.args.get("direction")  # 'before' or 'after'
+        context_lines = request.args.get("context_lines", 10, type=int)
+
+        if not all([file_path, hunk_index is not None, direction]):
+            return jsonify({
+                "status": "error", 
+                "message": "Missing required parameters"
+            }), 400
+
+        try:
+            git_service = GitService()
+            result = git_service.get_file_lines(
+                file_path, 
+                1,  # Will be calculated based on hunk and direction
+                context_lines
+            )
+            return jsonify(result)
+
+        except GitServiceError as e:
+            logger.error(f"Context expansion error: {e}")
             return jsonify({"status": "error", "message": str(e)}), 500
 
     @app.route("/api/diff")
@@ -112,7 +175,7 @@ def create_app() -> Flask:
 
     @app.route("/api/file/lines")
     def api_file_lines() -> Union[Response, tuple[Response, int]]:
-        """API endpoint for fetching specific lines from a file."""
+        """API endpoint for fetching specific lines from a file (kept for compatibility)."""
         file_path = request.args.get("file_path")
         if not file_path:
             return (
