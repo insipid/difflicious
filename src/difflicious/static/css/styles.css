@@ -276,40 +276,36 @@ body {
 
 /* Expanded Context Styles */
 .expanded-context {
-    border-left: 3px solid #3b82f6;
-    background-color: #eff6ff;
+    border-left: 3px solid #9ca3af;
+    background-color: #f9fafb;
     opacity: 0.95;
 }
 
 .expanded-context .diff-line {
-    background-color: #f0f9ff;
+    background-color: #f9fafb;
 }
 
 .expanded-context .line-num {
-    background-color: #dbeafe !important;
-    color: #1e40af;
-    font-style: italic;
+    background-color: #f3f4f6 !important;
+    color: #6b7280;
+    font-style: normal;
 }
 
 .expanded-context .line-content {
     color: #374151;
 }
 
-/* Expanded context animation */
+/* Expanded context animation - simple fade in */
 .expanded-context {
-    animation: expandIn 0.3s ease-out;
+    animation: fadeIn 0.2s ease-out;
 }
 
-@keyframes expandIn {
+@keyframes fadeIn {
     from {
         opacity: 0;
-        max-height: 0;
-        transform: scaleY(0);
     }
     to {
         opacity: 0.95;
-        max-height: 1000px;
-        transform: scaleY(1);
     }
 }
 
