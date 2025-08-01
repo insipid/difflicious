@@ -166,20 +166,19 @@ function navigateToNextFile(currentFilePath) {
 }
 
 // Context expansion
-async function expandContext(filePath, hunkIndex, direction, contextLines = 10, format = 'pygments') {
-    const button = event.target;
-    const originalText = button.textContent;
-    const expansionId = `expand-${filePath.replace(/[^a-zA-Z0-9]/g, '_')}-${hunkIndex}-${direction}`;
+async function expandContext(button, filePath, hunkIndex, direction, contextLines = 10, format = 'pygments') {
+    console.log(`🔥 expandContext called! File: ${filePath}, Direction: ${direction}, Range: ${button.dataset.targetStart}-${button.dataset.targetEnd}`);
 
-    // Check if context is already expanded
-    const existingExpansion = $(`#${expansionId}`);
-    if (existingExpansion) {
-        // Toggle visibility of existing expansion
-        const isVisible = existingExpansion.style.display !== 'none';
-        existingExpansion.style.display = isVisible ? 'none' : 'block';
-        button.textContent = isVisible ? originalText : '✓';
-        return;
-    }
+    const originalText = button.textContent;
+    const timestamp = Date.now();
+    const expansionId = `expand-${filePath.replace(/[^a-zA-Z0-9]/g, '_')}-${hunkIndex}-${direction}-${timestamp}`;
+
+    // Get button target range data
+    const targetStart = parseInt(button.dataset.targetStart);
+    const targetEnd = parseInt(button.dataset.targetEnd);
+
+    // Allow repeated expansions - don't check for existing expansion
+    // Each click will fetch the next set of lines in the same direction
 
     // Show loading state
     button.textContent = '...';
@@ -189,9 +188,11 @@ async function expandContext(filePath, hunkIndex, direction, contextLines = 10, 
         const params = new URLSearchParams({
             file_path: filePath,
             hunk_index: hunkIndex,
-            direction: direction,
+            direction,
             context_lines: contextLines,
-            format: format
+            format,
+            target_start: targetStart,
+            target_end: targetEnd
         });
 
         const response = await fetch(`/api/expand-context?${params}`);
@@ -210,12 +211,136 @@ async function expandContext(filePath, hunkIndex, direction, contextLines = 10, 
                 const expandedHtml = createExpandedContextHtml(result, expansionId);
                 insertExpandedContext(button, filePath, hunkIndex, direction, expandedHtml);
 
-                // Update button state
-                button.textContent = '✓';
-                button.title = `Hide ${contextLines} expanded lines`;
+                // Check if we got fewer lines than requested (end of file) or if we're touching adjacent hunks
+                const linesReceived = result.lines.length;
+                let shouldHideButton = linesReceived < contextLines;
+
+                // Check if expansion would make this hunk adjacent to adjacent hunks
+                if (direction === 'after') {
+                    const currentHunk = button.closest('.hunk');
+                    const fileElement = currentHunk?.closest('[data-file]');
+                    if (fileElement) {
+                        const allHunks = Array.from(fileElement.querySelectorAll('.hunk'));
+                        const currentIndex = allHunks.indexOf(currentHunk);
+                        if (currentIndex < allHunks.length - 1) {
+                            const nextHunk = allHunks[currentIndex + 1];
+                            const nextHunkStart = parseInt(nextHunk.dataset.lineStart);
+                            if (targetEnd === nextHunkStart - 1) {
+                                shouldHideButton = true;
+                                // Also hide both before buttons in the next hunk (left and right sides)
+                                const nextHunkBeforeBtns = nextHunk.querySelectorAll('.expansion-btn[data-direction="before"]');
+                                nextHunkBeforeBtns.forEach(btn => {
+                                    btn.style.display = 'none';
+                                });
+                                if (nextHunkBeforeBtns.length > 0) {
+                                    hideExpansionBarIfAllButtonsHidden(nextHunkBeforeBtns[0]);
+                                }
+                            }
+                        }
+                    }
+                } else if (direction === 'before') {
+                    const currentHunk = button.closest('.hunk');
+                    const fileElement = currentHunk?.closest('[data-file]');
+                    if (fileElement) {
+                        const allHunks = Array.from(fileElement.querySelectorAll('.hunk'));
+                        const currentIndex = allHunks.indexOf(currentHunk);
+                        if (currentIndex > 0) {
+                            const prevHunk = allHunks[currentIndex - 1];
+                            const prevHunkEnd = parseInt(prevHunk.dataset.lineEnd);
+                            if (targetStart <= prevHunkEnd + 1) {
+                                shouldHideButton = true;
+                                // Also hide both after buttons in the previous hunk (left and right sides)
+                                const prevHunkAfterBtns = prevHunk.querySelectorAll('.expansion-btn[data-direction="after"]');
+                                prevHunkAfterBtns.forEach(btn => {
+                                    btn.style.display = 'none';
+                                });
+                                if (prevHunkAfterBtns.length > 0) {
+                                    hideExpansionBarIfAllButtonsHidden(prevHunkAfterBtns[0]);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (shouldHideButton) {
+                    // End of file reached or touching next hunk - hide both buttons (left and right sides)
+                    const currentHunk = button.closest('.hunk');
+                    const sameSideButtons = currentHunk.querySelectorAll(`.expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
+                    sameSideButtons.forEach(btn => {
+                        btn.style.display = 'none';
+                    });
+                    console.log(`Hiding button. Lines received: ${linesReceived}, expected: ${contextLines}. Target range: ${targetStart}-${targetEnd}`);
+
+                    // If this was an up button that reached line 1, hide all buttons (file fully expanded)
+                    if (direction === 'before' && targetStart === 1) {
+                        console.log('Up button reached line 1 - hiding all expansion buttons');
+                        hideAllExpansionButtonsInHunk(button);
+                    }
+
+                    // Check if all expansion buttons in this hunk are now hidden
+                    hideExpansionBarIfAllButtonsHidden(button);
+                } else {
+                    // More lines available - update button for next expansion
+                    button.textContent = originalText;
+                    button.title = `Expand ${contextLines} more lines ${direction}`;
+
+                    // Update button's target range for next click
+                    if (direction === 'before') {
+                        const newTargetEnd = targetStart - 1;
+                        const newTargetStart = Math.max(1, newTargetEnd - contextLines + 1);
+
+                        // Check if we've reached the beginning of the file
+                        // If the current expansion started at line 1, we've reached the beginning
+                        if (targetStart === 1) {
+                            // Beginning of file reached - hide the button
+                            button.style.display = 'none';
+                            console.log(`Beginning of file reached. Current targetStart was ${targetStart}. Hiding up button.`);
+                            hideExpansionBarIfAllButtonsHidden(button);
+                        } else {
+                            // Check for overlap with previous hunk before setting new range
+                            const currentHunk = button.closest('.hunk');
+                            const fileElement = currentHunk?.closest('[data-file]');
+                            let adjustedTargetStart = newTargetStart;
+                            
+                            if (fileElement) {
+                                const allHunks = Array.from(fileElement.querySelectorAll('.hunk'));
+                                const currentIndex = allHunks.indexOf(currentHunk);
+                                
+                                if (currentIndex > 0) {
+                                    const prevHunk = allHunks[currentIndex - 1];
+                                    const prevHunkEnd = parseInt(prevHunk.dataset.lineEnd);
+                                    
+                                    // Ensure we don't expand into the previous hunk's visible range
+                                    adjustedTargetStart = Math.max(adjustedTargetStart, prevHunkEnd + 1);
+                                    
+                                    // If adjustment makes the range invalid (start > end), hide the button
+                                    if (adjustedTargetStart > newTargetEnd) {
+                                        button.style.display = 'none';
+                                        console.log(`No room for expansion between hunks. Hiding up button.`);
+                                        hideExpansionBarIfAllButtonsHidden(button);
+                                        return;
+                                    }
+                                }
+                            }
+                            
+                            button.dataset.targetStart = adjustedTargetStart;
+                            button.dataset.targetEnd = newTargetEnd;
+                        }
+                    } else {
+                        const newTargetStart = targetEnd + 1;
+                        const newTargetEnd = newTargetStart + contextLines - 1;
+                        button.dataset.targetStart = newTargetStart;
+                        button.dataset.targetEnd = newTargetEnd;
+                    }
+                }
+
+                // Update hunk range data to include the expanded lines
+                updateHunkRangeAfterExpansion(button, targetStart, targetEnd);
+
+                // Check for potential hunk merging
+                checkAndMergeHunks(button);
 
                 console.log(`Successfully inserted expanded context with ID: ${expansionId}`);
-
             } else {
                 console.log(`Using plain format for ${result.lines.length} lines`);
 
@@ -223,15 +348,140 @@ async function expandContext(filePath, hunkIndex, direction, contextLines = 10, 
                 const expandedHtml = createPlainContextHtml(result, expansionId);
                 insertExpandedContext(button, filePath, hunkIndex, direction, expandedHtml);
 
-                button.textContent = '✓';
-                button.title = `Hide ${contextLines} expanded lines`;
+                // Check if we got fewer lines than requested (end of file) or if we're touching adjacent hunks
+                const linesReceived = result.lines.length;
+                let shouldHideButton = linesReceived < contextLines;
+
+                // Check if expansion would make this hunk adjacent to adjacent hunks
+                if (direction === 'after') {
+                    const currentHunk = button.closest('.hunk');
+                    const fileElement = currentHunk?.closest('[data-file]');
+                    if (fileElement) {
+                        const allHunks = Array.from(fileElement.querySelectorAll('.hunk'));
+                        const currentIndex = allHunks.indexOf(currentHunk);
+                        if (currentIndex < allHunks.length - 1) {
+                            const nextHunk = allHunks[currentIndex + 1];
+                            const nextHunkStart = parseInt(nextHunk.dataset.lineStart);
+                            if (targetEnd === nextHunkStart - 1) {
+                                shouldHideButton = true;
+                                // Also hide both before buttons in the next hunk (left and right sides)
+                                const nextHunkBeforeBtns = nextHunk.querySelectorAll('.expansion-btn[data-direction="before"]');
+                                nextHunkBeforeBtns.forEach(btn => {
+                                    btn.style.display = 'none';
+                                });
+                                if (nextHunkBeforeBtns.length > 0) {
+                                    hideExpansionBarIfAllButtonsHidden(nextHunkBeforeBtns[0]);
+                                }
+                            }
+                        }
+                    }
+                } else if (direction === 'before') {
+                    const currentHunk = button.closest('.hunk');
+                    const fileElement = currentHunk?.closest('[data-file]');
+                    if (fileElement) {
+                        const allHunks = Array.from(fileElement.querySelectorAll('.hunk'));
+                        const currentIndex = allHunks.indexOf(currentHunk);
+                        if (currentIndex > 0) {
+                            const prevHunk = allHunks[currentIndex - 1];
+                            const prevHunkEnd = parseInt(prevHunk.dataset.lineEnd);
+                            if (targetStart <= prevHunkEnd + 1) {
+                                shouldHideButton = true;
+                                // Also hide both after buttons in the previous hunk (left and right sides)
+                                const prevHunkAfterBtns = prevHunk.querySelectorAll('.expansion-btn[data-direction="after"]');
+                                prevHunkAfterBtns.forEach(btn => {
+                                    btn.style.display = 'none';
+                                });
+                                if (prevHunkAfterBtns.length > 0) {
+                                    hideExpansionBarIfAllButtonsHidden(prevHunkAfterBtns[0]);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (shouldHideButton) {
+                    // End of file reached or touching next hunk - hide both buttons (left and right sides)
+                    const currentHunk = button.closest('.hunk');
+                    const sameSideButtons = currentHunk.querySelectorAll(`.expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
+                    sameSideButtons.forEach(btn => {
+                        btn.style.display = 'none';
+                    });
+                    console.log(`Hiding button. Lines received: ${linesReceived}, expected: ${contextLines}. Target range: ${targetStart}-${targetEnd}`);
+
+                    // If this was an up button that reached line 1, hide all buttons (file fully expanded)
+                    if (direction === 'before' && targetStart === 1) {
+                        console.log('Up button reached line 1 - hiding all expansion buttons');
+                        hideAllExpansionButtonsInHunk(button);
+                    }
+
+                    // Check if all expansion buttons in this hunk are now hidden
+                    hideExpansionBarIfAllButtonsHidden(button);
+                } else {
+                    // More lines available - update button for next expansion
+                    button.textContent = originalText;
+                    button.title = `Expand ${contextLines} more lines ${direction}`;
+
+                    // Update button's target range for next click
+                    if (direction === 'before') {
+                        const newTargetEnd = targetStart - 1;
+                        const newTargetStart = Math.max(1, newTargetEnd - contextLines + 1);
+
+                        // Check if we've reached the beginning of the file
+                        // If the current expansion started at line 1, we've reached the beginning
+                        if (targetStart === 1) {
+                            // Beginning of file reached - hide the button
+                            button.style.display = 'none';
+                            console.log(`Beginning of file reached. Current targetStart was ${targetStart}. Hiding up button.`);
+                            hideExpansionBarIfAllButtonsHidden(button);
+                        } else {
+                            // Check for overlap with previous hunk before setting new range
+                            const currentHunk = button.closest('.hunk');
+                            const fileElement = currentHunk?.closest('[data-file]');
+                            let adjustedTargetStart = newTargetStart;
+                            
+                            if (fileElement) {
+                                const allHunks = Array.from(fileElement.querySelectorAll('.hunk'));
+                                const currentIndex = allHunks.indexOf(currentHunk);
+                                
+                                if (currentIndex > 0) {
+                                    const prevHunk = allHunks[currentIndex - 1];
+                                    const prevHunkEnd = parseInt(prevHunk.dataset.lineEnd);
+                                    
+                                    // Ensure we don't expand into the previous hunk's visible range
+                                    adjustedTargetStart = Math.max(adjustedTargetStart, prevHunkEnd + 1);
+                                    
+                                    // If adjustment makes the range invalid (start > end), hide the button
+                                    if (adjustedTargetStart > newTargetEnd) {
+                                        button.style.display = 'none';
+                                        console.log(`No room for expansion between hunks. Hiding up button.`);
+                                        hideExpansionBarIfAllButtonsHidden(button);
+                                        return;
+                                    }
+                                }
+                            }
+                            
+                            button.dataset.targetStart = adjustedTargetStart;
+                            button.dataset.targetEnd = newTargetEnd;
+                        }
+                    } else {
+                        const newTargetStart = targetEnd + 1;
+                        const newTargetEnd = newTargetStart + contextLines - 1;
+                        button.dataset.targetStart = newTargetStart;
+                        button.dataset.targetEnd = newTargetEnd;
+                    }
+                }
+
+                // Update hunk range data to include the expanded lines
+                updateHunkRangeAfterExpansion(button, targetStart, targetEnd);
+
+                // Check for potential hunk merging
+                checkAndMergeHunks(button);
             }
         } else {
             console.error('Context expansion failed:', result.message);
             // Restore button state on error
             button.textContent = originalText;
         }
-
     } catch (error) {
         console.error('Context expansion error:', error);
         // Restore button state on error
@@ -266,9 +516,9 @@ function injectPygmentsCss(cssStyles) {
 function createExpandedContextHtml(result, expansionId) {
     // Create HTML for Pygments-formatted expanded context lines
     const lines = result.lines || [];
-    let startLineNum = result.start_line || 1;
+    const startLineNum = result.start_line || 1;
 
-    let html = `<div id="${expansionId}" class="expanded-context bg-blue-25 border-l-2 border-blue-200">`;
+    let html = `<div id="${expansionId}" class="expanded-context bg-gray-25 border-l-2 border-gray-300">`;
 
     lines.forEach((lineData, index) => {
         const lineNum = startLineNum + index;
@@ -277,9 +527,9 @@ function createExpandedContextHtml(result, expansionId) {
         html += `
         <div class="diff-line grid grid-cols-2 border-b border-gray-50 hover:bg-gray-25 line-context">
             <!-- Left Side (Before) -->
-            <div class="line-left border-r border-gray-200 bg-blue-25">
+            <div class="line-left border-r border-gray-200 bg-gray-25">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-blue-50 border-r border-gray-200 select-none">
+                    <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
                         <span>${lineNum}</span>
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
@@ -289,9 +539,9 @@ function createExpandedContextHtml(result, expansionId) {
                 </div>
             </div>
             <!-- Right Side (After) -->
-            <div class="line-right bg-blue-25">
+            <div class="line-right bg-gray-25">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-blue-50 border-r border-gray-200 select-none">
+                    <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
                         <span>${lineNum}</span>
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
@@ -310,7 +560,7 @@ function createExpandedContextHtml(result, expansionId) {
 function createPlainContextHtml(result, expansionId) {
     // Create HTML for plain text expanded context lines
     const lines = result.lines || [];
-    let startLineNum = result.start_line || 1;
+    const startLineNum = result.start_line || 1;
 
     let html = `<div id="${expansionId}" class="expanded-context bg-gray-25 border-l-2 border-gray-300">`;
 
@@ -369,7 +619,7 @@ function insertExpandedContext(button, filePath, hunkIndex, direction, expandedH
         return;
     }
 
-    console.log(`Found hunk-lines element, creating expanded content...`);
+    console.log('Found hunk-lines element, creating expanded content...');
 
     // Create a temporary container to parse the HTML
     const tempDiv = document.createElement('div');
@@ -391,7 +641,136 @@ function insertExpandedContext(button, filePath, hunkIndex, direction, expandedH
         hunkLinesElement.appendChild(expandedElement);
     }
 
-    console.log(`Successfully inserted expanded content into DOM`);
+    console.log('Successfully inserted expanded content into DOM');
+}
+
+// Range conflict detection and state management functions
+
+function updateHunkRangeAfterExpansion(button, targetStart, targetEnd) {
+    // Get the hunk element containing this button
+    const hunkElement = button.closest('.hunk');
+    if (!hunkElement) return;
+
+    // Get current range
+    const currentStart = parseInt(hunkElement.dataset.lineStart);
+    const currentEnd = parseInt(hunkElement.dataset.lineEnd);
+
+    // Calculate new expanded range
+    const newStart = Math.min(currentStart, targetStart);
+    const newEnd = Math.max(currentEnd, targetEnd);
+
+    // Update hunk data attributes
+    hunkElement.dataset.lineStart = newStart;
+    hunkElement.dataset.lineEnd = newEnd;
+
+    console.log(`Updated hunk range from ${currentStart}-${currentEnd} to ${newStart}-${newEnd}`);
+}
+
+function hideAllExpansionButtonsInHunk(triggerButton) {
+    // Get the hunk element containing the trigger button
+    const hunkElement = triggerButton.closest('.hunk');
+    if (!hunkElement) return;
+
+    // Find the expansion bar within this hunk
+    const expansionBar = hunkElement.querySelector('.hunk-expansion');
+    if (!expansionBar) return;
+
+    // Hide all expansion buttons in this hunk
+    const expansionButtons = expansionBar.querySelectorAll('.expansion-btn');
+    expansionButtons.forEach(btn => {
+        btn.style.display = 'none';
+        console.log(`Hiding ${btn.dataset.direction} button`);
+    });
+}
+
+function hideExpansionBarIfAllButtonsHidden(triggerButton) {
+    // Find the specific expansion bar that contains the trigger button
+    const expansionBar = triggerButton.closest('.hunk-expansion');
+    if (!expansionBar) return;
+
+    // Check if all expansion buttons in this specific expansion bar are hidden
+    const expansionButtons = expansionBar.querySelectorAll('.expansion-btn');
+    const buttonStates = Array.from(expansionButtons).map(btn => ({
+        direction: btn.dataset.direction,
+        display: btn.style.display,
+        hidden: btn.style.display === 'none'
+    }));
+
+    console.log('Button states in expansion bar:', buttonStates);
+
+    const allHidden = buttonStates.every(state => state.hidden);
+
+    if (allHidden) {
+        expansionBar.style.display = 'none';
+        console.log('All expansion buttons hidden - hiding expansion bar');
+    } else {
+        console.log('Not all buttons hidden - keeping expansion bar visible');
+    }
+}
+
+function checkAndMergeHunks(triggerButton) {
+    // Get the current hunk element
+    const currentHunk = triggerButton.closest('.hunk');
+    if (!currentHunk) return;
+
+    const currentStart = parseInt(currentHunk.dataset.lineStart);
+    const currentEnd = parseInt(currentHunk.dataset.lineEnd);
+
+    // Look for adjacent hunks that might now overlap
+    const fileElement = currentHunk.closest('[data-file]');
+    if (!fileElement) return;
+
+    const allHunks = Array.from(fileElement.querySelectorAll('.hunk'));
+    const currentIndex = allHunks.indexOf(currentHunk);
+
+    // Check previous hunk for overlap
+    if (currentIndex > 0) {
+        const prevHunk = allHunks[currentIndex - 1];
+        const prevEnd = parseInt(prevHunk.dataset.lineEnd);
+
+        // If current hunk now overlaps or touches previous hunk
+        if (currentStart <= prevEnd + 1) {
+            console.log(`Hunk merge detected: previous hunk ends at ${prevEnd}, current starts at ${currentStart}`);
+            mergeHunks(prevHunk, currentHunk);
+            return; // Exit after merge to avoid further processing
+        }
+    }
+
+    // Check next hunk for overlap
+    if (currentIndex < allHunks.length - 1) {
+        const nextHunk = allHunks[currentIndex + 1];
+        const nextStart = parseInt(nextHunk.dataset.lineStart);
+
+        // If current hunk now overlaps or touches next hunk
+        if (currentEnd >= nextStart - 1) {
+            console.log(`Hunk merge detected: current hunk ends at ${currentEnd}, next starts at ${nextStart}`);
+            mergeHunks(currentHunk, nextHunk);
+        }
+    }
+}
+
+function mergeHunks(firstHunk, secondHunk) {
+    // Simple merge: hide the expansion bar of the second hunk
+    // In a full implementation, we'd merge the actual content
+    const secondExpansionBar = secondHunk.querySelector('.hunk-expansion');
+    if (secondExpansionBar) {
+        secondExpansionBar.style.display = 'none';
+        console.log('Merged hunks - hiding second expansion bar');
+    }
+
+    // Update the line range of the first hunk to encompass both
+    const firstStart = parseInt(firstHunk.dataset.lineStart);
+    const firstEnd = parseInt(firstHunk.dataset.lineEnd);
+    const secondStart = parseInt(secondHunk.dataset.lineStart);
+    const secondEnd = parseInt(secondHunk.dataset.lineEnd);
+
+    const mergedStart = Math.min(firstStart, secondStart);
+    const mergedEnd = Math.max(firstEnd, secondEnd);
+
+    firstHunk.dataset.lineStart = mergedStart;
+    firstHunk.dataset.lineEnd = mergedEnd;
+
+    console.log(`Merged hunk range: ${mergedStart}-${mergedEnd}`);
 }
 
 // Initialize when DOM is ready
@@ -428,6 +807,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 toggleIcon.textContent = '▼';
                 toggleIcon.dataset.expanded = 'true';
             }
+        });
+
+        // Ensure all expansion buttons are enabled and functional
+        console.log('Initializing expansion buttons...');
+        $$('.expansion-btn').forEach((button, index) => {
+            const targetStart = parseInt(button.dataset.targetStart);
+            const targetEnd = parseInt(button.dataset.targetEnd);
+
+            console.log(`Button ${index}: direction=${button.dataset.direction}, targetStart=${targetStart}, targetEnd=${targetEnd}`);
+
+            // Ensure button is properly enabled
+            button.disabled = false;
+            button.style.opacity = '1';
+            button.style.cursor = 'pointer';
+            button.style.pointerEvents = 'auto';
+            button.title = `Expand 10 lines ${button.dataset.direction} (${targetStart}-${targetEnd})`;
+
+            console.log(`Button ${index} enabled and ready`);
         });
     }, 100);
 });
