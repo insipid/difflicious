@@ -252,13 +252,12 @@ function handlePostExpansionLogic(button, result, contextLines, targetStart, tar
 // Helper function to check if expansion makes hunks adjacent
 function checkHunkAdjacency(button, direction, targetStart, targetEnd) {
     if (direction === 'after') {
-        const currentHunk = button.closest('.hunk');
-        const fileElement = currentHunk?.closest('[data-file]');
-        if (fileElement) {
-            const allHunks = Array.from(fileElement.querySelectorAll('.hunk'));
-            const currentIndex = allHunks.indexOf(currentHunk);
-            if (currentIndex < allHunks.length - 1) {
-                const nextHunk = allHunks[currentIndex + 1];
+        const context = hunkContext(button);
+        if (!context?.fileElement) return false;
+        
+        const { currentHunk, allHunks, currentIndex } = context;
+        if (currentIndex < allHunks.length - 1) {
+            const nextHunk = allHunks[currentIndex + 1];
                 const nextHunkStart = parseInt(nextHunk.dataset.lineStart);
                 if (targetEnd === nextHunkStart - 1) {
                     // Hide both before buttons in the next hunk (left and right sides)
@@ -282,15 +281,13 @@ function checkHunkAdjacency(button, direction, targetStart, targetEnd) {
                     return true;
                 }
             }
-        }
     } else if (direction === 'before') {
-        const currentHunk = button.closest('.hunk');
-        const fileElement = currentHunk?.closest('[data-file]');
-        if (fileElement) {
-            const allHunks = Array.from(fileElement.querySelectorAll('.hunk'));
-            const currentIndex = allHunks.indexOf(currentHunk);
-            if (currentIndex > 0) {
-                const prevHunk = allHunks[currentIndex - 1];
+        const context = hunkContext(button);
+        if (!context?.fileElement) return false;
+        
+        const { currentHunk, allHunks, currentIndex } = context;
+        if (currentIndex > 0) {
+            const prevHunk = allHunks[currentIndex - 1];
                 const prevHunkEnd = parseInt(prevHunk.dataset.lineEnd);
                 if (targetStart <= prevHunkEnd + 1) {
                     // Hide both after buttons in the previous hunk (left and right sides)
@@ -314,7 +311,6 @@ function checkHunkAdjacency(button, direction, targetStart, targetEnd) {
                     return true;
                 }
             }
-        }
     }
     return false;
 }
@@ -322,7 +318,10 @@ function checkHunkAdjacency(button, direction, targetStart, targetEnd) {
 // Helper function to handle button hiding logic
 function handleButtonHiding(button, direction, targetStart, targetEnd) {
     // End of file reached or touching next hunk - hide both buttons (left and right sides)
-    const currentHunk = button.closest('.hunk');
+    const context = hunkContext(button);
+    if (!context) return;
+
+    const { currentHunk } = context;
     const sameSideButtons = currentHunk.querySelectorAll(`.expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
     sameSideButtons.forEach(btn => {
         btn.style.display = 'none';
@@ -353,7 +352,10 @@ function updateButtonForNextExpansion(button, direction, targetStart, targetEnd,
         // Check if we've reached the beginning of the file
         if (targetStart === 1) {
             // Beginning of file reached - hide both buttons (left and right sides)
-            const currentHunk = button.closest('.hunk');
+            const context = hunkContext(button);
+            if (!context) return;
+
+            const { currentHunk } = context;
             const sameSideButtons = currentHunk.querySelectorAll(`.expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
             sameSideButtons.forEach(btn => {
                 btn.style.display = 'none';
@@ -362,31 +364,28 @@ function updateButtonForNextExpansion(button, direction, targetStart, targetEnd,
             hideExpansionBarIfAllButtonsHidden(button);
         } else {
             // Check for overlap with previous hunk before setting new range
-            const currentHunk = button.closest('.hunk');
-            const fileElement = currentHunk?.closest('[data-file]');
+            const context = hunkContext(button);
+            if (!context) return;
+
+            const { currentHunk, fileElement, allHunks, currentIndex } = context;
             let adjustedTargetStart = newTargetStart;
 
-            if (fileElement) {
-                const allHunks = Array.from(fileElement.querySelectorAll('.hunk'));
-                const currentIndex = allHunks.indexOf(currentHunk);
+            if (fileElement && currentIndex > 0) {
+                const prevHunk = allHunks[currentIndex - 1];
+                const prevHunkEnd = parseInt(prevHunk.dataset.lineEnd);
 
-                if (currentIndex > 0) {
-                    const prevHunk = allHunks[currentIndex - 1];
-                    const prevHunkEnd = parseInt(prevHunk.dataset.lineEnd);
+                // Ensure we don't expand into the previous hunk's visible range
+                adjustedTargetStart = Math.max(adjustedTargetStart, prevHunkEnd + 1);
 
-                    // Ensure we don't expand into the previous hunk's visible range
-                    adjustedTargetStart = Math.max(adjustedTargetStart, prevHunkEnd + 1);
-
-                    // If adjustment makes the range invalid (start > end), hide both buttons (left and right sides)
-                    if (adjustedTargetStart > newTargetEnd) {
-                        const sameSideButtons = currentHunk.querySelectorAll(`.expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
-                        sameSideButtons.forEach(btn => {
-                            btn.style.display = 'none';
-                        });
-                        console.log('No room for expansion between hunks. Hiding up buttons.');
-                        hideExpansionBarIfAllButtonsHidden(button);
-                        return;
-                    }
+                // If adjustment makes the range invalid (start > end), hide both buttons (left and right sides)
+                if (adjustedTargetStart > newTargetEnd) {
+                    const sameSideButtons = currentHunk.querySelectorAll(`.expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
+                    sameSideButtons.forEach(btn => {
+                        btn.style.display = 'none';
+                    });
+                    console.log('No room for expansion between hunks. Hiding up buttons.');
+                    hideExpansionBarIfAllButtonsHidden(button);
+                    return;
                 }
             }
 
@@ -398,37 +397,57 @@ function updateButtonForNextExpansion(button, direction, targetStart, targetEnd,
         const newTargetEnd = newTargetStart + contextLines - 1;
 
         // Check for overlap with next hunk before setting new range
-        const currentHunk = button.closest('.hunk');
-        const fileElement = currentHunk?.closest('[data-file]');
+        const context = hunkContext(button);
+        if (!context) return;
+
+        const { currentHunk, fileElement, allHunks, currentIndex } = context;
         let adjustedTargetEnd = newTargetEnd;
 
-        if (fileElement) {
-            const allHunks = Array.from(fileElement.querySelectorAll('.hunk'));
-            const currentIndex = allHunks.indexOf(currentHunk);
+        if (fileElement && currentIndex < allHunks.length - 1) {
+            const nextHunk = allHunks[currentIndex + 1];
+            const nextHunkStart = parseInt(nextHunk.dataset.lineStart);
 
-            if (currentIndex < allHunks.length - 1) {
-                const nextHunk = allHunks[currentIndex + 1];
-                const nextHunkStart = parseInt(nextHunk.dataset.lineStart);
+            // Ensure we don't expand into the next hunk's visible range
+            adjustedTargetEnd = Math.min(adjustedTargetEnd, nextHunkStart - 1);
 
-                // Ensure we don't expand into the next hunk's visible range
-                adjustedTargetEnd = Math.min(adjustedTargetEnd, nextHunkStart - 1);
-
-                // If adjustment makes the range invalid (start > end), hide both buttons (left and right sides)
-                if (newTargetStart > adjustedTargetEnd) {
-                    const sameSideButtons = currentHunk.querySelectorAll(`.expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
-                    sameSideButtons.forEach(btn => {
-                        btn.style.display = 'none';
-                    });
-                    console.log('No room for expansion between hunks. Hiding down buttons.');
-                    hideExpansionBarIfAllButtonsHidden(button);
-                    return;
-                }
+            // If adjustment makes the range invalid (start > end), hide both buttons (left and right sides)
+            if (newTargetStart > adjustedTargetEnd) {
+                const sameSideButtons = currentHunk.querySelectorAll(`.expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
+                sameSideButtons.forEach(btn => {
+                    btn.style.display = 'none';
+                });
+                console.log('No room for expansion between hunks. Hiding down buttons.');
+                hideExpansionBarIfAllButtonsHidden(button);
+                return;
             }
         }
 
         button.dataset.targetStart = newTargetStart;
         button.dataset.targetEnd = adjustedTargetEnd;
     }
+}
+
+// Helper function to get hunk context from a button
+function hunkContext(button) {
+    const currentHunk = button.closest('.hunk');
+    if (!currentHunk) {
+        return null;
+    }
+
+    const fileElement = currentHunk.closest('[data-file]');
+    if (!fileElement) {
+        return { currentHunk, fileElement: null, allHunks: [], currentIndex: -1 };
+    }
+
+    const allHunks = Array.from(fileElement.querySelectorAll('.hunk'));
+    const currentIndex = allHunks.indexOf(currentHunk);
+
+    return {
+        currentHunk,
+        fileElement,
+        allHunks,
+        currentIndex
+    };
 }
 
 // Helper functions for context expansion
@@ -546,14 +565,15 @@ function insertExpandedContext(button, filePath, hunkIndex, direction, expandedH
     console.log(`Inserting expanded context for ${filePath}, direction: ${direction}`);
 
     // Find the specific hunk using the button's parent elements
-    const hunkElement = button.closest('.hunk');
-    if (!hunkElement) {
+    const context = hunkContext(button);
+    if (!context) {
         console.error('Could not find hunk element for insertion');
         return;
     }
 
     // Find the hunk lines container within this specific hunk
-    const hunkLinesElement = hunkElement.querySelector('.hunk-lines');
+    const { currentHunk } = context;
+    const hunkLinesElement = currentHunk.querySelector('.hunk-lines');
     if (!hunkLinesElement) {
         console.error('Could not find hunk-lines element for insertion');
         return;
@@ -588,20 +608,21 @@ function insertExpandedContext(button, filePath, hunkIndex, direction, expandedH
 
 function updateHunkRangeAfterExpansion(button, targetStart, targetEnd) {
     // Get the hunk element containing this button
-    const hunkElement = button.closest('.hunk');
-    if (!hunkElement) return;
+    const context = hunkContext(button);
+    if (!context) return;
 
     // Get current range
-    const currentStart = parseInt(hunkElement.dataset.lineStart);
-    const currentEnd = parseInt(hunkElement.dataset.lineEnd);
+    const { currentHunk } = context;
+    const currentStart = parseInt(currentHunk.dataset.lineStart);
+    const currentEnd = parseInt(currentHunk.dataset.lineEnd);
 
     // Calculate new expanded range
     const newStart = Math.min(currentStart, targetStart);
     const newEnd = Math.max(currentEnd, targetEnd);
 
     // Update hunk data attributes
-    hunkElement.dataset.lineStart = newStart;
-    hunkElement.dataset.lineEnd = newEnd;
+    currentHunk.dataset.lineStart = newStart;
+    currentHunk.dataset.lineEnd = newEnd;
 
     console.log(`Updated hunk range from ${currentStart}-${currentEnd} to ${newStart}-${newEnd}`);
 }
@@ -650,18 +671,12 @@ function hideExpansionBarIfAllButtonsHidden(triggerButton) {
 
 function checkAndMergeHunks(triggerButton) {
     // Get the current hunk element
-    const currentHunk = triggerButton.closest('.hunk');
-    if (!currentHunk) return;
+    const context = hunkContext(triggerButton);
+    if (!context?.fileElement) return;
 
+    const { currentHunk, allHunks, currentIndex } = context;
     const currentStart = parseInt(currentHunk.dataset.lineStart);
     const currentEnd = parseInt(currentHunk.dataset.lineEnd);
-
-    // Look for adjacent hunks that might now overlap
-    const fileElement = currentHunk.closest('[data-file]');
-    if (!fileElement) return;
-
-    const allHunks = Array.from(fileElement.querySelectorAll('.hunk'));
-    const currentIndex = allHunks.indexOf(currentHunk);
 
     // Check previous hunk for overlap
     if (currentIndex > 0) {
