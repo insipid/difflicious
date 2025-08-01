@@ -122,7 +122,8 @@ class TemplateRenderingService(BaseService):
                 if file_data.get("hunks"):
                     enhanced_file["hunks"] = self._process_hunks_for_template(
                         file_data["hunks"],
-                        file_data["path"]
+                        file_data["path"],
+                        file_data.get("line_count")  # Pass file line count for boundary checks
                     )
 
                 enhanced_files.append(enhanced_file)
@@ -137,18 +138,44 @@ class TemplateRenderingService(BaseService):
     def _process_hunks_for_template(
         self,
         hunks: list[dict[str, Any]],
-        file_path: str
+        file_path: str,
+        file_line_count: Optional[int] = None
     ) -> list[dict[str, Any]]:
         """Process hunks with syntax highlighting for template rendering."""
 
         processed_hunks = []
 
         for hunk_index, hunk in enumerate(hunks):
+            # Calculate the current visible line range for this hunk
+            line_start = hunk.get("new_start", 1)
+            line_end = hunk.get("new_start", 1) + hunk.get("new_count", 0) - 1
+
+            # Find the last line of the previous hunk, if it exists
+            previous_hunk = hunks[hunk_index - 1] if hunk_index > 0 else None
+            previous_hunk_end = previous_hunk.get("new_start", 1) + previous_hunk.get("new_count", 0) - 1 if previous_hunk else 0
+
+            # Find the first line of the next hunk, if it exists
+            next_hunk = hunks[hunk_index + 1] if hunk_index < len(hunks) - 1 else None
+            next_hunk_start = next_hunk.get("new_start", 1) if next_hunk else file_line_count
+
+            # Calculate expansion target ranges (10 lines by default)
+            expand_before_start = max(previous_hunk_end + 1, line_start - 10)
+            expand_before_end = line_start - 1
+            expand_after_start = line_end + 1
+            expand_after_end = min(next_hunk_start - 1, line_end + 10)
+
             processed_hunk = {
                 **hunk,
                 "index": hunk_index,
                 "can_expand_before": self._can_expand_context(hunks, hunk_index, "before"),
                 "can_expand_after": self._can_expand_context(hunks, hunk_index, "after"),
+                "line_start": line_start,
+                "line_end": line_end,
+                "expand_before_start": expand_before_start,
+                "expand_before_end": expand_before_end,
+                "expand_after_start": expand_after_start,
+                "expand_after_end": expand_after_end,
+                "file_line_count": file_line_count,
                 "lines": []
             }
 
@@ -195,15 +222,26 @@ class TemplateRenderingService(BaseService):
         """Determine if context can be expanded for a hunk."""
 
         if direction == "before":
-            if hunk_index == 0:
-                # First hunk: can expand if doesn't start at line 1
-                return hunks[0].get("new_start", 1) > 1
-            else:
-                # Other hunks: can always expand before
-                return True
+            # Can expand before if doesn't start at line 1
+            current_hunk = hunks[hunk_index]
+            hunk_start = current_hunk.get("new_start", 1)
+            return hunk_start > 1
         elif direction == "after":
-            # Can expand after if not the first hunk
-            return hunk_index > 0
+            # Can expand after only if:
+            # 1. Not the last hunk (there are more hunks below) AND
+            # 2. There's actually space between this hunk and the next hunk
+            if hunk_index >= len(hunks) - 1:
+                return False  # This is the last hunk
+
+            # Check if there's space between current hunk and next hunk
+            current_hunk = hunks[hunk_index]
+            next_hunk = hunks[hunk_index + 1]
+
+            current_end = current_hunk.get("new_start", 1) + current_hunk.get("new_count", 0) - 1
+            next_start = next_hunk.get("new_start", 1)
+
+            # Only show down arrow if there's at least 1 line gap between hunks
+            return next_start > current_end + 1
 
         return False
 
@@ -226,4 +264,3 @@ class TemplateRenderingService(BaseService):
             "loading": False,
             "error": error_message
         }
-
