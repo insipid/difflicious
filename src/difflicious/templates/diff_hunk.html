@@ -1,26 +1,24 @@
 <!-- Single Hunk -->
-<div class="hunk border-b border-gray-100 last:border-b-0">
-    <!-- Context Expansion Controls -->
-    {% if hunk.can_expand_before or hunk.can_expand_after %}
+<div class="hunk border-b border-gray-100 last:border-b-0" 
+     data-line-start="{{ hunk.line_start }}" 
+     data-line-end="{{ hunk.line_end }}"
+     data-file-line-count="{{ file.line_count or 0 }}">
+    
+    <!-- Up Expansion Controls (before hunk) -->
+    {% if hunk.can_expand_before %}
     <div class="hunk-expansion bg-blue-50 text-xs font-mono text-blue-800 border-b border-blue-100 grid grid-cols-2">
         <!-- Left Side Controls -->
         <div class="border-r border-blue-200">
             <div class="flex">
                 <div class="w-12 bg-blue-100 border-r border-blue-200 select-none flex flex-col">
-                    {% if hunk.can_expand_after %}
-                    <button onclick="expandContext('{{ file.path }}', {{ hunk.index }}, 'after', 10, 'pygments')"
-                        class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center {{ 'border-b border-blue-300 flex-1' if hunk.can_expand_before else 'h-full' }}"
-                        title="Expand 10 lines down">
-                        ▼
-                    </button>
-                    {% endif %}
-                    {% if hunk.can_expand_before %}
-                    <button onclick="expandContext('{{ file.path }}', {{ hunk.index }}, 'before', 10, 'pygments')"
-                        class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center {{ 'flex-1' if hunk.can_expand_after else 'h-full' }}"
-                        title="Expand 10 lines up">
+                    <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'before', 10, 'pygments')"
+                        class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center h-full"
+                        data-target-start="{{ hunk.expand_before_start }}"
+                        data-target-end="{{ hunk.expand_before_end }}"
+                        data-direction="before"
+                        title="Expand 10 lines up ({{ hunk.expand_before_start }}-{{ hunk.expand_before_end }})">
                         ▲
                     </button>
-                    {% endif %}
                 </div>
                 <div class="flex-1 px-2 py-2 overflow-hidden whitespace-nowrap flex items-center">
                     {% if hunk.section_header %}
@@ -34,20 +32,14 @@
         <div>
             <div class="flex">
                 <div class="w-12 bg-blue-100 border-r border-blue-200 select-none flex flex-col">
-                    {% if hunk.can_expand_after %}
-                    <button onclick="expandContext('{{ file.path }}', {{ hunk.index }}, 'after', 10, 'pygments')"
-                        class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center {{ 'border-b border-blue-300 flex-1' if hunk.can_expand_before else 'h-full' }}"
-                        title="Expand 10 lines down">
-                        ▼
-                    </button>
-                    {% endif %}
-                    {% if hunk.can_expand_before %}
-                    <button onclick="expandContext('{{ file.path }}', {{ hunk.index }}, 'before', 10, 'pygments')"
-                        class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center {{ 'flex-1' if hunk.can_expand_after else 'h-full' }}"
-                        title="Expand 10 lines up">
+                    <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'before', 10, 'pygments')"
+                        class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center h-full"
+                        data-target-start="{{ hunk.expand_before_start }}"
+                        data-target-end="{{ hunk.expand_before_end }}"
+                        data-direction="before"
+                        title="Expand 10 lines up ({{ hunk.expand_before_start }}-{{ hunk.expand_before_end }})">
                         ▲
                     </button>
-                    {% endif %}
                 </div>
                 <div class="flex-1 px-2 py-2 overflow-hidden">
                     &nbsp;
@@ -105,4 +97,47 @@
         </div>
         {% endfor %}
     </div>
+    
+    <!-- Down Expansion Controls (after hunk) -->
+    {% if hunk.can_expand_after %}
+    <div class="hunk-expansion bg-blue-50 text-xs font-mono text-blue-800 border-t border-blue-100 grid grid-cols-2">
+        <!-- Left Side Controls -->
+        <div class="border-r border-blue-200">
+            <div class="flex">
+                <div class="w-12 bg-blue-100 border-r border-blue-200 select-none flex flex-col">
+                    <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'after', 10, 'pygments')"
+                        class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center h-full"
+                        data-target-start="{{ hunk.expand_after_start }}"
+                        data-target-end="{{ hunk.expand_after_end }}"
+                        data-direction="after"
+                        title="Expand 10 lines down ({{ hunk.expand_after_start }}-{{ hunk.expand_after_end }})">
+                        ▼
+                    </button>
+                </div>
+                <div class="flex-1 px-2 py-2 overflow-hidden whitespace-nowrap flex items-center">
+                    <span>&nbsp;</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Side Controls -->
+        <div>
+            <div class="flex">
+                <div class="w-12 bg-blue-100 border-r border-blue-200 select-none flex flex-col">
+                    <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'after', 10, 'pygments')"
+                        class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center h-full"
+                        data-target-start="{{ hunk.expand_after_start }}"
+                        data-target-end="{{ hunk.expand_after_end }}"
+                        data-direction="after"
+                        title="Expand 10 lines down ({{ hunk.expand_after_start }}-{{ hunk.expand_after_end }})">
+                        ▼
+                    </button>
+                </div>
+                <div class="flex-1 px-2 py-2 overflow-hidden">
+                    &nbsp;
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
