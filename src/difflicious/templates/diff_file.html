@@ -1,12 +1,11 @@
 <!-- Single File Diff -->
-<div class="file-diff bg-white border border-gray-200 rounded-lg shadow-sm" 
-     data-file="{{ file.path }}">
+<div class="file-diff bg-white border border-gray-200 rounded-lg shadow-sm" data-file="{{ file.path }}">
     <!-- File Header -->
     <div class="file-header flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
          onclick="toggleFile('{{ file.path }}')">
         <div class="flex items-center space-x-3">
-            <span class="toggle-icon text-gray-400 transition-transform duration-200" 
-                  data-expanded="{{ 'true' if file.expanded else 'false' }}">
+            <span class="toggle-icon text-gray-400 transition-transform duration-200"
+                data-expanded="{{ 'true' if file.expanded else 'false' }}">
                 {{ '▼' if file.expanded else '▶' }}
             </span>
             <span class="font-mono text-sm text-gray-900">{{ file.path }}</span>
@@ -45,8 +44,8 @@
     </div>
 
     <!-- File Content -->
-    <div class="file-content border-t border-gray-200" data-file-content="{{ file.path }}" 
-         style="display: {{ 'block' if file.expanded else 'none' }};">
+    <div class="file-content border-t border-gray-200" data-file-content="{{ file.path }}"
+        style="display: {{ 'block' if file.expanded else 'none' }};">
         {% if not file.hunks or file.hunks|length == 0 %}
         <!-- No content available -->
         <div class="p-8 text-center text-gray-500">

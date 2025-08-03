@@ -1,9 +1,7 @@
 <!-- Single Hunk -->
-<div class="hunk border-b border-gray-100 last:border-b-0" 
-     data-line-start="{{ hunk.line_start }}" 
-     data-line-end="{{ hunk.line_end }}"
-     data-file-line-count="{{ file.line_count or 0 }}">
-    
+<div class="hunk border-b border-gray-100 last:border-b-0" data-line-start="{{ hunk.line_start }}"
+    data-line-end="{{ hunk.line_end }}" data-file-line-count="{{ file.line_count or 0 }}">
+
     <!-- Up Expansion Controls (before hunk) -->
     {% if hunk.can_expand_before %}
     <div class="hunk-expansion bg-blue-50 text-xs font-mono text-blue-800 border-b border-blue-100 grid grid-cols-2">
@@ -14,8 +12,7 @@
                     <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'before', 10, 'pygments')"
                         class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center h-full"
                         data-target-start="{{ hunk.expand_before_start }}"
-                        data-target-end="{{ hunk.expand_before_end }}"
-                        data-direction="before"
+                        data-target-end="{{ hunk.expand_before_end }}" data-direction="before"
                         title="Expand 10 lines up ({{ hunk.expand_before_start }}-{{ hunk.expand_before_end }})">
                         ▲
                     </button>
@@ -27,7 +24,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Right Side Controls -->
         <div>
             <div class="flex">
@@ -35,8 +32,7 @@
                     <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'before', 10, 'pygments')"
                         class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center h-full"
                         data-target-start="{{ hunk.expand_before_start }}"
-                        data-target-end="{{ hunk.expand_before_end }}"
-                        data-direction="before"
+                        data-target-end="{{ hunk.expand_before_end }}" data-direction="before"
                         title="Expand 10 lines up ({{ hunk.expand_before_start }}-{{ hunk.expand_before_end }})">
                         ▲
                     </button>
@@ -54,9 +50,11 @@
         {% for line in hunk.lines %}
         <div class="diff-line grid grid-cols-2 border-b border-gray-50 hover:bg-gray-25 line-{{ line.type }}">
             <!-- Left Side (Before) -->
-            <div class="line-left border-r border-gray-200 {{ 'bg-red-50' if line.type == 'change' and line.left and line.left.type == 'deletion' else ('bg-gray-25' if line.type == 'context' else '') }}">
+            <div
+                class="line-left border-r border-gray-200 {{ 'bg-red-50' if line.type == 'change' and line.left and line.left.type == 'deletion' else ('bg-gray-25' if line.type == 'context' else '') }}">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
+                    <div
+                        class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
                         {% if line.left and line.left.line_num %}
                         <span>{{ line.left.line_num }}</span>
                         {% endif %}
@@ -75,9 +73,11 @@
             </div>
 
             <!-- Right Side (After) -->
-            <div class="line-right {{ 'bg-green-50' if line.type == 'change' and line.right and line.right.type == 'addition' else ('bg-gray-25' if line.type == 'context' else '') }}">
+            <div
+                class="line-right {{ 'bg-green-50' if line.type == 'change' and line.right and line.right.type == 'addition' else ('bg-gray-25' if line.type == 'context' else '') }}">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
+                    <div
+                        class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
                         {% if line.right and line.right.line_num %}
                         <span>{{ line.right.line_num }}</span>
                         {% endif %}
@@ -97,7 +97,7 @@
         </div>
         {% endfor %}
     </div>
-    
+
     <!-- Down Expansion Controls (after hunk) -->
     {% if hunk.can_expand_after %}
     <div class="hunk-expansion bg-blue-50 text-xs font-mono text-blue-800 border-t border-blue-100 grid grid-cols-2">
@@ -107,8 +107,7 @@
                 <div class="w-12 bg-blue-100 border-r border-blue-200 select-none flex flex-col">
                     <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'after', 10, 'pygments')"
                         class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center h-full"
-                        data-target-start="{{ hunk.expand_after_start }}"
-                        data-target-end="{{ hunk.expand_after_end }}"
+                        data-target-start="{{ hunk.expand_after_start }}" data-target-end="{{ hunk.expand_after_end }}"
                         data-direction="after"
                         title="Expand 10 lines down ({{ hunk.expand_after_start }}-{{ hunk.expand_after_end }})">
                         ▼
@@ -119,17 +118,18 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Right Side Controls -->
         <div>
             <div class="flex">
                 <div class="w-12 bg-blue-100 border-r border-blue-200 select-none flex flex-col">
                     <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'after', 10, 'pygments')"
                         class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center h-full"
-                        data-target-start="{{ hunk.expand_after_start }}"
-                        data-target-end="{{ hunk.expand_after_end }}"
+                        data-target-start="{{ hunk.expand_after_start }}" data-target-end="{{ hunk.expand_after_end }}"
                         data-direction="after"
-                        title="Expand 10 lines down ({{ hunk.expand_after_start }}-{{ hunk.expand_after_end }})">
+                        title="Expand 10 lines down ({{ hunk.expand_after_start }}-{{ hunk.expand_after_end }})"
+                        data-line-start="{{ hunk.line_start }}" data-line-end="{{ hunk.line_end }}"
+                        data-line-count="{{ hunk.line_count }}">
                         ▼
                     </button>
                 </div>

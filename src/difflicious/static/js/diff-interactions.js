@@ -255,9 +255,8 @@ function checkHunkAdjacency(button, direction, targetStart, targetEnd) {
         const context = hunkContext(button);
         if (!context?.fileElement) return false;
         
-        const { currentHunk, allHunks, currentIndex } = context;
-        if (currentIndex < allHunks.length - 1) {
-            const nextHunk = allHunks[currentIndex + 1];
+        const { currentHunk, nextHunk } = context;
+        if (nextHunk) {
                 const nextHunkStart = parseInt(nextHunk.dataset.lineStart);
                 if (targetEnd === nextHunkStart - 1) {
                     // Hide both before buttons in the next hunk (left and right sides)
@@ -285,9 +284,8 @@ function checkHunkAdjacency(button, direction, targetStart, targetEnd) {
         const context = hunkContext(button);
         if (!context?.fileElement) return false;
         
-        const { currentHunk, allHunks, currentIndex } = context;
-        if (currentIndex > 0) {
-            const prevHunk = allHunks[currentIndex - 1];
+        const { currentHunk, prevHunk } = context;
+        if (prevHunk) {
                 const prevHunkEnd = parseInt(prevHunk.dataset.lineEnd);
                 if (targetStart <= prevHunkEnd + 1) {
                     // Hide both after buttons in the previous hunk (left and right sides)
@@ -367,11 +365,10 @@ function updateButtonForNextExpansion(button, direction, targetStart, targetEnd,
             const context = hunkContext(button);
             if (!context) return;
 
-            const { currentHunk, fileElement, allHunks, currentIndex } = context;
+            const { currentHunk, fileElement, prevHunk } = context;
             let adjustedTargetStart = newTargetStart;
 
-            if (fileElement && currentIndex > 0) {
-                const prevHunk = allHunks[currentIndex - 1];
+            if (fileElement && prevHunk) {
                 const prevHunkEnd = parseInt(prevHunk.dataset.lineEnd);
 
                 // Ensure we don't expand into the previous hunk's visible range
@@ -400,11 +397,10 @@ function updateButtonForNextExpansion(button, direction, targetStart, targetEnd,
         const context = hunkContext(button);
         if (!context) return;
 
-        const { currentHunk, fileElement, allHunks, currentIndex } = context;
+        const { currentHunk, fileElement, nextHunk } = context;
         let adjustedTargetEnd = newTargetEnd;
 
-        if (fileElement && currentIndex < allHunks.length - 1) {
-            const nextHunk = allHunks[currentIndex + 1];
+        if (fileElement && nextHunk) {
             const nextHunkStart = parseInt(nextHunk.dataset.lineStart);
 
             // Ensure we don't expand into the next hunk's visible range
@@ -436,7 +432,7 @@ function hunkContext(button) {
 
     const fileElement = currentHunk.closest('[data-file]');
     if (!fileElement) {
-        return { currentHunk, fileElement: null, allHunks: [], currentIndex: -1 };
+        return { currentHunk, fileElement: null, allHunks: [], currentIndex: -1, prevHunk: null, nextHunk: null };
     }
 
     const allHunks = Array.from(fileElement.querySelectorAll('.hunk'));
@@ -446,7 +442,9 @@ function hunkContext(button) {
         currentHunk,
         fileElement,
         allHunks,
-        currentIndex
+        currentIndex,
+        prevHunk: currentIndex > 0 ? allHunks[currentIndex - 1] : null,
+        nextHunk: currentIndex < allHunks.length - 1 ? allHunks[currentIndex + 1] : null
     };
 }
 
@@ -674,13 +672,12 @@ function checkAndMergeHunks(triggerButton) {
     const context = hunkContext(triggerButton);
     if (!context?.fileElement) return;
 
-    const { currentHunk, allHunks, currentIndex } = context;
+    const { currentHunk, prevHunk, nextHunk } = context;
     const currentStart = parseInt(currentHunk.dataset.lineStart);
     const currentEnd = parseInt(currentHunk.dataset.lineEnd);
 
     // Check previous hunk for overlap
-    if (currentIndex > 0) {
-        const prevHunk = allHunks[currentIndex - 1];
+    if (prevHunk) {
         const prevEnd = parseInt(prevHunk.dataset.lineEnd);
 
         // If current hunk now overlaps or touches previous hunk
@@ -692,8 +689,7 @@ function checkAndMergeHunks(triggerButton) {
     }
 
     // Check next hunk for overlap
-    if (currentIndex < allHunks.length - 1) {
-        const nextHunk = allHunks[currentIndex + 1];
+    if (nextHunk) {
         const nextStart = parseInt(nextHunk.dataset.lineStart);
 
         // If current hunk now overlaps or touches next hunk

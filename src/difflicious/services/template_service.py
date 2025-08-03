@@ -148,7 +148,8 @@ class TemplateRenderingService(BaseService):
         for hunk_index, hunk in enumerate(hunks):
             # Calculate the current visible line range for this hunk
             line_start = hunk.get("new_start", 1)
-            line_end = hunk.get("new_start", 1) + hunk.get("new_count", 0) - 1
+            line_count = len(hunk.get("lines", [])) # Previous way could cause off-by-one errors
+            line_end = hunk.get("new_start", 1) + line_count - 1
 
             # Find the last line of the previous hunk, if it exists
             previous_hunk = hunks[hunk_index - 1] if hunk_index > 0 else None
@@ -171,6 +172,7 @@ class TemplateRenderingService(BaseService):
                 "can_expand_after": self._can_expand_context(hunks, hunk_index, "after"),
                 "line_start": line_start,
                 "line_end": line_end,
+                "line_count": line_count,
                 "expand_before_start": expand_before_start,
                 "expand_before_end": expand_before_end,
                 "expand_after_start": expand_after_start,
