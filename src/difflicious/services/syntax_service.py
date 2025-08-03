@@ -18,9 +18,9 @@ class SyntaxHighlightingService:
         """Initialize the syntax highlighting service."""
         # Configure HTML formatter
         self.formatter = HtmlFormatter(
-            nowrap=True,           # Don't wrap in <pre> tags
-            noclasses=True,        # Use inline styles for consistency
-            style="default",       # Use default theme for compatibility
+            nowrap=True,  #        # Don't wrap in <pre> tags
+            noclasses=True,  #     # Use inline styles for consistency
+            style="default",  #    # Use default theme for compatibility
             cssclass="highlight",  # CSS class for highlighted code
         )
 
