@@ -1,0 +1,29 @@
+<!-- Empty State -->
+<div class="flex items-center justify-center h-full">
+    <div class="text-center">
+        {% if error %}
+        <div class="text-4xl mb-4">⚠️</div>
+        <h2 class="text-xl font-semibold text-red-600 mb-2">Error</h2>
+        <p class="text-red-500 mb-4">{{ error }}</p>
+        {% else %}
+        <div class="text-6xl mb-4">✨</div>
+        <h2 class="text-xl font-semibold text-gray-900 mb-2">No changes found</h2>
+        {% endif %}
+        <div class="text-gray-600 space-y-2">
+            {% if not unstaged and not untracked %}
+            <p>Enable "Unstaged" or "Untracked" to see changes.</p>
+            {% elif unstaged and not untracked %}
+            <p>No unstaged changes in your working directory.</p>
+            {% elif not unstaged and untracked %}
+            <p>No untracked files found.</p>
+            {% else %}
+            <p>Your working directory is clean - no unstaged or untracked files.</p>
+            {% endif %}
+            {% if current_base_branch != 'main' %}
+            <p class="text-sm text-gray-500 mt-3">
+                Comparing against branch: <span class="font-mono">{{ current_base_branch }}</span>
+            </p>
+            {% endif %}
+        </div>
+    </div>
+</div>

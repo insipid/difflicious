@@ -21,6 +21,11 @@ def create_app() -> Flask:
 
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
+    # Register jinja-partials extension
+    import jinja_partials  # type: ignore[import-untyped]
+
+    jinja_partials.register_extensions(app)
+
     # Configure logging
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)

@@ -1,0 +1,56 @@
+<!-- Toolbar -->
+<header class="bg-white border-b border-gray-200 px-4 py-3">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <h1 class="text-xl font-semibold text-gray-900">Difflicious</h1>
+
+            <!-- Base Branch Dropdown -->
+            <form method="GET" action="/" class="flex items-center space-x-2">
+                <label class="text-sm font-medium text-gray-700">Base:</label>
+                <select name="base_branch" onchange="this.form.submit()"
+                    class="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    {% for branch in branches.all %}
+                    <option value="{{ branch }}" {% if branch == current_base_branch %}selected{% endif %}>
+                        {{ branch }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <!-- Diff Options -->
+                <div class="flex items-center space-x-4">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="unstaged" value="true" 
+                               {% if unstaged %}checked{% endif %}
+                               onchange="this.form.submit()"
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-1 text-sm text-gray-700">Unstaged</span>
+                    </label>
+                    
+                    <label class="flex items-center">
+                        <input type="checkbox" name="untracked" value="true"
+                               {% if untracked %}checked{% endif %}
+                               onchange="this.form.submit()"
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-1 text-sm text-gray-700">Untracked</span>
+                    </label>
+                </div>
+                
+                <!-- Search Filter -->
+                <input type="text" name="search" value="{{ search_filter or '' }}" 
+                       placeholder="Search files..." 
+                       class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </form>
+        </div>
+
+        <!-- Status -->
+        <div class="flex items-center space-x-4">
+            <div class="text-sm text-gray-600">
+                {{ total_files }} files changed
+            </div>
+            <button onclick="location.reload()" 
+                class="bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                Refresh
+            </button>
+        </div>
+    </div>
+</header>
