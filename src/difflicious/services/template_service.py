@@ -235,7 +235,7 @@ class TemplateRenderingService(BaseService):
             # Can expand before if doesn't start at line 1
             current_hunk = hunks[hunk_index]
             hunk_start = current_hunk.get("new_start", 1)
-            return hunk_start > 1
+            return bool(hunk_start > 1)
         elif direction == "after":
             # Can expand after only if:
             # 1. Not the last hunk (there are more hunks below) AND
@@ -253,7 +253,7 @@ class TemplateRenderingService(BaseService):
             next_start = next_hunk.get("new_start", 1)
 
             # Only show down arrow if there's at least 1 line gap between hunks
-            return next_start > current_end + 1
+            return bool(next_start > current_end + 1)
 
         return False
 

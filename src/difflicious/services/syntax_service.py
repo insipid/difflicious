@@ -2,10 +2,12 @@
 
 import logging
 from pathlib import Path
+from typing import Any
 
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_lexer_by_name, guess_lexer_for_filename
+from pygments.lexers.special import TextLexer
 from pygments.util import ClassNotFound
 
 logger = logging.getLogger(__name__)
@@ -14,7 +16,7 @@ logger = logging.getLogger(__name__)
 class SyntaxHighlightingService:
     """Service for server-side code syntax highlighting."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the syntax highlighting service."""
         # Configure HTML formatter
         self.formatter = HtmlFormatter(
@@ -25,7 +27,7 @@ class SyntaxHighlightingService:
         )
 
         # Cache lexers by file extension for performance
-        self._lexer_cache: dict[str, object] = {}
+        self._lexer_cache: dict[str, Any] = {}
 
         # Language detection mapping (same as current frontend)
         self.language_map = {
@@ -87,12 +89,12 @@ class SyntaxHighlightingService:
         try:
             lexer = self._get_cached_lexer(file_path)
             highlighted = highlight(content, lexer, self.formatter)
-            return highlighted.strip()
+            return str(highlighted).strip()
         except Exception as e:
             logger.debug(f"Highlighting failed for {file_path}: {e}")
             return content  # Fallback to plain text
 
-    def _get_cached_lexer(self, file_path: str):
+    def _get_cached_lexer(self, file_path: str) -> Any:
         """Get lexer for file, using cache for performance."""
         file_ext = Path(file_path).suffix.lower().lstrip(".")
 
@@ -107,7 +109,7 @@ class SyntaxHighlightingService:
                     lexer = guess_lexer_for_filename(file_path, "")
 
                 self._lexer_cache[file_ext] = lexer
-                logger.debug(f"Cached lexer for {file_ext}: {lexer.name}")
+                logger.debug(f"Cached lexer for {file_ext}: {getattr(lexer, 'name', 'unknown')}")
 
             except ClassNotFound:
                 # Default to text lexer for unknown files
@@ -123,4 +125,4 @@ class SyntaxHighlightingService:
         Returns:
             CSS styles as string
         """
-        return self.formatter.get_style_defs(".highlight")
+        return str(self.formatter.get_style_defs(".highlight"))
