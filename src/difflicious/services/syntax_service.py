@@ -7,7 +7,6 @@ from typing import Any
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import get_lexer_by_name, guess_lexer_for_filename
-from pygments.lexers.special import TextLexer
 from pygments.util import ClassNotFound
 
 logger = logging.getLogger(__name__)
@@ -109,7 +108,9 @@ class SyntaxHighlightingService:
                     lexer = guess_lexer_for_filename(file_path, "")
 
                 self._lexer_cache[file_ext] = lexer
-                logger.debug(f"Cached lexer for {file_ext}: {getattr(lexer, 'name', 'unknown')}")
+                logger.debug(
+                    f"Cached lexer for {file_ext}: {getattr(lexer, 'name', 'unknown')}"
+                )
 
             except ClassNotFound:
                 # Default to text lexer for unknown files

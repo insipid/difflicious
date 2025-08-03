@@ -143,7 +143,9 @@ def create_app() -> Flask:
                 for group_data in grouped_diffs.values():
                     for file_data in group_data["files"]:
                         if file_data["path"] == file_path and file_data.get("hunks"):
-                            if hunk_index is not None and hunk_index < len(file_data["hunks"]):
+                            if hunk_index is not None and hunk_index < len(
+                                file_data["hunks"]
+                            ):
                                 target_hunk = file_data["hunks"][hunk_index]
                                 break
                     if target_hunk:
