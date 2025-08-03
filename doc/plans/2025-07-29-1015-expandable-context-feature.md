@@ -1,8 +1,8 @@
 # Plan: Expandable Context Feature for Difflicious
 
-**Date**: 2025-07-29 10:15 AM  
-**Feature**: Expandable Context Lines in Diff View  
-**Status**: Planning Complete, Ready for Implementation  
+**Date**: 2025-07-29 10:15 AM
+**Feature**: Expandable Context Lines in Diff View
+**Status**: Planning Complete, Ready for Implementation
 
 ## Current Implementation Analysis
 The current system fetches git diffs with a fixed 3-line context using `--context` in git_operations.py:712. The frontend displays this in a side-by-side view with hunks containing lines that have fixed context.
@@ -15,7 +15,7 @@ The current system fetches git diffs with a fixed 3-line context using `--contex
 - **Purpose**: Fetch additional context lines for a specific file and line range
 - **Parameters**:
   - `file_path`: The file to get context for
-  - `base_commit`: Base commit for comparison  
+  - `base_commit`: Base commit for comparison
   - `hunk_old_start`, `hunk_old_count`: Original hunk boundaries
   - `hunk_new_start`, `hunk_new_count`: New hunk boundaries
   - `context_before`: Number of extra lines to fetch before
