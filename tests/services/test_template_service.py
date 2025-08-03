@@ -72,7 +72,7 @@ class TestTemplateRenderingService:
                                             "type": "addition",
                                         },
                                     }
-                                ]
+                                ],
                             }
                         ],
                     }
@@ -221,7 +221,7 @@ class TestTemplateRenderingService:
         # Create hunks where first has lines and second starts immediately after
         hunks = [
             {"new_start": 1, "lines": [{"type": "context"}, {"type": "context"}]},
-            {"new_start": 3, "lines": [{"type": "context"}]}
+            {"new_start": 3, "lines": [{"type": "context"}]},
         ]
 
         # First hunk cannot expand after (no gap to next hunk)
@@ -235,7 +235,7 @@ class TestTemplateRenderingService:
         # Test with actual gap
         hunks_with_gap = [
             {"new_start": 1, "lines": [{"type": "context"}]},
-            {"new_start": 5, "lines": [{"type": "context"}]}
+            {"new_start": 5, "lines": [{"type": "context"}]},
         ]
 
         # First hunk can expand after (gap exists)
@@ -262,7 +262,7 @@ class TestTemplateRenderingService:
                             "type": "addition",
                         },
                     }
-                ]
+                ],
             }
         ]
 

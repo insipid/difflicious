@@ -174,7 +174,9 @@ class TemplateRenderingService(BaseService):
             expand_before_start = max(previous_hunk_end + 1, line_start - 10)
             expand_before_end = line_start - 1
             expand_after_start = line_end + 1
-            expand_after_end = min(next_hunk_start - 1 if next_hunk_start else line_end + 10, line_end + 10)
+            expand_after_end = min(
+                next_hunk_start - 1 if next_hunk_start else line_end + 10, line_end + 10
+            )
 
             processed_hunk = {
                 **hunk,
@@ -247,9 +249,7 @@ class TemplateRenderingService(BaseService):
 
             # Calculate end using the actual line count, not new_count
             current_line_count = len(current_hunk.get("lines", []))
-            current_end = (
-                current_hunk.get("new_start", 1) + current_line_count - 1
-            )
+            current_end = current_hunk.get("new_start", 1) + current_line_count - 1
             next_start = next_hunk.get("new_start", 1)
 
             # Only show down arrow if there's at least 1 line gap between hunks
