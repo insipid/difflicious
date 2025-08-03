@@ -1,6 +1,5 @@
 """Tests for SyntaxHighlightingService."""
 
-
 from difflicious.services.syntax_service import SyntaxHighlightingService
 
 
@@ -14,8 +13,8 @@ class TestSyntaxHighlightingService:
         assert service.formatter is not None
         assert service._lexer_cache == {}
         assert isinstance(service.language_map, dict)
-        assert 'py' in service.language_map
-        assert service.language_map['py'] == 'python'
+        assert "py" in service.language_map
+        assert service.language_map["py"] == "python"
 
     def test_highlight_diff_line_python(self):
         """Test highlighting Python code."""
@@ -28,7 +27,7 @@ class TestSyntaxHighlightingService:
 
         # Should contain HTML formatting
         assert result != python_code  # Should be different from input
-        assert 'def' in result  # Should still contain the keyword
+        assert "def" in result  # Should still contain the keyword
 
     def test_highlight_diff_line_javascript(self):
         """Test highlighting JavaScript code."""
@@ -41,7 +40,7 @@ class TestSyntaxHighlightingService:
 
         # Should contain HTML formatting
         assert result != js_code  # Should be different from input
-        assert 'function' in result  # Should still contain the keyword
+        assert "function" in result  # Should still contain the keyword
 
     def test_highlight_diff_line_empty_content(self):
         """Test highlighting empty or whitespace content."""
@@ -77,7 +76,7 @@ class TestSyntaxHighlightingService:
 
         # First call should populate cache
         service.highlight_diff_line("def test():", "test.py")
-        assert 'py' in service._lexer_cache
+        assert "py" in service._lexer_cache
 
         # Second call should use cached lexer
         initial_cache_size = len(service._lexer_cache)
@@ -90,20 +89,20 @@ class TestSyntaxHighlightingService:
 
         # Test various mapped extensions
         test_cases = [
-            ('test.js', 'js'),
-            ('test.jsx', 'jsx'),
-            ('test.ts', 'ts'),
-            ('test.tsx', 'tsx'),
-            ('test.py', 'py'),
-            ('test.html', 'html'),
-            ('test.css', 'css'),
-            ('test.json', 'json'),
-            ('test.md', 'md'),
-            ('test.sh', 'sh'),
-            ('test.go', 'go'),
-            ('test.rs', 'rs'),
-            ('test.java', 'java'),
-            ('test.cpp', 'cpp'),
+            ("test.js", "js"),
+            ("test.jsx", "jsx"),
+            ("test.ts", "ts"),
+            ("test.tsx", "tsx"),
+            ("test.py", "py"),
+            ("test.html", "html"),
+            ("test.css", "css"),
+            ("test.json", "json"),
+            ("test.md", "md"),
+            ("test.sh", "sh"),
+            ("test.go", "go"),
+            ("test.rs", "rs"),
+            ("test.java", "java"),
+            ("test.cpp", "cpp"),
         ]
 
         for file_path, expected_ext in test_cases:
@@ -122,7 +121,7 @@ class TestSyntaxHighlightingService:
 
         assert isinstance(css_styles, str)
         assert len(css_styles) > 0
-        assert '.highlight' in css_styles  # Should contain the CSS class
+        assert ".highlight" in css_styles  # Should contain the CSS class
 
     def test_error_handling(self):
         """Test error handling in highlighting."""
@@ -171,6 +170,5 @@ class TestSyntaxHighlightingService:
         # Check formatter settings
         assert formatter.nowrap is True  # Should not wrap in <pre> tags
         assert formatter.noclasses is True  # Should use inline styles
-        assert formatter.style.name == 'default'  # Should use default style
-        assert formatter.cssclass == 'highlight'  # Should use correct CSS class
-
+        assert formatter.style.name == "default"  # Should use default style
+        assert formatter.cssclass == "highlight"  # Should use correct CSS class

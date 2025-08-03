@@ -47,7 +47,7 @@ def create_app() -> Flask:
                 untracked=untracked,
                 file_path=file_path,
                 search_filter=search_filter if search_filter else None,
-                expand_files=expand_files
+                expand_files=expand_files,
             )
 
             return render_template("index.html", **template_data)
@@ -66,7 +66,7 @@ def create_app() -> Flask:
                 "unstaged": True,
                 "untracked": False,
                 "search_filter": "",
-                "current_base_branch": "main"
+                "current_base_branch": "main",
             }
             return render_template("index.html", **error_data), 500
 
@@ -78,13 +78,15 @@ def create_app() -> Flask:
             return jsonify(git_service.get_repository_status())
         except Exception as e:
             logger.error(f"Failed to get git status: {e}")
-            return jsonify({
-                "status": "error",
-                "current_branch": "unknown",
-                "repository_name": "unknown",
-                "files_changed": 0,
-                "git_available": False,
-            })
+            return jsonify(
+                {
+                    "status": "error",
+                    "current_branch": "unknown",
+                    "repository_name": "unknown",
+                    "files_changed": 0,
+                    "git_available": False,
+                }
+            )
 
     @app.route("/api/branches")
     def api_branches() -> Union[Response, tuple[Response, int]]:
@@ -104,22 +106,27 @@ def create_app() -> Flask:
         direction = request.args.get("direction")  # 'before' or 'after'
         context_lines = request.args.get("context_lines", 10, type=int)
         output_format = request.args.get("format", "plain")  # 'plain' or 'pygments'
-        
+
         # Get the target line range from the frontend (passed from button data attributes)
         target_start = request.args.get("target_start", type=int)
         target_end = request.args.get("target_end", type=int)
 
         if not all([file_path, hunk_index is not None, direction]):
-            return jsonify({
-                "status": "error",
-                "message": "Missing required parameters"
-            }), 400
+            return (
+                jsonify({"status": "error", "message": "Missing required parameters"}),
+                400,
+            )
 
         if output_format not in ["plain", "pygments"]:
-            return jsonify({
-                "status": "error", 
-                "message": "Invalid format parameter. Must be 'plain' or 'pygments'"
-            }), 400
+            return (
+                jsonify(
+                    {
+                        "status": "error",
+                        "message": "Invalid format parameter. Must be 'plain' or 'pygments'",
+                    }
+                ),
+                400,
+            )
 
         try:
             # Use the target range provided by the frontend if available
@@ -130,7 +137,7 @@ def create_app() -> Flask:
                 # Fallback: try to calculate from diff data
                 diff_service = DiffService()
                 grouped_diffs = diff_service.get_grouped_diffs(file_path=file_path)
-                
+
                 # Find the specific file and hunk
                 target_hunk = None
                 for group_data in grouped_diffs.values():
@@ -141,56 +148,76 @@ def create_app() -> Flask:
                                 break
                     if target_hunk:
                         break
-                
+
                 if not target_hunk:
-                    return jsonify({
-                        "status": "error",
-                        "message": f"Hunk {hunk_index} not found in file {file_path}"
-                    }), 404
-                
+                    return (
+                        jsonify(
+                            {
+                                "status": "error",
+                                "message": f"Hunk {hunk_index} not found in file {file_path}",
+                            }
+                        ),
+                        404,
+                    )
+
                 # Calculate the line range to fetch based on hunk and direction
-                hunk_start = min(target_hunk.get("old_start", 1), target_hunk.get("new_start", 1))
-                hunk_end = max(
-                    target_hunk.get("old_start", 1) + target_hunk.get("old_count", 0) - 1,
-                    target_hunk.get("new_start", 1) + target_hunk.get("new_count", 0) - 1
+                hunk_start = min(
+                    target_hunk.get("old_start", 1), target_hunk.get("new_start", 1)
                 )
-                
+                hunk_end = max(
+                    target_hunk.get("old_start", 1)
+                    + target_hunk.get("old_count", 0)
+                    - 1,
+                    target_hunk.get("new_start", 1)
+                    + target_hunk.get("new_count", 0)
+                    - 1,
+                )
+
                 if direction == "before":
                     end_line = hunk_start - 1
                     start_line = max(1, end_line - context_lines + 1)
                 else:  # direction == "after"
                     start_line = hunk_end + 1
                     end_line = start_line + context_lines - 1
-            
+
             # Fetch the actual lines
             git_service = GitService()
             result = git_service.get_file_lines(file_path, start_line, end_line)
-            
+
             # If pygments format requested, enhance the result with syntax highlighting
             if output_format == "pygments" and result.get("status") == "ok":
-                from difflicious.services.syntax_service import SyntaxHighlightingService
+                from difflicious.services.syntax_service import (
+                    SyntaxHighlightingService,
+                )
+
                 syntax_service = SyntaxHighlightingService()
-                
+
                 enhanced_lines = []
                 for line_content in result.get("lines", []):
                     if line_content:
-                        highlighted_content = syntax_service.highlight_diff_line(line_content, file_path)
-                        enhanced_lines.append({
-                            "content": line_content,
-                            "highlighted_content": highlighted_content
-                        })
+                        highlighted_content = syntax_service.highlight_diff_line(
+                            line_content, file_path
+                        )
+                        enhanced_lines.append(
+                            {
+                                "content": line_content,
+                                "highlighted_content": highlighted_content,
+                            }
+                        )
                     else:
-                        enhanced_lines.append({
-                            "content": line_content,
-                            "highlighted_content": line_content
-                        })
-                
+                        enhanced_lines.append(
+                            {
+                                "content": line_content,
+                                "highlighted_content": line_content,
+                            }
+                        )
+
                 result["lines"] = enhanced_lines
                 result["format"] = "pygments"
                 result["css_styles"] = syntax_service.get_css_styles()
             else:
                 result["format"] = "plain"
-            
+
             return jsonify(result)
 
         except GitServiceError as e:

@@ -20,8 +20,8 @@ class SyntaxHighlightingService:
         self.formatter = HtmlFormatter(
             nowrap=True,           # Don't wrap in <pre> tags
             noclasses=True,        # Use inline styles for consistency
-            style='default',       # Use default theme for compatibility
-            cssclass='highlight'   # CSS class for highlighted code
+            style="default",       # Use default theme for compatibility
+            cssclass="highlight",  # CSS class for highlighted code
         )
 
         # Cache lexers by file extension for performance
@@ -29,46 +29,46 @@ class SyntaxHighlightingService:
 
         # Language detection mapping (same as current frontend)
         self.language_map = {
-            'js': 'javascript',
-            'jsx': 'javascript',
-            'ts': 'typescript',
-            'tsx': 'typescript',
-            'py': 'python',
-            'html': 'html',
-            'htm': 'html',
-            'css': 'css',
-            'scss': 'scss',
-            'sass': 'sass',
-            'less': 'less',
-            'json': 'json',
-            'xml': 'xml',
-            'yaml': 'yaml',
-            'yml': 'yaml',
-            'md': 'markdown',
-            'sh': 'bash',
-            'bash': 'bash',
-            'zsh': 'bash',
-            'php': 'php',
-            'rb': 'ruby',
-            'go': 'go',
-            'rs': 'rust',
-            'java': 'java',
-            'c': 'c',
-            'cpp': 'cpp',
-            'cc': 'cpp',
-            'cxx': 'cpp',
-            'h': 'c',
-            'hpp': 'cpp',
-            'cs': 'csharp',
-            'sql': 'sql',
-            'r': 'r',
-            'swift': 'swift',
-            'kt': 'kotlin',
-            'scala': 'scala',
-            'clj': 'clojure',
-            'ex': 'elixir',
-            'exs': 'elixir',
-            'dockerfile': 'dockerfile'
+            "js": "javascript",
+            "jsx": "javascript",
+            "ts": "typescript",
+            "tsx": "typescript",
+            "py": "python",
+            "html": "html",
+            "htm": "html",
+            "css": "css",
+            "scss": "scss",
+            "sass": "sass",
+            "less": "less",
+            "json": "json",
+            "xml": "xml",
+            "yaml": "yaml",
+            "yml": "yaml",
+            "md": "markdown",
+            "sh": "bash",
+            "bash": "bash",
+            "zsh": "bash",
+            "php": "php",
+            "rb": "ruby",
+            "go": "go",
+            "rs": "rust",
+            "java": "java",
+            "c": "c",
+            "cpp": "cpp",
+            "cc": "cpp",
+            "cxx": "cpp",
+            "h": "c",
+            "hpp": "cpp",
+            "cs": "csharp",
+            "sql": "sql",
+            "r": "r",
+            "swift": "swift",
+            "kt": "kotlin",
+            "scala": "scala",
+            "clj": "clojure",
+            "ex": "elixir",
+            "exs": "elixir",
+            "dockerfile": "dockerfile",
         }
 
     def highlight_diff_line(self, content: str, file_path: str) -> str:
@@ -94,7 +94,7 @@ class SyntaxHighlightingService:
 
     def _get_cached_lexer(self, file_path: str):
         """Get lexer for file, using cache for performance."""
-        file_ext = Path(file_path).suffix.lower().lstrip('.')
+        file_ext = Path(file_path).suffix.lower().lstrip(".")
 
         if file_ext not in self._lexer_cache:
             try:
@@ -104,14 +104,14 @@ class SyntaxHighlightingService:
                     lexer = get_lexer_by_name(language)
                 else:
                     # Fall back to filename-based detection
-                    lexer = guess_lexer_for_filename(file_path, '')
+                    lexer = guess_lexer_for_filename(file_path, "")
 
                 self._lexer_cache[file_ext] = lexer
                 logger.debug(f"Cached lexer for {file_ext}: {lexer.name}")
 
             except ClassNotFound:
                 # Default to text lexer for unknown files
-                lexer = get_lexer_by_name('text')
+                lexer = get_lexer_by_name("text")
                 self._lexer_cache[file_ext] = lexer
                 logger.debug(f"Using text lexer for unknown extension: {file_ext}")
 
@@ -123,5 +123,4 @@ class SyntaxHighlightingService:
         Returns:
             CSS styles as string
         """
-        return self.formatter.get_style_defs('.highlight')
-
+        return self.formatter.get_style_defs(".highlight")

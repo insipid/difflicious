@@ -254,61 +254,61 @@ function checkHunkAdjacency(button, direction, targetStart, targetEnd) {
     if (direction === 'after') {
         const context = hunkContext(button);
         if (!context?.fileElement) return false;
-        
+
         const { currentHunk, nextHunk } = context;
         if (nextHunk) {
-                const nextHunkStart = parseInt(nextHunk.dataset.lineStart);
-                if (targetEnd === nextHunkStart - 1) {
-                    // Hide both before buttons in the next hunk (left and right sides)
-                    const nextHunkBeforeBtns = nextHunk.querySelectorAll('.expansion-btn[data-direction="before"]');
-                    nextHunkBeforeBtns.forEach(btn => {
-                        btn.style.display = 'none';
-                    });
-                    if (nextHunkBeforeBtns.length > 0) {
-                        hideExpansionBarIfAllButtonsHidden(nextHunkBeforeBtns[0]);
-                    }
-
-                    // Also hide all remaining after buttons in the current hunk since no more expansion is possible
-                    const currentHunkAfterBtns = currentHunk.querySelectorAll('.expansion-btn[data-direction="after"]');
-                    currentHunkAfterBtns.forEach(btn => {
-                        btn.style.display = 'none';
-                    });
-                    if (currentHunkAfterBtns.length > 0) {
-                        hideExpansionBarIfAllButtonsHidden(currentHunkAfterBtns[0]);
-                    }
-
-                    return true;
+            const nextHunkStart = parseInt(nextHunk.dataset.lineStart);
+            if (targetEnd === nextHunkStart - 1) {
+                // Hide both before buttons in the next hunk (left and right sides)
+                const nextHunkBeforeBtns = nextHunk.querySelectorAll('.expansion-btn[data-direction="before"]');
+                nextHunkBeforeBtns.forEach(btn => {
+                    btn.style.display = 'none';
+                });
+                if (nextHunkBeforeBtns.length > 0) {
+                    hideExpansionBarIfAllButtonsHidden(nextHunkBeforeBtns[0]);
                 }
+
+                // Also hide all remaining after buttons in the current hunk since no more expansion is possible
+                const currentHunkAfterBtns = currentHunk.querySelectorAll('.expansion-btn[data-direction="after"]');
+                currentHunkAfterBtns.forEach(btn => {
+                    btn.style.display = 'none';
+                });
+                if (currentHunkAfterBtns.length > 0) {
+                    hideExpansionBarIfAllButtonsHidden(currentHunkAfterBtns[0]);
+                }
+
+                return true;
             }
+        }
     } else if (direction === 'before') {
         const context = hunkContext(button);
         if (!context?.fileElement) return false;
-        
+
         const { currentHunk, prevHunk } = context;
         if (prevHunk) {
-                const prevHunkEnd = parseInt(prevHunk.dataset.lineEnd);
-                if (targetStart <= prevHunkEnd + 1) {
-                    // Hide both after buttons in the previous hunk (left and right sides)
-                    const prevHunkAfterBtns = prevHunk.querySelectorAll('.expansion-btn[data-direction="after"]');
-                    prevHunkAfterBtns.forEach(btn => {
-                        btn.style.display = 'none';
-                    });
-                    if (prevHunkAfterBtns.length > 0) {
-                        hideExpansionBarIfAllButtonsHidden(prevHunkAfterBtns[0]);
-                    }
-
-                    // Also hide all remaining before buttons in the current hunk since no more expansion is possible
-                    const currentHunkBeforeBtns = currentHunk.querySelectorAll('.expansion-btn[data-direction="before"]');
-                    currentHunkBeforeBtns.forEach(btn => {
-                        btn.style.display = 'none';
-                    });
-                    if (currentHunkBeforeBtns.length > 0) {
-                        hideExpansionBarIfAllButtonsHidden(currentHunkBeforeBtns[0]);
-                    }
-
-                    return true;
+            const prevHunkEnd = parseInt(prevHunk.dataset.lineEnd);
+            if (targetStart <= prevHunkEnd + 1) {
+                // Hide both after buttons in the previous hunk (left and right sides)
+                const prevHunkAfterBtns = prevHunk.querySelectorAll('.expansion-btn[data-direction="after"]');
+                prevHunkAfterBtns.forEach(btn => {
+                    btn.style.display = 'none';
+                });
+                if (prevHunkAfterBtns.length > 0) {
+                    hideExpansionBarIfAllButtonsHidden(prevHunkAfterBtns[0]);
                 }
+
+                // Also hide all remaining before buttons in the current hunk since no more expansion is possible
+                const currentHunkBeforeBtns = currentHunk.querySelectorAll('.expansion-btn[data-direction="before"]');
+                currentHunkBeforeBtns.forEach(btn => {
+                    btn.style.display = 'none';
+                });
+                if (currentHunkBeforeBtns.length > 0) {
+                    hideExpansionBarIfAllButtonsHidden(currentHunkBeforeBtns[0]);
+                }
+
+                return true;
             }
+        }
     }
     return false;
 }
