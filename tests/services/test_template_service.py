@@ -220,7 +220,7 @@ class TestTemplateRenderingService:
         """Test context expansion after."""
         # Create hunks where first has lines and second starts immediately after
         hunks = [
-            {"new_start": 1, "lines": [{"type": "context"}, {"type": "context"}]}, 
+            {"new_start": 1, "lines": [{"type": "context"}, {"type": "context"}]},
             {"new_start": 3, "lines": [{"type": "context"}]}
         ]
 
@@ -231,13 +231,13 @@ class TestTemplateRenderingService:
         # Second hunk can expand after (last hunk)
         result = self.service._can_expand_context(hunks, 1, "after")
         assert result is False
-        
+
         # Test with actual gap
         hunks_with_gap = [
-            {"new_start": 1, "lines": [{"type": "context"}]}, 
+            {"new_start": 1, "lines": [{"type": "context"}]},
             {"new_start": 5, "lines": [{"type": "context"}]}
         ]
-        
+
         # First hunk can expand after (gap exists)
         result = self.service._can_expand_context(hunks_with_gap, 0, "after")
         assert result is True
