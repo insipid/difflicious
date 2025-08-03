@@ -31,6 +31,7 @@ dependencies = [
     "unidiff>=0.7.5",
     "Pygments>=2.17.0",
     "MarkupSafe>=2.1.0",
+    "jinja-partials>=0.2.0",
 ]
 
 [project.optional-dependencies]

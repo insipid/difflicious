@@ -200,6 +200,7 @@ dependencies = [
     { name = "click", version = "8.1.8", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "flask" },
+    { name = "jinja-partials" },
     { name = "markupsafe" },
     { name = "pygments" },
     { name = "unidiff" },
@@ -230,6 +231,7 @@ requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=23.0.0" },
     { name = "click", specifier = ">=8.0.0" },
     { name = "flask", specifier = ">=2.3.0" },
+    { name = "jinja-partials", specifier = ">=0.2.0" },
     { name = "markupsafe", specifier = ">=2.1.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.0.0" },
     { name = "pygments", specifier = ">=2.17.0" },
@@ -310,6 +312,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/9c/cb/8ac0172223afbccb63986cc25049b154ecfb5e85932587206f42317be31d/itsdangerous-2.2.0.tar.gz", hash = "sha256:e0050c0b7da1eea53ffaf149c0cfbb5c6e2e2b69c4bef22c81fa6eb73e5f6173", size = 54410, upload-time = "2024-04-16T21:28:15.614Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/04/96/92447566d16df59b2a776c0fb82dbc4d9e07cd95062562af01e408583fc4/itsdangerous-2.2.0-py3-none-any.whl", hash = "sha256:c6242fc49e35958c8b15141343aa660db5fc54d4f13a1db01a3f5891b98700ef", size = 16234, upload-time = "2024-04-16T21:28:14.499Z" },
+]
+
+[[package]]
+name = "jinja-partials"
+version = "0.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "jinja2" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/61/e2/8e8adedc678e51e5fe1f19e34ae279c558f4912d9b1535832cd3c1d0a6ac/jinja_partials-0.3.0.tar.gz", hash = "sha256:e5f22d272bd47cb0652ca97ec17b9358a1b3daf30efbcabf3ca24c6b0d4923c9", size = 2971077, upload-time = "2025-05-31T17:49:46.761Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/15/af/6f4edca14ac66b1ab7c57ea0ecd1d938c4cf7c80b20fbb49af06c9662cf0/jinja_partials-0.3.0-py3-none-any.whl", hash = "sha256:023227b66869b29af30f10e52cf7a2260ae7abfa4dcc1fb26e571450dd68bcc3", size = 5362, upload-time = "2025-05-31T17:49:45.024Z" },
 ]
 
 [[package]]
