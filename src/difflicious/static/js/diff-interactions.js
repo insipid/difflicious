@@ -22,8 +22,8 @@ const DiffState = {
         const expandAllBtn = $('#expandAll');
         const collapseAllBtn = $('#collapseAll');
 
-        if (expandAllBtn) expandAllBtn.addEventListener('click', () => this.expandAllFiles());
-        if (collapseAllBtn) collapseAllBtn.addEventListener('click', () => this.collapseAllFiles());
+        if (expandAllBtn) expandAllBtn.addEventListener('click', () => expandAllFiles());
+        if (collapseAllBtn) collapseAllBtn.addEventListener('click', () => collapseAllFiles());
 
         // Form auto-submit on changes
         $$('input[type="checkbox"], select').forEach(input => {
