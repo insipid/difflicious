@@ -359,8 +359,13 @@ class GitRepository:
 
             # Get unstaged changes if requested
             if include_unstaged:
-                # Compare working directory to reference point
-                diff_args = ["diff", "--numstat", reference_point]
+                if use_head:
+                    # For HEAD comparison: show only working directory vs index (true unstaged)
+                    diff_args = ["diff", "--numstat"]  # No reference point = working dir vs index
+                else:
+                    # For branch comparison: show working directory vs branch (staged + unstaged vs branch)
+                    diff_args = ["diff", "--numstat", reference_point]
+                    
                 if file_path:
                     if not self._is_safe_file_path(file_path):
                         raise GitOperationError(f"Unsafe file path: {file_path}")
@@ -372,9 +377,16 @@ class GitRepository:
 
                 unstaged_diffs = self._parse_diff_output(stdout)
                 for diff_info in unstaged_diffs:
-                    detailed_diff = self._get_file_diff(
-                        diff_info["path"], reference_point, None, False
-                    )
+                    if use_head:
+                        # For HEAD comparison: get diff of working dir vs index
+                        detailed_diff = self._get_file_diff(
+                            diff_info["path"], None, None, False
+                        )
+                    else:
+                        # For branch comparison: get diff of working dir vs branch
+                        detailed_diff = self._get_file_diff(
+                            diff_info["path"], reference_point, None, False
+                        )
                     diff_info["content"] = detailed_diff
                     diff_info["status"] = "unstaged"
                     groups["unstaged"]["files"].append(diff_info)
