@@ -20,40 +20,29 @@
                 <div class="flex items-center space-x-4">
                     <!-- DEBUG: is_head_comparison = {{ is_head_comparison }}, base_commit = {{ current_base_branch }} -->
                     {% if is_head_comparison %}
-                    <!-- HEAD comparison: only show "Changes" and "Untracked" -->
+                    <!-- HEAD comparison: show "Unstaged" and "Untracked" -->
                     <label class="flex items-center">
                         <input type="checkbox" name="unstaged" value="true" {% if unstaged %}checked{% endif %}
-                            onchange="this.form.submit()"
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded checkbox-control">
+                        <span class="ml-1 text-sm text-gray-700">Unstaged</span>
+                    </label>
+
+                    <label class="flex items-center">
+                        <input type="checkbox" name="untracked" value="true" {% if untracked %}checked{% endif %}
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded checkbox-control">
+                        <span class="ml-1 text-sm text-gray-700">Untracked</span>
+                    </label>
+                    {% else %}
+                    <!-- Branch comparison: show "Changes" and "Untracked" -->
+                    <label class="flex items-center">
+                        <input type="checkbox" name="unstaged" value="true" {% if unstaged %}checked{% endif %}
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded checkbox-control">
                         <span class="ml-1 text-sm text-gray-700">Changes</span>
                     </label>
 
                     <label class="flex items-center">
                         <input type="checkbox" name="untracked" value="true" {% if untracked %}checked{% endif %}
-                            onchange="this.form.submit()"
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                        <span class="ml-1 text-sm text-gray-700">Untracked</span>
-                    </label>
-                    {% else %}
-                    <!-- Branch comparison: show "Unstaged", "Staged", and "Untracked" -->
-                    <label class="flex items-center">
-                        <input type="checkbox" name="unstaged" value="true" {% if unstaged %}checked{% endif %}
-                            onchange="this.form.submit()"
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                        <span class="ml-1 text-sm text-gray-700">Unstaged</span>
-                    </label>
-
-                    <label class="flex items-center">
-                        <input type="checkbox" name="staged" value="true" {% if staged %}checked{% endif %}
-                            onchange="this.form.submit()"
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                        <span class="ml-1 text-sm text-gray-700">Staged</span>
-                    </label>
-
-                    <label class="flex items-center">
-                        <input type="checkbox" name="untracked" value="true" {% if untracked %}checked{% endif %}
-                            onchange="this.form.submit()"
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded checkbox-control">
                         <span class="ml-1 text-sm text-gray-700">Untracked</span>
                     </label>
                     {% endif %}
@@ -77,3 +66,48 @@
         </div>
     </div>
 </header>
+
+<script>
+function updateCheckboxAndSubmit(checkbox) {
+    const form = checkbox.form;
+    const formData = new FormData(form);
+    const params = new URLSearchParams();
+    
+    // Get all form data except checkboxes (we'll handle those explicitly)
+    for (const [key, value] of formData.entries()) {
+        if (key !== 'unstaged' && key !== 'untracked') {
+            params.set(key, value);
+        }
+    }
+    
+    // Explicitly set checkbox states based on their current checked state
+    const unstagedCheckbox = form.querySelector('input[name="unstaged"]');
+    const untrackedCheckbox = form.querySelector('input[name="untracked"]');
+    
+    if (unstagedCheckbox) {
+        params.set('unstaged', unstagedCheckbox.checked ? 'true' : 'false');
+    }
+    if (untrackedCheckbox) {
+        params.set('untracked', untrackedCheckbox.checked ? 'true' : 'false');
+    }
+    
+    // Navigate to the updated URL
+    window.location.href = '?' + params.toString();
+}
+
+// Set up event listeners when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.checkbox-control');
+    
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', function(event) {
+            // Prevent the default form submission behavior
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            
+            updateCheckboxAndSubmit(this);
+        });
+    });
+});
+</script>

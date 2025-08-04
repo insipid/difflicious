@@ -1,24 +1,26 @@
 {% extends "base.html" %}
 
 {% block content %}
-{{ render_partial('partials/toolbar.html', 
-   branches=branches, 
-   current_base_branch=current_base_branch, 
-   unstaged=unstaged, 
-   untracked=untracked, 
-   search_filter=search_filter, 
-   total_files=total_files) }}
+{{ render_partial('partials/toolbar.html',
+branches=branches,
+current_base_branch=current_base_branch,
+unstaged=unstaged,
+staged=staged,
+untracked=untracked,
+search_filter=search_filter,
+total_files=total_files,
+is_head_comparison=is_head_comparison) }}
 
 <!-- Main Content -->
 <main class="flex-1 overflow-hidden">
     {% if loading %}
     {{ render_partial('partials/loading_state.html') }}
     {% elif not groups or not total_files %}
-    {{ render_partial('partials/empty_state.html', 
-       error=error, 
-       unstaged=unstaged, 
-       untracked=untracked, 
-       current_base_branch=current_base_branch) }}
+    {{ render_partial('partials/empty_state.html',
+    error=error,
+    unstaged=unstaged,
+    untracked=untracked,
+    current_base_branch=current_base_branch) }}
     {% else %}
     <!-- Diff Content -->
     <div class="h-full overflow-y-auto">
