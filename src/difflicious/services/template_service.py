@@ -26,6 +26,7 @@ class TemplateRenderingService(BaseService):
         base_commit: Optional[str] = None,
         target_commit: Optional[str] = None,
         unstaged: bool = True,
+        staged: bool = True,
         untracked: bool = False,
         file_path: Optional[str] = None,
         search_filter: Optional[str] = None,
@@ -67,6 +68,33 @@ class TemplateRenderingService(BaseService):
                         untracked=untracked,
                         file_path=file_path,
                     )
+                    
+                    # For HEAD comparison, combine unstaged + staged into "changes" group
+                    if use_head_comparison:
+                        changes_files = []
+                        changes_count = 0
+                        
+                        # Add unstaged files
+                        if "unstaged" in grouped_diffs:
+                            changes_files.extend(grouped_diffs["unstaged"]["files"])
+                            changes_count += grouped_diffs["unstaged"]["count"]
+                        
+                        # Add staged files  
+                        if "staged" in grouped_diffs:
+                            changes_files.extend(grouped_diffs["staged"]["files"])
+                            changes_count += grouped_diffs["staged"]["count"]
+                        
+                        # Replace unstaged group with combined changes group
+                        grouped_diffs["changes"] = {
+                            "files": changes_files,
+                            "count": changes_count
+                        }
+                        
+                        # Remove the separate unstaged and staged groups
+                        if "unstaged" in grouped_diffs:
+                            del grouped_diffs["unstaged"]
+                        if "staged" in grouped_diffs:
+                            del grouped_diffs["staged"]
                 else:
                     # Working directory vs default branch comparison
                     grouped_diffs = self.diff_service.get_grouped_diffs(
@@ -94,11 +122,15 @@ class TemplateRenderingService(BaseService):
             # Calculate totals
             total_files = sum(group["count"] for group in enhanced_groups.values())
 
+            # Determine if we're comparing to HEAD (current branch)
+            current_branch = repo_status.get("current_branch", "unknown")
+            is_head_comparison = base_commit in ["HEAD", current_branch]
+            
             return {
                 # Repository info
                 "repo_status": repo_status,
                 "branches": branch_info.get("branches", {}),
-                "current_branch": repo_status.get("current_branch", "unknown"),
+                "current_branch": current_branch,
                 # Diff data
                 "groups": enhanced_groups,
                 "total_files": total_files,
@@ -106,11 +138,14 @@ class TemplateRenderingService(BaseService):
                 "current_base_branch": base_commit
                 or branch_info.get("branches", {}).get("default", "main"),
                 "unstaged": unstaged,
+                "staged": staged,
                 "untracked": untracked,
                 "search_filter": search_filter,
                 # Template helpers
                 "syntax_css": self.syntax_service.get_css_styles(),
                 "loading": False,
+                # Comparison mode
+                "is_head_comparison": is_head_comparison,
             }
 
         except Exception as e:

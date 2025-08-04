@@ -38,6 +38,7 @@ def create_app() -> Flask:
             base_branch = request.args.get("base_branch")
             target_commit = request.args.get("target_commit")
             unstaged = request.args.get("unstaged", "true").lower() == "true"
+            staged = request.args.get("staged", "true").lower() == "true"
             untracked = request.args.get("untracked", "false").lower() == "true"
             file_path = request.args.get("file")
             search_filter = request.args.get("search", "").strip()
@@ -49,6 +50,7 @@ def create_app() -> Flask:
                 base_commit=base_branch,
                 target_commit=target_commit,
                 unstaged=unstaged,
+                staged=staged,
                 untracked=untracked,
                 file_path=file_path,
                 search_filter=search_filter if search_filter else None,

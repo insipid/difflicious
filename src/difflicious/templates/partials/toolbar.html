@@ -10,7 +10,7 @@
                 <select name="base_branch" onchange="this.form.submit()"
                     class="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     {% for branch in branches.all %}
-                    <option value="{{ branch }}" {% if branch == current_base_branch %}selected{% endif %}>
+                    <option value="{{ branch }}" {% if branch==current_base_branch %}selected{% endif %}>
                         {{ branch }}
                     </option>
                     {% endfor %}
@@ -18,27 +18,49 @@
 
                 <!-- Diff Options -->
                 <div class="flex items-center space-x-4">
+                    {% if is_head_comparison %}
+                    <!-- HEAD comparison: only show "Changes" and "Untracked" -->
                     <label class="flex items-center">
-                        <input type="checkbox" name="unstaged" value="true" 
-                               {% if unstaged %}checked{% endif %}
-                               onchange="this.form.submit()"
-                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                        <span class="ml-1 text-sm text-gray-700">Unstaged</span>
+                        <input type="checkbox" name="unstaged" value="true" {% if unstaged %}checked{% endif %}
+                            onchange="this.form.submit()"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-1 text-sm text-gray-700">Changes</span>
                     </label>
-                    
+
                     <label class="flex items-center">
-                        <input type="checkbox" name="untracked" value="true"
-                               {% if untracked %}checked{% endif %}
-                               onchange="this.form.submit()"
-                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <input type="checkbox" name="untracked" value="true" {% if untracked %}checked{% endif %}
+                            onchange="this.form.submit()"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                         <span class="ml-1 text-sm text-gray-700">Untracked</span>
                     </label>
+                    {% else %}
+                    <!-- Branch comparison: show "Unstaged", "Staged", and "Untracked" -->
+                    <label class="flex items-center">
+                        <input type="checkbox" name="unstaged" value="true" {% if unstaged %}checked{% endif %}
+                            onchange="this.form.submit()"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-1 text-sm text-gray-700">Unstaged</span>
+                    </label>
+
+                    <label class="flex items-center">
+                        <input type="checkbox" name="staged" value="true" {% if staged %}checked{% endif %}
+                            onchange="this.form.submit()"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-1 text-sm text-gray-700">Staged</span>
+                    </label>
+
+                    <label class="flex items-center">
+                        <input type="checkbox" name="untracked" value="true" {% if untracked %}checked{% endif %}
+                            onchange="this.form.submit()"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-1 text-sm text-gray-700">Untracked</span>
+                    </label>
+                    {% endif %}
                 </div>
-                
+
                 <!-- Search Filter -->
-                <input type="text" name="search" value="{{ search_filter or '' }}" 
-                       placeholder="Search files..." 
-                       class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <input type="text" name="search" value="{{ search_filter or '' }}" placeholder="Search files..."
+                    class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </form>
         </div>
 
@@ -47,7 +69,7 @@
             <div class="text-sm text-gray-600">
                 {{ total_files }} files changed
             </div>
-            <button onclick="location.reload()" 
+            <button onclick="location.reload()"
                 class="bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 Refresh
             </button>
