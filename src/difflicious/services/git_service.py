@@ -22,7 +22,7 @@ class GitService(BaseService):
             repo_name = self.repo.get_repository_name()
 
             # Get diff data to count changed files
-            diff_data = self.repo.get_diff(unstaged=True, untracked=True)
+            diff_data = self.repo.get_diff(include_unstaged=True, include_untracked=True)
             total_files = sum(group.get("count", 0) for group in diff_data.values())
 
             return {

@@ -29,10 +29,10 @@ class DiffService(BaseService):
         from app.py and makes it independently testable.
 
         Args:
-            base_commit: Base commit SHA to compare from
-            target_commit: Target commit SHA to compare to
-            unstaged: Whether to include unstaged changes
-            untracked: Whether to include untracked files
+            base_commit: Legacy parameter - now mapped to use_head behavior
+            target_commit: Legacy parameter - now ignored (was used for commit-to-commit comparison)
+            unstaged: Whether to include unstaged changes (mapped to include_unstaged)
+            untracked: Whether to include untracked files (mapped to include_untracked)
             file_path: Optional specific file to diff
 
         Returns:
@@ -42,12 +42,28 @@ class DiffService(BaseService):
             DiffServiceError: If diff processing fails
         """
         try:
-            # Get raw diff data from git operations
+            # Map old parameters to new interface
+            # If base_commit was specified as "HEAD", use use_head=True
+            # Otherwise use default branch comparison (use_head=False)
+            use_head = base_commit == "HEAD" if base_commit else False
+            
+            # Log a warning if commit-to-commit comparison was attempted
+            if base_commit and target_commit:
+                logger.warning(
+                    f"Commit-to-commit comparison (base: {base_commit}, target: {target_commit}) "
+                    "is no longer supported. Comparing working directory to default branch instead."
+                )
+            elif base_commit and base_commit != "HEAD":
+                logger.warning(
+                    f"Comparing to specific commit ({base_commit}) is no longer supported. "
+                    "Comparing working directory to default branch instead."
+                )
+
+            # Get raw diff data from git operations using new interface
             grouped_diffs = self.repo.get_diff(
-                base_commit=base_commit,
-                target_commit=target_commit,
-                unstaged=unstaged,
-                untracked=untracked,
+                use_head=use_head,
+                include_unstaged=unstaged,
+                include_untracked=untracked,
                 file_path=file_path,
             )
 
