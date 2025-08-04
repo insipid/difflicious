@@ -298,19 +298,17 @@ class GitRepository:
 
     def get_diff(
         self,
-        base_commit: Optional[str] = None,
-        target_commit: Optional[str] = None,
-        unstaged: bool = True,
-        untracked: bool = False,
+        use_head: bool = False,
+        include_unstaged: bool = True,
+        include_untracked: bool = False,
         file_path: Optional[str] = None,
     ) -> dict[str, Any]:
-        """Get git diff information grouped by type.
+        """Get git diff information comparing working directory to a reference point.
 
         Args:
-            base_commit: Base commit SHA to compare from. Defaults to 'main' if target_commit specified.
-            target_commit: Target commit SHA to compare to. Defaults to working directory.
-            unstaged: If True, include unstaged changes (only used when no commits specified).
-            untracked: If True, include untracked files (only used when no commits specified).
+            use_head: If True, compare against HEAD. If False, compare against default branch.
+            include_unstaged: If True, include unstaged changes in the output.
+            include_untracked: If True, include untracked files in the output.
             file_path: Optional specific file to diff
 
         Returns:
@@ -323,115 +321,83 @@ class GitRepository:
                 "staged": {"files": [], "count": 0},
             }
 
-            # Handle commit comparison
-            if (base_commit and base_commit.strip()) or (
-                target_commit and target_commit.strip()
-            ):
-                # If comparing commits, validate them
-                if base_commit:
-                    if not self._is_safe_commit_sha(base_commit):
-                        raise GitOperationError(
-                            f"Invalid or unsafe base commit: {base_commit}"
-                        )
-                else:
-                    # Default to main if target_commit is specified
-                    base_commit = "main"
-                    if not self._is_safe_commit_sha(base_commit):
-                        # Fallback to HEAD if main doesn't exist
-                        base_commit = "HEAD"
+            # Determine reference point
+            if use_head:
+                reference_point = "HEAD"
+            else:
+                # Use default branch (main/master)
+                branches_info = self.get_branches()
+                reference_point = branches_info.get("default_branch", "main")
+                if not self._is_safe_commit_sha(reference_point):
+                    # Fallback to HEAD if default branch doesn't exist
+                    reference_point = "HEAD"
 
-                if target_commit:
-                    if not self._is_safe_commit_sha(target_commit):
-                        raise GitOperationError(
-                            f"Invalid or unsafe target commit: {target_commit}"
-                        )
-                    diff_args = ["diff", "--numstat", base_commit, target_commit]
-                else:
-                    # Compare base_commit to working directory
-                    diff_args = ["diff", "--numstat", base_commit]
+            # Validate reference point
+            if not self._is_safe_commit_sha(reference_point):
+                raise GitOperationError(f"Invalid reference point: {reference_point}")
 
+            # Get untracked files if requested
+            if include_untracked:
+                status_args = ["status", "--porcelain"]
+                stdout, stderr, return_code = self._execute_git_command(status_args)
+                if return_code == 0:
+                    for line in stdout.strip().split("\n"):
+                        if line.strip() and line.startswith("??"):
+                            file_name = line[3:].strip()
+                            if not file_path or file_path in file_name:
+                                groups["untracked"]["files"].append(
+                                    {
+                                        "path": file_name,
+                                        "additions": 0,
+                                        "deletions": 0,
+                                        "changes": 0,
+                                        "status": "untracked",
+                                        "content": f"New untracked file: {file_name}",
+                                    }
+                                )
+                groups["untracked"]["count"] = len(groups["untracked"]["files"])
+
+            # Get unstaged changes if requested
+            if include_unstaged:
+                # Compare working directory to reference point
+                diff_args = ["diff", "--numstat", reference_point]
                 if file_path:
                     if not self._is_safe_file_path(file_path):
                         raise GitOperationError(f"Unsafe file path: {file_path}")
                     diff_args.append(file_path)
 
-                # Execute diff command
                 stdout, stderr, return_code = self._execute_git_command(diff_args)
                 if return_code != 0 and stderr:
                     logger.warning(f"Git diff warning: {stderr}")
 
-                # Parse diff output and put in unstaged group for commit comparisons
-                diffs = self._parse_diff_output(stdout)
-                for diff_info in diffs:
+                unstaged_diffs = self._parse_diff_output(stdout)
+                for diff_info in unstaged_diffs:
                     detailed_diff = self._get_file_diff(
-                        diff_info["path"], base_commit, target_commit, False
+                        diff_info["path"], reference_point, None, False
                     )
                     diff_info["content"] = detailed_diff
+                    diff_info["status"] = "unstaged"
                     groups["unstaged"]["files"].append(diff_info)
                 groups["unstaged"]["count"] = len(groups["unstaged"]["files"])
-            else:
-                # Working directory diffs
-                if untracked:
-                    # Get untracked files (no diff content, just file list)
-                    status_args = ["status", "--porcelain"]
-                    stdout, stderr, return_code = self._execute_git_command(status_args)
-                    if return_code == 0:
-                        for line in stdout.strip().split("\n"):
-                            if line.strip() and line.startswith("??"):
-                                file_name = line[3:].strip()
-                                if not file_path or file_path in file_name:
-                                    groups["untracked"]["files"].append(
-                                        {
-                                            "path": file_name,
-                                            "additions": 0,
-                                            "deletions": 0,
-                                            "changes": 0,
-                                            "status": "untracked",
-                                            "content": f"New untracked file: {file_name}",
-                                        }
-                                    )
-                    groups["untracked"]["count"] = len(groups["untracked"]["files"])
 
-                if unstaged:
-                    # Get unstaged changes
-                    diff_args = ["diff", "--numstat"]
-                    if file_path:
-                        if not self._is_safe_file_path(file_path):
-                            raise GitOperationError(f"Unsafe file path: {file_path}")
-                        diff_args.append(file_path)
+            # Always check for staged changes
+            staged_args = ["diff", "--cached", "--numstat"]
+            if file_path:
+                if not self._is_safe_file_path(file_path):
+                    raise GitOperationError(f"Unsafe file path: {file_path}")
+                staged_args.append(file_path)
 
-                    stdout, stderr, return_code = self._execute_git_command(diff_args)
-                    if return_code != 0 and stderr:
-                        logger.warning(f"Git diff warning: {stderr}")
-
-                    unstaged_diffs = self._parse_diff_output(stdout)
-                    for diff_info in unstaged_diffs:
-                        detailed_diff = self._get_file_diff(
-                            diff_info["path"], None, None, False
-                        )
-                        diff_info["content"] = detailed_diff
-                        diff_info["status"] = "unstaged"
-                        groups["unstaged"]["files"].append(diff_info)
-                    groups["unstaged"]["count"] = len(groups["unstaged"]["files"])
-
-                # Always check for staged changes
-                staged_args = ["diff", "--cached", "--numstat"]
-                if file_path:
-                    if not self._is_safe_file_path(file_path):
-                        raise GitOperationError(f"Unsafe file path: {file_path}")
-                    staged_args.append(file_path)
-
-                stdout, stderr, return_code = self._execute_git_command(staged_args)
-                if return_code == 0:  # Don't warn for staged diffs, often empty
-                    staged_diffs = self._parse_diff_output(stdout)
-                    for diff_info in staged_diffs:
-                        detailed_diff = self._get_file_diff(
-                            diff_info["path"], None, None, True
-                        )
-                        diff_info["content"] = detailed_diff
-                        diff_info["status"] = "staged"
-                        groups["staged"]["files"].append(diff_info)
-                    groups["staged"]["count"] = len(groups["staged"]["files"])
+            stdout, stderr, return_code = self._execute_git_command(staged_args)
+            if return_code == 0:  # Don't warn for staged diffs, often empty
+                staged_diffs = self._parse_diff_output(stdout)
+                for diff_info in staged_diffs:
+                    detailed_diff = self._get_file_diff(
+                        diff_info["path"], None, None, True
+                    )
+                    diff_info["content"] = detailed_diff
+                    diff_info["status"] = "staged"
+                    groups["staged"]["files"].append(diff_info)
+                groups["staged"]["count"] = len(groups["staged"]["files"])
 
             return groups
 
