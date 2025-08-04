@@ -18,6 +18,7 @@
 
                 <!-- Diff Options -->
                 <div class="flex items-center space-x-4">
+                    <!-- DEBUG: is_head_comparison = {{ is_head_comparison }}, base_commit = {{ current_base_branch }} -->
                     {% if is_head_comparison %}
                     <!-- HEAD comparison: only show "Changes" and "Untracked" -->
                     <label class="flex items-center">

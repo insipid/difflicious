@@ -124,7 +124,9 @@ class TemplateRenderingService(BaseService):
 
             # Determine if we're comparing to HEAD (current branch)
             current_branch = repo_status.get("current_branch", "unknown")
-            is_head_comparison = base_commit in ["HEAD", current_branch]
+            is_head_comparison = base_commit in ["HEAD", current_branch] if base_commit else False
+            
+            logger.info(f"Template final: base_commit='{base_commit}', current_branch='{current_branch}', is_head_comparison={is_head_comparison}")
             
             return {
                 # Repository info
@@ -332,9 +334,11 @@ class TemplateRenderingService(BaseService):
             "total_files": 0,
             "current_base_branch": "main",
             "unstaged": True,
+            "staged": True,
             "untracked": False,
             "search_filter": "",
             "syntax_css": "",
             "loading": False,
             "error": error_message,
+            "is_head_comparison": False,
         }
