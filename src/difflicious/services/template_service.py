@@ -50,14 +50,41 @@ class TemplateRenderingService(BaseService):
             repo_status = self.git_service.get_repository_status()
             branch_info = self.git_service.get_branch_information()
 
-            # Get diff data
-            grouped_diffs = self.diff_service.get_grouped_diffs(
-                base_commit=base_commit,
-                target_commit=target_commit,
-                unstaged=unstaged,
-                untracked=untracked,
-                file_path=file_path,
-            )
+            # Get diff data with explicit logic for the two main use cases
+            # Map base_commit parameter to use_head logic
+            if base_commit:
+                current_branch = repo_status.get("current_branch")
+                use_head_comparison = base_commit in ["HEAD", current_branch]
+                
+                logger.info(f"Template service: base_commit='{base_commit}', current_branch='{current_branch}', use_head={use_head_comparison}")
+                
+                if use_head_comparison:
+                    # Working directory vs HEAD comparison
+                    grouped_diffs = self.diff_service.get_grouped_diffs(
+                        base_commit="HEAD",
+                        target_commit=None,
+                        unstaged=unstaged,
+                        untracked=untracked,
+                        file_path=file_path,
+                    )
+                else:
+                    # Working directory vs default branch comparison
+                    grouped_diffs = self.diff_service.get_grouped_diffs(
+                        base_commit=None,  # Will default to default branch via the mapping
+                        target_commit=None,
+                        unstaged=unstaged,
+                        untracked=untracked,
+                        file_path=file_path,
+                    )
+            else:
+                # Default behavior: compare to default branch
+                grouped_diffs = self.diff_service.get_grouped_diffs(
+                    base_commit=None,
+                    target_commit=target_commit,
+                    unstaged=unstaged,
+                    untracked=untracked,
+                    file_path=file_path,
+                )
 
             # Process and enhance diff data for template rendering
             enhanced_groups = self._enhance_diff_data_for_templates(
