@@ -10,7 +10,11 @@
                 {{ '▼' if file.expanded else '▶' }}
             </span>
             <span class="font-mono text-sm text-gray-900">{{ file.path }}</span>
-            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+            <span class="text-xs px-2 py-1 rounded
+                {%- if file.status == 'added' %} bg-green-100 text-green-800
+                {%- elif file.status == 'deleted' %} bg-red-100 text-red-800
+                {%- else %} bg-gray-100 text-gray-500
+                {%- endif %}">
                 {{ file.status }}
             </span>
         </div>

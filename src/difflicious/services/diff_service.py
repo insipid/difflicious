@@ -46,7 +46,7 @@ class DiffService(BaseService):
             # If base_commit was specified as "HEAD", use use_head=True
             # Otherwise use default branch comparison (use_head=False)
             use_head = base_commit == "HEAD" if base_commit else False
-            
+
             # Log a warning if commit-to-commit comparison was attempted
             if base_commit and target_commit:
                 logger.warning(

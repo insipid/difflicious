@@ -38,7 +38,7 @@ def create_app() -> Flask:
             base_branch = request.args.get("base_branch")
             target_commit = request.args.get("target_commit")
             unstaged = request.args.get("unstaged", "true").lower() == "true"
-            staged = request.args.get("staged", "true").lower() == "true"  
+            staged = request.args.get("staged", "true").lower() == "true"
             untracked = request.args.get("untracked", "false").lower() == "true"
             file_path = request.args.get("file")
             search_filter = request.args.get("search", "").strip()
@@ -240,25 +240,27 @@ def create_app() -> Flask:
         unstaged = request.args.get("unstaged", "true").lower() == "true"
         untracked = request.args.get("untracked", "false").lower() == "true"
         file_path = request.args.get("file")
-        
+
         # Handle both new and legacy parameters
         use_head = request.args.get("use_head", "false").lower() == "true"
         base_commit = request.args.get("base_commit")  # Legacy parameter
-        
+        target_commit = request.args.get("target_commit")  # New parameter
+
         # Map legacy base_commit parameter to use_head logic
         if base_commit:
             # If base_commit is "HEAD" or current branch, use HEAD comparison
             # Otherwise use default branch comparison
             from difflicious.services.git_service import GitService
+
             git_service = GitService()
             repo_info = git_service.get_repository_status()
             current_branch = repo_info.get("current_branch")
-            
+
             use_head = base_commit in ["HEAD", current_branch]
 
         try:
             diff_service = DiffService()
-            
+
             # Map to the legacy DiffService interface (which internally uses new get_diff)
             if use_head:
                 # Working directory vs HEAD comparison
@@ -291,6 +293,7 @@ def create_app() -> Flask:
                     "file_filter": file_path,
                     "use_head": use_head,
                     "base_commit": base_commit,  # Keep for compatibility
+                    "target_commit": target_commit,  # New parameter
                     "total_files": total_files,
                 }
             )

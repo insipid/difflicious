@@ -54,10 +54,14 @@ class TemplateRenderingService(BaseService):
             # Get diff data with explicit logic for the two main use cases
             # Map base_commit parameter to use_head logic
             current_branch = repo_status.get("current_branch", "unknown")
-            is_head_comparison = base_commit in ["HEAD", current_branch] if base_commit else False
-            
-            logger.info(f"Template service: base_commit='{base_commit}', current_branch='{current_branch}', use_head={is_head_comparison}")
-            
+            is_head_comparison = (
+                base_commit in ["HEAD", current_branch] if base_commit else False
+            )
+
+            logger.info(
+                f"Template service: base_commit='{base_commit}', current_branch='{current_branch}', use_head={is_head_comparison}"
+            )
+
             if base_commit:
                 if is_head_comparison:
                     # Working directory vs HEAD comparison
@@ -69,11 +73,11 @@ class TemplateRenderingService(BaseService):
                         untracked=untracked,
                         file_path=file_path,
                     )
-                    
+
                     # For HEAD comparisons, staged changes are always visible
                     # Files can appear in both groups if they have both staged AND unstaged changes
                     # This is correct behavior - it shows what's ready to commit vs what's still being worked on
-                    
+
                     # Remove unstaged group based on checkbox selection (staged always visible)
                     if not unstaged and "unstaged" in grouped_diffs:
                         del grouped_diffs["unstaged"]
@@ -86,27 +90,27 @@ class TemplateRenderingService(BaseService):
                         untracked=untracked,
                         file_path=file_path,
                     )
-                    
+
                     # For branch comparison, combine unstaged + staged into "changes" group
                     changes_files = []
                     changes_count = 0
-                    
+
                     # Add unstaged files
                     if "unstaged" in grouped_diffs:
                         changes_files.extend(grouped_diffs["unstaged"]["files"])
                         changes_count += grouped_diffs["unstaged"]["count"]
-                    
-                    # Add staged files  
+
+                    # Add staged files
                     if "staged" in grouped_diffs:
                         changes_files.extend(grouped_diffs["staged"]["files"])
                         changes_count += grouped_diffs["staged"]["count"]
-                    
+
                     # Replace unstaged group with combined changes group
                     grouped_diffs["changes"] = {
                         "files": changes_files,
-                        "count": changes_count
+                        "count": changes_count,
                     }
-                    
+
                     # Remove the separate unstaged and staged groups
                     if "unstaged" in grouped_diffs:
                         del grouped_diffs["unstaged"]
@@ -121,27 +125,27 @@ class TemplateRenderingService(BaseService):
                     untracked=untracked,
                     file_path=file_path,
                 )
-                
+
                 # For branch comparison, combine unstaged + staged into "changes" group
                 changes_files = []
                 changes_count = 0
-                
+
                 # Add unstaged files
                 if "unstaged" in grouped_diffs:
                     changes_files.extend(grouped_diffs["unstaged"]["files"])
                     changes_count += grouped_diffs["unstaged"]["count"]
-                
-                # Add staged files  
+
+                # Add staged files
                 if "staged" in grouped_diffs:
                     changes_files.extend(grouped_diffs["staged"]["files"])
                     changes_count += grouped_diffs["staged"]["count"]
-                
+
                 # Replace unstaged group with combined changes group
                 grouped_diffs["changes"] = {
                     "files": changes_files,
-                    "count": changes_count
+                    "count": changes_count,
                 }
-                
+
                 # Remove the separate unstaged and staged groups
                 if "unstaged" in grouped_diffs:
                     del grouped_diffs["unstaged"]
@@ -159,9 +163,11 @@ class TemplateRenderingService(BaseService):
             # Pass through the UI state parameters as received from the user
             ui_unstaged = unstaged
             ui_staged = staged
-            
-            logger.info(f"Template final: base_commit='{base_commit}', current_branch='{current_branch}', is_head_comparison={is_head_comparison}")
-            
+
+            logger.info(
+                f"Template final: base_commit='{base_commit}', current_branch='{current_branch}', is_head_comparison={is_head_comparison}"
+            )
+
             return {
                 # Repository info
                 "repo_status": repo_status,

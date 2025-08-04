@@ -160,8 +160,9 @@ class TestTemplateRenderingService:
         result = service.prepare_diff_data_for_template(search_filter="test")
 
         # Should only include files matching "test"
-        assert result["groups"]["unstaged"]["count"] == 1
-        assert result["groups"]["unstaged"]["files"][0]["path"] == "test.py"
+        # When no base_commit is provided, unstaged and staged are combined into "changes"
+        assert result["groups"]["changes"]["count"] == 1
+        assert result["groups"]["changes"]["files"][0]["path"] == "test.py"
 
     def test_process_line_side_with_content(self):
         """Test processing line side with content."""

@@ -351,21 +351,27 @@ class GitRepository:
                                         "additions": 0,
                                         "deletions": 0,
                                         "changes": 0,
-                                        "status": "untracked",
+                                        "status": "added",
                                         "content": f"New untracked file: {file_name}",
                                     }
                                 )
                 groups["untracked"]["count"] = len(groups["untracked"]["files"])
 
+            # Get file status mapping for proper labeling
+            status_map = self._get_file_status_map(use_head, reference_point)
+
             # Get unstaged changes if requested
             if include_unstaged:
                 if use_head:
                     # For HEAD comparison: show only working directory vs index (true unstaged)
-                    diff_args = ["diff", "--numstat"]  # No reference point = working dir vs index
+                    diff_args = [
+                        "diff",
+                        "--numstat",
+                    ]  # No reference point = working dir vs index
                 else:
                     # For branch comparison: show working directory vs branch (staged + unstaged vs branch)
                     diff_args = ["diff", "--numstat", reference_point]
-                    
+
                 if file_path:
                     if not self._is_safe_file_path(file_path):
                         raise GitOperationError(f"Unsafe file path: {file_path}")
@@ -388,12 +394,19 @@ class GitRepository:
                             diff_info["path"], reference_point, None, False
                         )
                     diff_info["content"] = detailed_diff
-                    diff_info["status"] = "unstaged"
+                    # Set status from git status mapping
+                    diff_info["status"] = status_map.get(diff_info["path"], "modified")
                     groups["unstaged"]["files"].append(diff_info)
                 groups["unstaged"]["count"] = len(groups["unstaged"]["files"])
 
             # Always check for staged changes
-            staged_args = ["diff", "--cached", "--numstat"]
+            if use_head:
+                # For HEAD comparison: show index vs HEAD
+                staged_args = ["diff", "--cached", "--numstat", "HEAD"]
+            else:
+                # For branch comparison: show index vs branch
+                staged_args = ["diff", "--cached", "--numstat", reference_point]
+
             if file_path:
                 if not self._is_safe_file_path(file_path):
                     raise GitOperationError(f"Unsafe file path: {file_path}")
@@ -407,7 +420,8 @@ class GitRepository:
                         diff_info["path"], None, None, True
                     )
                     diff_info["content"] = detailed_diff
-                    diff_info["status"] = "staged"
+                    # Set status from git status mapping
+                    diff_info["status"] = status_map.get(diff_info["path"], "modified")
                     groups["staged"]["files"].append(diff_info)
                 groups["staged"]["count"] = len(groups["staged"]["files"])
 
@@ -473,7 +487,7 @@ class GitRepository:
             return False
 
     def _parse_diff_output(self, output: str) -> list[dict[str, Any]]:
-        """Parse git diff --numstat --name-status output.
+        """Parse git diff --numstat output.
 
         Args:
             output: Raw git diff output
@@ -506,7 +520,7 @@ class GitRepository:
                             "additions": additions,
                             "deletions": deletions,
                             "changes": additions + deletions,
-                            "status": "modified",  # TODO: Parse actual status
+                            "status": "modified",  # Will be updated by caller with actual status
                             "content": "",  # Will be filled by caller
                         }
                     )
@@ -515,6 +529,82 @@ class GitRepository:
                     continue
 
         return diffs
+
+    def _get_file_status_map(
+        self, use_head: bool = False, reference_point: str = "HEAD"
+    ) -> dict[str, str]:
+        """Get a mapping of file paths to their git status.
+
+        Args:
+            use_head: If True, get status for HEAD comparison, otherwise for branch comparison
+            reference_point: The git reference to compare against (e.g. "HEAD", "main")
+
+        Returns:
+            Dictionary mapping file paths to status strings (added, modified, deleted, etc.)
+        """
+        status_map = {}
+
+        # Convert git status codes to readable names
+        git_status_map = {
+            "M": "modified",
+            "A": "added",
+            "D": "deleted",
+            "R": "renamed",
+            "C": "copied",
+            "T": "type changed",
+            "U": "unmerged",
+            "X": "unknown",
+        }
+
+        try:
+            if use_head:
+                # For HEAD comparison, we need both unstaged and staged status
+
+                # Get unstaged changes (working directory vs index)
+                unstaged_args = ["diff", "--name-status"]
+                stdout, stderr, return_code = self._execute_git_command(unstaged_args)
+                if return_code == 0:
+                    for line in stdout.strip().split("\n"):
+                        if line.strip():
+                            parts = line.split("\t")
+                            if len(parts) >= 2:
+                                status_code = parts[0]
+                                filename = parts[1]
+                                status = git_status_map.get(status_code, "modified")
+                                status_map[filename] = status
+
+                # Get staged changes (index vs HEAD)
+                staged_args = ["diff", "--cached", "--name-status"]
+                stdout, stderr, return_code = self._execute_git_command(staged_args)
+                if return_code == 0:
+                    for line in stdout.strip().split("\n"):
+                        if line.strip():
+                            parts = line.split("\t")
+                            if len(parts) >= 2:
+                                status_code = parts[0]
+                                filename = parts[1]
+                                status = git_status_map.get(status_code, "modified")
+                                # For staged files, don't override unstaged status if it exists
+                                if filename not in status_map:
+                                    status_map[filename] = status
+            else:
+                # For branch comparison, get status of working directory vs reference branch
+                branch_args = ["diff", "--name-status", reference_point]
+                stdout, stderr, return_code = self._execute_git_command(branch_args)
+                if return_code == 0:
+                    for line in stdout.strip().split("\n"):
+                        if line.strip():
+                            parts = line.split("\t")
+                            if len(parts) >= 2:
+                                status_code = parts[0]
+                                filename = parts[1]
+                                status = git_status_map.get(status_code, "modified")
+                                status_map[filename] = status
+
+        except Exception as e:
+            logger.warning(f"Failed to get file status map: {e}")
+
+        return status_map
 
     def _get_file_diff(
         self,

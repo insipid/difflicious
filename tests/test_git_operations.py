@@ -349,12 +349,17 @@ class TestGitRepositoryCommitComparison:
 
     @patch("difflicious.git_operations.GitRepository._execute_git_command")
     @patch("difflicious.git_operations.GitRepository.get_branches")
-    def test_get_diff_with_default_branch_comparison(self, mock_get_branches, mock_execute, mock_git_repo):
+    def test_get_diff_with_default_branch_comparison(
+        self, mock_get_branches, mock_execute, mock_git_repo
+    ):
         """Test get_diff with default branch comparison."""
         repo = GitRepository(str(mock_git_repo))
 
         # Mock get_branches to return main as default
-        mock_get_branches.return_value = {"default_branch": "main", "branches": ["main"]}
+        mock_get_branches.return_value = {
+            "default_branch": "main",
+            "branches": ["main"],
+        }
 
         # Mock git rev-parse for SHA validation and diff
         def mock_git_response(args):
@@ -408,17 +413,26 @@ class TestGitRepositoryCommitComparison:
             call for call in mock_execute.call_args_list if "diff" in call[0][0]
         ]
         assert len(diff_calls) > 0
-        diff_args = diff_calls[0][0][0]
-        assert "HEAD" in diff_args
+
+        # Check that at least one diff call contains HEAD
+        head_found = any("HEAD" in call[0][0] for call in diff_calls)
+        assert (
+            head_found
+        ), f"No diff call found with HEAD. Diff calls: {[call[0][0] for call in diff_calls]}"
 
     @patch("difflicious.git_operations.GitRepository._execute_git_command")
     @patch("difflicious.git_operations.GitRepository.get_branches")
-    def test_get_diff_untracked_files(self, mock_get_branches, mock_execute, mock_git_repo):
+    def test_get_diff_untracked_files(
+        self, mock_get_branches, mock_execute, mock_git_repo
+    ):
         """Test get_diff includes untracked files when requested."""
         repo = GitRepository(str(mock_git_repo))
 
         # Mock get_branches to return main as default
-        mock_get_branches.return_value = {"default_branch": "main", "branches": ["main"]}
+        mock_get_branches.return_value = {
+            "default_branch": "main",
+            "branches": ["main"],
+        }
 
         # Mock git responses
         def mock_git_response(args):
@@ -445,12 +459,17 @@ class TestGitRepositoryCommitComparison:
 
     @patch("difflicious.git_operations.GitRepository._execute_git_command")
     @patch("difflicious.git_operations.GitRepository.get_branches")
-    def test_get_diff_fallback_to_head(self, mock_get_branches, mock_execute, mock_git_repo):
+    def test_get_diff_fallback_to_head(
+        self, mock_get_branches, mock_execute, mock_git_repo
+    ):
         """Test get_diff falls back to HEAD when default branch doesn't exist."""
         repo = GitRepository(str(mock_git_repo))
 
         # Mock get_branches to return main as default, but main doesn't actually exist
-        mock_get_branches.return_value = {"default_branch": "main", "branches": ["main"]}
+        mock_get_branches.return_value = {
+            "default_branch": "main",
+            "branches": ["main"],
+        }
 
         # Mock git rev-parse responses
         def mock_git_response(args):
