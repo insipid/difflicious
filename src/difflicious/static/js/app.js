@@ -383,9 +383,12 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
                 // Build query parameters based on UI state
                 const params = new URLSearchParams();
 
-                // Handle branch selection
+                // Handle comparison mode selection
                 if (this.baseBranch) {
-                    params.set('base_commit', this.baseBranch);
+                    // Determine comparison mode based on baseBranch
+                    const isHeadComparison = this.baseBranch === 'HEAD' || this.baseBranch === this.branches.current;
+                    params.set('use_head', isHeadComparison.toString());
+                    params.set('base_commit', this.baseBranch); // Keep for compatibility
                 }
 
                 // Handle unstaged/untracked options

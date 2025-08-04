@@ -238,18 +238,44 @@ def create_app() -> Flask:
         unstaged = request.args.get("unstaged", "true").lower() == "true"
         untracked = request.args.get("untracked", "false").lower() == "true"
         file_path = request.args.get("file")
-        base_commit = request.args.get("base_commit")
-        target_commit = request.args.get("target_commit")
+        
+        # Handle both new and legacy parameters
+        use_head = request.args.get("use_head", "false").lower() == "true"
+        base_commit = request.args.get("base_commit")  # Legacy parameter
+        
+        # Map legacy base_commit parameter to use_head logic
+        if base_commit:
+            # If base_commit is "HEAD" or current branch, use HEAD comparison
+            # Otherwise use default branch comparison
+            from difflicious.services.git_service import GitService
+            git_service = GitService()
+            repo_info = git_service.get_repository_status()
+            current_branch = repo_info.get("current_branch")
+            
+            use_head = base_commit in ["HEAD", current_branch]
 
         try:
             diff_service = DiffService()
-            grouped_data = diff_service.get_grouped_diffs(
-                base_commit=base_commit,
-                target_commit=target_commit,
-                unstaged=unstaged,
-                untracked=untracked,
-                file_path=file_path,
-            )
+            
+            # Map to the legacy DiffService interface (which internally uses new get_diff)
+            if use_head:
+                # Working directory vs HEAD comparison
+                grouped_data = diff_service.get_grouped_diffs(
+                    base_commit="HEAD",
+                    target_commit=None,
+                    unstaged=unstaged,
+                    untracked=untracked,
+                    file_path=file_path,
+                )
+            else:
+                # Working directory vs default branch comparison
+                grouped_data = diff_service.get_grouped_diffs(
+                    base_commit=None,  # Will default to default branch
+                    target_commit=None,
+                    unstaged=unstaged,
+                    untracked=untracked,
+                    file_path=file_path,
+                )
 
             # Calculate total files across all groups
             total_files = sum(group["count"] for group in grouped_data.values())
@@ -261,8 +287,8 @@ def create_app() -> Flask:
                     "unstaged": unstaged,
                     "untracked": untracked,
                     "file_filter": file_path,
-                    "base_commit": base_commit,
-                    "target_commit": target_commit,
+                    "use_head": use_head,
+                    "base_commit": base_commit,  # Keep for compatibility
                     "total_files": total_files,
                 }
             )
