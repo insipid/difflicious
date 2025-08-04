@@ -61,45 +61,28 @@ class TemplateRenderingService(BaseService):
             if base_commit:
                 if is_head_comparison:
                     # Working directory vs HEAD comparison
-                    # For HEAD comparison, combine unstaged and staged into "unstaged" group when unstaged checkbox is selected
+                    # Always get both staged and unstaged files, keep them separate
                     grouped_diffs = self.diff_service.get_grouped_diffs(
                         base_commit="HEAD",
                         target_commit=None,
-                        unstaged=unstaged,
+                        unstaged=True,  # Always get unstaged files for HEAD comparisons
                         untracked=untracked,
                         file_path=file_path,
                     )
                     
-                    # If unstaged checkbox is selected, combine unstaged and staged files into "unstaged" group
-                    if unstaged:
-                        unstaged_files = []
-                        unstaged_count = 0
-                        
-                        # Add unstaged files
-                        if "unstaged" in grouped_diffs:
-                            unstaged_files.extend(grouped_diffs["unstaged"]["files"])
-                            unstaged_count += grouped_diffs["unstaged"]["count"]
-                        
-                        # Add staged files to the unstaged group
-                        if "staged" in grouped_diffs:
-                            unstaged_files.extend(grouped_diffs["staged"]["files"])
-                            unstaged_count += grouped_diffs["staged"]["count"]
-                        
-                        # Update the unstaged group with combined files
-                        grouped_diffs["unstaged"] = {
-                            "files": unstaged_files,
-                            "count": unstaged_count
-                        }
-                        
-                        # Remove the separate staged group
-                        if "staged" in grouped_diffs:
-                            del grouped_diffs["staged"]
+                    # For HEAD comparisons, staged changes are always visible
+                    # Files can appear in both groups if they have both staged AND unstaged changes
+                    # This is correct behavior - it shows what's ready to commit vs what's still being worked on
+                    
+                    # Remove unstaged group based on checkbox selection (staged always visible)
+                    if not unstaged and "unstaged" in grouped_diffs:
+                        del grouped_diffs["unstaged"]
                 else:
-                    # Working directory vs default branch comparison
+                    # Working directory vs branch comparison - always show changes
                     grouped_diffs = self.diff_service.get_grouped_diffs(
                         base_commit=None,  # Will default to default branch via the mapping
                         target_commit=None,
-                        unstaged=unstaged,
+                        unstaged=True,  # Always show changes for branch comparisons
                         untracked=untracked,
                         file_path=file_path,
                     )
@@ -130,14 +113,40 @@ class TemplateRenderingService(BaseService):
                     if "staged" in grouped_diffs:
                         del grouped_diffs["staged"]
             else:
-                # Default behavior: compare to default branch
+                # Default behavior: compare to default branch - always show changes
                 grouped_diffs = self.diff_service.get_grouped_diffs(
                     base_commit=None,
                     target_commit=target_commit,
-                    unstaged=unstaged,
+                    unstaged=True,  # Always show changes for branch comparisons
                     untracked=untracked,
                     file_path=file_path,
                 )
+                
+                # For branch comparison, combine unstaged + staged into "changes" group
+                changes_files = []
+                changes_count = 0
+                
+                # Add unstaged files
+                if "unstaged" in grouped_diffs:
+                    changes_files.extend(grouped_diffs["unstaged"]["files"])
+                    changes_count += grouped_diffs["unstaged"]["count"]
+                
+                # Add staged files  
+                if "staged" in grouped_diffs:
+                    changes_files.extend(grouped_diffs["staged"]["files"])
+                    changes_count += grouped_diffs["staged"]["count"]
+                
+                # Replace unstaged group with combined changes group
+                grouped_diffs["changes"] = {
+                    "files": changes_files,
+                    "count": changes_count
+                }
+                
+                # Remove the separate unstaged and staged groups
+                if "unstaged" in grouped_diffs:
+                    del grouped_diffs["unstaged"]
+                if "staged" in grouped_diffs:
+                    del grouped_diffs["staged"]
 
             # Process and enhance diff data for template rendering
             enhanced_groups = self._enhance_diff_data_for_templates(
