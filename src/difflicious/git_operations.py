@@ -244,15 +244,11 @@ class GitRepository:
                     return repo_name
 
             # Fallback to directory name
-            import os
-
             return os.path.basename(self.repo_path)
 
         except GitOperationError as e:
             logger.warning(f"Failed to get repository name from remote: {e}")
             # Final fallback to directory name
-            import os
-
             return os.path.basename(self.repo_path)
 
     def get_branches(self) -> dict[str, Any]:
@@ -283,13 +279,63 @@ class GitRepository:
             return {"branches": [], "default_branch": None}
 
     def get_main_branch(self, branches: list[str]) -> Optional[str]:
-        """Determine the main branch from a list of branches."""
-        if "main" in branches:
-            return "main"
-        if "master" in branches:
-            return "master"
+        """Determine the main branch from a list of branches.
+        
+        First tries to get the actual default branch from the remote,
+        then falls back to common naming conventions.
+        """
+        # First, try to get the actual default branch from remote
+        try:
+            # Method 1: git remote show origin
+            stdout, stderr, return_code = self._execute_git_command(
+                ["remote", "show", "origin"]
+            )
+            if return_code == 0:
+                for line in stdout.split('\n'):
+                    if 'HEAD branch:' in line:
+                        default_branch = line.split('HEAD branch:')[1].strip()
+                        if default_branch in branches:
+                            return default_branch
+        except GitOperationError:
+            pass
 
-        # Fallback: look for a branch with a remote counterpart
+        # Method 2: git symbolic-ref for remote HEAD
+        try:
+            stdout, stderr, return_code = self._execute_git_command(
+                ["symbolic-ref", "refs/remotes/origin/HEAD"]
+            )
+            if return_code == 0:
+                # Output format: refs/remotes/origin/main
+                default_branch = stdout.strip().split('/')[-1]
+                if default_branch in branches:
+                    return default_branch
+        except GitOperationError:
+            pass
+
+        # Method 3: Check for origin/HEAD in remote branches
+        try:
+            stdout, stderr, return_code = self._execute_git_command(
+                ["branch", "-r"]
+            )
+            if return_code == 0:
+                for line in stdout.split('\n'):
+                    if 'origin/HEAD' in line:
+                        # Extract the branch it points to
+                        parts = line.strip().split(' -> ')
+                        if len(parts) == 2:
+                            default_branch = parts[1].replace('origin/', '')
+                            if default_branch in branches:
+                                return default_branch
+        except GitOperationError:
+            pass
+
+        # Fallback to common naming conventions
+        common_defaults = ["main", "master", "trunk"]
+        for default_branch in common_defaults:
+            if default_branch in branches:
+                return default_branch
+
+        # Final fallback: look for a branch with a remote counterpart
         for branch in branches:
             if f"remotes/origin/{branch}" in branches:
                 return branch
