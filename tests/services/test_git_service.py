@@ -73,7 +73,13 @@ class TestGitService:
 
         # Assertions
         assert result["status"] == "ok"
-        assert result["branches"]["all"] == ["main", "feature-1", "feature-2"]
+        # Ordered list should start with HEAD, then default branch, then others alpha
+        assert result["branches"]["all"] == [
+            "HEAD",
+            "main",
+            "feature-1",
+            "feature-2",
+        ]
         assert result["branches"]["current"] == "feature-1"
         assert result["branches"]["default"] == "main"
         assert result["branches"]["others"] == ["feature-2"]  # exclude main and current
