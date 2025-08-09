@@ -243,26 +243,8 @@ def create_app() -> Flask:
         file_path = request.args.get("file")
         base_ref = request.args.get("base_ref")
 
-        # Handle both new and legacy parameters
+        # New single-source parameters
         use_head = request.args.get("use_head", "false").lower() == "true"
-        base_commit = request.args.get("base_commit")  # Legacy parameter
-        target_commit = request.args.get("target_commit")  # New parameter
-
-        # Map legacy base_commit parameter to use_head logic
-        if base_commit:
-            # If base_commit is "HEAD" or current branch, use HEAD comparison
-            # Otherwise use default branch comparison
-            from difflicious.services.git_service import GitService
-
-            git_service = GitService()
-            repo_info = git_service.get_repository_status()
-            current_branch = repo_info.get("current_branch")
-
-            use_head = base_commit in ["HEAD", current_branch]
-
-        # If explicit base_ref is provided, prefer branch comparison (not HEAD)
-        if base_ref:
-            use_head = False
 
         try:
             diff_service = DiffService()
@@ -271,22 +253,18 @@ def create_app() -> Flask:
             if use_head:
                 # Working directory vs HEAD comparison
                 grouped_data = diff_service.get_grouped_diffs(
-                    base_commit="HEAD",
-                    target_commit=None,
+                    base_ref="HEAD",
                     unstaged=unstaged,
                     untracked=untracked,
                     file_path=file_path,
-                    base_ref=None,
                 )
             else:
                 # Working directory vs default branch comparison
                 grouped_data = diff_service.get_grouped_diffs(
-                    base_commit=None,  # Will default to default branch
-                    target_commit=None,
+                    base_ref=base_ref,  # None -> default branch
                     unstaged=unstaged,
                     untracked=untracked,
                     file_path=file_path,
-                    base_ref=base_ref,
                 )
 
             # Calculate total files across all groups
@@ -300,8 +278,6 @@ def create_app() -> Flask:
                     "untracked": untracked,
                     "file_filter": file_path,
                     "use_head": use_head,
-                    "base_commit": base_commit,  # Keep for compatibility
-                    "target_commit": target_commit,  # New parameter
                         "base_ref": base_ref,
                     "total_files": total_files,
                 }

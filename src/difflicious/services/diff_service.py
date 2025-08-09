@@ -17,12 +17,10 @@ class DiffService(BaseService):
 
     def get_grouped_diffs(
         self,
-        base_commit: Optional[str] = None,
-        target_commit: Optional[str] = None,
+        base_ref: Optional[str] = None,
         unstaged: bool = True,
         untracked: bool = False,
         file_path: Optional[str] = None,
-        base_ref: Optional[str] = None,
     ) -> dict[str, Any]:
         """Get processed diff data grouped by type.
 
@@ -43,22 +41,10 @@ class DiffService(BaseService):
             DiffServiceError: If diff processing fails
         """
         try:
-            # Map old parameters to new interface
-            # If base_commit was specified as "HEAD", use use_head=True
-            # Otherwise use default branch comparison (use_head=False)
-            use_head = base_commit == "HEAD" if base_commit else False
-
-            # Log a warning if commit-to-commit comparison was attempted
-            if base_commit and target_commit:
-                logger.warning(
-                    f"Commit-to-commit comparison (base: {base_commit}, target: {target_commit}) "
-                    "is no longer supported. Comparing working directory to default branch instead."
-                )
-            elif base_commit and base_commit != "HEAD":
-                logger.warning(
-                    f"Comparing to specific commit ({base_commit}) is no longer supported. "
-                    "Comparing working directory to default branch instead."
-                )
+            # Determine comparison mode from base_ref
+            # HEAD or current branch implies HEAD comparison; otherwise branch comparison
+            current_branch = self.repo.get_current_branch()
+            use_head = base_ref in ["HEAD", current_branch] if base_ref else False
 
             # Get raw diff data from git operations using new interface
             grouped_diffs = self.repo.get_diff(
