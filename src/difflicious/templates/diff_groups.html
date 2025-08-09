@@ -20,7 +20,8 @@
     <div class="group-content space-y-4 {% if not hide_header %}ml-4{% endif %}" 
          data-group-content="{{ group_key }}">
         {% for file in group.files %}
-        {% include "diff_file.html" %}
+        {% set group_name = group_key %}
+        {% include "diff_file.html" with context %}
         {% endfor %}
     </div>
 </div>

@@ -17,8 +17,7 @@ class DiffService(BaseService):
 
     def get_grouped_diffs(
         self,
-        base_commit: Optional[str] = None,
-        target_commit: Optional[str] = None,
+        base_ref: Optional[str] = None,
         unstaged: bool = True,
         untracked: bool = False,
         file_path: Optional[str] = None,
@@ -29,10 +28,10 @@ class DiffService(BaseService):
         from app.py and makes it independently testable.
 
         Args:
-            base_commit: Base commit SHA to compare from
-            target_commit: Target commit SHA to compare to
-            unstaged: Whether to include unstaged changes
-            untracked: Whether to include untracked files
+            base_commit: Legacy parameter - now mapped to use_head behavior
+            target_commit: Legacy parameter - now ignored (was used for commit-to-commit comparison)
+            unstaged: Whether to include unstaged changes (mapped to include_unstaged)
+            untracked: Whether to include untracked files (mapped to include_untracked)
             file_path: Optional specific file to diff
 
         Returns:
@@ -42,13 +41,18 @@ class DiffService(BaseService):
             DiffServiceError: If diff processing fails
         """
         try:
-            # Get raw diff data from git operations
+            # Determine comparison mode from base_ref
+            # HEAD or current branch implies HEAD comparison; otherwise branch comparison
+            current_branch = self.repo.get_current_branch()
+            use_head = base_ref in ["HEAD", current_branch] if base_ref else False
+
+            # Get raw diff data from git operations using new interface
             grouped_diffs = self.repo.get_diff(
-                base_commit=base_commit,
-                target_commit=target_commit,
-                unstaged=unstaged,
-                untracked=untracked,
+                use_head=use_head,
+                include_unstaged=unstaged,
+                include_untracked=untracked,
                 file_path=file_path,
+                base_ref=base_ref,
             )
 
             # Process each group to parse diff content for rendering

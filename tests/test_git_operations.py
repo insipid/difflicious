@@ -348,104 +348,225 @@ class TestGitRepositoryCommitComparison:
         assert not repo._is_safe_commit_sha("a" * 101)  # Too long
 
     @patch("difflicious.git_operations.GitRepository._execute_git_command")
-    def test_get_diff_with_commit_comparison(self, mock_execute, mock_git_repo):
-        """Test get_diff with commit comparison parameters."""
+    @patch("difflicious.git_operations.GitRepository.get_branches")
+    def test_get_diff_with_default_branch_comparison(
+        self, mock_get_branches, mock_execute, mock_git_repo
+    ):
+        """Test get_diff with default branch comparison."""
         repo = GitRepository(str(mock_git_repo))
 
-        # Mock git rev-parse for SHA validation
+        # Mock get_branches to return main as default
+        mock_get_branches.return_value = {
+            "default_branch": "main",
+            "branches": ["main"],
+        }
+
+        # Mock git rev-parse for SHA validation and diff
         def mock_git_response(args):
             if "rev-parse" in args:
-                return "abc123def456", "", 0
+                return "main_sha", "", 0
             elif "diff" in args:
                 return "5\t2\ttest.txt\n", "", 0
             return "", "", 1
 
         mock_execute.side_effect = mock_git_response
 
-        # Test base_commit + target_commit
-        diffs = repo.get_diff(base_commit="abc123", target_commit="def456")
+        # Test default behavior (compare to default branch)
+        diffs = repo.get_diff(include_unstaged=True)
         assert isinstance(diffs, dict)
         assert "untracked" in diffs
         assert "unstaged" in diffs
         assert "staged" in diffs
 
-        # Verify correct git command was called
-        diff_calls = [
-            call for call in mock_execute.call_args_list if "diff" in call[0][0]
-        ]
-        assert len(diff_calls) > 0
-        diff_args = diff_calls[0][0][0]
-        assert "abc123" in diff_args
-        assert "def456" in diff_args
-
-    @patch("difflicious.git_operations.GitRepository._execute_git_command")
-    def test_get_diff_with_base_commit_only(self, mock_execute, mock_git_repo):
-        """Test get_diff with only base commit (compare to working directory)."""
-        repo = GitRepository(str(mock_git_repo))
-
-        # Mock git rev-parse for SHA validation
-        def mock_git_response(args):
-            if "rev-parse" in args:
-                return "abc123def456", "", 0
-            elif "diff" in args:
-                return "3\t1\tfile.txt\n", "", 0
-            return "", "", 1
-
-        mock_execute.side_effect = mock_git_response
-
-        # Test base_commit only
-        diffs = repo.get_diff(base_commit="abc123")
-        assert isinstance(diffs, dict)
-        assert "untracked" in diffs
-        assert "unstaged" in diffs
-        assert "staged" in diffs
-
-        # Verify correct git command was called
-        diff_calls = [
-            call for call in mock_execute.call_args_list if "diff" in call[0][0]
-        ]
-        assert len(diff_calls) > 0
-        diff_args = diff_calls[0][0][0]
-        assert "abc123" in diff_args
-
-    @patch("difflicious.git_operations.GitRepository._execute_git_command")
-    def test_get_diff_default_to_main_branch(self, mock_execute, mock_git_repo):
-        """Test get_diff defaults to main branch when target_commit specified."""
-        repo = GitRepository(str(mock_git_repo))
-
-        # Mock git rev-parse for SHA validation
-        def mock_git_response(args):
-            if "rev-parse" in args:
-                if "main" in args:
-                    return "main_sha", "", 0
-                else:
-                    return "target_sha", "", 0
-            elif "diff" in args:
-                return "2\t3\ttest.txt\n", "", 0
-            return "", "", 1
-
-        mock_execute.side_effect = mock_git_response
-
-        # Test target_commit only (should default base to main)
-        diffs = repo.get_diff(target_commit="def456")
-        assert isinstance(diffs, dict)
-        assert "untracked" in diffs
-        assert "unstaged" in diffs
-        assert "staged" in diffs
-
-        # Verify main branch was used as base
+        # Verify correct git command was called with main branch
         diff_calls = [
             call for call in mock_execute.call_args_list if "diff" in call[0][0]
         ]
         assert len(diff_calls) > 0
         diff_args = diff_calls[0][0][0]
         assert "main" in diff_args
-        assert "def456" in diff_args
 
     @patch("difflicious.git_operations.GitRepository._execute_git_command")
-    def test_get_diff_fallback_to_head(self, mock_execute, mock_git_repo):
-        """Test get_diff falls back to HEAD when main doesn't exist."""
+    @patch("difflicious.git_operations.GitRepository.get_branches")
+    def test_get_diff_with_explicit_base_ref(
+        self, mock_get_branches, mock_execute, mock_git_repo
+    ):
+        """Test get_diff with an explicit base_ref argument."""
         repo = GitRepository(str(mock_git_repo))
+
+        # Mock get_branches to provide a default (won't be used due to base_ref)
+        mock_get_branches.return_value = {
+            "default_branch": "main",
+            "branches": ["main"],
+        }
+
+        # Mock git responses for diff
+        def mock_git_response(args):
+            if "rev-parse" in args:
+                return "base_sha", "", 0
+            elif "diff" in args and "feature-x" in args:
+                return "1\t0\tfoo.py\n", "", 0
+            elif "status" in args and "--porcelain" in args:
+                return "", "", 0
+            return "", "", 1
+
+        mock_execute.side_effect = mock_git_response
+
+        diffs = repo.get_diff(include_unstaged=True, base_ref="feature-x")
+        assert isinstance(diffs, dict)
+        assert diffs["unstaged"]["count"] >= 0
+        # Ensure feature-x appeared in diff args at least once
+        diff_calls = [
+            call for call in mock_execute.call_args_list if "diff" in call[0][0]
+        ]
+        assert any("feature-x" in call[0][0] for call in diff_calls)
+
+    @patch("difflicious.git_operations.GitRepository._execute_git_command")
+    def test_get_diff_with_head_comparison(self, mock_execute, mock_git_repo):
+        """Test get_diff with HEAD comparison."""
+        repo = GitRepository(str(mock_git_repo))
+
+        # Mock git rev-parse for SHA validation
+        def mock_git_response(args):
+            if "rev-parse" in args:
+                return "head_sha", "", 0
+            elif "diff" in args:
+                return "3\t1\tfile.txt\n", "", 0
+            return "", "", 1
+
+        mock_execute.side_effect = mock_git_response
+
+        # Test HEAD comparison
+        diffs = repo.get_diff(use_head=True, include_unstaged=True)
+        assert isinstance(diffs, dict)
+        assert "untracked" in diffs
+        assert "unstaged" in diffs
+        assert "staged" in diffs
+
+        # Verify correct git command was called with HEAD
+        diff_calls = [
+            call for call in mock_execute.call_args_list if "diff" in call[0][0]
+        ]
+        assert len(diff_calls) > 0
+
+        # Check that at least one diff call contains HEAD
+        head_found = any("HEAD" in call[0][0] for call in diff_calls)
+        assert (
+            head_found
+        ), f"No diff call found with HEAD. Diff calls: {[call[0][0] for call in diff_calls]}"
+
+    @patch("difflicious.git_operations.GitRepository._execute_git_command")
+    @patch("difflicious.git_operations.GitRepository.get_branches")
+    def test_grouping_toggles_and_bases(
+        self, mock_get_branches, mock_execute, mock_git_repo
+    ):
+        """Validate grouping behavior across HEAD/default/arbitrary × toggles."""
+        repo = GitRepository(str(mock_git_repo))
+
+        mock_get_branches.return_value = {
+            "default_branch": "main",
+            "branches": ["main"],
+        }
+
+        def resp(args):
+            if "rev-parse" in args:
+                return "ok", "", 0
+            if args[:2] == ["diff", "--numstat"] and len(args) == 2:
+                return "1\t0\tfile_a.txt\n", "", 0
+            if args[:2] == ["diff", "--name-status"] and len(args) == 2:
+                return "M\tfile_a.txt\n", "", 0
+            if args[:3] == ["diff", "--numstat", "main"]:
+                return "2\t1\tfile_b.txt\n", "", 0
+            if args[:3] == ["diff", "--name-status", "main"]:
+                return "A\tfile_b.txt\n", "", 0
+            if args[:4] == ["diff", "--cached", "HEAD"]:
+                return "", "", 0
+            if args[:4] == ["diff", "--cached", "main"]:
+                return "", "", 0
+            if "status" in args and "--porcelain" in args:
+                return "?? new.txt\n", "", 0
+            return "", "", 1
+
+        mock_execute.side_effect = resp
+
+        # HEAD comparison with untracked/unstaged
+        out_head = repo.get_diff(
+            use_head=True, include_unstaged=True, include_untracked=True
+        )
+        assert out_head["unstaged"]["count"] == 1
+        assert out_head["untracked"]["count"] == 1
+
+        # Default branch comparison
+        out_main = repo.get_diff(include_unstaged=True, include_untracked=False)
+        assert out_main["unstaged"]["count"] == 1
+        assert out_main["untracked"]["count"] == 0
+
+        # Explicit base_ref comparison
+        def resp_feature(args):
+            if "rev-parse" in args:
+                return "ok", "", 0
+            if args[:3] == ["diff", "--numstat", "feature-x"]:
+                return "3\t3\tfx.py\n", "", 0
+            if args[:3] == ["diff", "--name-status", "feature-x"]:
+                return "M\tfx.py\n", "", 0
+            if args[:4] == ["diff", "--cached", "feature-x"]:
+                return "", "", 0
+            return "", "", 1
+
+        mock_execute.side_effect = resp_feature
+        out_feature = repo.get_diff(include_unstaged=True, base_ref="feature-x")
+        assert out_feature["unstaged"]["count"] == 1
+
+    @patch("difflicious.git_operations.GitRepository._execute_git_command")
+    @patch("difflicious.git_operations.GitRepository.get_branches")
+    def test_get_diff_untracked_files(
+        self, mock_get_branches, mock_execute, mock_git_repo
+    ):
+        """Test get_diff includes untracked files when requested."""
+        repo = GitRepository(str(mock_git_repo))
+
+        # Mock get_branches to return main as default
+        mock_get_branches.return_value = {
+            "default_branch": "main",
+            "branches": ["main"],
+        }
+
+        # Mock git responses
+        def mock_git_response(args):
+            if "rev-parse" in args:
+                return "main_sha", "", 0
+            elif "status" in args and "--porcelain" in args:
+                return "?? untracked.txt\n", "", 0
+            elif "diff" in args:
+                return "2\t3\ttest.txt\n", "", 0
+            return "", "", 1
+
+        mock_execute.side_effect = mock_git_response
+
+        # Test with untracked files included
+        diffs = repo.get_diff(include_untracked=True, include_unstaged=True)
+        assert isinstance(diffs, dict)
+        assert "untracked" in diffs
+        assert "unstaged" in diffs
+        assert "staged" in diffs
+
+        # Verify untracked files are detected
+        assert diffs["untracked"]["count"] == 1
+        assert diffs["untracked"]["files"][0]["path"] == "untracked.txt"
+
+    @patch("difflicious.git_operations.GitRepository._execute_git_command")
+    @patch("difflicious.git_operations.GitRepository.get_branches")
+    def test_get_diff_fallback_to_head(
+        self, mock_get_branches, mock_execute, mock_git_repo
+    ):
+        """Test get_diff falls back to HEAD when default branch doesn't exist."""
+        repo = GitRepository(str(mock_git_repo))
+
+        # Mock get_branches to return main as default, but main doesn't actually exist
+        mock_get_branches.return_value = {
+            "default_branch": "main",
+            "branches": ["main"],
+        }
 
         # Mock git rev-parse responses
         def mock_git_response(args):
@@ -454,16 +575,14 @@ class TestGitRepositoryCommitComparison:
                     return "", "fatal: bad revision", 1  # main doesn't exist
                 elif "HEAD" in args:
                     return "head_sha", "", 0
-                else:
-                    return "target_sha", "", 0
             elif "diff" in args:
                 return "1\t1\tfile.txt\n", "", 0
             return "", "", 1
 
         mock_execute.side_effect = mock_git_response
 
-        # Test target_commit only with main not existing
-        diffs = repo.get_diff(target_commit="def456")
+        # Test default behavior when main doesn't exist (should fallback to HEAD)
+        diffs = repo.get_diff(include_unstaged=True)
         assert isinstance(diffs, dict)
         assert "untracked" in diffs
         assert "unstaged" in diffs
@@ -476,25 +595,21 @@ class TestGitRepositoryCommitComparison:
         assert len(diff_calls) > 0
         diff_args = diff_calls[0][0][0]
         assert "HEAD" in diff_args
-        assert "def456" in diff_args
 
-    def test_get_diff_invalid_base_commit(self, mock_git_repo):
-        """Test get_diff with invalid base commit."""
+    def test_get_diff_with_file_path_filter(self, mock_git_repo):
+        """Test get_diff with specific file path filter."""
         repo = GitRepository(str(mock_git_repo))
 
-        # Should return empty groups due to error handling, not raise exception
-        result = repo.get_diff(base_commit="HEAD; rm -rf /")
-        assert isinstance(result, dict)
-        assert all(group["count"] == 0 for group in result.values())
+        # Create a test file for filtering
+        test_file = mock_git_repo / "specific_file.txt"
+        test_file.write_text("test content")
 
-    def test_get_diff_invalid_target_commit(self, mock_git_repo):
-        """Test get_diff with invalid target commit."""
-        repo = GitRepository(str(mock_git_repo))
-
-        # Should return empty groups due to error handling, not raise exception
-        result = repo.get_diff(base_commit="HEAD", target_commit="HEAD | cat")
+        # Test with file path filter
+        result = repo.get_diff(file_path="specific_file.txt", include_unstaged=True)
         assert isinstance(result, dict)
-        assert all(group["count"] == 0 for group in result.values())
+        assert "untracked" in result
+        assert "unstaged" in result
+        assert "staged" in result
 
     @patch("difflicious.git_operations.GitRepository._execute_git_command")
     def test_get_file_diff_with_commits(self, mock_execute, mock_git_repo):
@@ -544,15 +659,15 @@ class TestGitRepositoryCommitComparison:
         test_file.write_text("Modified content\n")
 
         # Test traditional usage still works
-        diffs = repo.get_diff(unstaged=True)
+        diffs = repo.get_diff(include_unstaged=True)
         assert isinstance(diffs, dict)
         assert "untracked" in diffs
         assert "unstaged" in diffs
         assert "staged" in diffs
 
-        # Test staged diff (through base commit comparison)
+        # Test HEAD comparison
         subprocess.run(["git", "add", "test.txt"], cwd=temp_git_repo, check=True)
-        staged_diffs = repo.get_diff(base_commit="HEAD")
+        staged_diffs = repo.get_diff(use_head=True)
         assert isinstance(staged_diffs, dict)
         assert "untracked" in staged_diffs
         assert "unstaged" in staged_diffs

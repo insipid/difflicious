@@ -45,6 +45,26 @@ class TestDiffService:
         mock_repo.get_diff.assert_called_once()
 
     @patch("difflicious.services.base_service.get_git_repository")
+    def test_get_grouped_diffs_with_base_ref(self, mock_get_repo):
+        """Ensure base_ref gets passed through to the repository layer."""
+        mock_repo = Mock()
+        mock_get_repo.return_value = mock_repo
+        mock_repo.get_diff.return_value = {
+            "unstaged": {"files": [], "count": 0},
+            "staged": {"files": [], "count": 0},
+            "untracked": {"files": [], "count": 0},
+        }
+
+        base_ref = "feature-x"
+        service = DiffService()
+        service.get_grouped_diffs(unstaged=True, base_ref=base_ref)
+
+        # Verify base_ref was passed through
+        assert mock_repo.get_diff.called
+        _, kwargs = mock_repo.get_diff.call_args
+        assert kwargs.get("base_ref") == base_ref
+
+    @patch("difflicious.services.base_service.get_git_repository")
     def test_get_grouped_diffs_git_error(self, mock_get_repo):
         """Test diff service error handling for git operation errors."""
         # Setup mocks

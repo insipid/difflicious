@@ -21,7 +21,7 @@ class TestGitService:
         mock_get_repo.return_value = mock_repo
         mock_repo.get_current_branch.return_value = "main"
         mock_repo.get_repository_name.return_value = "test-repo"
-        mock_repo.get_diff.return_value = {
+        mock_repo.summarize_changes.return_value = {
             "unstaged": {"count": 2},
             "staged": {"count": 1},
             "untracked": {"count": 0},

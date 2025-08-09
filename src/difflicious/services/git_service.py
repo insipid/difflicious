@@ -21,9 +21,11 @@ class GitService(BaseService):
             current_branch = self.repo.get_current_branch()
             repo_name = self.repo.get_repository_name()
 
-            # Get diff data to count changed files
-            diff_data = self.repo.get_diff(unstaged=True, untracked=True)
-            total_files = sum(group.get("count", 0) for group in diff_data.values())
+            # Use lightweight summary instead of full diff content
+            summary = self.repo.summarize_changes(
+                include_unstaged=True, include_untracked=True
+            )
+            total_files = sum(group.get("count", 0) for group in summary.values())
 
             return {
                 "current_branch": current_branch,

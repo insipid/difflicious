@@ -35,9 +35,9 @@ def create_app() -> Flask:
         """Main diff visualization page with server-side rendering."""
         try:
             # Get query parameters
-            base_branch = request.args.get("base_branch")
-            target_commit = request.args.get("target_commit")
+            base_ref = request.args.get("base_ref")
             unstaged = request.args.get("unstaged", "true").lower() == "true"
+            staged = request.args.get("staged", "true").lower() == "true"
             untracked = request.args.get("untracked", "false").lower() == "true"
             file_path = request.args.get("file")
             search_filter = request.args.get("search", "").strip()
@@ -46,9 +46,9 @@ def create_app() -> Flask:
             # Prepare template data
             template_service = TemplateRenderingService()
             template_data = template_service.prepare_diff_data_for_template(
-                base_commit=base_branch,
-                target_commit=target_commit,
+                base_ref=base_ref if base_ref is not None else None,
                 unstaged=unstaged,
+                staged=staged,
                 untracked=untracked,
                 file_path=file_path,
                 search_filter=search_filter if search_filter else None,
@@ -71,7 +71,7 @@ def create_app() -> Flask:
                 "unstaged": True,
                 "untracked": False,
                 "search_filter": "",
-                "current_base_branch": "main",
+                "current_base_ref": "main",
             }
             return render_template("index.html", **error_data)
 
@@ -238,18 +238,31 @@ def create_app() -> Flask:
         unstaged = request.args.get("unstaged", "true").lower() == "true"
         untracked = request.args.get("untracked", "false").lower() == "true"
         file_path = request.args.get("file")
-        base_commit = request.args.get("base_commit")
-        target_commit = request.args.get("target_commit")
+        base_ref = request.args.get("base_ref")
+
+        # New single-source parameters
+        use_head = request.args.get("use_head", "false").lower() == "true"
 
         try:
             diff_service = DiffService()
-            grouped_data = diff_service.get_grouped_diffs(
-                base_commit=base_commit,
-                target_commit=target_commit,
-                unstaged=unstaged,
-                untracked=untracked,
-                file_path=file_path,
-            )
+
+            # Map to the legacy DiffService interface (which internally uses new get_diff)
+            if use_head:
+                # Working directory vs HEAD comparison
+                grouped_data = diff_service.get_grouped_diffs(
+                    base_ref="HEAD",
+                    unstaged=unstaged,
+                    untracked=untracked,
+                    file_path=file_path,
+                )
+            else:
+                # Working directory vs default branch comparison
+                grouped_data = diff_service.get_grouped_diffs(
+                    base_ref=base_ref,  # None -> default branch
+                    unstaged=unstaged,
+                    untracked=untracked,
+                    file_path=file_path,
+                )
 
             # Calculate total files across all groups
             total_files = sum(group["count"] for group in grouped_data.values())
@@ -261,8 +274,8 @@ def create_app() -> Flask:
                     "unstaged": unstaged,
                     "untracked": untracked,
                     "file_filter": file_path,
-                    "base_commit": base_commit,
-                    "target_commit": target_commit,
+                    "use_head": use_head,
+                    "base_ref": base_ref,
                     "total_files": total_files,
                 }
             )

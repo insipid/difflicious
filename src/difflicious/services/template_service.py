@@ -26,10 +26,12 @@ class TemplateRenderingService(BaseService):
         base_commit: Optional[str] = None,
         target_commit: Optional[str] = None,
         unstaged: bool = True,
+        staged: bool = True,
         untracked: bool = False,
         file_path: Optional[str] = None,
         search_filter: Optional[str] = None,
         expand_files: bool = False,
+        base_ref: Optional[str] = None,
     ) -> dict[str, Any]:
         """Prepare complete diff data optimized for Jinja2 template rendering.
 
@@ -50,14 +52,102 @@ class TemplateRenderingService(BaseService):
             repo_status = self.git_service.get_repository_status()
             branch_info = self.git_service.get_branch_information()
 
-            # Get diff data
-            grouped_diffs = self.diff_service.get_grouped_diffs(
-                base_commit=base_commit,
-                target_commit=target_commit,
-                unstaged=unstaged,
-                untracked=untracked,
-                file_path=file_path,
+            # Get diff data with explicit logic for the two main use cases
+            current_branch = repo_status.get("current_branch", "unknown")
+            is_head_comparison = (
+                base_ref in ["HEAD", current_branch] if base_ref else False
             )
+
+            logger.info(
+                f"Template service: base_ref='{base_ref}', current_branch='{current_branch}', use_head={is_head_comparison}"
+            )
+
+            if base_ref:
+                if is_head_comparison:
+                    # Working directory vs HEAD comparison
+                    # Always get both staged and unstaged files, keep them separate
+                    grouped_diffs = self.diff_service.get_grouped_diffs(
+                        base_ref="HEAD",
+                        unstaged=True,  # Always get unstaged files for HEAD comparisons
+                        untracked=untracked,
+                        file_path=file_path,
+                    )
+
+                    # For HEAD comparisons, staged changes are always visible
+                    # Files can appear in both groups if they have both staged AND unstaged changes
+                    # This is correct behavior - it shows what's ready to commit vs what's still being worked on
+
+                    # Remove unstaged group based on checkbox selection (staged always visible)
+                    if not unstaged and "unstaged" in grouped_diffs:
+                        del grouped_diffs["unstaged"]
+                else:
+                    # Working directory vs branch comparison - always show changes
+                    grouped_diffs = self.diff_service.get_grouped_diffs(
+                        base_ref=base_ref,
+                        unstaged=True,  # Always show changes for branch comparisons
+                        untracked=untracked,
+                        file_path=file_path,
+                    )
+
+                    # For branch comparison, combine unstaged + staged into "changes" group
+                    changes_files = []
+                    changes_count = 0
+
+                    # Add unstaged files
+                    if "unstaged" in grouped_diffs:
+                        changes_files.extend(grouped_diffs["unstaged"]["files"])
+                        changes_count += grouped_diffs["unstaged"]["count"]
+
+                    # Add staged files
+                    if "staged" in grouped_diffs:
+                        changes_files.extend(grouped_diffs["staged"]["files"])
+                        changes_count += grouped_diffs["staged"]["count"]
+
+                    # Replace unstaged group with combined changes group
+                    grouped_diffs["changes"] = {
+                        "files": changes_files,
+                        "count": changes_count,
+                    }
+
+                    # Remove the separate unstaged and staged groups
+                    if "unstaged" in grouped_diffs:
+                        del grouped_diffs["unstaged"]
+                    if "staged" in grouped_diffs:
+                        del grouped_diffs["staged"]
+            else:
+                # Default behavior: compare to default branch - always show changes
+                grouped_diffs = self.diff_service.get_grouped_diffs(
+                    base_ref=base_ref,
+                    unstaged=True,  # Always show changes for branch comparisons
+                    untracked=untracked,
+                    file_path=file_path,
+                )
+
+                # For branch comparison, combine unstaged + staged into "changes" group
+                changes_files = []
+                changes_count = 0
+
+                # Add unstaged files
+                if "unstaged" in grouped_diffs:
+                    changes_files.extend(grouped_diffs["unstaged"]["files"])
+                    changes_count += grouped_diffs["unstaged"]["count"]
+
+                # Add staged files
+                if "staged" in grouped_diffs:
+                    changes_files.extend(grouped_diffs["staged"]["files"])
+                    changes_count += grouped_diffs["staged"]["count"]
+
+                # Replace unstaged group with combined changes group
+                grouped_diffs["changes"] = {
+                    "files": changes_files,
+                    "count": changes_count,
+                }
+
+                # Remove the separate unstaged and staged groups
+                if "unstaged" in grouped_diffs:
+                    del grouped_diffs["unstaged"]
+                if "staged" in grouped_diffs:
+                    del grouped_diffs["staged"]
 
             # Process and enhance diff data for template rendering
             enhanced_groups = self._enhance_diff_data_for_templates(
@@ -67,23 +157,34 @@ class TemplateRenderingService(BaseService):
             # Calculate totals
             total_files = sum(group["count"] for group in enhanced_groups.values())
 
+            # Pass through the UI state parameters as received from the user
+            ui_unstaged = unstaged
+            ui_staged = staged
+
+            logger.info(
+                f"Template final: base_ref='{base_ref}', current_branch='{current_branch}', is_head_comparison={is_head_comparison}"
+            )
+
             return {
                 # Repository info
                 "repo_status": repo_status,
                 "branches": branch_info.get("branches", {}),
-                "current_branch": repo_status.get("current_branch", "unknown"),
+                "current_branch": current_branch,
                 # Diff data
                 "groups": enhanced_groups,
                 "total_files": total_files,
                 # UI state
-                "current_base_branch": base_commit
+                "current_base_ref": base_ref
                 or branch_info.get("branches", {}).get("default", "main"),
-                "unstaged": unstaged,
+                "unstaged": ui_unstaged,
+                "staged": ui_staged,
                 "untracked": untracked,
                 "search_filter": search_filter,
                 # Template helpers
                 "syntax_css": self.syntax_service.get_css_styles(),
                 "loading": False,
+                # Comparison mode
+                "is_head_comparison": is_head_comparison,
             }
 
         except Exception as e:
@@ -268,11 +369,13 @@ class TemplateRenderingService(BaseService):
                 "staged": {"files": [], "count": 0},
             },
             "total_files": 0,
-            "current_base_branch": "main",
+            "current_base_ref": "main",
             "unstaged": True,
+            "staged": True,
             "untracked": False,
             "search_filter": "",
             "syntax_css": "",
             "loading": False,
             "error": error_message,
+            "is_head_comparison": False,
         }

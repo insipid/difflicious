@@ -7,10 +7,10 @@
             <!-- Base Branch Dropdown -->
             <form method="GET" action="/" class="flex items-center space-x-2">
                 <label class="text-sm font-medium text-gray-700">Base:</label>
-                <select name="base_branch" onchange="this.form.submit()"
+                <select name="base_ref" onchange="this.form.submit()"
                     class="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     {% for branch in branches.all %}
-                    <option value="{{ branch }}" {% if branch == current_base_branch %}selected{% endif %}>
+                    <option value="{{ branch }}" {% if branch==current_base_ref %}selected{% endif %}>
                         {{ branch }}
                     </option>
                     {% endfor %}
@@ -18,27 +18,33 @@
 
                 <!-- Diff Options -->
                 <div class="flex items-center space-x-4">
+                    <!-- DEBUG: is_head_comparison = {{ is_head_comparison }}, base_ref = {{ current_base_ref }} -->
+                    {% if is_head_comparison %}
+                    <!-- HEAD comparison: show "Unstaged" and "Untracked" (staged always visible) -->
                     <label class="flex items-center">
-                        <input type="checkbox" name="unstaged" value="true" 
-                               {% if unstaged %}checked{% endif %}
-                               onchange="this.form.submit()"
-                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <input type="checkbox" name="unstaged" value="true" {% if unstaged %}checked{% endif %}
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded checkbox-control">
                         <span class="ml-1 text-sm text-gray-700">Unstaged</span>
                     </label>
-                    
+
                     <label class="flex items-center">
-                        <input type="checkbox" name="untracked" value="true"
-                               {% if untracked %}checked{% endif %}
-                               onchange="this.form.submit()"
-                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <input type="checkbox" name="untracked" value="true" {% if untracked %}checked{% endif %}
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded checkbox-control">
                         <span class="ml-1 text-sm text-gray-700">Untracked</span>
                     </label>
+                    {% else %}
+                    <!-- Branch comparison: only show "Untracked" (changes are always visible) -->
+                    <label class="flex items-center">
+                        <input type="checkbox" name="untracked" value="true" {% if untracked %}checked{% endif %}
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded checkbox-control">
+                        <span class="ml-1 text-sm text-gray-700">Untracked</span>
+                    </label>
+                    {% endif %}
                 </div>
-                
+
                 <!-- Search Filter -->
-                <input type="text" name="search" value="{{ search_filter or '' }}" 
-                       placeholder="Search files..." 
-                       class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <input type="text" name="search" value="{{ search_filter or '' }}" placeholder="Search files..."
+                    class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </form>
         </div>
 
@@ -47,10 +53,60 @@
             <div class="text-sm text-gray-600">
                 {{ total_files }} files changed
             </div>
-            <button onclick="location.reload()" 
+            <button onclick="location.reload()"
                 class="bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 Refresh
             </button>
         </div>
     </div>
 </header>
+
+<script>
+function updateCheckboxAndSubmit(checkbox) {
+    const form = checkbox.form;
+    const formData = new FormData(form);
+    const params = new URLSearchParams();
+    
+    // Get all form data except checkboxes (we'll handle those explicitly)
+    for (const [key, value] of formData.entries()) {
+        if (key !== 'unstaged' && key !== 'staged' && key !== 'untracked') {
+            params.set(key, value);
+        }
+    }
+    
+    // Explicitly set checkbox states based on their current checked state
+    const unstagedCheckbox = form.querySelector('input[name="unstaged"]');
+    const stagedCheckbox = form.querySelector('input[name="staged"]');
+    const untrackedCheckbox = form.querySelector('input[name="untracked"]');
+    
+    if (unstagedCheckbox) {
+        params.set('unstaged', unstagedCheckbox.checked ? 'true' : 'false');
+    }
+    if (stagedCheckbox) {
+        // Only set staged parameter if staged checkbox exists (not in HEAD comparisons)
+        params.set('staged', stagedCheckbox.checked ? 'true' : 'false');
+    }
+    if (untrackedCheckbox) {
+        params.set('untracked', untrackedCheckbox.checked ? 'true' : 'false');
+    }
+    
+    // Navigate to the updated URL
+    window.location.href = '?' + params.toString();
+}
+
+// Set up event listeners when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.checkbox-control');
+    
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', function(event) {
+            // Prevent the default form submission behavior
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            
+            updateCheckboxAndSubmit(this);
+        });
+    });
+});
+</script>

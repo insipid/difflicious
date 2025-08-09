@@ -1,15 +1,20 @@
 <!-- Single File Diff -->
-<div class="file-diff bg-white border border-gray-200 rounded-lg shadow-sm" data-file="{{ file.path }}">
+{% set file_id = group_name + ":" + file.path %}
+<div class="file-diff bg-white border border-gray-200 rounded-lg shadow-sm" data-file="{{ file_id }}">
     <!-- File Header -->
     <div class="file-header flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-         onclick="toggleFile('{{ file.path }}')">
+         onclick="toggleFile('{{ file_id }}')">
         <div class="flex items-center space-x-3">
             <span class="toggle-icon text-gray-400 transition-transform duration-200"
                 data-expanded="{{ 'true' if file.expanded else 'false' }}">
                 {{ '▼' if file.expanded else '▶' }}
             </span>
             <span class="font-mono text-sm text-gray-900">{{ file.path }}</span>
-            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+            <span class="text-xs px-2 py-1 rounded
+                {%- if file.status == 'added' %} bg-green-100 text-green-800
+                {%- elif file.status == 'deleted' %} bg-red-100 text-red-800
+                {%- else %} bg-gray-100 text-gray-500
+                {%- endif %}">
                 {{ file.status }}
             </span>
         </div>
@@ -17,12 +22,12 @@
         <div class="flex items-center space-x-2 text-xs">
             <!-- File Navigation -->
             <div class="flex items-center space-x-1" onclick="event.stopPropagation()">
-                <button onclick="navigateToPreviousFile('{{ file.path }}')"
+                <button onclick="navigateToPreviousFile('{{ file_id }}')"
                     class="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
                     title="Previous file">
                     <span class="text-sm">↑</span>
                 </button>
-                <button onclick="navigateToNextFile('{{ file.path }}')"
+                <button onclick="navigateToNextFile('{{ file_id }}')"
                     class="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
                     title="Next file">
                     <span class="text-sm">↓</span>
@@ -44,7 +49,7 @@
     </div>
 
     <!-- File Content -->
-    <div class="file-content border-t border-gray-200" data-file-content="{{ file.path }}"
+    <div class="file-content border-t border-gray-200" data-file-content="{{ file_id }}"
         style="display: {{ 'block' if file.expanded else 'none' }};">
         {% if not file.hunks or file.hunks|length == 0 %}
         <!-- No content available -->

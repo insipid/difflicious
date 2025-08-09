@@ -22,8 +22,8 @@ const DiffState = {
         const expandAllBtn = $('#expandAll');
         const collapseAllBtn = $('#collapseAll');
 
-        if (expandAllBtn) expandAllBtn.addEventListener('click', () => this.expandAllFiles());
-        if (collapseAllBtn) collapseAllBtn.addEventListener('click', () => this.collapseAllFiles());
+        if (expandAllBtn) expandAllBtn.addEventListener('click', () => expandAllFiles());
+        if (collapseAllBtn) collapseAllBtn.addEventListener('click', () => collapseAllFiles());
 
         // Form auto-submit on changes
         $$('input[type="checkbox"], select').forEach(input => {
@@ -761,12 +761,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Ensure all expansion buttons are enabled and functional
-        console.log('Initializing expansion buttons...');
+        // console.log('Initializing expansion buttons...');
         $$('.expansion-btn').forEach((button, index) => {
             const targetStart = parseInt(button.dataset.targetStart);
             const targetEnd = parseInt(button.dataset.targetEnd);
 
-            console.log(`Button ${index}: direction=${button.dataset.direction}, targetStart=${targetStart}, targetEnd=${targetEnd}`);
+            // console.log(`Button ${index}: direction=${button.dataset.direction}, targetStart=${targetStart}, targetEnd=${targetEnd}`);
 
             // Ensure button is properly enabled
             button.disabled = false;
@@ -775,7 +775,7 @@ document.addEventListener('DOMContentLoaded', () => {
             button.style.pointerEvents = 'auto';
             button.title = `Expand 10 lines ${button.dataset.direction} (${targetStart}-${targetEnd})`;
 
-            console.log(`Button ${index} enabled and ready`);
+            // console.log(`Button ${index} enabled and ready`);
         });
     }, 100);
 });

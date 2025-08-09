@@ -19,9 +19,9 @@
             {% else %}
             <p>Your working directory is clean - no unstaged or untracked files.</p>
             {% endif %}
-            {% if current_base_branch != 'main' %}
+            {% if current_base_ref != 'main' %}
             <p class="text-sm text-gray-500 mt-3">
-                Comparing against branch: <span class="font-mono">{{ current_base_branch }}</span>
+                Comparing against: <span class="font-mono">{{ current_base_ref }}</span>
             </p>
             {% endif %}
         </div>
