@@ -36,7 +36,6 @@ def create_app() -> Flask:
         try:
             # Get query parameters
             base_ref = request.args.get("base_ref")
-            target_commit = request.args.get("target_commit")
             unstaged = request.args.get("unstaged", "true").lower() == "true"
             staged = request.args.get("staged", "true").lower() == "true"
             untracked = request.args.get("untracked", "false").lower() == "true"
@@ -47,15 +46,13 @@ def create_app() -> Flask:
             # Prepare template data
             template_service = TemplateRenderingService()
             template_data = template_service.prepare_diff_data_for_template(
-                base_commit=base_ref,
-                target_commit=target_commit,
+                base_ref=base_ref if base_ref is not None else None,
                 unstaged=unstaged,
                 staged=staged,
                 untracked=untracked,
                 file_path=file_path,
                 search_filter=search_filter if search_filter else None,
                 expand_files=expand_files,
-                base_ref=base_ref if base_ref and base_ref not in ["HEAD", ""] else None,
             )
 
             return render_template("index.html", **template_data)

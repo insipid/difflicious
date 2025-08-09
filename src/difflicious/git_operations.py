@@ -5,7 +5,7 @@ import os
 import re
 import subprocess
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 logger = logging.getLogger(__name__)
 
@@ -223,13 +223,13 @@ class GitRepository:
 
         # If an explicit ref is provided and looks safe, try it first
         if preferred_ref and self._is_safe_commit_sha(preferred_ref):
-            return preferred_ref
+            return str(preferred_ref)
 
         branches_info = self.get_branches()
-        reference_point = branches_info.get("default_branch", "main")
-        if not self._is_safe_commit_sha(reference_point):
+        reference_point = branches_info.get("default_branch", "main") or "main"
+        if not self._is_safe_commit_sha(str(reference_point)):
             reference_point = "HEAD"
-        return reference_point
+        return str(reference_point)
 
     def summarize_changes(self, include_unstaged: bool = True, include_untracked: bool = True) -> dict[str, Any]:
         """Return counts of changed files without fetching diff contents.
@@ -344,7 +344,7 @@ class GitRepository:
         then falls back to common naming conventions.
         """
         # Prefer cached default branch if available
-        cached = getattr(self, "_cached_default_branch", None)
+        cached = cast(Optional[str], getattr(self, "_cached_default_branch", None))
         if cached and cached in branches:
             return cached
         # First, try to get the actual default branch from remote
@@ -353,13 +353,13 @@ class GitRepository:
             stdout, stderr, return_code = self._execute_git_command(
                 ["remote", "show", "origin"]
             )
-            if return_code == 0:
+            if return_code == 0 and stdout:
                 for line in stdout.split('\n'):
                     if 'HEAD branch:' in line:
                         default_branch = line.split('HEAD branch:')[1].strip()
                         if default_branch in branches:
                             self._cached_default_branch = default_branch
-                            return default_branch
+                            return str(default_branch)
         except GitOperationError:
             pass
 
@@ -368,12 +368,12 @@ class GitRepository:
             stdout, stderr, return_code = self._execute_git_command(
                 ["symbolic-ref", "refs/remotes/origin/HEAD"]
             )
-            if return_code == 0:
+            if return_code == 0 and stdout:
                 # Output format: refs/remotes/origin/main
                 default_branch = stdout.strip().split('/')[-1]
                 if default_branch in branches:
                     self._cached_default_branch = default_branch
-                    return default_branch
+                    return str(default_branch)
         except GitOperationError:
             pass
 
@@ -382,7 +382,7 @@ class GitRepository:
             stdout, stderr, return_code = self._execute_git_command(
                 ["branch", "-r"]
             )
-            if return_code == 0:
+            if return_code == 0 and stdout:
                 for line in stdout.split('\n'):
                     if 'origin/HEAD' in line:
                         # Extract the branch it points to
@@ -391,7 +391,7 @@ class GitRepository:
                             default_branch = parts[1].replace('origin/', '')
                             if default_branch in branches:
                                 self._cached_default_branch = default_branch
-                                return default_branch
+                                return str(default_branch)
         except GitOperationError:
             pass
 
@@ -400,12 +400,12 @@ class GitRepository:
         for default_branch in common_defaults:
             if default_branch in branches:
                 self._cached_default_branch = default_branch
-                return default_branch
+                return str(default_branch)
 
         # Final fallback: look for a branch with a remote counterpart
         for branch in branches:
             if f"remotes/origin/{branch}" in branches:
-                return branch
+                return str(branch)
 
         return None
 

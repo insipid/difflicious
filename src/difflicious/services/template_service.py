@@ -53,27 +53,24 @@ class TemplateRenderingService(BaseService):
             branch_info = self.git_service.get_branch_information()
 
             # Get diff data with explicit logic for the two main use cases
-            # Map base_commit parameter to use_head logic
             current_branch = repo_status.get("current_branch", "unknown")
             is_head_comparison = (
-                base_commit in ["HEAD", current_branch] if base_commit else False
+                base_ref in ["HEAD", current_branch] if base_ref else False
             )
 
             logger.info(
-                f"Template service: base_commit='{base_commit}', current_branch='{current_branch}', use_head={is_head_comparison}"
+                f"Template service: base_ref='{base_ref}', current_branch='{current_branch}', use_head={is_head_comparison}"
             )
 
-            if base_commit:
+            if base_ref:
                 if is_head_comparison:
                     # Working directory vs HEAD comparison
                     # Always get both staged and unstaged files, keep them separate
                     grouped_diffs = self.diff_service.get_grouped_diffs(
-                        base_commit="HEAD",
-                        target_commit=None,
+                        base_ref="HEAD",
                         unstaged=True,  # Always get unstaged files for HEAD comparisons
                         untracked=untracked,
                         file_path=file_path,
-                        base_ref=None,
                     )
 
                     # For HEAD comparisons, staged changes are always visible
@@ -86,12 +83,10 @@ class TemplateRenderingService(BaseService):
                 else:
                     # Working directory vs branch comparison - always show changes
                     grouped_diffs = self.diff_service.get_grouped_diffs(
-                        base_commit=None,  # Will default to default branch via the mapping
-                        target_commit=None,
+                        base_ref=base_ref,
                         unstaged=True,  # Always show changes for branch comparisons
                         untracked=untracked,
                         file_path=file_path,
-                        base_ref=base_ref,
                     )
 
                     # For branch comparison, combine unstaged + staged into "changes" group
@@ -122,12 +117,10 @@ class TemplateRenderingService(BaseService):
             else:
                 # Default behavior: compare to default branch - always show changes
                 grouped_diffs = self.diff_service.get_grouped_diffs(
-                    base_commit=None,
-                    target_commit=target_commit,
+                    base_ref=base_ref,
                     unstaged=True,  # Always show changes for branch comparisons
                     untracked=untracked,
                     file_path=file_path,
-                    base_ref=base_ref,
                 )
 
                 # For branch comparison, combine unstaged + staged into "changes" group
@@ -169,7 +162,7 @@ class TemplateRenderingService(BaseService):
             ui_staged = staged
 
             logger.info(
-                f"Template final: base_ref='{base_commit}', current_branch='{current_branch}', is_head_comparison={is_head_comparison}"
+                f"Template final: base_ref='{base_ref}', current_branch='{current_branch}', is_head_comparison={is_head_comparison}"
             )
 
             return {
@@ -181,7 +174,7 @@ class TemplateRenderingService(BaseService):
                 "groups": enhanced_groups,
                 "total_files": total_files,
                 # UI state
-                "current_base_ref": base_commit
+                "current_base_ref": base_ref
                 or branch_info.get("branches", {}).get("default", "main"),
                 "unstaged": ui_unstaged,
                 "staged": ui_staged,
