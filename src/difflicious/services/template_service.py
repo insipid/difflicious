@@ -369,7 +369,7 @@ class TemplateRenderingService(BaseService):
                 "staged": {"files": [], "count": 0},
             },
             "total_files": 0,
-            "current_base_branch": "main",
+            "current_base_ref": "main",
             "unstaged": True,
             "staged": True,
             "untracked": False,
