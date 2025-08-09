@@ -28,8 +28,7 @@ class DiffService(BaseService):
         from app.py and makes it independently testable.
 
         Args:
-            base_commit: Legacy parameter - now mapped to use_head behavior
-            target_commit: Legacy parameter - now ignored (was used for commit-to-commit comparison)
+            base_ref: Base reference for comparison (HEAD or branch)
             unstaged: Whether to include unstaged changes (mapped to include_unstaged)
             untracked: Whether to include untracked files (mapped to include_untracked)
             file_path: Optional specific file to diff

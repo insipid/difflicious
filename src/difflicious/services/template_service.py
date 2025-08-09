@@ -89,31 +89,7 @@ class TemplateRenderingService(BaseService):
                         file_path=file_path,
                     )
 
-                    # For branch comparison, combine unstaged + staged into "changes" group
-                    changes_files = []
-                    changes_count = 0
-
-                    # Add unstaged files
-                    if "unstaged" in grouped_diffs:
-                        changes_files.extend(grouped_diffs["unstaged"]["files"])
-                        changes_count += grouped_diffs["unstaged"]["count"]
-
-                    # Add staged files
-                    if "staged" in grouped_diffs:
-                        changes_files.extend(grouped_diffs["staged"]["files"])
-                        changes_count += grouped_diffs["staged"]["count"]
-
-                    # Replace unstaged group with combined changes group
-                    grouped_diffs["changes"] = {
-                        "files": changes_files,
-                        "count": changes_count,
-                    }
-
-                    # Remove the separate unstaged and staged groups
-                    if "unstaged" in grouped_diffs:
-                        del grouped_diffs["unstaged"]
-                    if "staged" in grouped_diffs:
-                        del grouped_diffs["staged"]
+                    grouped_diffs = self._combine_unstaged_and_staged_as_changes(grouped_diffs)
             else:
                 # Default behavior: compare to default branch - always show changes
                 grouped_diffs = self.diff_service.get_grouped_diffs(
@@ -123,31 +99,7 @@ class TemplateRenderingService(BaseService):
                     file_path=file_path,
                 )
 
-                # For branch comparison, combine unstaged + staged into "changes" group
-                changes_files = []
-                changes_count = 0
-
-                # Add unstaged files
-                if "unstaged" in grouped_diffs:
-                    changes_files.extend(grouped_diffs["unstaged"]["files"])
-                    changes_count += grouped_diffs["unstaged"]["count"]
-
-                # Add staged files
-                if "staged" in grouped_diffs:
-                    changes_files.extend(grouped_diffs["staged"]["files"])
-                    changes_count += grouped_diffs["staged"]["count"]
-
-                # Replace unstaged group with combined changes group
-                grouped_diffs["changes"] = {
-                    "files": changes_files,
-                    "count": changes_count,
-                }
-
-                # Remove the separate unstaged and staged groups
-                if "unstaged" in grouped_diffs:
-                    del grouped_diffs["unstaged"]
-                if "staged" in grouped_diffs:
-                    del grouped_diffs["staged"]
+                grouped_diffs = self._combine_unstaged_and_staged_as_changes(grouped_diffs)
 
             # Process and enhance diff data for template rendering
             enhanced_groups = self._enhance_diff_data_for_templates(
@@ -199,16 +151,16 @@ class TemplateRenderingService(BaseService):
     ) -> dict[str, Any]:
         """Enhance diff data with syntax highlighting and template-specific features."""
 
-        enhanced_groups = {}
+        enhanced_groups: dict[str, Any] = {}
 
         for group_key, group_data in grouped_diffs.items():
-            enhanced_files = []
+            enhanced_files: list[dict[str, Any]] = []
 
-            for file_data in group_data["files"]:
+            for file_data in group_data.get("files", []):
                 # Apply search filter
                 if (
-                    search_filter
-                    and search_filter.lower() not in file_data["path"].lower()
+                    search_filter is not None
+                    and search_filter.lower() not in file_data.get("path", "").lower()
                 ):
                     continue
 
@@ -222,7 +174,7 @@ class TemplateRenderingService(BaseService):
                 if file_data.get("hunks"):
                     enhanced_file["hunks"] = self._process_hunks_for_template(
                         file_data["hunks"],
-                        file_data["path"],
+                        file_data.get("path", ""),
                         file_data.get(
                             "line_count"
                         ),  # Pass file line count for boundary checks
@@ -236,6 +188,36 @@ class TemplateRenderingService(BaseService):
             }
 
         return enhanced_groups
+
+    def _combine_unstaged_and_staged_as_changes(
+        self, grouped_diffs: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Combine 'unstaged' and 'staged' groups into a single 'changes' group.
+
+        Removes the original groups if present.
+        """
+        changes_files: list[dict[str, Any]] = []
+        changes_count = 0
+
+        if "unstaged" in grouped_diffs:
+            changes_files.extend(grouped_diffs["unstaged"]["files"])
+            changes_count += grouped_diffs["unstaged"]["count"]
+
+        if "staged" in grouped_diffs:
+            changes_files.extend(grouped_diffs["staged"]["files"])
+            changes_count += grouped_diffs["staged"]["count"]
+
+        grouped_diffs["changes"] = {
+            "files": changes_files,
+            "count": changes_count,
+        }
+
+        if "unstaged" in grouped_diffs:
+            del grouped_diffs["unstaged"]
+        if "staged" in grouped_diffs:
+            del grouped_diffs["staged"]
+
+        return grouped_diffs
 
     def _process_hunks_for_template(
         self,
