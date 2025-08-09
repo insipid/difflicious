@@ -104,6 +104,35 @@ class TestTemplateRenderingService:
     @patch("difflicious.services.template_service.DiffService")
     @patch("difflicious.services.template_service.GitService")
     @patch("difflicious.services.template_service.SyntaxHighlightingService")
+    def test_prepare_diff_data_for_template_with_base_ref(
+        self, mock_syntax_service, mock_git_service, mock_diff_service
+    ):
+        """Ensure base_ref is threaded through to DiffService."""
+        mock_diff_instance = mock_diff_service.return_value
+        mock_git_instance = mock_git_service.return_value
+        mock_syntax_service.return_value.get_css_styles.return_value = ""
+
+        mock_git_instance.get_repository_status.return_value = {
+            "current_branch": "main"
+        }
+        mock_git_instance.get_branch_information.return_value = {
+            "branches": {"all": ["main"], "default": "main"}
+        }
+        mock_diff_instance.get_grouped_diffs.return_value = {
+            "unstaged": {"files": [], "count": 0},
+            "staged": {"files": [], "count": 0},
+        }
+
+        service = TemplateRenderingService()
+        service.prepare_diff_data_for_template(base_ref="feature-x")
+
+        assert mock_diff_instance.get_grouped_diffs.called
+        _, kwargs = mock_diff_instance.get_grouped_diffs.call_args
+        assert kwargs.get("base_ref") == "feature-x"
+
+    @patch("difflicious.services.template_service.DiffService")
+    @patch("difflicious.services.template_service.GitService")
+    @patch("difflicious.services.template_service.SyntaxHighlightingService")
     def test_prepare_diff_data_for_template_with_search_filter(
         self, mock_syntax_service, mock_git_service, mock_diff_service
     ):

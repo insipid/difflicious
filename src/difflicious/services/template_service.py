@@ -31,6 +31,7 @@ class TemplateRenderingService(BaseService):
         file_path: Optional[str] = None,
         search_filter: Optional[str] = None,
         expand_files: bool = False,
+        base_ref: Optional[str] = None,
     ) -> dict[str, Any]:
         """Prepare complete diff data optimized for Jinja2 template rendering.
 
@@ -72,6 +73,7 @@ class TemplateRenderingService(BaseService):
                         unstaged=True,  # Always get unstaged files for HEAD comparisons
                         untracked=untracked,
                         file_path=file_path,
+                        base_ref=None,
                     )
 
                     # For HEAD comparisons, staged changes are always visible
@@ -89,6 +91,7 @@ class TemplateRenderingService(BaseService):
                         unstaged=True,  # Always show changes for branch comparisons
                         untracked=untracked,
                         file_path=file_path,
+                        base_ref=base_ref,
                     )
 
                     # For branch comparison, combine unstaged + staged into "changes" group
@@ -124,6 +127,7 @@ class TemplateRenderingService(BaseService):
                     unstaged=True,  # Always show changes for branch comparisons
                     untracked=untracked,
                     file_path=file_path,
+                    base_ref=base_ref,
                 )
 
                 # For branch comparison, combine unstaged + staged into "changes" group

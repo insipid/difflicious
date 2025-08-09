@@ -78,6 +78,17 @@ def test_api_diff_route(client):
     assert "staged" in data["groups"]
 
 
+def test_api_diff_route_with_base_ref(client):
+    """Test that the API diff endpoint accepts base_ref and forwards it."""
+    response = client.get("/api/diff?base_ref=feature-x")
+    assert response.status_code == 200
+    assert response.is_json
+
+    data = response.get_json()
+    assert data["status"] == "ok"
+    assert data.get("base_ref") == "feature-x"
+
+
 class TestAPIDiffCommitComparison:
     """Test cases for API diff endpoint commit comparison functionality."""
 

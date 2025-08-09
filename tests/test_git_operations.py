@@ -455,6 +455,66 @@ class TestGitRepositoryCommitComparison:
 
     @patch("difflicious.git_operations.GitRepository._execute_git_command")
     @patch("difflicious.git_operations.GitRepository.get_branches")
+    def test_grouping_toggles_and_bases(
+        self, mock_get_branches, mock_execute, mock_git_repo
+    ):
+        """Validate grouping behavior across HEAD/default/arbitrary × toggles."""
+        repo = GitRepository(str(mock_git_repo))
+
+        mock_get_branches.return_value = {
+            "default_branch": "main",
+            "branches": ["main"],
+        }
+
+        def resp(args):
+            if "rev-parse" in args:
+                return "ok", "", 0
+            if args[:2] == ["diff", "--numstat"] and len(args) == 2:
+                return "1\t0\tfile_a.txt\n", "", 0
+            if args[:2] == ["diff", "--name-status"] and len(args) == 2:
+                return "M\tfile_a.txt\n", "", 0
+            if args[:3] == ["diff", "--numstat", "main"]:
+                return "2\t1\tfile_b.txt\n", "", 0
+            if args[:3] == ["diff", "--name-status", "main"]:
+                return "A\tfile_b.txt\n", "", 0
+            if args[:4] == ["diff", "--cached", "HEAD"]:
+                return "", "", 0
+            if args[:4] == ["diff", "--cached", "main"]:
+                return "", "", 0
+            if "status" in args and "--porcelain" in args:
+                return "?? new.txt\n", "", 0
+            return "", "", 1
+
+        mock_execute.side_effect = resp
+
+        # HEAD comparison with untracked/unstaged
+        out_head = repo.get_diff(use_head=True, include_unstaged=True, include_untracked=True)
+        assert out_head["unstaged"]["count"] == 1
+        assert out_head["untracked"]["count"] == 1
+
+        # Default branch comparison
+        out_main = repo.get_diff(include_unstaged=True, include_untracked=False)
+        assert out_main["unstaged"]["count"] == 1
+        assert out_main["untracked"]["count"] == 0
+
+        # Explicit base_ref comparison
+        def resp_feature(args):
+            if "rev-parse" in args:
+                return "ok", "", 0
+            if args[:3] == ["diff", "--numstat", "feature-x"]:
+                return "3\t3\tfx.py\n", "", 0
+            if args[:3] == ["diff", "--name-status", "feature-x"]:
+                return "M\tfx.py\n", "", 0
+            if args[:4] == ["diff", "--cached", "feature-x"]:
+                return "", "", 0
+            return "", "", 1
+
+        mock_execute.side_effect = resp_feature
+        out_feature = repo.get_diff(include_unstaged=True, base_ref="feature-x")
+        assert out_feature["unstaged"]["count"] == 1
+
+    @patch("difflicious.git_operations.GitRepository._execute_git_command")
+    @patch("difflicious.git_operations.GitRepository.get_branches")
     def test_get_diff_untracked_files(
         self, mock_get_branches, mock_execute, mock_git_repo
     ):

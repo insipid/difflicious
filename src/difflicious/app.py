@@ -55,6 +55,7 @@ def create_app() -> Flask:
                 file_path=file_path,
                 search_filter=search_filter if search_filter else None,
                 expand_files=expand_files,
+                base_ref=base_branch if base_branch and base_branch not in ["HEAD", ""] else None,
             )
 
             return render_template("index.html", **template_data)
@@ -240,6 +241,7 @@ def create_app() -> Flask:
         unstaged = request.args.get("unstaged", "true").lower() == "true"
         untracked = request.args.get("untracked", "false").lower() == "true"
         file_path = request.args.get("file")
+        base_ref = request.args.get("base_ref")
 
         # Handle both new and legacy parameters
         use_head = request.args.get("use_head", "false").lower() == "true"
@@ -258,6 +260,10 @@ def create_app() -> Flask:
 
             use_head = base_commit in ["HEAD", current_branch]
 
+        # If explicit base_ref is provided, prefer branch comparison (not HEAD)
+        if base_ref:
+            use_head = False
+
         try:
             diff_service = DiffService()
 
@@ -270,6 +276,7 @@ def create_app() -> Flask:
                     unstaged=unstaged,
                     untracked=untracked,
                     file_path=file_path,
+                    base_ref=None,
                 )
             else:
                 # Working directory vs default branch comparison
@@ -279,6 +286,7 @@ def create_app() -> Flask:
                     unstaged=unstaged,
                     untracked=untracked,
                     file_path=file_path,
+                    base_ref=base_ref,
                 )
 
             # Calculate total files across all groups
@@ -294,6 +302,7 @@ def create_app() -> Flask:
                     "use_head": use_head,
                     "base_commit": base_commit,  # Keep for compatibility
                     "target_commit": target_commit,  # New parameter
+                        "base_ref": base_ref,
                     "total_files": total_files,
                 }
             )
