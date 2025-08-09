@@ -22,7 +22,9 @@ class GitService(BaseService):
             repo_name = self.repo.get_repository_name()
 
             # Use lightweight summary instead of full diff content
-            summary = self.repo.summarize_changes(include_unstaged=True, include_untracked=True)
+            summary = self.repo.summarize_changes(
+                include_unstaged=True, include_untracked=True
+            )
             total_files = sum(group.get("count", 0) for group in summary.values())
 
             return {

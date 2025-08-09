@@ -275,7 +275,7 @@ def create_app() -> Flask:
                     "untracked": untracked,
                     "file_filter": file_path,
                     "use_head": use_head,
-                        "base_ref": base_ref,
+                    "base_ref": base_ref,
                     "total_files": total_files,
                 }
             )

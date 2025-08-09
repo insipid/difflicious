@@ -416,7 +416,9 @@ class TestGitRepositoryCommitComparison:
         assert isinstance(diffs, dict)
         assert diffs["unstaged"]["count"] >= 0
         # Ensure feature-x appeared in diff args at least once
-        diff_calls = [call for call in mock_execute.call_args_list if "diff" in call[0][0]]
+        diff_calls = [
+            call for call in mock_execute.call_args_list if "diff" in call[0][0]
+        ]
         assert any("feature-x" in call[0][0] for call in diff_calls)
 
     @patch("difflicious.git_operations.GitRepository._execute_git_command")
@@ -488,7 +490,9 @@ class TestGitRepositoryCommitComparison:
         mock_execute.side_effect = resp
 
         # HEAD comparison with untracked/unstaged
-        out_head = repo.get_diff(use_head=True, include_unstaged=True, include_untracked=True)
+        out_head = repo.get_diff(
+            use_head=True, include_unstaged=True, include_untracked=True
+        )
         assert out_head["unstaged"]["count"] == 1
         assert out_head["untracked"]["count"] == 1
 

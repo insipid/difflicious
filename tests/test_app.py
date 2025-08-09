@@ -118,7 +118,9 @@ class TestAPIDiffCommitComparison:
 
     def test_api_diff_with_base_ref_and_other_params(self, client):
         """Test API diff endpoint with base_ref and other parameters."""
-        response = client.get("/api/diff?base_ref=abc123&unstaged=true&untracked=false&file=test.txt")
+        response = client.get(
+            "/api/diff?base_ref=abc123&unstaged=true&untracked=false&file=test.txt"
+        )
         assert response.status_code == 200
         assert response.is_json
 

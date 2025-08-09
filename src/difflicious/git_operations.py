@@ -212,7 +212,9 @@ class GitRepository:
                 "error": str(e),
             }
 
-    def _resolve_base_ref(self, use_head: bool = False, preferred_ref: Optional[str] = None) -> str:
+    def _resolve_base_ref(
+        self, use_head: bool = False, preferred_ref: Optional[str] = None
+    ) -> str:
         """Resolve the base reference for comparisons.
 
         If use_head is True, return "HEAD". Otherwise, use preferred_ref if provided
@@ -231,7 +233,9 @@ class GitRepository:
             reference_point = "HEAD"
         return str(reference_point)
 
-    def summarize_changes(self, include_unstaged: bool = True, include_untracked: bool = True) -> dict[str, Any]:
+    def summarize_changes(
+        self, include_unstaged: bool = True, include_untracked: bool = True
+    ) -> dict[str, Any]:
         """Return counts of changed files without fetching diff contents.
 
         Returns a dict with the same group keys as get_diff, but only 'count' fields
@@ -248,18 +252,26 @@ class GitRepository:
             if include_untracked:
                 stdout, _, rc = self._execute_git_command(["status", "--porcelain"])
                 if rc == 0 and stdout:
-                    summary["untracked"]["count"] = sum(1 for line in stdout.split("\n") if line.startswith("??"))
+                    summary["untracked"]["count"] = sum(
+                        1 for line in stdout.split("\n") if line.startswith("??")
+                    )
 
             # Unstaged changes (working tree vs index)
             if include_unstaged:
                 stdout, _, rc = self._execute_git_command(["diff", "--name-only"])
                 if rc == 0 and stdout:
-                    summary["unstaged"]["count"] = sum(1 for line in stdout.split("\n") if line.strip())
+                    summary["unstaged"]["count"] = sum(
+                        1 for line in stdout.split("\n") if line.strip()
+                    )
 
             # Staged changes (index vs HEAD)
-            stdout, _, rc = self._execute_git_command(["diff", "--cached", "--name-only", "HEAD"])
+            stdout, _, rc = self._execute_git_command(
+                ["diff", "--cached", "--name-only", "HEAD"]
+            )
             if rc == 0 and stdout:
-                summary["staged"]["count"] = sum(1 for line in stdout.split("\n") if line.strip())
+                summary["staged"]["count"] = sum(
+                    1 for line in stdout.split("\n") if line.strip()
+                )
 
         except GitOperationError as e:
             logger.warning(f"summarize_changes failed: {e}")
@@ -354,9 +366,9 @@ class GitRepository:
                 ["remote", "show", "origin"]
             )
             if return_code == 0 and stdout:
-                for line in stdout.split('\n'):
-                    if 'HEAD branch:' in line:
-                        default_branch = line.split('HEAD branch:')[1].strip()
+                for line in stdout.split("\n"):
+                    if "HEAD branch:" in line:
+                        default_branch = line.split("HEAD branch:")[1].strip()
                         if default_branch in branches:
                             self._cached_default_branch = default_branch
                             return str(default_branch)
@@ -370,7 +382,7 @@ class GitRepository:
             )
             if return_code == 0 and stdout:
                 # Output format: refs/remotes/origin/main
-                default_branch = stdout.strip().split('/')[-1]
+                default_branch = stdout.strip().split("/")[-1]
                 if default_branch in branches:
                     self._cached_default_branch = default_branch
                     return str(default_branch)
@@ -379,16 +391,14 @@ class GitRepository:
 
         # Method 3: Check for origin/HEAD in remote branches
         try:
-            stdout, stderr, return_code = self._execute_git_command(
-                ["branch", "-r"]
-            )
+            stdout, stderr, return_code = self._execute_git_command(["branch", "-r"])
             if return_code == 0 and stdout:
-                for line in stdout.split('\n'):
-                    if 'origin/HEAD' in line:
+                for line in stdout.split("\n"):
+                    if "origin/HEAD" in line:
                         # Extract the branch it points to
-                        parts = line.strip().split(' -> ')
+                        parts = line.strip().split(" -> ")
                         if len(parts) == 2:
-                            default_branch = parts[1].replace('origin/', '')
+                            default_branch = parts[1].replace("origin/", "")
                             if default_branch in branches:
                                 self._cached_default_branch = default_branch
                                 return str(default_branch)
@@ -436,7 +446,9 @@ class GitRepository:
             }
 
             # Resolve base reference
-            reference_point = self._resolve_base_ref(use_head=use_head, preferred_ref=base_ref)
+            reference_point = self._resolve_base_ref(
+                use_head=use_head, preferred_ref=base_ref
+            )
 
             # Untracked files
             if include_untracked:
@@ -461,12 +473,16 @@ class GitRepository:
             # Unstaged (working tree) vs base
             if include_unstaged:
                 base_args_unstaged: list[str] = [] if use_head else [reference_point]
-                unstaged_files = self._collect_diff_metadata(base_args_unstaged, file_path)
+                unstaged_files = self._collect_diff_metadata(
+                    base_args_unstaged, file_path
+                )
                 groups["unstaged"]["files"].extend(unstaged_files)
                 groups["unstaged"]["count"] = len(unstaged_files)
 
             # Staged (index) vs base (HEAD or branch)
-            base_args_staged: list[str] = ["--cached", "HEAD"] if use_head else ["--cached", reference_point]
+            base_args_staged: list[str] = (
+                ["--cached", "HEAD"] if use_head else ["--cached", reference_point]
+            )
             staged_files = self._collect_diff_metadata(base_args_staged, file_path)
             groups["staged"]["files"].extend(staged_files)
             groups["staged"]["count"] = len(staged_files)
@@ -476,11 +492,17 @@ class GitRepository:
             for group_name in ("unstaged", "staged"):
                 for diff_info in groups[group_name]["files"]:
                     if use_head and group_name == "unstaged":
-                        content = self._get_file_diff(diff_info["path"], None, None, False)
+                        content = self._get_file_diff(
+                            diff_info["path"], None, None, False
+                        )
                     elif group_name == "staged":
-                        content = self._get_file_diff(diff_info["path"], None, None, True)
+                        content = self._get_file_diff(
+                            diff_info["path"], None, None, True
+                        )
                     else:
-                        content = self._get_file_diff(diff_info["path"], reference_point, None, False)
+                        content = self._get_file_diff(
+                            diff_info["path"], reference_point, None, False
+                        )
                     diff_info["content"] = content
 
             return groups
