@@ -7,10 +7,10 @@
             <!-- Base Branch Dropdown -->
             <form method="GET" action="/" class="flex items-center space-x-2">
                 <label class="text-sm font-medium text-gray-700">Base:</label>
-                <select name="base_branch" onchange="this.form.submit()"
+                <select name="base_ref" onchange="this.form.submit()"
                     class="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     {% for branch in branches.all %}
-                    <option value="{{ branch }}" {% if branch==current_base_branch %}selected{% endif %}>
+                    <option value="{{ branch }}" {% if branch==current_base_ref %}selected{% endif %}>
                         {{ branch }}
                     </option>
                     {% endfor %}
@@ -18,7 +18,7 @@
 
                 <!-- Diff Options -->
                 <div class="flex items-center space-x-4">
-                    <!-- DEBUG: is_head_comparison = {{ is_head_comparison }}, base_commit = {{ current_base_branch }} -->
+                    <!-- DEBUG: is_head_comparison = {{ is_head_comparison }}, base_ref = {{ current_base_ref }} -->
                     {% if is_head_comparison %}
                     <!-- HEAD comparison: show "Unstaged" and "Untracked" (staged always visible) -->
                     <label class="flex items-center">

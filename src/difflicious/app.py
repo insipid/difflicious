@@ -35,7 +35,7 @@ def create_app() -> Flask:
         """Main diff visualization page with server-side rendering."""
         try:
             # Get query parameters
-            base_branch = request.args.get("base_branch")
+            base_ref = request.args.get("base_ref")
             target_commit = request.args.get("target_commit")
             unstaged = request.args.get("unstaged", "true").lower() == "true"
             staged = request.args.get("staged", "true").lower() == "true"
@@ -47,7 +47,7 @@ def create_app() -> Flask:
             # Prepare template data
             template_service = TemplateRenderingService()
             template_data = template_service.prepare_diff_data_for_template(
-                base_commit=base_branch,
+                base_commit=base_ref,
                 target_commit=target_commit,
                 unstaged=unstaged,
                 staged=staged,
@@ -55,7 +55,7 @@ def create_app() -> Flask:
                 file_path=file_path,
                 search_filter=search_filter if search_filter else None,
                 expand_files=expand_files,
-                base_ref=base_branch if base_branch and base_branch not in ["HEAD", ""] else None,
+                base_ref=base_ref if base_ref and base_ref not in ["HEAD", ""] else None,
             )
 
             return render_template("index.html", **template_data)
@@ -74,7 +74,7 @@ def create_app() -> Flask:
                 "unstaged": True,
                 "untracked": False,
                 "search_filter": "",
-                "current_base_branch": "main",
+                "current_base_ref": "main",
             }
             return render_template("index.html", **error_data)
 

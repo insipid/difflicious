@@ -3,7 +3,7 @@
 {% block content %}
 {{ render_partial('partials/toolbar.html',
 branches=branches,
-current_base_branch=current_base_branch,
+current_base_ref=current_base_ref,
 unstaged=unstaged,
 staged=staged,
 untracked=untracked,
@@ -20,7 +20,7 @@ is_head_comparison=is_head_comparison) }}
     error=error,
     unstaged=unstaged,
     untracked=untracked,
-    current_base_branch=current_base_branch) }}
+    current_base_ref=current_base_ref) }}
     {% else %}
     <!-- Diff Content -->
     <div class="h-full overflow-y-auto">

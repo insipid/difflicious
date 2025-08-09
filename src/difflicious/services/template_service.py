@@ -169,7 +169,7 @@ class TemplateRenderingService(BaseService):
             ui_staged = staged
 
             logger.info(
-                f"Template final: base_commit='{base_commit}', current_branch='{current_branch}', is_head_comparison={is_head_comparison}"
+                f"Template final: base_ref='{base_commit}', current_branch='{current_branch}', is_head_comparison={is_head_comparison}"
             )
 
             return {
@@ -181,7 +181,7 @@ class TemplateRenderingService(BaseService):
                 "groups": enhanced_groups,
                 "total_files": total_files,
                 # UI state
-                "current_base_branch": base_commit
+                "current_base_ref": base_commit
                 or branch_info.get("branches", {}).get("default", "main"),
                 "unstaged": ui_unstaged,
                 "staged": ui_staged,
