@@ -89,7 +89,9 @@ class TemplateRenderingService(BaseService):
                         file_path=file_path,
                     )
 
-                    grouped_diffs = self._combine_unstaged_and_staged_as_changes(grouped_diffs)
+                    grouped_diffs = self._combine_unstaged_and_staged_as_changes(
+                        grouped_diffs
+                    )
             else:
                 # Default behavior: compare to default branch - always show changes
                 grouped_diffs = self.diff_service.get_grouped_diffs(
@@ -99,7 +101,9 @@ class TemplateRenderingService(BaseService):
                     file_path=file_path,
                 )
 
-                grouped_diffs = self._combine_unstaged_and_staged_as_changes(grouped_diffs)
+                grouped_diffs = self._combine_unstaged_and_staged_as_changes(
+                    grouped_diffs
+                )
 
             # Process and enhance diff data for template rendering
             enhanced_groups = self._enhance_diff_data_for_templates(
