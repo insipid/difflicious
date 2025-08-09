@@ -20,6 +20,18 @@
         </div>
 
         <div class="flex items-center space-x-2 text-xs">
+            <!-- File Stats -->
+            {% if file.additions > 0 %}
+            <span class="bg-green-100 text-green-800 px-2 py-1 rounded">
+                +{{ file.additions }}
+            </span>
+            {% endif %}
+            {% if file.deletions > 0 %}
+            <span class="bg-red-100 text-red-800 px-2 py-1 rounded">
+                -{{ file.deletions }}
+            </span>
+            {% endif %}
+
             <!-- File Navigation -->
             <div class="flex items-center space-x-1" onclick="event.stopPropagation()">
                 <button onclick="navigateToPreviousFile('{{ file_id }}')"
@@ -33,18 +45,6 @@
                     <span class="text-sm">↓</span>
                 </button>
             </div>
-
-            <!-- File Stats -->
-            {% if file.additions > 0 %}
-            <span class="bg-green-100 text-green-800 px-2 py-1 rounded">
-                +{{ file.additions }}
-            </span>
-            {% endif %}
-            {% if file.deletions > 0 %}
-            <span class="bg-red-100 text-red-800 px-2 py-1 rounded">
-                -{{ file.deletions }}
-            </span>
-            {% endif %}
         </div>
     </div>
 
