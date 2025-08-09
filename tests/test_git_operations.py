@@ -387,6 +387,39 @@ class TestGitRepositoryCommitComparison:
         assert "main" in diff_args
 
     @patch("difflicious.git_operations.GitRepository._execute_git_command")
+    @patch("difflicious.git_operations.GitRepository.get_branches")
+    def test_get_diff_with_explicit_base_ref(
+        self, mock_get_branches, mock_execute, mock_git_repo
+    ):
+        """Test get_diff with an explicit base_ref argument."""
+        repo = GitRepository(str(mock_git_repo))
+
+        # Mock get_branches to provide a default (won't be used due to base_ref)
+        mock_get_branches.return_value = {
+            "default_branch": "main",
+            "branches": ["main"],
+        }
+
+        # Mock git responses for diff
+        def mock_git_response(args):
+            if "rev-parse" in args:
+                return "base_sha", "", 0
+            elif "diff" in args and "feature-x" in args:
+                return "1\t0\tfoo.py\n", "", 0
+            elif "status" in args and "--porcelain" in args:
+                return "", "", 0
+            return "", "", 1
+
+        mock_execute.side_effect = mock_git_response
+
+        diffs = repo.get_diff(include_unstaged=True, base_ref="feature-x")
+        assert isinstance(diffs, dict)
+        assert diffs["unstaged"]["count"] >= 0
+        # Ensure feature-x appeared in diff args at least once
+        diff_calls = [call for call in mock_execute.call_args_list if "diff" in call[0][0]]
+        assert any("feature-x" in call[0][0] for call in diff_calls)
+
+    @patch("difflicious.git_operations.GitRepository._execute_git_command")
     def test_get_diff_with_head_comparison(self, mock_execute, mock_git_repo):
         """Test get_diff with HEAD comparison."""
         repo = GitRepository(str(mock_git_repo))

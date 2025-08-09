@@ -22,6 +22,7 @@ class DiffService(BaseService):
         unstaged: bool = True,
         untracked: bool = False,
         file_path: Optional[str] = None,
+        base_ref: Optional[str] = None,
     ) -> dict[str, Any]:
         """Get processed diff data grouped by type.
 
@@ -65,6 +66,7 @@ class DiffService(BaseService):
                 include_unstaged=unstaged,
                 include_untracked=untracked,
                 file_path=file_path,
+                base_ref=base_ref,
             )
 
             # Process each group to parse diff content for rendering
