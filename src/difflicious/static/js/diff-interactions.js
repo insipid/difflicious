@@ -203,10 +203,10 @@ async function expandContext(button, filePath, hunkIndex, direction, contextLine
             if (format === 'pygments' && result.format === 'pygments') {
                 console.log(`Injecting Pygments CSS and creating HTML for ${result.lines.length} lines`);
                 injectPygmentsCss(result.css_styles);
-                expandedHtml = createExpandedContextHtml(result, expansionId);
+                expandedHtml = createExpandedContextHtml(result, expansionId, button, direction);
             } else {
                 console.log(`Using plain format for ${result.lines.length} lines`);
-                expandedHtml = createPlainContextHtml(result, expansionId);
+                expandedHtml = createPlainContextHtml(result, expansionId, button, direction);
             }
 
             // Insert the expanded context
@@ -470,11 +470,32 @@ function injectPygmentsCss(cssStyles) {
     document.head.appendChild(styleElement);
 }
 
-function createExpandedContextHtml(result, expansionId) {
+function createExpandedContextHtml(result, expansionId, triggerButton, direction) {
     // Create HTML for Pygments-formatted expanded context lines
     const lines = result.lines || [];
     const startLineNumRight = result.right_start_line || result.start_line || 1;
-    const startLineNumLeft = result.left_start_line || startLineNumRight;
+
+    // Derive left start from current hunk ranges to ensure continuity per side
+    let startLineNumLeft = result.left_start_line || startLineNumRight;
+    try {
+        const context = hunkContext(triggerButton);
+        if (context?.currentHunk) {
+            const h = context.currentHunk;
+            const curRightStart = parseInt(h.dataset.lineStart);
+            const curRightEnd = parseInt(h.dataset.lineEnd);
+            const curLeftStart = parseInt(h.dataset.leftLineStart || '0');
+            const curLeftEnd = parseInt(h.dataset.leftLineEnd || '0');
+            if (direction === 'after') {
+                const leftBase = (curLeftEnd || (curLeftStart + (curRightEnd - curRightStart)));
+                startLineNumLeft = (leftBase || 0) + 1;
+            } else if (direction === 'before') {
+                const leftEndBefore = (curLeftStart || 1) - 1;
+                startLineNumLeft = Math.max(1, leftEndBefore - (lines.length - 1));
+            }
+        }
+    } catch (e) {
+        // Fallback to server-provided defaults
+    }
 
     let html = `<div id="${expansionId}" class="expanded-context bg-gray-25 border-l-2 border-gray-300">`;
 
@@ -516,11 +537,32 @@ function createExpandedContextHtml(result, expansionId) {
     return html;
 }
 
-function createPlainContextHtml(result, expansionId) {
+function createPlainContextHtml(result, expansionId, triggerButton, direction) {
     // Create HTML for plain text expanded context lines
     const lines = result.lines || [];
     const startLineNumRight = result.right_start_line || result.start_line || 1;
-    const startLineNumLeft = result.left_start_line || startLineNumRight;
+
+    // Derive left start from current hunk ranges to ensure continuity per side
+    let startLineNumLeft = result.left_start_line || startLineNumRight;
+    try {
+        const context = hunkContext(triggerButton);
+        if (context?.currentHunk) {
+            const h = context.currentHunk;
+            const curRightStart = parseInt(h.dataset.lineStart);
+            const curRightEnd = parseInt(h.dataset.lineEnd);
+            const curLeftStart = parseInt(h.dataset.leftLineStart || '0');
+            const curLeftEnd = parseInt(h.dataset.leftLineEnd || '0');
+            if (direction === 'after') {
+                const leftBase = (curLeftEnd || (curLeftStart + (curRightEnd - curRightStart)));
+                startLineNumLeft = (leftBase || 0) + 1;
+            } else if (direction === 'before') {
+                const leftEndBefore = (curLeftStart || 1) - 1;
+                startLineNumLeft = Math.max(1, leftEndBefore - (lines.length - 1));
+            }
+        }
+    } catch (e) {
+        // Fallback to server-provided defaults
+    }
 
     let html = `<div id="${expansionId}" class="expanded-context bg-gray-25 border-l-2 border-gray-300">`;
 
