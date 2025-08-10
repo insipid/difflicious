@@ -168,23 +168,21 @@ def create_app() -> Flask:
                     )
 
                 # Calculate the line range to fetch based on hunk and direction
-                hunk_start = min(
-                    target_hunk.get("old_start", 1), target_hunk.get("new_start", 1)
-                )
-                hunk_end = max(
-                    target_hunk.get("old_start", 1)
-                    + target_hunk.get("old_count", 0)
-                    - 1,
-                    target_hunk.get("new_start", 1)
-                    + target_hunk.get("new_count", 0)
-                    - 1,
-                )
+                old_start = target_hunk.get("old_start", 1)
+                old_count = target_hunk.get("old_count", 0)
+                new_start = target_hunk.get("new_start", 1)
+                new_count = target_hunk.get("new_count", 0)
+
+                old_end = old_start + max(old_count, 0) - 1
+                new_end = new_start + max(new_count, 0) - 1
 
                 if direction == "before":
-                    end_line = hunk_start - 1
+                    # Always anchor the fetch to the right side (new file)
+                    end_line = new_start - 1
                     start_line = max(1, end_line - context_lines + 1)
                 else:  # direction == "after"
-                    start_line = hunk_end + 1
+                    # Always anchor the fetch to the right side (new file)
+                    start_line = new_end + 1
                     end_line = start_line + context_lines - 1
 
             # Fetch the actual lines
@@ -197,30 +195,23 @@ def create_app() -> Flask:
 
             try:
                 # Determine left/right bases from the target hunk
+                # target_hunk is defined in the above branch; compute mapping based on right anchoring
                 old_start = target_hunk.get("old_start", 1) if 'target_hunk' in locals() else 1
-                old_count = target_hunk.get("old_count", 0) if 'target_hunk' in locals() else 0
                 new_start = target_hunk.get("new_start", 1) if 'target_hunk' in locals() else 1
+                old_count = target_hunk.get("old_count", 0) if 'target_hunk' in locals() else 0
                 new_count = target_hunk.get("new_count", 0) if 'target_hunk' in locals() else 0
 
                 old_end = old_start + max(old_count, 0) - 1
                 new_end = new_start + max(new_count, 0) - 1
 
                 if direction == "after":
-                    # Base starts just after the hunk on each side
-                    base_right_after = new_end + 1
-                    base_left_after = old_end + 1
-                    offset = right_start_line - base_right_after
-                    left_start_line = base_left_after + max(offset, 0)
+                    # Right starts at new_end+1; left should start at old_end+1
+                    left_start_line = old_end + 1
                 else:  # before
-                    # Base ends just before the hunk on each side
-                    base_right_before_end = new_start - 1
-                    base_left_before_end = old_start - 1
-                    # Number of lines we actually returned
-                    num_lines = len(result.get("lines", [])) if isinstance(result, dict) else len(result)
-                    # Compute how far we are from the base end on the right
-                    offset_to_end = base_right_before_end - end_line
-                    left_end_line = base_left_before_end - max(offset_to_end, 0)
-                    left_start_line = max(1, left_end_line - max(num_lines, 0) + 1)
+                    # Right ends at new_start-1; start_line was set accordingly.
+                    # Map offset from right start to left start using delta between starts
+                    delta = old_start - new_start
+                    left_start_line = max(1, start_line + delta)
             except Exception:
                 # Fallback: mirror right side if any issue
                 left_start_line = right_start_line
