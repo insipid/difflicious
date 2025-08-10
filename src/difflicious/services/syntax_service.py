@@ -88,7 +88,8 @@ class SyntaxHighlightingService:
         try:
             lexer = self._get_cached_lexer(file_path)
             highlighted = highlight(content, lexer, self.formatter)
-            return str(highlighted).strip()
+            # Preserve leading spaces; trim only a trailing newline if present
+            return str(highlighted).rstrip("\n")
         except Exception as e:
             logger.debug(f"Highlighting failed for {file_path}: {e}")
             return content  # Fallback to plain text
