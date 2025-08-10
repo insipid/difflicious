@@ -249,8 +249,8 @@ body {
 }
 
 .line-content {
-    /* Preserve indentation and spacing within diff hunks */
-    white-space: pre;
+    /* Use normal whitespace; we explicitly emit NBSP for leading indent */
+    white-space: normal;
     font-family: var(--font-family-mono);
 }
 

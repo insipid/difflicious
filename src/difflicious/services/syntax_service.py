@@ -1,6 +1,7 @@
 """Service for server-side syntax highlighting using Pygments."""
 
 import logging
+import re
 from pathlib import Path
 from typing import Any
 
@@ -86,10 +87,21 @@ class SyntaxHighlightingService:
             return content
 
         try:
+            # Preserve only leading indentation explicitly using nbsp; leave the rest normal
+            leading_match = re.match(r"^[\t ]+", content)
+            leading = leading_match.group(0) if leading_match else ""
+            rest = content[len(leading) :]
+
+            # Convert leading spaces/tabs to non-breaking spaces (tabs -> 4 spaces)
+            nbsp_prefix = (
+                leading.replace("\t", " " * 4).replace(" ", "&nbsp;")
+                if leading
+                else ""
+            )
+
             lexer = self._get_cached_lexer(file_path)
-            highlighted = highlight(content, lexer, self.formatter)
-            # Preserve leading spaces; trim only a trailing newline if present
-            return str(highlighted).rstrip("\n")
+            highlighted = highlight(rest, lexer, self.formatter)
+            return (nbsp_prefix + str(highlighted)).rstrip("\n")
         except Exception as e:
             logger.debug(f"Highlighting failed for {file_path}: {e}")
             return content  # Fallback to plain text
