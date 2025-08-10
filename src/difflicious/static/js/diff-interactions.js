@@ -473,12 +473,14 @@ function injectPygmentsCss(cssStyles) {
 function createExpandedContextHtml(result, expansionId) {
     // Create HTML for Pygments-formatted expanded context lines
     const lines = result.lines || [];
-    const startLineNum = result.start_line || 1;
+    const startLineNumRight = result.right_start_line || result.start_line || 1;
+    const startLineNumLeft = result.left_start_line || startLineNumRight;
 
     let html = `<div id="${expansionId}" class="expanded-context bg-gray-25 border-l-2 border-gray-300">`;
 
     lines.forEach((lineData, index) => {
-        const lineNum = startLineNum + index;
+        const lineNumRight = startLineNumRight + index;
+        const lineNumLeft = startLineNumLeft + index;
         const content = lineData.highlighted_content || lineData.content || '';
 
         html += `
@@ -487,7 +489,7 @@ function createExpandedContextHtml(result, expansionId) {
             <div class="line-left border-r border-gray-200 bg-gray-25">
                 <div class="flex">
                     <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
-                        <span>${lineNum}</span>
+                        <span>${lineNumLeft}</span>
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-gray-400">&nbsp;</span>
@@ -499,7 +501,7 @@ function createExpandedContextHtml(result, expansionId) {
             <div class="line-right bg-gray-25">
                 <div class="flex">
                     <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
-                        <span>${lineNum}</span>
+                        <span>${lineNumRight}</span>
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-gray-400">&nbsp;</span>
@@ -517,12 +519,14 @@ function createExpandedContextHtml(result, expansionId) {
 function createPlainContextHtml(result, expansionId) {
     // Create HTML for plain text expanded context lines
     const lines = result.lines || [];
-    const startLineNum = result.start_line || 1;
+    const startLineNumRight = result.right_start_line || result.start_line || 1;
+    const startLineNumLeft = result.left_start_line || startLineNumRight;
 
     let html = `<div id="${expansionId}" class="expanded-context bg-gray-25 border-l-2 border-gray-300">`;
 
     lines.forEach((line, index) => {
-        const lineNum = startLineNum + index;
+        const lineNumRight = startLineNumRight + index;
+        const lineNumLeft = startLineNumLeft + index;
         const content = escapeHtml(line || '');
 
         html += `
@@ -531,7 +535,7 @@ function createPlainContextHtml(result, expansionId) {
             <div class="line-left border-r border-gray-200 bg-gray-25">
                 <div class="flex">
                     <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
-                        <span>${lineNum}</span>
+                        <span>${lineNumLeft}</span>
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-gray-400">&nbsp;</span>
@@ -543,7 +547,7 @@ function createPlainContextHtml(result, expansionId) {
             <div class="line-right bg-gray-25">
                 <div class="flex">
                     <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
-                        <span>${lineNum}</span>
+                        <span>${lineNumRight}</span>
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-gray-400">&nbsp;</span>

@@ -191,6 +191,40 @@ def create_app() -> Flask:
             git_service = GitService()
             result = git_service.get_file_lines(file_path or "", start_line, end_line)
 
+            # Compute left/right starting line numbers for proper numbering
+            left_start_line = None
+            right_start_line = start_line
+
+            try:
+                # Determine left/right bases from the target hunk
+                old_start = target_hunk.get("old_start", 1) if 'target_hunk' in locals() else 1
+                old_count = target_hunk.get("old_count", 0) if 'target_hunk' in locals() else 0
+                new_start = target_hunk.get("new_start", 1) if 'target_hunk' in locals() else 1
+                new_count = target_hunk.get("new_count", 0) if 'target_hunk' in locals() else 0
+
+                old_end = old_start + max(old_count, 0) - 1
+                new_end = new_start + max(new_count, 0) - 1
+
+                if direction == "after":
+                    # Base starts just after the hunk on each side
+                    base_right_after = new_end + 1
+                    base_left_after = old_end + 1
+                    offset = right_start_line - base_right_after
+                    left_start_line = base_left_after + max(offset, 0)
+                else:  # before
+                    # Base ends just before the hunk on each side
+                    base_right_before_end = new_start - 1
+                    base_left_before_end = old_start - 1
+                    # Number of lines we actually returned
+                    num_lines = len(result.get("lines", [])) if isinstance(result, dict) else len(result)
+                    # Compute how far we are from the base end on the right
+                    offset_to_end = base_right_before_end - end_line
+                    left_end_line = base_left_before_end - max(offset_to_end, 0)
+                    left_start_line = max(1, left_end_line - max(num_lines, 0) + 1)
+            except Exception:
+                # Fallback: mirror right side if any issue
+                left_start_line = right_start_line
+
             # If pygments format requested, enhance the result with syntax highlighting
             if output_format == "pygments" and result.get("status") == "ok":
                 from difflicious.services.syntax_service import (
@@ -224,6 +258,10 @@ def create_app() -> Flask:
                 result["css_styles"] = syntax_service.get_css_styles()
             else:
                 result["format"] = "plain"
+
+            # Include left/right numbering starts for the client to render correctly
+            result["left_start_line"] = left_start_line
+            result["right_start_line"] = right_start_line
 
             return jsonify(result)
 
