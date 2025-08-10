@@ -617,14 +617,32 @@ function updateHunkRangeAfterExpansion(button, targetStart, targetEnd) {
     const { currentHunk } = context;
     const currentStart = parseInt(currentHunk.dataset.lineStart);
     const currentEnd = parseInt(currentHunk.dataset.lineEnd);
+    const currentLeftStart = parseInt(currentHunk.dataset.leftLineStart || '0');
+    const currentLeftEnd = parseInt(currentHunk.dataset.leftLineEnd || '0');
 
     // Calculate new expanded range
     const newStart = Math.min(currentStart, targetStart);
     const newEnd = Math.max(currentEnd, targetEnd);
 
     // Update hunk data attributes
+    // Update right side range
     currentHunk.dataset.lineStart = newStart;
     currentHunk.dataset.lineEnd = newEnd;
+
+    // Update left side range accordingly using +/- 1 from previous ends
+    if (directionFromButton(button) === 'after') {
+        // Advance from the previous ends
+        const leftStart = (currentLeftEnd || (currentLeftStart + (currentEnd - currentStart))) + 1;
+        const leftEnd = leftStart + (newEnd - newStart);
+        currentHunk.dataset.leftLineStart = leftStart;
+        currentHunk.dataset.leftLineEnd = leftEnd;
+    } else if (directionFromButton(button) === 'before') {
+        // Prepend before previous starts
+        const leftEnd = (currentLeftStart || 1) - 1;
+        const leftStart = Math.max(1, leftEnd - (newEnd - newStart));
+        currentHunk.dataset.leftLineStart = leftStart;
+        currentHunk.dataset.leftLineEnd = leftEnd;
+    }
 
     console.log(`Updated hunk range from ${currentStart}-${currentEnd} to ${newStart}-${newEnd}`);
 }

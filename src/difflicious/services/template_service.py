@@ -240,12 +240,14 @@ class TemplateRenderingService(BaseService):
         processed_hunks = []
 
         for hunk_index, hunk in enumerate(hunks):
-            # Calculate the current visible line range for this hunk
-            line_start = hunk.get("new_start", 1)
-            line_count = len(
-                hunk.get("lines", [])
-            )  # Previous way could cause off-by-one errors
-            line_end = hunk.get("new_start", 1) + line_count - 1
+            # Calculate canonical old/new ranges from hunk metadata (not row count)
+            right_start = hunk.get("new_start", 1)
+            right_count = hunk.get("new_count", 0)
+            right_end = right_start + max(right_count, 0) - 1
+
+            left_start = hunk.get("old_start", 1)
+            left_count = hunk.get("old_count", 0)
+            left_end = left_start + max(left_count, 0) - 1
 
             # Find the last line of the previous hunk, if it exists
             previous_hunk = hunks[hunk_index - 1] if hunk_index > 0 else None
@@ -264,11 +266,11 @@ class TemplateRenderingService(BaseService):
             )
 
             # Calculate expansion target ranges (10 lines by default)
-            expand_before_start = max(previous_hunk_end + 1, line_start - 10)
-            expand_before_end = line_start - 1
-            expand_after_start = line_end + 1
+            expand_before_start = max(previous_hunk_end + 1, right_start - 10)
+            expand_before_end = right_start - 1
+            expand_after_start = right_end + 1
             expand_after_end = min(
-                next_hunk_start - 1 if next_hunk_start else line_end + 10, line_end + 10
+                next_hunk_start - 1 if next_hunk_start else right_end + 10, right_end + 10
             )
 
             processed_hunk = {
@@ -280,9 +282,13 @@ class TemplateRenderingService(BaseService):
                 "can_expand_after": self._can_expand_context(
                     hunks, hunk_index, "after"
                 ),
-                "line_start": line_start,
-                "line_end": line_end,
-                "line_count": line_count,
+                # Right side (new file) visible range
+                "line_start": right_start,
+                "line_end": right_end,
+                "line_count": max(right_count, 0),
+                # Left side (old file) visible range for numbering continuity
+                "left_start": left_start,
+                "left_end": left_end,
                 "expand_before_start": expand_before_start,
                 "expand_before_end": expand_before_end,
                 "expand_after_start": expand_after_start,

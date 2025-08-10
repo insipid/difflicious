@@ -1,6 +1,7 @@
 <!-- Single Hunk -->
 <div class="hunk border-b border-gray-100 last:border-b-0" data-line-start="{{ hunk.line_start }}"
-    data-line-end="{{ hunk.line_end }}" data-file-line-count="{{ file.line_count or 0 }}">
+    data-line-end="{{ hunk.line_end }}" data-left-line-start="{{ hunk.left_start or 0 }}"
+    data-left-line-end="{{ hunk.left_end or 0 }}" data-file-line-count="{{ file.line_count or 0 }}">
 
     <!-- Up Expansion Controls (before hunk) -->
     {% if hunk.can_expand_before %}
