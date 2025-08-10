@@ -200,20 +200,26 @@ class TemplateRenderingService(BaseService):
 
         Removes the original groups if present.
         """
-        changes_files: list[dict[str, Any]] = []
-        changes_count = 0
+        # Deduplicate by file path. Prefer unstaged entry (represents latest state).
+        path_to_file: dict[str, dict[str, Any]] = {}
 
-        if "unstaged" in grouped_diffs:
-            changes_files.extend(grouped_diffs["unstaged"]["files"])
-            changes_count += grouped_diffs["unstaged"]["count"]
+        # First, add unstaged files if present
+        for file_entry in grouped_diffs.get("unstaged", {}).get("files", []):
+            path = file_entry.get("path")
+            if path and path not in path_to_file:
+                path_to_file[path] = file_entry
 
-        if "staged" in grouped_diffs:
-            changes_files.extend(grouped_diffs["staged"]["files"])
-            changes_count += grouped_diffs["staged"]["count"]
+        # Then add staged files that are not already present
+        for file_entry in grouped_diffs.get("staged", {}).get("files", []):
+            path = file_entry.get("path")
+            if path and path not in path_to_file:
+                path_to_file[path] = file_entry
+
+        changes_files = list(path_to_file.values())
 
         grouped_diffs["changes"] = {
             "files": changes_files,
-            "count": changes_count,
+            "count": len(changes_files),
         }
 
         if "unstaged" in grouped_diffs:
