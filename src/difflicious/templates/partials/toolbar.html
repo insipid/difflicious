@@ -7,7 +7,7 @@
             </h1>
 
             <!-- Base Branch Dropdown -->
-            <form method="GET" action="/" class="flex items-center space-x-2" onsubmit="return scrubEmptyInputs(this)">
+            <form method="GET" action="/" class="flex items-center space-x-2 w-full" onsubmit="return scrubEmptyInputs(this)">
                 <label class="text-sm font-medium text-gray-700">Base:</label>
                 <select name="base_ref" onchange="this.form.submit()"
                     class="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -46,19 +46,8 @@
 
                 <!-- Search Filter -->
                 <input type="text" name="search" value="{{ search_filter or '' }}" placeholder="Search files..."
-                    class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    class="ml-auto border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </form>
-        </div>
-
-        <!-- Status -->
-        <div class="flex items-center space-x-4">
-            <div class="text-sm text-gray-600">
-                {{ total_files }} files changed
-            </div>
-            <button onclick="location.reload()"
-                class="bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                Refresh
-            </button>
         </div>
     </div>
 </header>
