@@ -19,6 +19,7 @@ const DiffState = {
         this.bindEventListeners();
         this.restoreState();
         this.installSearchHotkeys();
+        this.installLiveSearchFilter();
     },
 
     bindEventListeners() {
@@ -91,17 +92,22 @@ const DiffState = {
                 return;
             }
 
-            if (e.key === 'Enter' && active && active.getAttribute('name') === 'search') {
-                e.preventDefault();
-                const query = (active.value || '').trim();
-                if (!query) return;
-                if (query !== lastQuery) {
-                    window.__diffSearchIndex = -1;
-                    lastQuery = query;
-                }
-                focusNextFilenameMatch(query);
-            }
+            // Enter no longer cycles results; filtering is live on input
         });
+    },
+
+    installLiveSearchFilter() {
+        const searchInput = document.querySelector('input[name="search"]');
+        if (!searchInput) return;
+
+        const applyFilter = () => {
+            const query = (searchInput.value || '').trim();
+            applyFilenameFilter(query);
+        };
+        searchInput.addEventListener('input', applyFilter);
+
+        // Apply initial filter if there is an existing value
+        applyFilter();
     }
 };
 
@@ -938,4 +944,25 @@ function focusNextFilenameMatch(query) {
     clearPreviousHighlights();
     highlightHeader(target.headerEl);
     scrollIntoViewCentered(target.el);
+}
+
+function applyFilenameFilter(query) {
+    const lower = (query || '').toLowerCase();
+    // Show/hide files
+    document.querySelectorAll('[data-file]').forEach(fileEl => {
+        const headerNameEl = fileEl.querySelector('.file-header .font-mono');
+        const name = headerNameEl ? (headerNameEl.textContent || '') : '';
+        const matches = !lower || name.toLowerCase().includes(lower);
+        fileEl.style.display = matches ? '' : 'none';
+        // Also hide associated content block to avoid large gaps
+        const fileId = fileEl.getAttribute('data-file');
+        const contentEl = document.querySelector(`[data-file-content="${CSS.escape(fileId)}"]`);
+        if (contentEl) contentEl.style.display = matches ? contentEl.style.display : 'none';
+    });
+
+    // Hide groups with no visible files
+    document.querySelectorAll('.diff-group').forEach(groupEl => {
+        const anyVisible = groupEl.querySelector('[data-file]:not([style*="display: none"])');
+        groupEl.style.display = anyVisible ? '' : 'none';
+    });
 }
