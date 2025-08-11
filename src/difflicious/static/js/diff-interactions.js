@@ -662,31 +662,41 @@ function updateHunkRangeAfterExpansion(button, targetStart, targetEnd) {
     const currentLeftStart = parseInt(currentHunk.dataset.leftLineStart || '0');
     const currentLeftEnd = parseInt(currentHunk.dataset.leftLineEnd || '0');
 
-    // Calculate new expanded range
+    // Calculate new expanded right-side range
     const newStart = Math.min(currentStart, targetStart);
     const newEnd = Math.max(currentEnd, targetEnd);
+    const insertedLength = Math.max(0, targetEnd - targetStart + 1);
 
     // Update hunk data attributes
     // Update right side range
     currentHunk.dataset.lineStart = newStart;
     currentHunk.dataset.lineEnd = newEnd;
 
-    // Update left side range accordingly using +/- 1 from previous ends
-    if (directionFromButton(button) === 'after') {
-        // Advance from the previous ends
-        const leftStart = (currentLeftEnd || (currentLeftStart + (currentEnd - currentStart))) + 1;
-        const leftEnd = leftStart + (newEnd - newStart);
-        currentHunk.dataset.leftLineStart = leftStart;
-        currentHunk.dataset.leftLineEnd = leftEnd;
-    } else if (directionFromButton(button) === 'before') {
-        // Prepend before previous starts
-        const leftEnd = (currentLeftStart || 1) - 1;
-        const leftStart = Math.max(1, leftEnd - (newEnd - newStart));
-        currentHunk.dataset.leftLineStart = leftStart;
-        currentHunk.dataset.leftLineEnd = leftEnd;
+    // Update left side range using only the newly inserted span
+    const dir = directionFromButton(button);
+    if (dir === 'after') {
+        const prevLeftEnd = isNaN(currentLeftEnd) || currentLeftEnd === 0
+            ? (isNaN(currentLeftStart) || currentLeftStart === 0 ? 0 : (currentLeftStart + (currentEnd - currentStart)))
+            : currentLeftEnd;
+        const leftStart = prevLeftEnd + 1;
+        const leftEnd = leftStart + Math.max(0, insertedLength - 1);
+        currentHunk.dataset.leftLineStart = leftStart.toString();
+        currentHunk.dataset.leftLineEnd = leftEnd.toString();
+    } else if (dir === 'before') {
+        const prevLeftStart = isNaN(currentLeftStart) || currentLeftStart === 0 ? 1 : currentLeftStart;
+        const leftEnd = prevLeftStart - 1;
+        const leftStart = Math.max(1, leftEnd - Math.max(0, insertedLength - 1));
+        currentHunk.dataset.leftLineStart = leftStart.toString();
+        currentHunk.dataset.leftLineEnd = leftEnd.toString();
     }
 
     console.log(`Updated hunk range from ${currentStart}-${currentEnd} to ${newStart}-${newEnd}`);
+}
+
+// Determine expansion direction from button dataset
+function directionFromButton(button) {
+    const d = (button?.dataset?.direction || '').toLowerCase();
+    return d === 'after' ? 'after' : 'before';
 }
 
 function hideAllExpansionButtonsInHunk(triggerButton) {
