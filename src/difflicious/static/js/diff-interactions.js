@@ -18,6 +18,7 @@ const DiffState = {
     init() {
         this.bindEventListeners();
         this.restoreState();
+        this.installSearchHotkeys();
     },
 
     bindEventListeners() {
@@ -73,6 +74,34 @@ const DiffState = {
             expandedGroups: Array.from(this.expandedGroups)
         };
         localStorage.setItem('difflicious-state', JSON.stringify(state));
+    },
+    installSearchHotkeys() {
+        let lastQuery = '';
+        document.addEventListener('keydown', (e) => {
+            const active = document.activeElement;
+            const isTyping = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
+
+            if (e.key === '/' && !isTyping) {
+                e.preventDefault();
+                const searchInput = document.querySelector('input[name="search"]');
+                if (searchInput) {
+                    searchInput.focus();
+                    searchInput.select();
+                }
+                return;
+            }
+
+            if (e.key === 'Enter' && active && active.getAttribute('name') === 'search') {
+                e.preventDefault();
+                const query = (active.value || '').trim();
+                if (!query) return;
+                if (query !== lastQuery) {
+                    window.__diffSearchIndex = -1;
+                    lastQuery = query;
+                }
+                focusNextFilenameMatch(query);
+            }
+        });
     }
 };
 
@@ -865,3 +894,48 @@ window.collapseAllFiles = collapseAllFiles;
 window.navigateToPreviousFile = navigateToPreviousFile;
 window.navigateToNextFile = navigateToNextFile;
 window.expandContext = expandContext;
+
+// Filename search helpers
+function collectVisibleFileHeaders() {
+    const files = [];
+    document.querySelectorAll('[data-file]').forEach(fileEl => {
+        const fileId = fileEl.getAttribute('data-file');
+        const headerNameEl = fileEl.querySelector('.file-header .font-mono');
+        const contentEl = document.querySelector(`[data-file-content="${CSS.escape(fileId)}"]`);
+        const isVisible = !!contentEl && contentEl.style.display !== 'none';
+        if (headerNameEl && isVisible) {
+            files.push({ el: fileEl, headerEl: headerNameEl, name: headerNameEl.textContent || '' });
+        }
+    });
+    return files;
+}
+
+function clearPreviousHighlights() {
+    document.querySelectorAll('.search-highlight').forEach(node => {
+        node.classList.remove('search-highlight');
+    });
+}
+
+function highlightHeader(headerEl) {
+    headerEl.classList.add('search-highlight');
+}
+
+function scrollIntoViewCentered(element) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function focusNextFilenameMatch(query) {
+    const files = collectVisibleFileHeaders();
+    if (files.length === 0) return;
+    const lower = query.toLowerCase();
+    const matches = files.filter(f => f.name.toLowerCase().includes(lower));
+    if (matches.length === 0) return;
+
+    if (typeof window.__diffSearchIndex !== 'number') window.__diffSearchIndex = -1;
+    window.__diffSearchIndex = (window.__diffSearchIndex + 1) % matches.length;
+    const target = matches[window.__diffSearchIndex];
+
+    clearPreviousHighlights();
+    highlightHeader(target.headerEl);
+    scrollIntoViewCentered(target.el);
+}
