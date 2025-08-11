@@ -1,13 +1,13 @@
 <!-- Toolbar -->
 <header class="bg-white border-b border-gray-200 px-4 py-3">
     <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-4 flex-1">
             <h1 class="text-xl font-semibold text-gray-900">
                 <a href="/" class="hover:underline">Difflicious</a>
             </h1>
 
             <!-- Base Branch Dropdown -->
-            <form method="GET" action="/" class="flex items-center space-x-2 w-full" onsubmit="return scrubEmptyInputs(this)">
+            <form method="GET" action="/" class="flex items-center space-x-2 flex-1" onsubmit="return scrubEmptyInputs(this)">
                 <label class="text-sm font-medium text-gray-700">Base:</label>
                 <select name="base_ref" onchange="this.form.submit()"
                     class="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -19,7 +19,7 @@
                 </select>
 
                 <!-- Diff Options -->
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-4 flex-1">
                     <!-- DEBUG: is_head_comparison = {{ is_head_comparison }}, base_ref = {{ current_base_ref }} -->
                     {% if is_head_comparison %}
                     <!-- HEAD comparison: show "Unstaged" and "Untracked" (staged always visible) -->
@@ -45,8 +45,10 @@
                 </div>
 
                 <!-- Search Filter -->
-                <input type="text" name="search" value="{{ search_filter or '' }}" placeholder="Search files..."
-                    class="ml-auto border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <div class="ml-auto">
+                    <input type="text" name="search" value="{{ search_filter or '' }}" placeholder="Search files..."
+                        class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
             </form>
         </div>
     </div>
