@@ -43,6 +43,19 @@ def create_app() -> Flask:
             search_filter = request.args.get("search", "").strip()
             expand_files = request.args.get("expand", "false").lower() == "true"
 
+            # If no base_ref specified, default to current checked-out branch to trigger HEAD comparison mode
+            if not base_ref:
+                try:
+                    git_service = GitService()
+                    repo_status = git_service.get_repository_status()
+                    current_branch = repo_status.get("current_branch", None)
+                    # Use current_branch if available so service treats it as HEAD comparison
+                    if current_branch and current_branch not in ("unknown", "error"):
+                        base_ref = current_branch
+                except Exception:
+                    # Fallback: leave base_ref as None
+                    pass
+
             # Prepare template data
             template_service = TemplateRenderingService()
             template_data = template_service.prepare_diff_data_for_template(

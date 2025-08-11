@@ -100,7 +100,6 @@ class TemplateRenderingService(BaseService):
                     untracked=untracked,
                     file_path=file_path,
                 )
-
                 grouped_diffs = self._combine_unstaged_and_staged_as_changes(
                     grouped_diffs
                 )
@@ -130,8 +129,8 @@ class TemplateRenderingService(BaseService):
                 "groups": enhanced_groups,
                 "total_files": total_files,
                 # UI state
-                "current_base_ref": base_ref
-                or branch_info.get("branches", {}).get("default", "main"),
+                # Dropdown selection: default to current branch if not specified in URL
+                "current_base_ref": base_ref or current_branch,
                 "unstaged": ui_unstaged,
                 "staged": ui_staged,
                 "untracked": untracked,
