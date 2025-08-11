@@ -97,14 +97,26 @@ const DiffState = {
     },
 
     installLiveSearchFilter() {
-        const searchInput = document.querySelector('input[name="search"]');
+        const searchInput = document.querySelector('#diff-search-input');
+        const clearBtn = document.querySelector('#diff-search-clear');
         if (!searchInput) return;
 
         const applyFilter = () => {
             const query = (searchInput.value || '').trim();
             applyFilenameFilter(query);
+            // Toggle clear button visibility
+            if (clearBtn) clearBtn.classList.toggle('hidden', query.length === 0);
         };
         searchInput.addEventListener('input', applyFilter);
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                applyFilenameFilter('');
+                clearBtn.classList.add('hidden');
+                searchInput.focus();
+            });
+        }
 
         // Apply initial filter if there is an existing value
         applyFilter();
@@ -949,10 +961,12 @@ function focusNextFilenameMatch(query) {
 function applyFilenameFilter(query) {
     const lower = (query || '').toLowerCase();
     // Show/hide files
+    let hiddenCount = 0;
     document.querySelectorAll('[data-file]').forEach(fileEl => {
         const headerNameEl = fileEl.querySelector('.file-header .font-mono');
         const name = headerNameEl ? (headerNameEl.textContent || '') : '';
         const matches = !lower || name.toLowerCase().includes(lower);
+        if (!matches) hiddenCount += 1;
         fileEl.style.display = matches ? '' : 'none';
         // Also hide associated content block to avoid large gaps
         const fileId = fileEl.getAttribute('data-file');
@@ -965,4 +979,26 @@ function applyFilenameFilter(query) {
         const anyVisible = groupEl.querySelector('[data-file]:not([style*="display: none"])');
         groupEl.style.display = anyVisible ? '' : 'none';
     });
+
+    // Show hidden-count banner
+    upsertHiddenBanner(hiddenCount);
+}
+
+function upsertHiddenBanner(hiddenCount) {
+    const container = document.querySelector('.diff-container');
+    if (!container) return;
+    let banner = document.getElementById('hidden-files-banner');
+    if (hiddenCount > 0) {
+        if (!banner) {
+            banner = document.createElement('div');
+            banner.id = 'hidden-files-banner';
+            banner.className = 'px-4 py-2 text-xs text-gray-600';
+            const parent = container.querySelector('.p-4') || container;
+            parent.insertBefore(banner, parent.firstChild);
+        }
+        banner.textContent = `${hiddenCount} file${hiddenCount === 1 ? '' : 's'} hidden by search`;
+        banner.style.display = '';
+    } else if (banner) {
+        banner.style.display = 'none';
+    }
 }
