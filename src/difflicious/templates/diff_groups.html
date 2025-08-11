@@ -2,8 +2,8 @@
 {% for group_key, group in groups.items() %}
 {% if group.count > 0 %}
 <div class="diff-group space-y-2" data-group="{{ group_key }}">
-    <!-- Group Header (hidden for staged-only view) -->
-    {% set hide_header = (group_key == 'staged' and not unstaged and not untracked) %}
+    <!-- Group Header (hidden for staged-only view or ungrouped 'changes' view) -->
+    {% set hide_header = (group_key == 'staged' and not unstaged and not untracked) or (group_key == 'changes' and not untracked) %}
     {% if not hide_header %}
     <div class="group-header flex items-center space-x-3 px-2 py-2 cursor-pointer hover:bg-gray-50 transition-colors rounded"
          onclick="toggleGroup('{{ group_key }}')">
