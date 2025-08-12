@@ -209,10 +209,11 @@ def create_app() -> Flask:
             try:
                 # Determine left/right bases from the target hunk
                 # target_hunk is defined in the above branch; compute mapping based on right anchoring
-                old_start = target_hunk.get("old_start", 1) if 'target_hunk' in locals() else 1
-                new_start = target_hunk.get("new_start", 1) if 'target_hunk' in locals() else 1
-                old_count = target_hunk.get("old_count", 0) if 'target_hunk' in locals() else 0
-                new_count = target_hunk.get("new_count", 0) if 'target_hunk' in locals() else 0
+                safe_hunk = target_hunk or {}
+                old_start = safe_hunk.get("old_start", 1)
+                new_start = safe_hunk.get("new_start", 1)
+                old_count = safe_hunk.get("old_count", 0)
+                new_count = safe_hunk.get("new_count", 0)
 
                 old_end = old_start + max(old_count, 0) - 1
                 new_end = new_start + max(new_count, 0) - 1

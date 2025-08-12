@@ -77,7 +77,6 @@ const DiffState = {
         localStorage.setItem('difflicious-state', JSON.stringify(state));
     },
     installSearchHotkeys() {
-        let lastQuery = '';
         document.addEventListener('keydown', (e) => {
             const active = document.activeElement;
             const isTyping = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
@@ -89,7 +88,6 @@ const DiffState = {
                     searchInput.focus();
                     searchInput.select();
                 }
-                return;
             }
 
             // Enter no longer cycles results; filtering is live on input
@@ -914,58 +912,47 @@ window.navigateToNextFile = navigateToNextFile;
 window.expandContext = expandContext;
 
 // Filename search helpers
-function collectVisibleFileHeaders() {
-    const files = [];
-    document.querySelectorAll('[data-file]').forEach(fileEl => {
-        const fileId = fileEl.getAttribute('data-file');
-        const headerNameEl = fileEl.querySelector('.file-header .font-mono');
-        const contentEl = document.querySelector(`[data-file-content="${CSS.escape(fileId)}"]`);
-        const isVisible = !!contentEl && contentEl.style.display !== 'none';
-        if (headerNameEl && isVisible) {
-            files.push({ el: fileEl, headerEl: headerNameEl, name: headerNameEl.textContent || '' });
-        }
-    });
-    return files;
+// Helper kept minimal; currently not highlighting individual headers in filter mode
+
+// Note: focusNextFilenameMatch removed in favor of live filtering
+
+function escapeRegExp(text) {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function clearPreviousHighlights() {
-    document.querySelectorAll('.search-highlight').forEach(node => {
-        node.classList.remove('search-highlight');
-    });
-}
-
-function highlightHeader(headerEl) {
-    headerEl.classList.add('search-highlight');
-}
-
-function scrollIntoViewCentered(element) {
-    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
-function focusNextFilenameMatch(query) {
-    const files = collectVisibleFileHeaders();
-    if (files.length === 0) return;
-    const lower = query.toLowerCase();
-    const matches = files.filter(f => f.name.toLowerCase().includes(lower));
-    if (matches.length === 0) return;
-
-    if (typeof window.__diffSearchIndex !== 'number') window.__diffSearchIndex = -1;
-    window.__diffSearchIndex = (window.__diffSearchIndex + 1) % matches.length;
-    const target = matches[window.__diffSearchIndex];
-
-    clearPreviousHighlights();
-    highlightHeader(target.headerEl);
-    scrollIntoViewCentered(target.el);
+function buildSearchRegex(query) {
+    const raw = (query || '').trim();
+    if (!raw) return null;
+    const tokens = raw.split(/\s+/).filter(Boolean).map(escapeRegExp);
+    if (tokens.length === 0) return null;
+    const pattern = tokens.join('.*');
+    const hasUpper = /[A-Z]/.test(raw);
+    const flags = hasUpper ? '' : 'i';
+    try {
+        return new RegExp(pattern, flags);
+    } catch (_e) {
+        // Fallback to literal, case-insensitive contains
+        return null;
+    }
 }
 
 function applyFilenameFilter(query) {
+    const regex = buildSearchRegex(query);
     const lower = (query || '').toLowerCase();
     // Show/hide files
     let hiddenCount = 0;
     document.querySelectorAll('[data-file]').forEach(fileEl => {
         const headerNameEl = fileEl.querySelector('.file-header .font-mono');
         const name = headerNameEl ? (headerNameEl.textContent || '') : '';
-        const matches = !lower || name.toLowerCase().includes(lower);
+        let matches;
+        if (!query || query.length === 0) {
+            matches = true;
+        } else if (regex) {
+            matches = regex.test(name);
+        } else {
+            // Fallback contains, case-insensitive
+            matches = name.toLowerCase().includes(lower);
+        }
         if (!matches) hiddenCount += 1;
         fileEl.style.display = matches ? '' : 'none';
         // Also hide associated content block to avoid large gaps

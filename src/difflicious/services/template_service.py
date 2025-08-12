@@ -269,7 +269,8 @@ class TemplateRenderingService(BaseService):
             expand_before_end = right_start - 1
             expand_after_start = right_end + 1
             expand_after_end = min(
-                next_hunk_start - 1 if next_hunk_start else right_end + 10, right_end + 10
+                next_hunk_start - 1 if next_hunk_start else right_end + 10,
+                right_end + 10,
             )
 
             processed_hunk = {
