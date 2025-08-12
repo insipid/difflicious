@@ -973,7 +973,7 @@ function applyFilenameFilter(query) {
 
 function upsertHiddenBanner(hiddenCount) {
     // Prefer the banner spot in global controls
-    let banner = document.getElementById('hidden-files-banner');
+    const banner = document.getElementById('hidden-files-banner');
     if (!banner) return;
     if (hiddenCount > 0) {
         banner.textContent = `${hiddenCount} file${hiddenCount === 1 ? '' : 's'} hidden by search`;
