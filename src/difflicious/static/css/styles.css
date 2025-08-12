@@ -280,6 +280,12 @@ body {
     color: var(--color-text-secondary);
 }
 
+/* Simple highlight for filename search */
+.search-highlight {
+    outline: 2px solid var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
 /* Expanded Context Styles */
 .expanded-context {
     border-left: 3px solid #9ca3af;

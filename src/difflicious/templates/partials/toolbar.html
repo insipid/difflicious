@@ -45,9 +45,14 @@
                 </div>
 
                 <!-- Search Filter -->
-                <div class="ml-auto">
-                    <input type="text" name="search" value="{{ search_filter or '' }}" placeholder="Search files..."
-                        class="border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <div class="ml-auto relative">
+                    <input id="diff-search-input" type="text" name="search" value="{{ search_filter or '' }}" placeholder="Search files..."
+                        class="border border-gray-300 rounded-md pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <button id="diff-search-clear" type="button"
+                        class="hidden absolute inset-y-0 right-2 my-auto text-gray-400 hover:text-gray-600"
+                        aria-label="Clear search">
+                        ×
+                    </button>
                 </div>
             </form>
         </div>

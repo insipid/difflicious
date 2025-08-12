@@ -18,6 +18,8 @@ const DiffState = {
     init() {
         this.bindEventListeners();
         this.restoreState();
+        this.installSearchHotkeys();
+        this.installLiveSearchFilter();
     },
 
     bindEventListeners() {
@@ -73,6 +75,49 @@ const DiffState = {
             expandedGroups: Array.from(this.expandedGroups)
         };
         localStorage.setItem('difflicious-state', JSON.stringify(state));
+    },
+    installSearchHotkeys() {
+        document.addEventListener('keydown', (e) => {
+            const active = document.activeElement;
+            const isTyping = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
+
+            if (e.key === '/' && !isTyping) {
+                e.preventDefault();
+                const searchInput = document.querySelector('input[name="search"]');
+                if (searchInput) {
+                    searchInput.focus();
+                    searchInput.select();
+                }
+            }
+
+            // Enter no longer cycles results; filtering is live on input
+        });
+    },
+
+    installLiveSearchFilter() {
+        const searchInput = document.querySelector('#diff-search-input');
+        const clearBtn = document.querySelector('#diff-search-clear');
+        if (!searchInput) return;
+
+        const applyFilter = () => {
+            const query = (searchInput.value || '').trim();
+            applyFilenameFilter(query);
+            // Toggle clear button visibility
+            if (clearBtn) clearBtn.classList.toggle('hidden', query.length === 0);
+        };
+        searchInput.addEventListener('input', applyFilter);
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                applyFilenameFilter('');
+                clearBtn.classList.add('hidden');
+                searchInput.focus();
+            });
+        }
+
+        // Apply initial filter if there is an existing value
+        applyFilter();
     }
 };
 
@@ -865,3 +910,75 @@ window.collapseAllFiles = collapseAllFiles;
 window.navigateToPreviousFile = navigateToPreviousFile;
 window.navigateToNextFile = navigateToNextFile;
 window.expandContext = expandContext;
+
+// Filename search helpers
+// Helper kept minimal; currently not highlighting individual headers in filter mode
+
+// Note: focusNextFilenameMatch removed in favor of live filtering
+
+function escapeRegExp(text) {
+    return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function buildSearchRegex(query) {
+    const raw = (query || '').trim();
+    if (!raw) return null;
+    const tokens = raw.split(/\s+/).filter(Boolean).map(escapeRegExp);
+    if (tokens.length === 0) return null;
+    const pattern = tokens.join('.*');
+    const hasUpper = /[A-Z]/.test(raw);
+    const flags = hasUpper ? '' : 'i';
+    try {
+        return new RegExp(pattern, flags);
+    } catch (_e) {
+        // Fallback to literal, case-insensitive contains
+        return null;
+    }
+}
+
+function applyFilenameFilter(query) {
+    const regex = buildSearchRegex(query);
+    const lower = (query || '').toLowerCase();
+    // Show/hide files
+    let hiddenCount = 0;
+    document.querySelectorAll('[data-file]').forEach(fileEl => {
+        const headerNameEl = fileEl.querySelector('.file-header .font-mono');
+        const name = headerNameEl ? (headerNameEl.textContent || '') : '';
+        let matches;
+        if (!query || query.length === 0) {
+            matches = true;
+        } else if (regex) {
+            matches = regex.test(name);
+        } else {
+            // Fallback contains, case-insensitive
+            matches = name.toLowerCase().includes(lower);
+        }
+        if (!matches) hiddenCount += 1;
+        fileEl.style.display = matches ? '' : 'none';
+        // Also hide associated content block to avoid large gaps
+        const fileId = fileEl.getAttribute('data-file');
+        const contentEl = document.querySelector(`[data-file-content="${CSS.escape(fileId)}"]`);
+        if (contentEl) contentEl.style.display = matches ? contentEl.style.display : 'none';
+    });
+
+    // Hide groups with no visible files
+    document.querySelectorAll('.diff-group').forEach(groupEl => {
+        const anyVisible = groupEl.querySelector('[data-file]:not([style*="display: none"])');
+        groupEl.style.display = anyVisible ? '' : 'none';
+    });
+
+    // Show hidden-count banner
+    upsertHiddenBanner(hiddenCount);
+}
+
+function upsertHiddenBanner(hiddenCount) {
+    // Prefer the banner spot in global controls
+    const banner = document.getElementById('hidden-files-banner');
+    if (!banner) return;
+    if (hiddenCount > 0) {
+        banner.textContent = `${hiddenCount} file${hiddenCount === 1 ? '' : 's'} hidden by search`;
+        banner.style.display = '';
+    } else {
+        banner.style.display = 'none';
+    }
+}
