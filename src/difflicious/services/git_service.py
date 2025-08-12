@@ -80,7 +80,9 @@ class GitService(BaseService):
 
             # Maintain an "others" convenience list (excluding default and current)
             other_branches = [
-                b for b in unique_branches if b != default_branch and b != current_branch
+                b
+                for b in unique_branches
+                if b != default_branch and b != current_branch
             ]
 
             return {

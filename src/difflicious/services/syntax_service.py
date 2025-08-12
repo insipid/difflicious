@@ -94,9 +94,7 @@ class SyntaxHighlightingService:
 
             # Convert leading spaces/tabs to non-breaking spaces (tabs -> 4 spaces)
             nbsp_prefix = (
-                leading.replace("\t", " " * 4).replace(" ", "&nbsp;")
-                if leading
-                else ""
+                leading.replace("\t", " " * 4).replace(" ", "&nbsp;") if leading else ""
             )
 
             lexer = self._get_cached_lexer(file_path)
