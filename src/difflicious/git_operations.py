@@ -329,20 +329,28 @@ class GitRepository:
             if return_code != 0:
                 return {"branches": [], "default_branch": None}
 
-            branches = []
-            for line in stdout.strip().split("\n"):
-                branch_name = line.strip()
-                if "->" in branch_name:
+            branches: list[str] = []
+            for raw_line in stdout.strip().split("\n"):
+                line = raw_line.strip()
+                if not line:
                     continue
-                if branch_name.startswith("* "):
-                    branch_name = branch_name[2:]
+                # Skip symbolic-refs like "origin/HEAD -> origin/main"
+                if "->" in line:
+                    continue
+
+                # Remove common leading decorations from some git configs (e.g., '*', '+', '!')
+                # and normalize by taking the first whitespace-delimited token (drops verbose/commit parts)
+                cleaned = re.sub(r"^[*+!\s]+", "", line)
+                if not cleaned:
+                    continue
+                token = cleaned.split()[0]
 
                 # Clean up remote branch names
-                if branch_name.startswith("remotes/origin/"):
-                    branch_name = branch_name[len("remotes/origin/") :]
+                if token.startswith("remotes/origin/"):
+                    token = token[len("remotes/origin/") :]
 
-                if branch_name not in branches:
-                    branches.append(branch_name)
+                if token and token not in branches:
+                    branches.append(token)
             default_branch = self.get_main_branch(branches)
             return {"branches": sorted(set(branches)), "default_branch": default_branch}
         except GitOperationError as e:

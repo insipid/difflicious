@@ -57,14 +57,38 @@ class GitService(BaseService):
             all_branches = branch_info["branches"]
             default_branch = branch_info["default_branch"]
 
+            # Build ordered branch list for UI dropdown:
+            # 1) Current checked-out branch (fallback to "HEAD" if unknown)
+            # 2) Default branch (if available and distinct)
+            # 3) All other branches in alphabetical order
+            unique_branches = sorted(set(all_branches))
+
+            has_checked_out_branch = bool(
+                current_branch and current_branch not in {"unknown", "error"}
+            )
+
+            ordered_all: list[str] = []
+            if has_checked_out_branch:
+                ordered_all.append(current_branch)
+            else:
+                ordered_all.append("HEAD")
+
+            if default_branch and default_branch not in ordered_all:
+                ordered_all.append(default_branch)
+
+            ordered_all.extend([b for b in unique_branches if b not in ordered_all])
+
+            # Maintain an "others" convenience list (excluding default and current)
             other_branches = [
-                b for b in all_branches if b != default_branch and b != current_branch
+                b
+                for b in unique_branches
+                if b != default_branch and b != current_branch
             ]
 
             return {
                 "status": "ok",
                 "branches": {
-                    "all": all_branches,
+                    "all": ordered_all,
                     "current": current_branch,
                     "default": default_branch,
                     "others": other_branches,

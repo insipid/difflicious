@@ -248,6 +248,12 @@ body {
     border-top: 1px solid var(--color-border);
 }
 
+.line-content {
+    /* Use normal whitespace; we explicitly emit NBSP for leading indent */
+    white-space: normal;
+    font-family: var(--font-family-mono);
+}
+
 .diff-code {
     margin: 0;
     padding: var(--spacing-md);

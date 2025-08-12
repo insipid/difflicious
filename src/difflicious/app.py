@@ -43,6 +43,19 @@ def create_app() -> Flask:
             search_filter = request.args.get("search", "").strip()
             expand_files = request.args.get("expand", "false").lower() == "true"
 
+            # If no base_ref specified, default to current checked-out branch to trigger HEAD comparison mode
+            if not base_ref:
+                try:
+                    git_service = GitService()
+                    repo_status = git_service.get_repository_status()
+                    current_branch = repo_status.get("current_branch", None)
+                    # Use current_branch if available so service treats it as HEAD comparison
+                    if current_branch and current_branch not in ("unknown", "error"):
+                        base_ref = current_branch
+                except Exception:
+                    # Fallback: leave base_ref as None
+                    pass
+
             # Prepare template data
             template_service = TemplateRenderingService()
             template_data = template_service.prepare_diff_data_for_template(
@@ -168,28 +181,54 @@ def create_app() -> Flask:
                     )
 
                 # Calculate the line range to fetch based on hunk and direction
-                hunk_start = min(
-                    target_hunk.get("old_start", 1), target_hunk.get("new_start", 1)
-                )
-                hunk_end = max(
-                    target_hunk.get("old_start", 1)
-                    + target_hunk.get("old_count", 0)
-                    - 1,
-                    target_hunk.get("new_start", 1)
-                    + target_hunk.get("new_count", 0)
-                    - 1,
-                )
+                old_start = target_hunk.get("old_start", 1)
+                old_count = target_hunk.get("old_count", 0)
+                new_start = target_hunk.get("new_start", 1)
+                new_count = target_hunk.get("new_count", 0)
+
+                old_end = old_start + max(old_count, 0) - 1
+                new_end = new_start + max(new_count, 0) - 1
 
                 if direction == "before":
-                    end_line = hunk_start - 1
+                    # Always anchor the fetch to the right side (new file)
+                    end_line = new_start - 1
                     start_line = max(1, end_line - context_lines + 1)
                 else:  # direction == "after"
-                    start_line = hunk_end + 1
+                    # Always anchor the fetch to the right side (new file)
+                    start_line = new_end + 1
                     end_line = start_line + context_lines - 1
 
             # Fetch the actual lines
             git_service = GitService()
             result = git_service.get_file_lines(file_path or "", start_line, end_line)
+
+            # Compute left/right starting line numbers for proper numbering
+            left_start_line = None
+            right_start_line = start_line
+
+            try:
+                # Determine left/right bases from the target hunk
+                # target_hunk is guaranteed to be not None at this point (checked above)
+                assert target_hunk is not None
+                old_start = target_hunk.get("old_start", 1)
+                new_start = target_hunk.get("new_start", 1)
+                old_count = target_hunk.get("old_count", 0)
+                new_count = target_hunk.get("new_count", 0)
+
+                old_end = old_start + max(old_count, 0) - 1
+                new_end = new_start + max(new_count, 0) - 1
+
+                if direction == "after":
+                    # Right starts at new_end+1; left should start at old_end+1
+                    left_start_line = old_end + 1
+                else:  # before
+                    # Right ends at new_start-1; start_line was set accordingly.
+                    # Map offset from right start to left start using delta between starts
+                    delta = old_start - new_start
+                    left_start_line = max(1, start_line + delta)
+            except Exception:
+                # Fallback: mirror right side if any issue
+                left_start_line = right_start_line
 
             # If pygments format requested, enhance the result with syntax highlighting
             if output_format == "pygments" and result.get("status") == "ok":
@@ -224,6 +263,10 @@ def create_app() -> Flask:
                 result["css_styles"] = syntax_service.get_css_styles()
             else:
                 result["format"] = "plain"
+
+            # Include left/right numbering starts for the client to render correctly
+            result["left_start_line"] = left_start_line
+            result["right_start_line"] = right_start_line
 
             return jsonify(result)
 

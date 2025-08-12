@@ -3,6 +3,9 @@
  * Replaces Alpine.js with lightweight vanilla JS
  */
 
+// Debug toggle
+const DEBUG = false;
+
 // DOM manipulation utilities
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
@@ -59,7 +62,7 @@ const DiffState = {
                 }
                 this.expandedGroups = new Set(state.expandedGroups || ['untracked', 'unstaged', 'staged']);
             } catch (e) {
-                console.warn('Failed to restore state:', e);
+                if (DEBUG) console.warn('Failed to restore state:', e);
             }
         }
     },
@@ -167,7 +170,7 @@ function navigateToNextFile(currentFilePath) {
 
 // Context expansion
 async function expandContext(button, filePath, hunkIndex, direction, contextLines = 10, format = 'pygments') {
-    console.log(`🔥 expandContext called! File: ${filePath}, Direction: ${direction}, Range: ${button.dataset.targetStart}-${button.dataset.targetEnd}`);
+    if (DEBUG) console.log(`🔥 expandContext called! File: ${filePath}, Direction: ${direction}, Range: ${button.dataset.targetStart}-${button.dataset.targetEnd}`);
 
     const originalText = button.textContent;
     const timestamp = Date.now();
@@ -196,17 +199,17 @@ async function expandContext(button, filePath, hunkIndex, direction, contextLine
         const result = await response.json();
 
         if (result.status === 'ok') {
-            console.log(`Context expansion successful for ${filePath}, format: ${result.format}`);
+            if (DEBUG) console.log(`Context expansion successful for ${filePath}, format: ${result.format}`);
 
             // Handle format-specific processing
             let expandedHtml;
             if (format === 'pygments' && result.format === 'pygments') {
-                console.log(`Injecting Pygments CSS and creating HTML for ${result.lines.length} lines`);
+                if (DEBUG) console.log(`Injecting Pygments CSS and creating HTML for ${result.lines.length} lines`);
                 injectPygmentsCss(result.css_styles);
-                expandedHtml = createExpandedContextHtml(result, expansionId);
+                expandedHtml = createExpandedContextHtml(result, expansionId, button, direction);
             } else {
-                console.log(`Using plain format for ${result.lines.length} lines`);
-                expandedHtml = createPlainContextHtml(result, expansionId);
+                if (DEBUG) console.log(`Using plain format for ${result.lines.length} lines`);
+                expandedHtml = createPlainContextHtml(result, expansionId, button, direction);
             }
 
             // Insert the expanded context
@@ -215,13 +218,13 @@ async function expandContext(button, filePath, hunkIndex, direction, contextLine
             // Common post-processing logic
             handlePostExpansionLogic(button, result, contextLines, targetStart, targetEnd, direction, originalText);
 
-            console.log(`Successfully inserted expanded context with ID: ${expansionId}`);
+            if (DEBUG) console.log(`Successfully inserted expanded context with ID: ${expansionId}`);
         } else {
-            console.error('Context expansion failed:', result.message);
+            if (DEBUG) console.error('Context expansion failed:', result.message);
             button.textContent = originalText;
         }
     } catch (error) {
-        console.error('Context expansion error:', error);
+        if (DEBUG) console.error('Context expansion error:', error);
         button.textContent = originalText;
     } finally {
         button.disabled = false;
@@ -324,11 +327,11 @@ function handleButtonHiding(button, direction, targetStart, targetEnd) {
     sameSideButtons.forEach(btn => {
         btn.style.display = 'none';
     });
-    console.log(`Hiding button. Target range: ${targetStart}-${targetEnd}`);
+    if (DEBUG) console.log(`Hiding button. Target range: ${targetStart}-${targetEnd}`);
 
     // If this was an up button that reached line 1, hide all buttons (file fully expanded)
     if (direction === 'before' && targetStart === 1) {
-        console.log('Up button reached line 1 - hiding all expansion buttons');
+        if (DEBUG) console.log('Up button reached line 1 - hiding all expansion buttons');
         hideAllExpansionButtonsInHunk(button);
     }
 
@@ -358,7 +361,7 @@ function updateButtonForNextExpansion(button, direction, targetStart, targetEnd,
             sameSideButtons.forEach(btn => {
                 btn.style.display = 'none';
             });
-            console.log(`Beginning of file reached. Current targetStart was ${targetStart}. Hiding up buttons.`);
+            if (DEBUG) console.log(`Beginning of file reached. Current targetStart was ${targetStart}. Hiding up buttons.`);
             hideExpansionBarIfAllButtonsHidden(button);
         } else {
             // Check for overlap with previous hunk before setting new range
@@ -380,7 +383,7 @@ function updateButtonForNextExpansion(button, direction, targetStart, targetEnd,
                     sameSideButtons.forEach(btn => {
                         btn.style.display = 'none';
                     });
-                    console.log('No room for expansion between hunks. Hiding up buttons.');
+                    if (DEBUG) console.log('No room for expansion between hunks. Hiding up buttons.');
                     hideExpansionBarIfAllButtonsHidden(button);
                     return;
                 }
@@ -412,7 +415,7 @@ function updateButtonForNextExpansion(button, direction, targetStart, targetEnd,
                 sameSideButtons.forEach(btn => {
                     btn.style.display = 'none';
                 });
-                console.log('No room for expansion between hunks. Hiding down buttons.');
+                if (DEBUG) console.log('No room for expansion between hunks. Hiding down buttons.');
                 hideExpansionBarIfAllButtonsHidden(button);
                 return;
             }
@@ -470,15 +473,38 @@ function injectPygmentsCss(cssStyles) {
     document.head.appendChild(styleElement);
 }
 
-function createExpandedContextHtml(result, expansionId) {
+function createExpandedContextHtml(result, expansionId, triggerButton, direction) {
     // Create HTML for Pygments-formatted expanded context lines
     const lines = result.lines || [];
-    const startLineNum = result.start_line || 1;
+    const startLineNumRight = result.right_start_line || result.start_line || 1;
+
+    // Derive left start from current hunk ranges to ensure continuity per side
+    let startLineNumLeft = result.left_start_line || startLineNumRight;
+    try {
+        const context = hunkContext(triggerButton);
+        if (context?.currentHunk) {
+            const h = context.currentHunk;
+            const curRightStart = parseInt(h.dataset.lineStart);
+            const curRightEnd = parseInt(h.dataset.lineEnd);
+            const curLeftStart = parseInt(h.dataset.leftLineStart || '0');
+            const curLeftEnd = parseInt(h.dataset.leftLineEnd || '0');
+            if (direction === 'after') {
+                const leftBase = (curLeftEnd || (curLeftStart + (curRightEnd - curRightStart)));
+                startLineNumLeft = (leftBase || 0) + 1;
+            } else if (direction === 'before') {
+                const leftEndBefore = (curLeftStart || 1) - 1;
+                startLineNumLeft = Math.max(1, leftEndBefore - (lines.length - 1));
+            }
+        }
+    } catch (e) {
+        // Fallback to server-provided defaults
+    }
 
     let html = `<div id="${expansionId}" class="expanded-context bg-gray-25 border-l-2 border-gray-300">`;
 
     lines.forEach((lineData, index) => {
-        const lineNum = startLineNum + index;
+        const lineNumRight = startLineNumRight + index;
+        const lineNumLeft = startLineNumLeft + index;
         const content = lineData.highlighted_content || lineData.content || '';
 
         html += `
@@ -487,7 +513,7 @@ function createExpandedContextHtml(result, expansionId) {
             <div class="line-left border-r border-gray-200 bg-gray-25">
                 <div class="flex">
                     <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
-                        <span>${lineNum}</span>
+                        <span>${lineNumLeft}</span>
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-gray-400">&nbsp;</span>
@@ -499,7 +525,7 @@ function createExpandedContextHtml(result, expansionId) {
             <div class="line-right bg-gray-25">
                 <div class="flex">
                     <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
-                        <span>${lineNum}</span>
+                        <span>${lineNumRight}</span>
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-gray-400">&nbsp;</span>
@@ -514,15 +540,38 @@ function createExpandedContextHtml(result, expansionId) {
     return html;
 }
 
-function createPlainContextHtml(result, expansionId) {
+function createPlainContextHtml(result, expansionId, triggerButton, direction) {
     // Create HTML for plain text expanded context lines
     const lines = result.lines || [];
-    const startLineNum = result.start_line || 1;
+    const startLineNumRight = result.right_start_line || result.start_line || 1;
+
+    // Derive left start from current hunk ranges to ensure continuity per side
+    let startLineNumLeft = result.left_start_line || startLineNumRight;
+    try {
+        const context = hunkContext(triggerButton);
+        if (context?.currentHunk) {
+            const h = context.currentHunk;
+            const curRightStart = parseInt(h.dataset.lineStart);
+            const curRightEnd = parseInt(h.dataset.lineEnd);
+            const curLeftStart = parseInt(h.dataset.leftLineStart || '0');
+            const curLeftEnd = parseInt(h.dataset.leftLineEnd || '0');
+            if (direction === 'after') {
+                const leftBase = (curLeftEnd || (curLeftStart + (curRightEnd - curRightStart)));
+                startLineNumLeft = (leftBase || 0) + 1;
+            } else if (direction === 'before') {
+                const leftEndBefore = (curLeftStart || 1) - 1;
+                startLineNumLeft = Math.max(1, leftEndBefore - (lines.length - 1));
+            }
+        }
+    } catch (e) {
+        // Fallback to server-provided defaults
+    }
 
     let html = `<div id="${expansionId}" class="expanded-context bg-gray-25 border-l-2 border-gray-300">`;
 
     lines.forEach((line, index) => {
-        const lineNum = startLineNum + index;
+        const lineNumRight = startLineNumRight + index;
+        const lineNumLeft = startLineNumLeft + index;
         const content = escapeHtml(line || '');
 
         html += `
@@ -531,7 +580,7 @@ function createPlainContextHtml(result, expansionId) {
             <div class="line-left border-r border-gray-200 bg-gray-25">
                 <div class="flex">
                     <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
-                        <span>${lineNum}</span>
+                        <span>${lineNumLeft}</span>
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-gray-400">&nbsp;</span>
@@ -543,7 +592,7 @@ function createPlainContextHtml(result, expansionId) {
             <div class="line-right bg-gray-25">
                 <div class="flex">
                     <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
-                        <span>${lineNum}</span>
+                        <span>${lineNumRight}</span>
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-gray-400">&nbsp;</span>
@@ -560,12 +609,12 @@ function createPlainContextHtml(result, expansionId) {
 
 function insertExpandedContext(button, filePath, hunkIndex, direction, expandedHtml) {
     // Insert expanded context HTML into the appropriate location in the DOM
-    console.log(`Inserting expanded context for ${filePath}, direction: ${direction}`);
+    if (DEBUG) console.log(`Inserting expanded context for ${filePath}, direction: ${direction}`);
 
     // Find the specific hunk using the button's parent elements
     const context = hunkContext(button);
     if (!context) {
-        console.error('Could not find hunk element for insertion');
+        if (DEBUG) console.error('Could not find hunk element for insertion');
         return;
     }
 
@@ -573,11 +622,11 @@ function insertExpandedContext(button, filePath, hunkIndex, direction, expandedH
     const { currentHunk } = context;
     const hunkLinesElement = currentHunk.querySelector('.hunk-lines');
     if (!hunkLinesElement) {
-        console.error('Could not find hunk-lines element for insertion');
+        if (DEBUG) console.error('Could not find hunk-lines element for insertion');
         return;
     }
 
-    console.log('Found hunk-lines element, creating expanded content...');
+    if (DEBUG) console.log('Found hunk-lines element, creating expanded content...');
 
     // Create a temporary container to parse the HTML
     const tempDiv = document.createElement('div');
@@ -585,21 +634,21 @@ function insertExpandedContext(button, filePath, hunkIndex, direction, expandedH
     const expandedElement = tempDiv.firstElementChild;
 
     if (!expandedElement) {
-        console.error('Failed to create expanded element from HTML');
+        if (DEBUG) console.error('Failed to create expanded element from HTML');
         return;
     }
 
     if (direction === 'before') {
         // Insert at the beginning of hunk-lines
-        console.log('Inserting expanded content before existing lines');
+        if (DEBUG) console.log('Inserting expanded content before existing lines');
         hunkLinesElement.insertBefore(expandedElement, hunkLinesElement.firstChild);
     } else {
         // Insert at the end of hunk-lines
-        console.log('Inserting expanded content after existing lines');
+        if (DEBUG) console.log('Inserting expanded content after existing lines');
         hunkLinesElement.appendChild(expandedElement);
     }
 
-    console.log('Successfully inserted expanded content into DOM');
+    if (DEBUG) console.log('Successfully inserted expanded content into DOM');
 }
 
 // Range conflict detection and state management functions
@@ -613,16 +662,44 @@ function updateHunkRangeAfterExpansion(button, targetStart, targetEnd) {
     const { currentHunk } = context;
     const currentStart = parseInt(currentHunk.dataset.lineStart);
     const currentEnd = parseInt(currentHunk.dataset.lineEnd);
+    const currentLeftStart = parseInt(currentHunk.dataset.leftLineStart || '0');
+    const currentLeftEnd = parseInt(currentHunk.dataset.leftLineEnd || '0');
 
-    // Calculate new expanded range
+    // Calculate new expanded right-side range
     const newStart = Math.min(currentStart, targetStart);
     const newEnd = Math.max(currentEnd, targetEnd);
+    const insertedLength = Math.max(0, targetEnd - targetStart + 1);
 
     // Update hunk data attributes
+    // Update right side range
     currentHunk.dataset.lineStart = newStart;
     currentHunk.dataset.lineEnd = newEnd;
 
-    console.log(`Updated hunk range from ${currentStart}-${currentEnd} to ${newStart}-${newEnd}`);
+    // Update left side range using only the newly inserted span
+    const dir = directionFromButton(button);
+    if (dir === 'after') {
+        const prevLeftEnd = isNaN(currentLeftEnd) || currentLeftEnd === 0
+            ? (isNaN(currentLeftStart) || currentLeftStart === 0 ? 0 : (currentLeftStart + (currentEnd - currentStart)))
+            : currentLeftEnd;
+        const leftStart = prevLeftEnd + 1;
+        const leftEnd = leftStart + Math.max(0, insertedLength - 1);
+        currentHunk.dataset.leftLineStart = leftStart.toString();
+        currentHunk.dataset.leftLineEnd = leftEnd.toString();
+    } else if (dir === 'before') {
+        const prevLeftStart = isNaN(currentLeftStart) || currentLeftStart === 0 ? 1 : currentLeftStart;
+        const leftEnd = prevLeftStart - 1;
+        const leftStart = Math.max(1, leftEnd - Math.max(0, insertedLength - 1));
+        currentHunk.dataset.leftLineStart = leftStart.toString();
+        currentHunk.dataset.leftLineEnd = leftEnd.toString();
+    }
+
+    if (DEBUG) console.log(`Updated hunk range from ${currentStart}-${currentEnd} to ${newStart}-${newEnd}`);
+}
+
+// Determine expansion direction from button dataset
+function directionFromButton(button) {
+    const d = (button?.dataset?.direction || '').toLowerCase();
+    return d === 'after' ? 'after' : 'before';
 }
 
 function hideAllExpansionButtonsInHunk(triggerButton) {
@@ -638,7 +715,7 @@ function hideAllExpansionButtonsInHunk(triggerButton) {
     const expansionButtons = expansionBar.querySelectorAll('.expansion-btn');
     expansionButtons.forEach(btn => {
         btn.style.display = 'none';
-        console.log(`Hiding ${btn.dataset.direction} button`);
+        if (DEBUG) console.log(`Hiding ${btn.dataset.direction} button`);
     });
 }
 
@@ -655,15 +732,15 @@ function hideExpansionBarIfAllButtonsHidden(triggerButton) {
         hidden: btn.style.display === 'none'
     }));
 
-    console.log('Button states in expansion bar:', buttonStates);
+    if (DEBUG) console.log('Button states in expansion bar:', buttonStates);
 
     const allHidden = buttonStates.every(state => state.hidden);
 
     if (allHidden) {
         expansionBar.style.display = 'none';
-        console.log('All expansion buttons hidden - hiding expansion bar');
+        if (DEBUG) console.log('All expansion buttons hidden - hiding expansion bar');
     } else {
-        console.log('Not all buttons hidden - keeping expansion bar visible');
+        if (DEBUG) console.log('Not all buttons hidden - keeping expansion bar visible');
     }
 }
 
@@ -682,7 +759,7 @@ function checkAndMergeHunks(triggerButton) {
 
         // If current hunk now overlaps or touches previous hunk
         if (currentStart <= prevEnd + 1) {
-            console.log(`Hunk merge detected: previous hunk ends at ${prevEnd}, current starts at ${currentStart}`);
+            if (DEBUG) console.log(`Hunk merge detected: previous hunk ends at ${prevEnd}, current starts at ${currentStart}`);
             mergeHunks(prevHunk, currentHunk);
             return; // Exit after merge to avoid further processing
         }
@@ -694,7 +771,7 @@ function checkAndMergeHunks(triggerButton) {
 
         // If current hunk now overlaps or touches next hunk
         if (currentEnd >= nextStart - 1) {
-            console.log(`Hunk merge detected: current hunk ends at ${currentEnd}, next starts at ${nextStart}`);
+            if (DEBUG) console.log(`Hunk merge detected: current hunk ends at ${currentEnd}, next starts at ${nextStart}`);
             mergeHunks(currentHunk, nextHunk);
         }
     }
@@ -706,7 +783,7 @@ function mergeHunks(firstHunk, secondHunk) {
     const secondExpansionBar = secondHunk.querySelector('.hunk-expansion');
     if (secondExpansionBar) {
         secondExpansionBar.style.display = 'none';
-        console.log('Merged hunks - hiding second expansion bar');
+        if (DEBUG) console.log('Merged hunks - hiding second expansion bar');
     }
 
     // Update the line range of the first hunk to encompass both
@@ -721,7 +798,7 @@ function mergeHunks(firstHunk, secondHunk) {
     firstHunk.dataset.lineStart = mergedStart;
     firstHunk.dataset.lineEnd = mergedEnd;
 
-    console.log(`Merged hunk range: ${mergedStart}-${mergedEnd}`);
+    if (DEBUG) console.log(`Merged hunk range: ${mergedStart}-${mergedEnd}`);
 }
 
 // Initialize when DOM is ready
@@ -761,12 +838,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Ensure all expansion buttons are enabled and functional
-        // console.log('Initializing expansion buttons...');
+        if (DEBUG) console.log('Initializing expansion buttons...');
         $$('.expansion-btn').forEach((button, index) => {
             const targetStart = parseInt(button.dataset.targetStart);
             const targetEnd = parseInt(button.dataset.targetEnd);
 
-            // console.log(`Button ${index}: direction=${button.dataset.direction}, targetStart=${targetStart}, targetEnd=${targetEnd}`);
+            if (DEBUG) console.log(`Button ${index}: direction=${button.dataset.direction}, targetStart=${targetStart}, targetEnd=${targetEnd}`);
 
             // Ensure button is properly enabled
             button.disabled = false;
@@ -775,7 +852,7 @@ document.addEventListener('DOMContentLoaded', () => {
             button.style.pointerEvents = 'auto';
             button.title = `Expand 10 lines ${button.dataset.direction} (${targetStart}-${targetEnd})`;
 
-            // console.log(`Button ${index} enabled and ready`);
+            if (DEBUG) console.log(`Button ${index} enabled and ready`);
         });
     }, 100);
 });

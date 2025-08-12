@@ -208,7 +208,8 @@ def _parse_line(line: Any, old_line_num: int, new_line_num: int) -> dict[str, An
         "type": line_type,
         "old_line_num": old_num,
         "new_line_num": new_num,
-        "content": line.value.rstrip("\n\r"),  # Remove trailing newlines
+        # Preserve leading whitespace; remove only a single trailing newline/carriage return
+        "content": line.value.rstrip("\r\n"),
     }
 
 
