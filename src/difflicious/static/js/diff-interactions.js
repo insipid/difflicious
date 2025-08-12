@@ -972,20 +972,13 @@ function applyFilenameFilter(query) {
 }
 
 function upsertHiddenBanner(hiddenCount) {
-    const container = document.querySelector('.diff-container');
-    if (!container) return;
+    // Prefer the banner spot in global controls
     let banner = document.getElementById('hidden-files-banner');
+    if (!banner) return;
     if (hiddenCount > 0) {
-        if (!banner) {
-            banner = document.createElement('div');
-            banner.id = 'hidden-files-banner';
-            banner.className = 'px-4 py-2 text-xs text-gray-600';
-            const parent = container.querySelector('.p-4') || container;
-            parent.insertBefore(banner, parent.firstChild);
-        }
         banner.textContent = `${hiddenCount} file${hiddenCount === 1 ? '' : 's'} hidden by search`;
         banner.style.display = '';
-    } else if (banner) {
+    } else {
         banner.style.display = 'none';
     }
 }
