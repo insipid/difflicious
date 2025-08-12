@@ -106,6 +106,19 @@ def create_app() -> Flask:
                 }
             )
 
+    # DevTools extensions occasionally request a source map named installHook.js.map
+    # from the app origin, which causes 404 warnings. Serve a minimal, valid map.
+    @app.route("/installHook.js.map")
+    def devtools_stub_sourcemap() -> Response:
+        stub_map = {
+            "version": 3,
+            "file": "installHook.js",
+            "sources": [],
+            "names": [],
+            "mappings": "",
+        }
+        return jsonify(stub_map)
+
     @app.route("/api/branches")
     def api_branches() -> Union[Response, tuple[Response, int]]:
         """API endpoint for git branch information (kept for compatibility)."""
@@ -389,6 +402,19 @@ def create_app() -> Flask:
         except GitServiceError as e:
             logger.error(f"Git service error: {e}")
             return jsonify({"status": "error", "message": str(e)}), 500
+
+    # Serve a tiny placeholder favicon to avoid 404s in the console.
+    @app.route("/favicon.ico")
+    def favicon() -> Response:
+        # 16x16 transparent PNG (very small) encoded as base64
+        png_base64 = (
+            "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAHElEQVR4AWP4//8/AyWYGKAA"
+            "GDAwMDAwQwYAAH7iB8o1s3BuAAAAAElFTkSuQmCC"
+        )
+        import base64
+
+        png_bytes = base64.b64decode(png_base64)
+        return Response(png_bytes, mimetype="image/png")
 
     return app
 
