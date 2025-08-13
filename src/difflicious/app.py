@@ -1,5 +1,6 @@
 """Flask web application for Difflicious git diff visualization."""
 
+import base64
 import logging
 import os
 from typing import Union
@@ -411,8 +412,6 @@ def create_app() -> Flask:
             "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAHElEQVR4AWP4//8/AyWYGKAA"
             "GDAwMDAwQwYAAH7iB8o1s3BuAAAAAElFTkSuQmCC"
         )
-        import base64
-
         png_bytes = base64.b64decode(png_base64)
         return Response(png_bytes, mimetype="image/png")
 

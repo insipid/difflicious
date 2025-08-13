@@ -229,16 +229,15 @@ def create_side_by_side_lines(hunks: list[dict[str, Any]]) -> list[dict[str, Any
     side_by_side_lines = []
 
     for hunk in hunks:
-        # Add hunk header if present
-        if hunk.get("section_header"):
-            side_by_side_lines.append(
-                {
-                    "type": "hunk_header",
-                    "content": hunk["section_header"],
-                    "old_start": hunk["old_start"],
-                    "new_start": hunk["new_start"],
-                }
-            )
+        # Always add hunk header to ensure proper separation
+        side_by_side_lines.append(
+            {
+                "type": "hunk_header",
+                "content": hunk.get("section_header", ""),
+                "old_start": hunk["old_start"],
+                "new_start": hunk["new_start"],
+            }
+        )
 
         # Group consecutive additions and deletions for better alignment
         i = 0
