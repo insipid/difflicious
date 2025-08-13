@@ -166,11 +166,25 @@ describe('DiffState persistence', () => {
             };
             localStorage.setItem('difflicious-test-repo', JSON.stringify(savedState));
 
-            // Mock DOM elements for restored files
+            // Mock complete DOM elements for restored files (including file elements with toggle icons)
             document.body.innerHTML = `
+                <div data-file="restored-file1.py">
+                    <span class="toggle-icon" data-expanded="false">▶</span>
+                </div>
                 <div data-file-content="restored-file1.py" style="display: none;"></div>
+                <div data-file="restored-file2.html">
+                    <span class="toggle-icon" data-expanded="false">▶</span>
+                </div>
                 <div data-file-content="restored-file2.html" style="display: none;"></div>
                 <div data-file-content="other-file.txt" style="display: block;"></div>
+                <div data-group="untracked">
+                    <span class="toggle-icon" data-expanded="false">▶</span>
+                </div>
+                <div data-group-content="untracked" style="display: none;"></div>
+                <div data-group="staged">
+                    <span class="toggle-icon" data-expanded="false">▶</span>
+                </div>
+                <div data-group-content="staged" style="display: none;"></div>
             `;
 
             DiffState.restoreState();
@@ -179,6 +193,10 @@ describe('DiffState persistence', () => {
             expect(DiffState.expandedFiles.has('restored-file2.html')).toBe(true);
             expect(DiffState.expandedFiles.has('other-file.txt')).toBe(true); // From server state
             expect(DiffState.expandedGroups).toEqual(new Set(['untracked', 'staged']));
+            
+            // Check that visual state was applied
+            expect(document.querySelector('[data-file-content="restored-file1.py"]').style.display).toBe('block');
+            expect(document.querySelector('[data-file="restored-file1.py"] .toggle-icon').textContent).toBe('▼');
         });
 
         it('should handle corrupted localStorage data gracefully', () => {
@@ -201,7 +219,11 @@ describe('DiffState persistence', () => {
             localStorage.setItem('difflicious-test-repo', JSON.stringify(savedState));
 
             // Mock DOM where server shows file2 as visible, not file1
+            // Include complete DOM structure for file1 so it can be restored from localStorage
             document.body.innerHTML = `
+                <div data-file="file1.txt">
+                    <span class="toggle-icon" data-expanded="false">▶</span>
+                </div>
                 <div data-file-content="file1.txt" style="display: none;"></div>
                 <div data-file-content="file2.txt" style="display: block;"></div>
             `;
@@ -209,7 +231,7 @@ describe('DiffState persistence', () => {
             DiffState.restoreState();
 
             // file2 should be marked expanded due to server state
-            // file1 should be added from localStorage
+            // file1 should be added from localStorage (if DOM elements exist)
             expect(DiffState.expandedFiles.has('file1.txt')).toBe(true);
             expect(DiffState.expandedFiles.has('file2.txt')).toBe(true);
         });
