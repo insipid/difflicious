@@ -344,28 +344,7 @@ body {
     transition: all 0.2s ease;
 }
 
-/* Add tooltip support for accessibility */
-.no-newline-indicator::before {
-    content: attr(title);
-    position: absolute;
-    background: #374151;
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    font-size: 0.75rem;
-    white-space: nowrap;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-    z-index: 10;
-}
-
-.no-newline-indicator:hover::before {
-    opacity: 1;
-}
+/* Tooltip removed for accessibility. Using aria-label instead for better screen reader support. */
 
 /* Responsive Design */
 @media (max-width: 768px) {
