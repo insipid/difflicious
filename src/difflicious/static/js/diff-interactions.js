@@ -14,12 +14,31 @@ const $$ = (selector) => document.querySelectorAll(selector);
 const DiffState = {
     expandedFiles: new Set(),
     expandedGroups: new Set(['untracked', 'unstaged', 'staged']),
+    repositoryName: null,
+    storageKey: 'difflicious-state', // fallback key
 
-    init() {
+    async init() {
+        await this.initializeRepository();
         this.bindEventListeners();
         this.restoreState();
         this.installSearchHotkeys();
         this.installLiveSearchFilter();
+    },
+
+    async initializeRepository() {
+        try {
+            const response = await fetch('/api/status');
+            const data = await response.json();
+            if (data.status === 'ok' && data.repository_name) {
+                this.repositoryName = data.repository_name;
+                this.storageKey = `difflicious-${this.repositoryName}`;
+                if (DEBUG) console.log(`Initialized for repository: ${this.repositoryName}, storage key: ${this.storageKey}`);
+            } else {
+                if (DEBUG) console.warn('Failed to get repository name, using fallback storage key');
+            }
+        } catch (error) {
+            if (DEBUG) console.warn('Error fetching repository info:', error);
+        }
     },
 
     bindEventListeners() {
@@ -48,33 +67,93 @@ const DiffState = {
             }
         });
 
-        // Then try to restore from localStorage if available (but don't override server state)
-        const saved = localStorage.getItem('difflicious-state');
+        // Then try to restore from localStorage if available
+        const saved = localStorage.getItem(this.storageKey);
         if (saved) {
             try {
                 const state = JSON.parse(saved);
-                // Only add files from localStorage that aren't already handled by server state
+
+                // Restore file expansion states
                 if (state.expandedFiles) {
                     state.expandedFiles.forEach(filePath => {
                         const contentElement = $(`[data-file-content="${filePath}"]`);
-                        if (contentElement) {
+                        const fileElement = $(`[data-file="${filePath}"]`);
+                        const toggleIcon = fileElement?.querySelector('.toggle-icon');
+
+                        if (contentElement && fileElement && toggleIcon) {
+                            // Apply visual state
+                            contentElement.style.display = 'block';
+                            toggleIcon.textContent = '▼';
+                            toggleIcon.dataset.expanded = 'true';
                             this.expandedFiles.add(filePath);
+
+                            if (DEBUG) console.log(`Restored expanded state for file: ${filePath}`);
                         }
                     });
                 }
-                this.expandedGroups = new Set(state.expandedGroups || ['untracked', 'unstaged', 'staged']);
+
+                // Restore group expansion states
+                if (state.expandedGroups) {
+                    this.expandedGroups = new Set(state.expandedGroups);
+
+                    // Apply visual state to groups
+                    this.expandedGroups.forEach(groupKey => {
+                        const contentElement = $(`[data-group-content="${groupKey}"]`);
+                        const groupElement = $(`[data-group="${groupKey}"]`);
+                        const toggleIcon = groupElement?.querySelector('.toggle-icon');
+
+                        if (contentElement && toggleIcon) {
+                            contentElement.style.display = 'block';
+                            toggleIcon.textContent = '▼';
+                            toggleIcon.dataset.expanded = 'true';
+
+                            if (DEBUG) console.log(`Restored expanded state for group: ${groupKey}`);
+                        }
+                    });
+
+                    // Handle collapsed groups
+                    const allPossibleGroups = ['untracked', 'unstaged', 'staged', 'changes'];
+                    allPossibleGroups.forEach(groupKey => {
+                        if (!this.expandedGroups.has(groupKey)) {
+                            const contentElement = $(`[data-group-content="${groupKey}"]`);
+                            const groupElement = $(`[data-group="${groupKey}"]`);
+                            const toggleIcon = groupElement?.querySelector('.toggle-icon');
+
+                            if (contentElement && toggleIcon) {
+                                contentElement.style.display = 'none';
+                                toggleIcon.textContent = '▶';
+                                toggleIcon.dataset.expanded = 'false';
+
+                                if (DEBUG) console.log(`Restored collapsed state for group: ${groupKey}`);
+                            }
+                        }
+                    });
+                } else {
+                    // Default expanded groups if no saved state
+                    this.expandedGroups = new Set(['untracked', 'unstaged', 'staged']);
+                }
+
+                if (DEBUG) console.log(`Restored state for ${this.repositoryName}:`, state);
             } catch (e) {
                 if (DEBUG) console.warn('Failed to restore state:', e);
+                // Use defaults on error
+                this.expandedGroups = new Set(['untracked', 'unstaged', 'staged']);
             }
+        } else {
+            // No saved state, use defaults
+            this.expandedGroups = new Set(['untracked', 'unstaged', 'staged']);
         }
     },
 
     saveState() {
         const state = {
             expandedFiles: Array.from(this.expandedFiles),
-            expandedGroups: Array.from(this.expandedGroups)
+            expandedGroups: Array.from(this.expandedGroups),
+            repositoryName: this.repositoryName,
+            lastUpdated: new Date().toISOString()
         };
-        localStorage.setItem('difflicious-state', JSON.stringify(state));
+        localStorage.setItem(this.storageKey, JSON.stringify(state));
+        if (DEBUG) console.log(`Saved state for ${this.repositoryName}:`, state);
     },
     installSearchHotkeys() {
         document.addEventListener('keydown', (e) => {
@@ -847,38 +926,36 @@ function mergeHunks(firstHunk, secondHunk) {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    DiffState.init();
+document.addEventListener('DOMContentLoaded', async() => {
+    await DiffState.init();
 
-    // Apply initial state
+    // Apply initial state - state has already been restored in restoreState()
     setTimeout(() => {
-        // Sync toggle icons with current display state
+        // Just ensure files not in expanded state are properly collapsed
         $$('[data-file]').forEach(fileElement => {
             const filePath = fileElement.dataset.file;
             const contentElement = $(`[data-file-content="${filePath}"]`);
             const toggleIcon = fileElement.querySelector('.toggle-icon');
 
-            if (contentElement && toggleIcon) {
-                const isVisible = contentElement.style.display !== 'none';
-                toggleIcon.textContent = isVisible ? '▼' : '▶';
-                toggleIcon.dataset.expanded = isVisible ? 'true' : 'false';
-
-                // Make sure our state matches the display
-                if (isVisible) {
-                    DiffState.expandedFiles.add(filePath);
-                } else {
-                    DiffState.expandedFiles.delete(filePath);
-                }
+            if (contentElement && toggleIcon && !DiffState.expandedFiles.has(filePath)) {
+                // Ensure non-expanded files are properly collapsed
+                contentElement.style.display = 'none';
+                toggleIcon.textContent = '▶';
+                toggleIcon.dataset.expanded = 'false';
             }
         });
 
-        DiffState.expandedGroups.forEach(groupKey => {
-            const contentElement = $(`[data-group-content="${groupKey}"]`);
-            const toggleIcon = $(`[data-group="${groupKey}"] .toggle-icon`);
-            if (contentElement && toggleIcon) {
-                contentElement.style.display = 'block';
-                toggleIcon.textContent = '▼';
-                toggleIcon.dataset.expanded = 'true';
+        // Ensure non-expanded groups are properly collapsed
+        const allPossibleGroups = ['untracked', 'unstaged', 'staged', 'changes'];
+        allPossibleGroups.forEach(groupKey => {
+            if (!DiffState.expandedGroups.has(groupKey)) {
+                const contentElement = $(`[data-group-content="${groupKey}"]`);
+                const toggleIcon = $(`[data-group="${groupKey}"] .toggle-icon`);
+                if (contentElement && toggleIcon) {
+                    contentElement.style.display = 'none';
+                    toggleIcon.textContent = '▶';
+                    toggleIcon.dataset.expanded = 'false';
+                }
             }
         });
 
