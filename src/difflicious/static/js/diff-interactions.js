@@ -14,12 +14,31 @@ const $$ = (selector) => document.querySelectorAll(selector);
 const DiffState = {
     expandedFiles: new Set(),
     expandedGroups: new Set(['untracked', 'unstaged', 'staged']),
+    repositoryName: null,
+    storageKey: 'difflicious-state', // fallback key
 
-    init() {
+    async init() {
+        await this.initializeRepository();
         this.bindEventListeners();
         this.restoreState();
         this.installSearchHotkeys();
         this.installLiveSearchFilter();
+    },
+
+    async initializeRepository() {
+        try {
+            const response = await fetch('/api/status');
+            const data = await response.json();
+            if (data.status === 'ok' && data.repository_name) {
+                this.repositoryName = data.repository_name;
+                this.storageKey = `difflicious-${this.repositoryName}`;
+                if (DEBUG) console.log(`Initialized for repository: ${this.repositoryName}, storage key: ${this.storageKey}`);
+            } else {
+                if (DEBUG) console.warn('Failed to get repository name, using fallback storage key');
+            }
+        } catch (error) {
+            if (DEBUG) console.warn('Error fetching repository info:', error);
+        }
     },
 
     bindEventListeners() {
@@ -49,7 +68,7 @@ const DiffState = {
         });
 
         // Then try to restore from localStorage if available (but don't override server state)
-        const saved = localStorage.getItem('difflicious-state');
+        const saved = localStorage.getItem(this.storageKey);
         if (saved) {
             try {
                 const state = JSON.parse(saved);
@@ -63,6 +82,7 @@ const DiffState = {
                     });
                 }
                 this.expandedGroups = new Set(state.expandedGroups || ['untracked', 'unstaged', 'staged']);
+                if (DEBUG) console.log(`Restored state for ${this.repositoryName}:`, state);
             } catch (e) {
                 if (DEBUG) console.warn('Failed to restore state:', e);
             }
@@ -72,9 +92,12 @@ const DiffState = {
     saveState() {
         const state = {
             expandedFiles: Array.from(this.expandedFiles),
-            expandedGroups: Array.from(this.expandedGroups)
+            expandedGroups: Array.from(this.expandedGroups),
+            repositoryName: this.repositoryName,
+            lastUpdated: new Date().toISOString()
         };
-        localStorage.setItem('difflicious-state', JSON.stringify(state));
+        localStorage.setItem(this.storageKey, JSON.stringify(state));
+        if (DEBUG) console.log(`Saved state for ${this.repositoryName}:`, state);
     },
     installSearchHotkeys() {
         document.addEventListener('keydown', (e) => {
@@ -847,8 +870,8 @@ function mergeHunks(firstHunk, secondHunk) {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    DiffState.init();
+document.addEventListener('DOMContentLoaded', async() => {
+    await DiffState.init();
 
     // Apply initial state
     setTimeout(() => {
