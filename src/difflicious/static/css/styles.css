@@ -321,6 +321,31 @@ body {
     }
 }
 
+/* No newline indicator styles */
+.no-newline-indicator {
+    color: #dc2626;
+    font-weight: 900;
+    margin-left: 0.25rem;
+    opacity: 1;
+    font-size: 1rem;
+    display: inline-block;
+    vertical-align: baseline;
+    text-shadow: 0 0 2px rgba(220, 38, 38, 0.5);
+    background-color: rgba(220, 38, 38, 0.1);
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+.no-newline-indicator:hover {
+    opacity: 1;
+    background-color: rgba(220, 38, 38, 0.2);
+    transform: scale(1.1);
+    transition: all 0.2s ease;
+}
+
+/* Tooltip removed for accessibility. Using aria-label instead for better screen reader support. */
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .header .container {

@@ -66,8 +66,15 @@
                         {% elif line.type == 'context' %}
                         <span class="text-gray-400">&nbsp;</span>
                         {% endif %}
-                        {% if line.left and line.left.highlighted_content %}
-                        <span>{{ line.left.highlighted_content|safe }}</span>
+                        {% if line.left and (line.left.highlighted_content or line.left.content) %}
+                            {% if line.left.highlighted_content %}
+                                <span>{{ line.left.highlighted_content|safe }}</span>
+                            {% elif line.left.content %}
+                                <span>{{ line.left.content }}</span>
+                            {% endif %}
+                            {% if line.left.missing_newline %}
+                                <span class="no-newline-indicator text-red-500" aria-label="No newline at end of file">↩</span>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>
@@ -89,8 +96,15 @@
                         {% elif line.type == 'context' %}
                         <span class="text-gray-400">&nbsp;</span>
                         {% endif %}
-                        {% if line.right and line.right.highlighted_content %}
-                        <span>{{ line.right.highlighted_content|safe }}</span>
+                        {% if line.right and (line.right.highlighted_content or line.right.content) %}
+                            {% if line.right.highlighted_content %}
+                                <span>{{ line.right.highlighted_content|safe }}</span>
+                            {% elif line.right.content %}
+                                <span>{{ line.right.content }}</span>
+                            {% endif %}
+                            {% if line.right.missing_newline %}
+                                <span class="no-newline-indicator text-red-500" aria-label="No newline at end of file">↩</span>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>

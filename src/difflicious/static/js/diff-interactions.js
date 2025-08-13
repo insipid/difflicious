@@ -254,21 +254,93 @@ function toggleGroup(groupKey) {
 }
 
 function expandAllFiles() {
+    // Batch DOM operations to avoid layout thrashing
+    const elementsToUpdate = [];
+    const filesToAdd = [];
+
+    // Collect all elements that need updates first (minimize DOM queries)
     $$('[data-file]').forEach(fileElement => {
         const filePath = fileElement.dataset.file;
-        if (filePath && !DiffState.expandedFiles.has(filePath)) {
-            toggleFile(filePath);
+        if (filePath) {
+            const contentElement = $(`[data-file-content="${filePath}"]`);
+            const isVisuallyExpanded = contentElement && contentElement.style.display !== 'none';
+
+            if (!isVisuallyExpanded && contentElement) {
+                const toggleIcon = fileElement.querySelector('.toggle-icon');
+                elementsToUpdate.push({
+                    contentElement,
+                    toggleIcon,
+                    filePath
+                });
+                filesToAdd.push(filePath);
+            }
         }
     });
+
+    // Batch DOM updates to minimize browser reflows
+    if (elementsToUpdate.length > 0) {
+        // Use requestAnimationFrame for smoother performance
+        requestAnimationFrame(() => {
+            elementsToUpdate.forEach(({ contentElement, toggleIcon }) => {
+                contentElement.style.display = 'block';
+                if (toggleIcon) {
+                    toggleIcon.textContent = '▼';
+                    toggleIcon.dataset.expanded = 'true';
+                }
+            });
+        });
+
+        // Update internal state in batch
+        filesToAdd.forEach(filePath => DiffState.expandedFiles.add(filePath));
+
+        // Save state once after all changes
+        DiffState.saveState();
+    }
 }
 
 function collapseAllFiles() {
+    // Batch DOM operations to avoid layout thrashing
+    const elementsToUpdate = [];
+    const filesToRemove = [];
+
+    // Collect all elements that need updates first (minimize DOM queries)
     $$('[data-file]').forEach(fileElement => {
         const filePath = fileElement.dataset.file;
-        if (filePath && DiffState.expandedFiles.has(filePath)) {
-            toggleFile(filePath);
+        if (filePath) {
+            const contentElement = $(`[data-file-content="${filePath}"]`);
+            const isVisuallyExpanded = contentElement && contentElement.style.display !== 'none';
+
+            if (isVisuallyExpanded && contentElement) {
+                const toggleIcon = fileElement.querySelector('.toggle-icon');
+                elementsToUpdate.push({
+                    contentElement,
+                    toggleIcon,
+                    filePath
+                });
+                filesToRemove.push(filePath);
+            }
         }
     });
+
+    // Batch DOM updates to minimize browser reflows
+    if (elementsToUpdate.length > 0) {
+        // Use requestAnimationFrame for smoother performance
+        requestAnimationFrame(() => {
+            elementsToUpdate.forEach(({ contentElement, toggleIcon }) => {
+                contentElement.style.display = 'none';
+                if (toggleIcon) {
+                    toggleIcon.textContent = '▶';
+                    toggleIcon.dataset.expanded = 'false';
+                }
+            });
+        });
+
+        // Update internal state in batch
+        filesToRemove.forEach(filePath => DiffState.expandedFiles.delete(filePath));
+
+        // Save state once after all changes
+        DiffState.saveState();
+    }
 }
 
 // Navigation
@@ -642,6 +714,7 @@ function createExpandedContextHtml(result, expansionId, triggerButton, direction
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-gray-400">&nbsp;</span>
                         <span class="highlight">${content}</span>
+                        ${lineData.missing_newline ? '<span class="no-newline-indicator text-red-500">↩</span>' : ''}
                     </div>
                 </div>
             </div>
@@ -654,6 +727,7 @@ function createExpandedContextHtml(result, expansionId, triggerButton, direction
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-gray-400">&nbsp;</span>
                         <span class="highlight">${content}</span>
+                        ${lineData.missing_newline ? '<span class="no-newline-indicator text-red-500">↩</span>' : ''}
                     </div>
                 </div>
             </div>
@@ -709,6 +783,7 @@ function createPlainContextHtml(result, expansionId, triggerButton, direction) {
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-gray-400">&nbsp;</span>
                         <span>${content}</span>
+                        ${line.missing_newline ? '<span class="no-newline-indicator text-red-500">↩</span>' : ''}
                     </div>
                 </div>
             </div>
@@ -721,6 +796,7 @@ function createPlainContextHtml(result, expansionId, triggerButton, direction) {
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-gray-400">&nbsp;</span>
                         <span>${content}</span>
+                        ${line.missing_newline ? '<span class="no-newline-indicator text-red-500">↩</span>' : ''}
                     </div>
                 </div>
             </div>
