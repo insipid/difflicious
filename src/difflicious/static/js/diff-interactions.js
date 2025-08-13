@@ -714,6 +714,7 @@ function createExpandedContextHtml(result, expansionId, triggerButton, direction
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-gray-400">&nbsp;</span>
                         <span class="highlight">${content}</span>
+                        ${lineData.missing_newline ? '<span class="no-newline-indicator text-red-500">↩</span>' : ''}
                     </div>
                 </div>
             </div>
@@ -726,6 +727,7 @@ function createExpandedContextHtml(result, expansionId, triggerButton, direction
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-gray-400">&nbsp;</span>
                         <span class="highlight">${content}</span>
+                        ${lineData.missing_newline ? '<span class="no-newline-indicator text-red-500">↩</span>' : ''}
                     </div>
                 </div>
             </div>
@@ -781,6 +783,7 @@ function createPlainContextHtml(result, expansionId, triggerButton, direction) {
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-gray-400">&nbsp;</span>
                         <span>${content}</span>
+                        ${line.missing_newline ? '<span class="no-newline-indicator text-red-500">↩</span>' : ''}
                     </div>
                 </div>
             </div>
@@ -793,6 +796,7 @@ function createPlainContextHtml(result, expansionId, triggerButton, direction) {
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-gray-400">&nbsp;</span>
                         <span>${content}</span>
+                        ${line.missing_newline ? '<span class="no-newline-indicator text-red-500">↩</span>' : ''}
                     </div>
                 </div>
             </div>

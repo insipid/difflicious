@@ -158,30 +158,48 @@ def _parse_hunk(hunk: Hunk) -> dict[str, Any]:
     # Convert linear hunk into side-by-side structure
     old_line_num = hunk.source_start
     new_line_num = hunk.target_start
+    
+    # Track missing newlines for previous lines
+    previous_line_missing_newline = {"old": False, "new": False}
 
-    for line in hunk:
-        line_data = _parse_line(line, old_line_num, new_line_num)
-        hunk_data["lines"].append(line_data)
+    hunk_lines = list(hunk)  # Convert to list for lookahead
+    i = 0
+    while i < len(hunk_lines):
+        line = hunk_lines[i]
+        
+        # Check if next line is a "no newline" marker
+        next_line_is_no_newline = (
+            i + 1 < len(hunk_lines) and 
+            hunk_lines[i + 1].line_type == "\\"
+        )
+        
+        # Parse the current line (skip "no newline" markers)
+        if line.line_type != "\\":
+            line_data = _parse_line(line, old_line_num, new_line_num, next_line_is_no_newline)
+            hunk_data["lines"].append(line_data)
 
-        # Update line numbers based on line type
-        if line.line_type == " ":  # Context line
-            old_line_num += 1
-            new_line_num += 1
-        elif line.line_type == "-":  # Deletion
-            old_line_num += 1
-        elif line.line_type == "+":  # Addition
-            new_line_num += 1
+            # Update line numbers based on line type
+            if line.line_type == " ":  # Context line
+                old_line_num += 1
+                new_line_num += 1
+            elif line.line_type == "-":  # Deletion
+                old_line_num += 1
+            elif line.line_type == "+":  # Addition
+                new_line_num += 1
+        
+        i += 1
 
     return hunk_data
 
 
-def _parse_line(line: Any, old_line_num: int, new_line_num: int) -> dict[str, Any]:
+def _parse_line(line: Any, old_line_num: int, new_line_num: int, missing_newline: bool = False) -> dict[str, Any]:
     """Parse a single diff line.
 
     Args:
         line: Line object from unidiff
         old_line_num: Current old file line number
         new_line_num: Current new file line number
+        missing_newline: Whether this line is missing a newline at end
 
     Returns:
         Dictionary containing line data for side-by-side view
@@ -210,6 +228,7 @@ def _parse_line(line: Any, old_line_num: int, new_line_num: int) -> dict[str, An
         "new_line_num": new_num,
         # Preserve leading whitespace; remove only a single trailing newline/carriage return
         "content": line.value.rstrip("\r\n"),
+        "missing_newline": missing_newline,
     }
 
 
@@ -252,10 +271,12 @@ def create_side_by_side_lines(hunks: list[dict[str, Any]]) -> list[dict[str, Any
                         "left": {
                             "line_num": line["old_line_num"],
                             "content": line["content"],
+                            "missing_newline": line.get("missing_newline", False),
                         },
                         "right": {
                             "line_num": line["new_line_num"],
                             "content": line["content"],
+                            "missing_newline": line.get("missing_newline", False),
                         },
                     }
                 )
@@ -291,6 +312,7 @@ def create_side_by_side_lines(hunks: list[dict[str, Any]]) -> list[dict[str, Any
                                 ),
                                 "content": left_line["content"] if left_line else "",
                                 "type": "deletion" if left_line else "empty",
+                                "missing_newline": left_line.get("missing_newline", False) if left_line else False,
                             },
                             "right": {
                                 "line_num": (
@@ -298,6 +320,7 @@ def create_side_by_side_lines(hunks: list[dict[str, Any]]) -> list[dict[str, Any
                                 ),
                                 "content": right_line["content"] if right_line else "",
                                 "type": "addition" if right_line else "empty",
+                                "missing_newline": right_line.get("missing_newline", False) if right_line else False,
                             },
                         }
                     )
@@ -307,11 +330,12 @@ def create_side_by_side_lines(hunks: list[dict[str, Any]]) -> list[dict[str, Any
                 side_by_side_lines.append(
                     {
                         "type": "change",
-                        "left": {"line_num": None, "content": "", "type": "empty"},
+                        "left": {"line_num": None, "content": "", "type": "empty", "missing_newline": False},
                         "right": {
                             "line_num": line["new_line_num"],
                             "content": line["content"],
                             "type": "addition",
+                            "missing_newline": line.get("missing_newline", False),
                         },
                     }
                 )

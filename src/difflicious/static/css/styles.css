@@ -321,6 +321,52 @@ body {
     }
 }
 
+/* No newline indicator styles */
+.no-newline-indicator {
+    color: #dc2626;
+    font-weight: 900;
+    margin-left: 0.25rem;
+    opacity: 1;
+    font-size: 1rem;
+    display: inline-block;
+    vertical-align: baseline;
+    text-shadow: 0 0 2px rgba(220, 38, 38, 0.5);
+    background-color: rgba(220, 38, 38, 0.1);
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+.no-newline-indicator:hover {
+    opacity: 1;
+    background-color: rgba(220, 38, 38, 0.2);
+    transform: scale(1.1);
+    transition: all 0.2s ease;
+}
+
+/* Add tooltip support for accessibility */
+.no-newline-indicator::before {
+    content: attr(title);
+    position: absolute;
+    background: #374151;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 10;
+}
+
+.no-newline-indicator:hover::before {
+    opacity: 1;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .header .container {
