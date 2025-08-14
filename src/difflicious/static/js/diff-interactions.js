@@ -75,19 +75,25 @@ const DiffState = {
 
                 // Restore file expansion states
                 if (state.expandedFiles) {
-                    state.expandedFiles.forEach(filePath => {
-                        const contentElement = $(`[data-file-content="${filePath}"]`);
+                    // First, ensure all files match the saved expanded state
+                    const savedExpandedFiles = new Set(state.expandedFiles);
+                    this.expandedFiles = savedExpandedFiles;
+
+                    // Apply the saved state to all files
+                    $$('[data-file-content]').forEach(contentElement => {
+                        const filePath = contentElement.dataset.fileContent;
                         const fileElement = $(`[data-file="${filePath}"]`);
                         const toggleIcon = fileElement?.querySelector('.toggle-icon');
 
                         if (contentElement && fileElement && toggleIcon) {
-                            // Apply visual state
-                            contentElement.style.display = 'block';
-                            toggleIcon.textContent = '▼';
-                            toggleIcon.dataset.expanded = 'true';
-                            this.expandedFiles.add(filePath);
+                            const shouldBeExpanded = savedExpandedFiles.has(filePath);
 
-                            if (DEBUG) console.log(`Restored expanded state for file: ${filePath}`);
+                            // Apply visual state based on saved state
+                            contentElement.style.display = shouldBeExpanded ? 'block' : 'none';
+                            toggleIcon.textContent = shouldBeExpanded ? '▼' : '▶';
+                            toggleIcon.dataset.expanded = shouldBeExpanded ? 'true' : 'false';
+
+                            if (DEBUG) console.log(`Restored ${shouldBeExpanded ? 'expanded' : 'collapsed'} state for file: ${filePath}`);
                         }
                     });
                 }
@@ -95,43 +101,28 @@ const DiffState = {
                 // Restore group expansion states
                 if (state.expandedGroups) {
                     this.expandedGroups = new Set(state.expandedGroups);
-
-                    // Apply visual state to groups
-                    this.expandedGroups.forEach(groupKey => {
-                        const contentElement = $(`[data-group-content="${groupKey}"]`);
-                        const groupElement = $(`[data-group="${groupKey}"]`);
-                        const toggleIcon = groupElement?.querySelector('.toggle-icon');
-
-                        if (contentElement && toggleIcon) {
-                            contentElement.style.display = 'block';
-                            toggleIcon.textContent = '▼';
-                            toggleIcon.dataset.expanded = 'true';
-
-                            if (DEBUG) console.log(`Restored expanded state for group: ${groupKey}`);
-                        }
-                    });
-
-                    // Handle collapsed groups
-                    const allPossibleGroups = ['untracked', 'unstaged', 'staged', 'changes'];
-                    allPossibleGroups.forEach(groupKey => {
-                        if (!this.expandedGroups.has(groupKey)) {
-                            const contentElement = $(`[data-group-content="${groupKey}"]`);
-                            const groupElement = $(`[data-group="${groupKey}"]`);
-                            const toggleIcon = groupElement?.querySelector('.toggle-icon');
-
-                            if (contentElement && toggleIcon) {
-                                contentElement.style.display = 'none';
-                                toggleIcon.textContent = '▶';
-                                toggleIcon.dataset.expanded = 'false';
-
-                                if (DEBUG) console.log(`Restored collapsed state for group: ${groupKey}`);
-                            }
-                        }
-                    });
                 } else {
                     // Default expanded groups if no saved state
                     this.expandedGroups = new Set(['untracked', 'unstaged', 'staged']);
                 }
+
+                // Apply visual state to all groups based on expandedGroups set
+                const allPossibleGroups = ['untracked', 'unstaged', 'staged', 'changes'];
+                allPossibleGroups.forEach(groupKey => {
+                    const contentElement = $(`[data-group-content="${groupKey}"]`);
+                    const groupElement = $(`[data-group="${groupKey}"]`);
+                    const toggleIcon = groupElement?.querySelector('.toggle-icon');
+
+                    if (contentElement && toggleIcon) {
+                        const shouldBeExpanded = this.expandedGroups.has(groupKey);
+
+                        contentElement.style.display = shouldBeExpanded ? 'block' : 'none';
+                        toggleIcon.textContent = shouldBeExpanded ? '▼' : '▶';
+                        toggleIcon.dataset.expanded = shouldBeExpanded ? 'true' : 'false';
+
+                        if (DEBUG) console.log(`Restored ${shouldBeExpanded ? 'expanded' : 'collapsed'} state for group: ${groupKey}`);
+                    }
+                });
 
                 if (DEBUG) console.log(`Restored state for ${this.repositoryName}:`, state);
             } catch (e) {
