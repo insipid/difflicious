@@ -160,6 +160,15 @@ const DiffState = {
                 }
             }
 
+            if (e.key === 'Escape' && active && active.id === 'diff-search-input') {
+                e.preventDefault();
+                active.value = '';
+                applyFilenameFilter('');
+                const clearBtn = document.querySelector('#diff-search-clear');
+                if (clearBtn) clearBtn.classList.add('hidden');
+                active.blur();
+            }
+
             // Enter no longer cycles results; filtering is live on input
         });
     },

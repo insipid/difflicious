@@ -2,12 +2,21 @@
 <div class="flex items-center justify-between mb-4">
     <div class="flex items-center space-x-2">
     <button id="expandAll" onclick="expandAllFiles()"
-        class="bg-gray-100 text-gray-700 hover:bg-gray-200 px-3 py-1.5 rounded text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors">
-        Expand All
+        class="bg-gray-100 text-gray-700 hover:bg-gray-200 px-3 py-1.5 rounded text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors flex items-center space-x-2" title="Expand All">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-label="Expand All">
+            <path d="M9 9H4v1h5V9z"/>
+            <path d="M7 12V7H6v5h1z"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M5 3l1-1h7l1 1v7l-1 1h-2v2l-1 1H3l-1-1V6l1-1h2V3zm1 2h4l1 1v4h2V3H6v2zm4 1H3v7h7V6z"/>
+        </svg>
+        <span>Expand All</span>
     </button>
     <button id="collapseAll" onclick="collapseAllFiles()"
-        class="bg-gray-100 text-gray-700 hover:bg-gray-200 px-3 py-1.5 rounded text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors">
-        Collapse All
+        class="bg-gray-100 text-gray-700 hover:bg-gray-200 px-3 py-1.5 rounded text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors flex items-center space-x-2" title="Collapse All">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-label="Collapse All">
+            <path d="M9 9H4v1h5V9z"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M5 3l1-1h7l1 1v7l-1 1h-2v2l-1 1H3l-1-1V6l1-1h2V3zm1 2h4l1 1v4h2V3H6v2zm4 1H3v7h7V6z"/>
+        </svg>
+        <span>Collapse All</span>
     </button>
     </div>
     <div id="hidden-files-banner" class="text-xs text-gray-600 italic" style="display: none;"></div>

@@ -58,5 +58,8 @@
       ],
       "quote-props": "off"
     }
+  },
+  "dependencies": {
+    "react-icons": "^5.5.0"
   }
 }

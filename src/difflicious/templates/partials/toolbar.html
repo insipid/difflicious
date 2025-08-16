@@ -7,8 +7,15 @@
             </h1>
 
             <!-- Base Branch Dropdown -->
-            <form method="GET" action="/" class="flex items-center space-x-2 flex-1" onsubmit="return scrubEmptyInputs(this)">
-                <label class="text-sm font-medium text-gray-700">Base:</label>
+            <form method="GET" action="/" class="flex items-center space-x-2 flex-1"
+                onsubmit="return scrubEmptyInputs(this)">
+                <label class="text-sm font-medium text-gray-700">
+                    <svg width="20" height="20" viewBox="0 0 512 512" fill="currentColor" class="inline" title="Branch"
+                        aria-label="Select base branch">
+                        <path
+                            d="M416 160c0-35.3-28.7-64-64-64s-64 28.7-64 64c0 23.7 12.9 44.3 32 55.4v8.6c0 19.9-7.8 33.7-25.3 44.9-15.4 9.8-38.1 17.1-67.5 21.5-14 2.1-25.7 6-35.2 10.7V151.4c19.1-11.1 32-31.7 32-55.4 0-35.3-28.7-64-64-64S96 60.7 96 96c0 23.7 12.9 44.3 32 55.4v209.2c-19.1 11.1-32 31.7-32 55.4 0 35.3 28.7 64 64 64s64-28.7 64-64c0-16.6-6.3-31.7-16.7-43.1 1.9-4.9 9.7-16.3 29.4-19.3 38.8-5.8 68.9-15.9 92.3-30.8 36-22.8 55-57 55-98.8v-8.6c19.1-11.1 32-31.7 32-55.4zM160 56c22.1 0 40 17.9 40 40s-17.9 40-40 40-40-17.9-40-40 17.9-40 40-40zm0 400c-22.1 0-40-17.9-40-40s17.9-40 40-40 40 17.9 40 40-17.9 40-40 40zm192-256c-22.1 0-40-17.9-40-40s17.9-40 40-40 40 17.9 40 40-17.9 40-40 40z" />
+                    </svg>
+                </label>
                 <select name="base_ref" onchange="this.form.submit()"
                     class="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     {% for branch in branches.all %}
@@ -22,31 +29,60 @@
                 <div class="flex items-center space-x-4 flex-1">
                     <!-- DEBUG: is_head_comparison = {{ is_head_comparison }}, base_ref = {{ current_base_ref }} -->
                     {% if is_head_comparison %}
-                    <!-- HEAD comparison: show "Unstaged" and "Untracked" (staged always visible) -->
-                    <label class="flex items-center">
-                        <input type="checkbox" name="unstaged" value="true" {% if unstaged %}checked{% endif %}
-                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded checkbox-control">
-                        <span class="ml-1 text-sm text-gray-700">Unstaged</span>
-                    </label>
-
+                    <!-- HEAD comparison: show "Untracked" and "Unstaged" (staged always visible) -->
                     <label class="flex items-center">
                         <input type="checkbox" name="untracked" value="true" {% if untracked %}checked{% endif %}
                             class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded checkbox-control">
-                        <span class="ml-1 text-sm text-gray-700">Untracked</span>
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1 text-gray-700"
+                            title="Untracked" aria-label="Untracked">
+                            <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                            <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                            <path d="M12 17v.01" />
+                            <path d="M12 14a1.5 1.5 0 1 0 -1.14 -2.474" />
+                        </svg>
+                    </label>
+
+                    <label class="flex items-center">
+                        <input type="checkbox" name="unstaged" value="true" {% if unstaged %}checked{% endif %}
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded checkbox-control">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1 text-gray-700"
+                            title="Unstaged" aria-label="Unstaged">
+                            <circle cx="6" cy="6" r="3"/>
+                            <path d="M6 9v12"/>
+                            <path d="m21 3-6 6"/>
+                            <path d="m21 9-6-6"/>
+                            <path d="M18 11.5V15"/>
+                            <circle cx="18" cy="18" r="3"/>
+                        </svg>
                     </label>
                     {% else %}
                     <!-- Branch comparison: only show "Untracked" (changes are always visible) -->
                     <label class="flex items-center">
                         <input type="checkbox" name="untracked" value="true" {% if untracked %}checked{% endif %}
                             class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded checkbox-control">
-                        <span class="ml-1 text-sm text-gray-700">Untracked</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1 text-gray-700"
+                            title="Untracked" aria-label="Untracked">
+                            <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                            <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+                            <path d="M12 17v.01" />
+                            <path d="M12 14a1.5 1.5 0 1 0 -1.14 -2.474" />
+                        </svg>
                     </label>
                     {% endif %}
                 </div>
 
                 <!-- Search Filter -->
-                <div class="ml-auto relative">
-                    <input id="diff-search-input" type="text" name="search" value="{{ search_filter or '' }}" placeholder="Search files..."
+                <div class="ml-auto relative flex items-center">
+                    <svg width="22" height="22" viewBox="0 0 1024 1024" fill="currentColor" class="text-gray-400 mr-3"
+                        title="Filter" aria-label="Filter files">
+                        <path
+                            d="M880.1 154H143.9c-24.5 0-39.8 26.7-27.5 48L349 597.4V838c0 17.7 14.2 32 31.8 32h262.4c17.6 0 31.8-14.3 31.8-32V597.4L907.7 202c12.2-21.3-3.1-48-27.6-48zM603.4 798H420.6V642h182.9v156zm9.6-236.6l-9.5 16.6h-183l-9.5-16.6L212.7 226h598.6L613 561.4z" />
+                    </svg>
+                    <input id="diff-search-input" type="text" name="search" value="{{ search_filter or '' }}"
+                        placeholder="Filter files..."
                         class="border border-gray-300 rounded-md pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <button id="diff-search-clear" type="button"
                         class="hidden absolute inset-y-0 right-2 my-auto text-gray-400 hover:text-gray-600"
@@ -60,64 +96,64 @@
 </header>
 
 <script>
-function updateCheckboxAndSubmit(checkbox) {
-    const form = checkbox.form;
-    const formData = new FormData(form);
-    const params = new URLSearchParams();
-    
-    // Get all form data except checkboxes (we'll handle those explicitly)
-    for (const [key, value] of formData.entries()) {
-        if (key !== 'unstaged' && key !== 'staged' && key !== 'untracked') {
-            // Skip empty-ish search values
-            if (key === 'search' && (!value || value.trim() === '')) {
-                continue;
+    function updateCheckboxAndSubmit(checkbox) {
+        const form = checkbox.form;
+        const formData = new FormData(form);
+        const params = new URLSearchParams();
+
+        // Get all form data except checkboxes (we'll handle those explicitly)
+        for (const [key, value] of formData.entries()) {
+            if (key !== 'unstaged' && key !== 'staged' && key !== 'untracked') {
+                // Skip empty-ish search values
+                if (key === 'search' && (!value || value.trim() === '')) {
+                    continue;
+                }
+                params.set(key, value);
             }
-            params.set(key, value);
         }
-    }
-    
-    // Explicitly set checkbox states based on their current checked state
-    const unstagedCheckbox = form.querySelector('input[name="unstaged"]');
-    const stagedCheckbox = form.querySelector('input[name="staged"]');
-    const untrackedCheckbox = form.querySelector('input[name="untracked"]');
-    
-    if (unstagedCheckbox) {
-        params.set('unstaged', unstagedCheckbox.checked ? 'true' : 'false');
-    }
-    if (stagedCheckbox) {
-        // Only set staged parameter if staged checkbox exists (not in HEAD comparisons)
-        params.set('staged', stagedCheckbox.checked ? 'true' : 'false');
-    }
-    if (untrackedCheckbox) {
-        params.set('untracked', untrackedCheckbox.checked ? 'true' : 'false');
-    }
-    
-    // Navigate to the updated URL
-    window.location.href = '?' + params.toString();
-}
 
-function scrubEmptyInputs(form) {
-    // Prevent submitting empty search to avoid blank search param
-    const searchInput = form.querySelector('input[name="search"]');
-    if (searchInput && (!searchInput.value || searchInput.value.trim() === '')) {
-        searchInput.name = '';
-    }
-    return true;
-}
+        // Explicitly set checkbox states based on their current checked state
+        const unstagedCheckbox = form.querySelector('input[name="unstaged"]');
+        const stagedCheckbox = form.querySelector('input[name="staged"]');
+        const untrackedCheckbox = form.querySelector('input[name="untracked"]');
 
-// Set up event listeners when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    const checkboxes = document.querySelectorAll('.checkbox-control');
-    
-    checkboxes.forEach(function(checkbox) {
-        checkbox.addEventListener('change', function(event) {
-            // Prevent the default form submission behavior
-            event.preventDefault();
-            event.stopPropagation();
-            event.stopImmediatePropagation();
-            
-            updateCheckboxAndSubmit(this);
+        if (unstagedCheckbox) {
+            params.set('unstaged', unstagedCheckbox.checked ? 'true' : 'false');
+        }
+        if (stagedCheckbox) {
+            // Only set staged parameter if staged checkbox exists (not in HEAD comparisons)
+            params.set('staged', stagedCheckbox.checked ? 'true' : 'false');
+        }
+        if (untrackedCheckbox) {
+            params.set('untracked', untrackedCheckbox.checked ? 'true' : 'false');
+        }
+
+        // Navigate to the updated URL
+        window.location.href = '?' + params.toString();
+    }
+
+    function scrubEmptyInputs(form) {
+        // Prevent submitting empty search to avoid blank search param
+        const searchInput = form.querySelector('input[name="search"]');
+        if (searchInput && (!searchInput.value || searchInput.value.trim() === '')) {
+            searchInput.name = '';
+        }
+        return true;
+    }
+
+    // Set up event listeners when DOM is ready
+    document.addEventListener('DOMContentLoaded', function () {
+        const checkboxes = document.querySelectorAll('.checkbox-control');
+
+        checkboxes.forEach(function (checkbox) {
+            checkbox.addEventListener('change', function (event) {
+                // Prevent the default form submission behavior
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+
+                updateCheckboxAndSubmit(this);
+            });
         });
     });
-});
 </script>
