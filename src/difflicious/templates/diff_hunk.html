@@ -21,6 +21,8 @@
                 <div class="flex-1 px-2 py-2 overflow-hidden whitespace-nowrap flex items-center">
                     {% if hunk.section_header %}
                     <span>{{ hunk.section_header }}</span>
+                    {% else %}
+                    &nbsp;
                     {% endif %}
                 </div>
             </div>
@@ -129,7 +131,7 @@
                     </button>
                 </div>
                 <div class="flex-1 px-2 py-2 overflow-hidden whitespace-nowrap flex items-center">
-                    <span>&nbsp;</span>
+                    &nbsp;
                 </div>
             </div>
         </div>
@@ -142,9 +144,9 @@
                         class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center h-full"
                         data-target-start="{{ hunk.expand_after_start }}" data-target-end="{{ hunk.expand_after_end }}"
                         data-direction="after"
-                        title="Expand 10 lines down ({{ hunk.expand_after_start }}-{{ hunk.expand_after_end }})"
                         data-line-start="{{ hunk.line_start }}" data-line-end="{{ hunk.line_end }}"
-                        data-line-count="{{ hunk.line_count }}">
+                        data-line-count="{{ hunk.line_count }}"
+                        title="Expand 10 lines down ({{ hunk.expand_after_start }}-{{ hunk.expand_after_end }})">
                         ▼
                     </button>
                 </div>
