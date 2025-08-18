@@ -696,7 +696,7 @@ function createExpandedContextHtml(result, expansionId, triggerButton, direction
         // Fallback to server-provided defaults
     }
 
-    let html = `<div id="${expansionId}" class="expanded-context bg-gray-25 border-l-2 border-gray-300">`;
+    let html = `<div id="${expansionId}" class="expanded-context bg-gray-25">`;
 
     lines.forEach((lineData, index) => {
         const lineNumRight = startLineNumRight + index;
@@ -765,7 +765,7 @@ function createPlainContextHtml(result, expansionId, triggerButton, direction) {
         // Fallback to server-provided defaults
     }
 
-    let html = `<div id="${expansionId}" class="expanded-context bg-gray-25 border-l-2 border-gray-300">`;
+    let html = `<div id="${expansionId}" class="expanded-context bg-gray-25">`;
 
     lines.forEach((line, index) => {
         const lineNumRight = startLineNumRight + index;
@@ -1002,7 +1002,7 @@ function mergeHunks(firstHunk, secondHunk) {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', async() => {
+document.addEventListener('DOMContentLoaded', async () => {
     await DiffState.init();
 
     // Apply initial state - state has already been restored in restoreState()
