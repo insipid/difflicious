@@ -8,12 +8,18 @@ from difflicious.git_operations import GitOperationError
 
 from .base_service import BaseService
 from .exceptions import DiffServiceError
+from .syntax_service import SyntaxHighlightingService
 
 logger = logging.getLogger(__name__)
 
 
 class DiffService(BaseService):
     """Service for diff-related operations and business logic."""
+
+    def __init__(self, repo_path: Optional[str] = None) -> None:
+        """Initialize the diff service."""
+        super().__init__(repo_path)
+        self.syntax_service = SyntaxHighlightingService()
 
     def get_grouped_diffs(
         self,
@@ -153,3 +159,221 @@ class DiffService(BaseService):
             raise
         except Exception as e:
             raise DiffServiceError(f"Failed to generate diff summary: {e}") from e
+
+    def get_full_diff_data(
+        self,
+        file_path: str,
+        base_ref: Optional[str] = None,
+        use_head: bool = False,
+        use_cached: bool = False,
+    ) -> dict[str, Any]:
+        """Get complete diff data for a specific file with unlimited context.
+
+        Args:
+            file_path: Path to the file to diff
+            base_ref: Base reference for comparison (defaults to main branch)
+            use_head: Whether to compare against HEAD instead of branch
+            use_cached: Whether to get staged diff
+
+        Returns:
+            Dictionary containing full diff data with parsed content
+
+        Raises:
+            DiffServiceError: If diff processing fails
+        """
+        try:
+            # Get raw full diff content
+            full_diff_content = self.repo.get_full_file_diff(
+                file_path=file_path,
+                base_ref=base_ref,
+                use_head=use_head,
+                use_cached=use_cached,
+            )
+
+            if not full_diff_content.strip():
+                # No diff content (files are identical)
+                return {
+                    "status": "ok",
+                    "file_path": file_path,
+                    "diff_content": "",
+                    "has_changes": False,
+                    "comparison_mode": self._get_comparison_mode_description(
+                        base_ref, use_head, use_cached
+                    ),
+                }
+
+            # Parse the diff content for rendering
+            try:
+                parsed_diff = parse_git_diff_for_rendering(full_diff_content)
+                if parsed_diff and len(parsed_diff) > 0:
+                    # Take the first parsed diff and enhance it
+                    formatted_diff = parsed_diff[0]
+
+                    # Apply syntax highlighting to the diff content
+                    formatted_diff = self._apply_syntax_highlighting_to_diff(
+                        formatted_diff, file_path
+                    )
+
+                    formatted_diff.update(
+                        {
+                            "path": file_path,
+                            "full_context": True,
+                            "comparison_mode": self._get_comparison_mode_description(
+                                base_ref, use_head, use_cached
+                            ),
+                        }
+                    )
+
+                    return {
+                        "status": "ok",
+                        "file_path": file_path,
+                        "diff_data": formatted_diff,
+                        "has_changes": True,
+                        "comparison_mode": self._get_comparison_mode_description(
+                            base_ref, use_head, use_cached
+                        ),
+                    }
+                else:
+                    # Parsing failed, return highlighted raw content
+                    highlighted_diff = self._apply_syntax_highlighting_to_raw_diff(
+                        full_diff_content, file_path
+                    )
+                    return {
+                        "status": "ok",
+                        "file_path": file_path,
+                        "diff_content": highlighted_diff,
+                        "has_changes": True,
+                        "comparison_mode": self._get_comparison_mode_description(
+                            base_ref, use_head, use_cached
+                        ),
+                    }
+
+            except DiffParseError as e:
+                logger.warning(f"Failed to parse full diff for {file_path}: {e}")
+                # Return highlighted raw content if parsing fails
+                highlighted_diff = self._apply_syntax_highlighting_to_raw_diff(
+                    full_diff_content, file_path
+                )
+                return {
+                    "status": "ok",
+                    "file_path": file_path,
+                    "diff_content": highlighted_diff,
+                    "has_changes": True,
+                    "comparison_mode": self._get_comparison_mode_description(
+                        base_ref, use_head, use_cached
+                    ),
+                }
+
+        except GitOperationError as e:
+            self._log_error("Git operation failed during full diff retrieval", e)
+            raise DiffServiceError(f"Failed to retrieve full diff data: {e}") from e
+        except Exception as e:
+            self._log_error("Unexpected error during full diff processing", e)
+            raise DiffServiceError(f"Full diff processing failed: {e}") from e
+
+    def _apply_syntax_highlighting_to_diff(
+        self, diff_data: dict[str, Any], file_path: str
+    ) -> dict[str, Any]:
+        """Apply syntax highlighting to diff data.
+
+        Args:
+            diff_data: Parsed diff data structure
+            file_path: Path to determine language for highlighting
+
+        Returns:
+            Enhanced diff data with syntax highlighting applied
+        """
+        if "hunks" not in diff_data:
+            return diff_data
+
+        try:
+            for hunk in diff_data["hunks"]:
+                for line in hunk.get("lines", []):
+                    # Apply syntax highlighting to left side content
+                    if line.get("left") and line["left"].get("content"):
+                        original_content = line["left"]["content"]
+                        highlighted_content = self.syntax_service.highlight_diff_line(
+                            original_content, file_path
+                        )
+                        line["left"]["content"] = highlighted_content
+
+                    # Apply syntax highlighting to right side content
+                    if line.get("right") and line["right"].get("content"):
+                        original_content = line["right"]["content"]
+                        highlighted_content = self.syntax_service.highlight_diff_line(
+                            original_content, file_path
+                        )
+                        line["right"]["content"] = highlighted_content
+
+        except Exception as e:
+            logger.debug(f"Failed to apply syntax highlighting to diff: {e}")
+            # Return original data if highlighting fails
+
+        return diff_data
+
+    def _apply_syntax_highlighting_to_raw_diff(
+        self, raw_diff: str, file_path: str
+    ) -> str:
+        """Apply syntax highlighting to raw diff content.
+
+        Args:
+            raw_diff: Raw diff content as string
+            file_path: Path to determine language for highlighting
+
+        Returns:
+            Syntax highlighted diff content
+        """
+        try:
+            lines = raw_diff.split("\n")
+            highlighted_lines = []
+
+            for line in lines:
+                # Skip diff headers and metadata
+                if (
+                    line.startswith("diff --git")
+                    or line.startswith("index ")
+                    or line.startswith("+++")
+                    or line.startswith("---")
+                    or line.startswith("@@")
+                ):
+                    highlighted_lines.append(line)
+                    continue
+
+                # Apply highlighting to content lines (context, additions, deletions)
+                if line and len(line) > 1:
+                    # Get the content without the leading diff marker (+, -, or space)
+                    content = line[1:] if line[0] in ["+", "-", " "] else line
+                    if content.strip():  # Only highlight non-empty content
+                        highlighted_content = self.syntax_service.highlight_diff_line(
+                            content, file_path
+                        )
+                        # Reconstruct the line with the diff marker
+                        highlighted_line = (
+                            line[0] + highlighted_content
+                            if line[0] in ["+", "-", " "]
+                            else highlighted_content
+                        )
+                        highlighted_lines.append(highlighted_line)
+                    else:
+                        highlighted_lines.append(line)
+                else:
+                    highlighted_lines.append(line)
+
+            return "\n".join(highlighted_lines)
+
+        except Exception as e:
+            logger.debug(f"Failed to apply syntax highlighting to raw diff: {e}")
+            return raw_diff  # Return original content if highlighting fails
+
+    def _get_comparison_mode_description(
+        self, base_ref: Optional[str], use_head: bool, use_cached: bool
+    ) -> str:
+        """Get a human-readable description of the comparison mode."""
+        if use_cached:
+            return "staged vs HEAD"
+        elif use_head:
+            return "working directory vs HEAD"
+        elif base_ref:
+            return f"working directory vs {base_ref}"
+        else:
+            return "working directory vs main branch"
