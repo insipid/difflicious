@@ -1063,6 +1063,10 @@ window.collapseAllFiles = collapseAllFiles;
 window.navigateToPreviousFile = navigateToPreviousFile;
 window.navigateToNextFile = navigateToNextFile;
 window.expandContext = expandContext;
+// This is just to shut up eslint. It triggers the no-unused-vars
+// because it can't detect the usage because it's in the HTML in the
+// onclick handler.
+window.__loadFullDiff = loadFullDiff;
 
 // Filename search helpers
 // Helper kept minimal; currently not highlighting individual headers in filter mode
@@ -1144,7 +1148,7 @@ function upsertHiddenBanner(hiddenCount) {
 async function loadFullDiff(filePath, fileId) {
     const expandIcon = document.getElementById(`expand-icon-${fileId}`);
     const fileContentElement = document.querySelector(`[data-file-content="${fileId}"]`);
-    
+
     if (!expandIcon || !fileContentElement) {
         console.error('Full diff: Required elements not found');
         return;
@@ -1155,12 +1159,12 @@ async function loadFullDiff(filePath, fileId) {
     const baseRef = urlParams.get('base_ref');
     const useHead = urlParams.get('use_head') === 'true';
     const useCached = urlParams.get('use_cached') === 'true';
-    
+
     // Show loading state
     const originalIconContent = expandIcon.textContent;
     expandIcon.textContent = '⏳';
     expandIcon.style.pointerEvents = 'none';
-    
+
     // Show loading indicator in content area
     fileContentElement.innerHTML = `
         <div class="p-8 text-center text-gray-500">
@@ -1169,7 +1173,7 @@ async function loadFullDiff(filePath, fileId) {
             <p class="text-sm">Fetching complete file comparison with unlimited context</p>
         </div>
     `;
-    
+
     try {
         // Build API URL with parameters
         const apiUrl = new URL('/api/diff/full', window.location.origin);
@@ -1177,14 +1181,14 @@ async function loadFullDiff(filePath, fileId) {
         if (baseRef) apiUrl.searchParams.set('base_ref', baseRef);
         if (useHead) apiUrl.searchParams.set('use_head', 'true');
         if (useCached) apiUrl.searchParams.set('use_cached', 'true');
-        
+
         const response = await fetch(apiUrl.toString());
         const result = await response.json();
-        
+
         if (result.status === 'ok') {
             if (result.has_changes) {
                 await renderFullDiff(fileContentElement, result, fileId);
-                
+
                 // Hide the expand icon permanently
                 expandIcon.style.display = 'none';
             } else {
@@ -1200,7 +1204,6 @@ async function loadFullDiff(filePath, fileId) {
         } else {
             throw new Error(result.message || 'Failed to load full diff');
         }
-        
     } catch (error) {
         console.error('Full diff error:', error);
         fileContentElement.innerHTML = `
@@ -1209,7 +1212,7 @@ async function loadFullDiff(filePath, fileId) {
                 <p class="font-medium">Failed to load full diff</p>
                 <p class="text-sm mt-2">${escapeHtml(error.message)}</p>
                 <p class="text-xs mt-4 text-gray-400">Check the browser console for more details</p>
-                <button onclick="loadFullDiff('${filePath}', '${fileId}')" 
+                <button onclick="loadFullDiff('${filePath}', '${fileId}')"
                         class="mt-4 px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors">
                     Retry
                 </button>
@@ -1237,14 +1240,14 @@ async function renderFullDiff(contentElement, diffData, fileId) {
     // Add debug logging to understand what we receive
     console.log('Rendering full diff for', diffData.file_path);
     console.log('Diff data structure:', diffData);
-    
+
     if (diffData.diff_data && diffData.diff_data.hunks && diffData.diff_data.hunks.length > 0) {
         console.log('Using parsed diff data with', diffData.diff_data.hunks.length, 'hunks');
         console.log('First hunk sample:', diffData.diff_data.hunks[0]);
-        
+
         // Use parsed diff data to render side-by-side hunks
         let htmlContent = '';
-        
+
         for (let i = 0; i < diffData.diff_data.hunks.length; i++) {
             const hunk = diffData.diff_data.hunks[i];
             console.log(`Hunk ${i} has ${hunk.lines?.length || 0} lines`);
@@ -1253,9 +1256,8 @@ async function renderFullDiff(contentElement, diffData, fileId) {
             }
             htmlContent += renderSideBySideHunk(hunk, diffData.file_path, i);
         }
-        
+
         contentElement.innerHTML = htmlContent;
-        
     } else if (diffData.diff_content && diffData.diff_content.trim()) {
         console.log('Using raw diff content fallback');
         // Render raw diff content with better formatting
@@ -1267,7 +1269,7 @@ async function renderFullDiff(contentElement, diffData, fileId) {
                 </div>
                 <div class="full-diff-content">
         `;
-        
+
         for (const line of lines) {
             if (line.startsWith('@@')) {
                 // Hunk header
@@ -1289,12 +1291,12 @@ async function renderFullDiff(contentElement, diffData, fileId) {
                 htmlContent += `<div class="diff-line other px-4 py-1 text-sm font-mono text-gray-600">${escapeHtml(line)}</div>`;
             }
         }
-        
+
         htmlContent += `
                 </div>
             </div>
         `;
-        
+
         contentElement.innerHTML = htmlContent;
     } else {
         console.log('No diff content available');
@@ -1339,33 +1341,33 @@ function isHighlightedContent(content) {
  */
 function renderSideBySideHunk(hunk, filePath, hunkIndex) {
     console.log('Rendering hunk', hunkIndex, 'with', hunk.lines?.length || 0, 'lines');
-    
+
     // Debug: show line types for first few lines
     if (hunk.lines && hunk.lines.length > 0) {
         const sampleLines = hunk.lines.slice(0, 5);
         console.log('Sample line types:', sampleLines.map(l => ({ type: l.type, hasLeft: !!l.left, hasRight: !!l.right, leftContent: l.left?.content?.substring(0, 20), rightContent: l.right?.content?.substring(0, 20) })));
     }
-    
+
     let html = `
         <div class="hunk border-b border-gray-100 last:border-b-0">
             <!-- Hunk Lines -->
             <div class="hunk-lines font-mono text-xs">
     `;
-    
+
     if (hunk.lines && Array.isArray(hunk.lines)) {
         for (const line of hunk.lines) {
             html += renderSideBySideLine(line);
         }
     } else {
         console.warn('Hunk has no lines array:', hunk);
-        html += `<div class="p-4 text-center text-gray-500">No line data available for this hunk</div>`;
+        html += '<div class="p-4 text-center text-gray-500">No line data available for this hunk</div>';
     }
-    
+
     html += `
             </div>
         </div>
     `;
-    
+
     return html;
 }
 
@@ -1377,14 +1379,14 @@ function renderSideBySideHunk(hunk, filePath, hunkIndex) {
 function renderSideBySideLine(line) {
     // Handle the complex line structure that the diff parser creates
     // The line might have 'left' and 'right' properties for side-by-side view
-    
+
     let leftContent = '';
     let rightContent = '';
     let leftLineNum = '';
     let rightLineNum = '';
     let leftBg = 'bg-white';
     let rightBg = 'bg-white';
-    
+
     if (line.type === 'context') {
         // Context line appears on both sides
         leftContent = line.left?.content || '';
@@ -1427,7 +1429,7 @@ function renderSideBySideLine(line) {
             rightLineNum = line.new_line_number || '';
         }
     }
-    
+
     return `
         <div class="diff-line grid grid-cols-2 border-b border-gray-50 hover:bg-gray-25 line-${line.type || 'context'}">
             <!-- Left Side (Before) -->
@@ -1437,13 +1439,13 @@ function renderSideBySideLine(line) {
                         ${leftLineNum ? `<span>${leftLineNum}</span>` : ''}
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
-                        ${leftContent ? 
-                            (leftBg.includes('red') ? `<span class="text-red-600">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-gray-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`) 
-                            : ''}
+                        ${leftContent
+        ? (leftBg.includes('red') ? `<span class="text-red-600">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-gray-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`)
+        : ''}
                     </div>
                 </div>
             </div>
-            
+
             <!-- Right Side (After) -->
             <div class="line-right ${rightBg}">
                 <div class="flex">
@@ -1451,13 +1453,12 @@ function renderSideBySideLine(line) {
                         ${rightLineNum ? `<span>${rightLineNum}</span>` : ''}
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
-                        ${rightContent ? 
-                            (rightBg.includes('green') ? `<span class="text-green-600">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-gray-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`) 
-                            : ''}
+                        ${rightContent
+        ? (rightBg.includes('green') ? `<span class="text-green-600">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-gray-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`)
+        : ''}
                     </div>
                 </div>
             </div>
         </div>
     `;
 }
-
