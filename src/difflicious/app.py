@@ -195,12 +195,8 @@ def create_app() -> Flask:
                     )
 
                 # Calculate the line range to fetch based on hunk and direction
-                old_start = target_hunk.get("old_start", 1)
-                old_count = target_hunk.get("old_count", 0)
                 new_start = target_hunk.get("new_start", 1)
                 new_count = target_hunk.get("new_count", 0)
-
-                old_end = old_start + max(old_count, 0) - 1
                 new_end = new_start + max(new_count, 0) - 1
 
                 if direction == "before":

@@ -413,7 +413,7 @@ async function expandContext(button, filePath, hunkIndex, direction, contextLine
 
             // Update data attributes after expansion
             updateHunkLinesDataAttributes(button, direction, result.lines.length);
-            
+
             // Common post-processing logic
             handlePostExpansionLogic(button, result, contextLines, targetStart, targetEnd, direction, originalText);
 
@@ -675,13 +675,13 @@ function injectPygmentsCss(cssStyles) {
 function createExpandedContextHtml(result, expansionId, triggerButton, direction) {
     // Create HTML for Pygments-formatted expanded context lines
     const lines = result.lines || [];
-    
+
     // Get line numbers from the hunk-lines data attributes
     const context = hunkContext(triggerButton);
     const hunkLinesDiv = context?.currentHunk?.querySelector('.hunk-lines');
-    
+
     let startLineNumLeft, startLineNumRight;
-    
+
     if (hunkLinesDiv && direction === 'before') {
         // For 'before' expansion, start from the data attributes and count backwards
         const leftStart = parseInt(hunkLinesDiv.dataset.leftStartLine);
@@ -746,13 +746,13 @@ function createExpandedContextHtml(result, expansionId, triggerButton, direction
 function createPlainContextHtml(result, expansionId, triggerButton, direction) {
     // Create HTML for plain text expanded context lines
     const lines = result.lines || [];
-    
+
     // Get line numbers from the hunk-lines data attributes
     const context = hunkContext(triggerButton);
     const hunkLinesDiv = context?.currentHunk?.querySelector('.hunk-lines');
-    
+
     let startLineNumLeft, startLineNumRight;
-    
+
     if (hunkLinesDiv && direction === 'before') {
         // For 'before' expansion, start from the data attributes and count backwards
         const leftStart = parseInt(hunkLinesDiv.dataset.leftStartLine);
@@ -864,14 +864,14 @@ function updateHunkLinesDataAttributes(button, direction, linesAdded) {
     // Find the hunk-lines div and update its data attributes
     const context = hunkContext(button);
     const hunkLinesDiv = context?.currentHunk?.querySelector('.hunk-lines');
-    
+
     if (!hunkLinesDiv) return;
-    
+
     const currentLeftStart = parseInt(hunkLinesDiv.dataset.leftStartLine);
     const currentLeftEnd = parseInt(hunkLinesDiv.dataset.leftEndLine);
     const currentRightStart = parseInt(hunkLinesDiv.dataset.rightStartLine);
     const currentRightEnd = parseInt(hunkLinesDiv.dataset.rightEndLine);
-    
+
     if (direction === 'before') {
         // Update start lines by moving them backwards
         hunkLinesDiv.dataset.leftStartLine = (currentLeftStart - linesAdded).toString();
@@ -881,7 +881,7 @@ function updateHunkLinesDataAttributes(button, direction, linesAdded) {
         hunkLinesDiv.dataset.leftEndLine = (currentLeftEnd + linesAdded).toString();
         hunkLinesDiv.dataset.rightEndLine = (currentRightEnd + linesAdded).toString();
     }
-    
+
     if (DEBUG) console.log(`Updated hunk-lines data attributes: leftStart=${hunkLinesDiv.dataset.leftStartLine}, leftEnd=${hunkLinesDiv.dataset.leftEndLine}, rightStart=${hunkLinesDiv.dataset.rightStartLine}, rightEnd=${hunkLinesDiv.dataset.rightEndLine}`);
 }
 
@@ -1034,7 +1034,7 @@ function mergeHunks(firstHunk, secondHunk) {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async() => {
     await DiffState.init();
 
     // Apply initial state - state has already been restored in restoreState()
