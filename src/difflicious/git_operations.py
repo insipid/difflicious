@@ -823,6 +823,68 @@ class GitRepository:
         except GitOperationError as e:
             return f"Error: {e}"
 
+    def get_full_file_diff(
+        self,
+        file_path: str,
+        base_ref: Optional[str] = None,
+        use_head: bool = False,
+        use_cached: bool = False,
+    ) -> str:
+        """Get complete diff content for a specific file with unlimited context.
+
+        Args:
+            file_path: Path to the file
+            base_ref: Base reference for comparison (branch name or commit)
+            use_head: Whether to compare against HEAD instead of branch
+            use_cached: Whether to get staged diff
+
+        Returns:
+            Complete diff content as string with unlimited context
+
+        Raises:
+            GitOperationError: If diff operation fails
+        """
+        try:
+            if not self._is_safe_file_path(file_path):
+                raise GitOperationError(f"Unsafe file path: {file_path}")
+
+            diff_args = ["diff"]
+
+            # Use million lines of context for full diff view
+            diff_args.append("-U1000000")
+
+            # Determine comparison mode
+            if use_cached:
+                diff_args.append("--cached")
+            elif use_head:
+                # Compare working directory vs HEAD
+                pass  # No additional args needed
+            elif base_ref:
+                # Compare working directory vs specified reference
+                if not self._is_safe_commit_sha(base_ref):
+                    raise GitOperationError(f"Unsafe base reference: {base_ref}")
+                diff_args.append(base_ref)
+            else:
+                # Default to main branch comparison
+                branches_info = self.get_branches()
+                default_branch = branches_info.get("default_branch", "main")
+                if default_branch and self._is_safe_commit_sha(default_branch):
+                    diff_args.append(default_branch)
+
+            diff_args.extend(["--no-color", file_path])
+
+            stdout, stderr, return_code = self._execute_git_command(diff_args)
+
+            if return_code != 0 and stderr:
+                raise GitOperationError(f"Git diff failed: {stderr}")
+
+            return stdout
+
+        except GitOperationError:
+            raise
+        except Exception as e:
+            raise GitOperationError(f"Failed to get full file diff: {e}") from e
+
     def get_file_line_count(self, file_path: str) -> int:
         """Get the total number of lines in a file.
 

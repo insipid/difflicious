@@ -404,6 +404,45 @@ def create_app() -> Flask:
             logger.error(f"Git service error: {e}")
             return jsonify({"status": "error", "message": str(e)}), 500
 
+    @app.route("/api/diff/full")
+    def api_diff_full() -> Union[Response, tuple[Response, int]]:
+        """API endpoint for complete file diff with unlimited context."""
+        file_path = request.args.get("file_path")
+        if not file_path:
+            return (
+                jsonify(
+                    {"status": "error", "message": "file_path parameter is required"}
+                ),
+                400,
+            )
+
+        base_ref = request.args.get("base_ref")
+        use_head = request.args.get("use_head", "false").lower() == "true"
+        use_cached = request.args.get("use_cached", "false").lower() == "true"
+
+        try:
+            diff_service = DiffService()
+            result = diff_service.get_full_diff_data(
+                file_path=file_path,
+                base_ref=base_ref,
+                use_head=use_head,
+                use_cached=use_cached,
+            )
+            return jsonify(result)
+
+        except DiffServiceError as e:
+            logger.error(f"Full diff service error: {e}")
+            return (
+                jsonify(
+                    {
+                        "status": "error",
+                        "message": str(e),
+                        "file_path": file_path,
+                    }
+                ),
+                500,
+            )
+
     # Serve a tiny placeholder favicon to avoid 404s in the console.
     @app.route("/favicon.ico")
     def favicon() -> Response:
