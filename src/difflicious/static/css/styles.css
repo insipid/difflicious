@@ -17,11 +17,20 @@
     --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
 
-    --spacing-xs: 0.25rem;
-    --spacing-sm: 0.5rem;
-    --spacing-md: 1rem;
-    --spacing-lg: 1.5rem;
-    --spacing-xl: 2rem;
+    /* Base spacing scale - keep existing values but add semantic names */
+    --spacing-xs: 0.25rem;     /* 4px - micro spacing */
+    --spacing-sm: 0.5rem;      /* 8px - small spacing */
+    --spacing-md: 1rem;        /* 16px - standard spacing */
+    --spacing-lg: 1.5rem;      /* 24px - large spacing */
+    --spacing-xl: 2rem;        /* 32px - extra large spacing */
+    
+    /* Semantic spacing for consistent diff layout */
+    --diff-file-padding: var(--spacing-md);        /* 16px - file container padding */
+    --diff-header-padding: var(--spacing-md);      /* 16px - file header padding */
+    --diff-line-padding: var(--spacing-sm);        /* 8px - diff line padding */
+    --diff-group-gap: var(--spacing-md);           /* 16px - gap between files */
+    --diff-element-gap: var(--spacing-sm);         /* 8px - gap between small elements */
+    --diff-section-gap: var(--spacing-lg);         /* 24px - gap between sections */
 
     --border-radius: 0.5rem;
     --border-radius-sm: 0.25rem;

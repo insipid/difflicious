@@ -1,13 +1,14 @@
 <!-- Toolbar -->
-<header class="bg-white border-b border-gray-200 px-4 py-3">
+<header class="bg-white border-b border-gray-200" style="padding: var(--diff-element-gap) var(--diff-header-padding);">
     <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-4 flex-1">
+        <div class="flex items-center flex-1" style="gap: var(--diff-group-gap);">
             <h1 class="text-xl font-semibold text-gray-900">
                 <a href="/" class="hover:underline">Difflicious</a>
             </h1>
 
             <!-- Base Branch Dropdown -->
-            <form method="GET" action="/" class="flex items-center space-x-2 flex-1"
+            <form method="GET" action="/" class="flex items-center flex-1" 
+                style="gap: var(--diff-element-gap);"
                 onsubmit="return scrubEmptyInputs(this)">
                 <label class="text-sm font-medium text-gray-700">
                     <svg width="20" height="20" viewBox="0 0 512 512" fill="currentColor" class="inline" title="Branch"
@@ -26,7 +27,7 @@
                 </select>
 
                 <!-- Diff Options -->
-                <div class="flex items-center space-x-4 flex-1">
+                <div class="flex items-center flex-1" style="gap: var(--diff-group-gap);">
                     <!-- DEBUG: is_head_comparison = {{ is_head_comparison }}, base_ref = {{ current_base_ref }} -->
                     {% if is_head_comparison %}
                     <!-- HEAD comparison: show "Untracked" and "Unstaged" (staged always visible) -->
