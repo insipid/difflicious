@@ -216,34 +216,6 @@ def create_app() -> Flask:
             git_service = GitService()
             result = git_service.get_file_lines(file_path or "", start_line, end_line)
 
-            # Compute left/right starting line numbers for proper numbering
-            left_start_line = None
-            right_start_line = start_line
-
-            try:
-                # Determine left/right bases from the target hunk
-                # target_hunk is defined in the above branch; compute mapping based on right anchoring
-                safe_hunk = target_hunk or {}
-                old_start = safe_hunk.get("old_start", 1)
-                new_start = safe_hunk.get("new_start", 1)
-                old_count = safe_hunk.get("old_count", 0)
-                new_count = safe_hunk.get("new_count", 0)
-
-                old_end = old_start + max(old_count, 0) - 1
-                new_end = new_start + max(new_count, 0) - 1
-
-                if direction == "after":
-                    # Right starts at new_end+1; left should start at old_end+1
-                    left_start_line = old_end + 1
-                else:  # before
-                    # Right ends at new_start-1; start_line was set accordingly.
-                    # Map offset from right start to left start using delta between starts
-                    delta = old_start - new_start
-                    left_start_line = max(1, start_line + delta)
-            except Exception:
-                # Fallback: mirror right side if any issue
-                left_start_line = right_start_line
-
             # If pygments format requested, enhance the result with syntax highlighting
             if output_format == "pygments" and result.get("status") == "ok":
                 from difflicious.services.syntax_service import (
@@ -277,10 +249,6 @@ def create_app() -> Flask:
                 result["css_styles"] = syntax_service.get_css_styles()
             else:
                 result["format"] = "plain"
-
-            # Include left/right numbering starts for the client to render correctly
-            result["left_start_line"] = left_start_line
-            result["right_start_line"] = right_start_line
 
             return jsonify(result)
 

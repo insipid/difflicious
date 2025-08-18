@@ -695,9 +695,10 @@ function createExpandedContextHtml(result, expansionId, triggerButton, direction
         startLineNumLeft = leftEnd + 1;
         startLineNumRight = rightEnd + 1;
     } else {
-        // Fallback to server-provided defaults
-        startLineNumRight = result.right_start_line || result.start_line || 1;
-        startLineNumLeft = result.left_start_line || startLineNumRight;
+        // Fallback: should not happen with proper data attributes
+        if (DEBUG) console.warn('Missing hunk-lines data attributes, using fallback line numbering');
+        startLineNumRight = 1;
+        startLineNumLeft = 1;
     }
 
     let html = `<div id="${expansionId}" class="expanded-context bg-gray-25">`;
@@ -765,9 +766,10 @@ function createPlainContextHtml(result, expansionId, triggerButton, direction) {
         startLineNumLeft = leftEnd + 1;
         startLineNumRight = rightEnd + 1;
     } else {
-        // Fallback to server-provided defaults
-        startLineNumRight = result.right_start_line || result.start_line || 1;
-        startLineNumLeft = result.left_start_line || startLineNumRight;
+        // Fallback: should not happen with proper data attributes
+        if (DEBUG) console.warn('Missing hunk-lines data attributes, using fallback line numbering');
+        startLineNumRight = 1;
+        startLineNumLeft = 1;
     }
 
     let html = `<div id="${expansionId}" class="expanded-context bg-gray-25">`;
