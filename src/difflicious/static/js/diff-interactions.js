@@ -411,6 +411,9 @@ async function expandContext(button, filePath, hunkIndex, direction, contextLine
             // Insert the expanded context
             insertExpandedContext(button, filePath, hunkIndex, direction, expandedHtml);
 
+            // Update data attributes after expansion
+            updateHunkLinesDataAttributes(button, direction, result.lines.length);
+
             // Common post-processing logic
             handlePostExpansionLogic(button, result, contextLines, targetStart, targetEnd, direction, originalText);
 
@@ -672,28 +675,30 @@ function injectPygmentsCss(cssStyles) {
 function createExpandedContextHtml(result, expansionId, triggerButton, direction) {
     // Create HTML for Pygments-formatted expanded context lines
     const lines = result.lines || [];
-    const startLineNumRight = result.right_start_line || result.start_line || 1;
 
-    // Derive left start from current hunk ranges to ensure continuity per side
-    let startLineNumLeft = result.left_start_line || startLineNumRight;
-    try {
-        const context = hunkContext(triggerButton);
-        if (context?.currentHunk) {
-            const h = context.currentHunk;
-            const curRightStart = parseInt(h.dataset.lineStart);
-            const curRightEnd = parseInt(h.dataset.lineEnd);
-            const curLeftStart = parseInt(h.dataset.leftLineStart || '0');
-            const curLeftEnd = parseInt(h.dataset.leftLineEnd || '0');
-            if (direction === 'after') {
-                const leftBase = (curLeftEnd || (curLeftStart + (curRightEnd - curRightStart)));
-                startLineNumLeft = (leftBase || 0) + 1;
-            } else if (direction === 'before') {
-                const leftEndBefore = (curLeftStart || 1) - 1;
-                startLineNumLeft = Math.max(1, leftEndBefore - (lines.length - 1));
-            }
-        }
-    } catch (e) {
-        // Fallback to server-provided defaults
+    // Get line numbers from the hunk-lines data attributes
+    const context = hunkContext(triggerButton);
+    const hunkLinesDiv = context?.currentHunk?.querySelector('.hunk-lines');
+
+    let startLineNumLeft, startLineNumRight;
+
+    if (hunkLinesDiv && direction === 'before') {
+        // For 'before' expansion, start from the data attributes and count backwards
+        const leftStart = parseInt(hunkLinesDiv.dataset.leftStartLine);
+        const rightStart = parseInt(hunkLinesDiv.dataset.rightStartLine);
+        startLineNumLeft = leftStart - lines.length;
+        startLineNumRight = rightStart - lines.length;
+    } else if (hunkLinesDiv && direction === 'after') {
+        // For 'after' expansion, start from the end data attributes and count forwards
+        const leftEnd = parseInt(hunkLinesDiv.dataset.leftEndLine);
+        const rightEnd = parseInt(hunkLinesDiv.dataset.rightEndLine);
+        startLineNumLeft = leftEnd + 1;
+        startLineNumRight = rightEnd + 1;
+    } else {
+        // Fallback: should not happen with proper data attributes
+        if (DEBUG) console.warn('Missing hunk-lines data attributes, using fallback line numbering');
+        startLineNumRight = 1;
+        startLineNumLeft = 1;
     }
 
     let html = `<div id="${expansionId}" class="expanded-context bg-gray-25">`;
@@ -741,28 +746,30 @@ function createExpandedContextHtml(result, expansionId, triggerButton, direction
 function createPlainContextHtml(result, expansionId, triggerButton, direction) {
     // Create HTML for plain text expanded context lines
     const lines = result.lines || [];
-    const startLineNumRight = result.right_start_line || result.start_line || 1;
 
-    // Derive left start from current hunk ranges to ensure continuity per side
-    let startLineNumLeft = result.left_start_line || startLineNumRight;
-    try {
-        const context = hunkContext(triggerButton);
-        if (context?.currentHunk) {
-            const h = context.currentHunk;
-            const curRightStart = parseInt(h.dataset.lineStart);
-            const curRightEnd = parseInt(h.dataset.lineEnd);
-            const curLeftStart = parseInt(h.dataset.leftLineStart || '0');
-            const curLeftEnd = parseInt(h.dataset.leftLineEnd || '0');
-            if (direction === 'after') {
-                const leftBase = (curLeftEnd || (curLeftStart + (curRightEnd - curRightStart)));
-                startLineNumLeft = (leftBase || 0) + 1;
-            } else if (direction === 'before') {
-                const leftEndBefore = (curLeftStart || 1) - 1;
-                startLineNumLeft = Math.max(1, leftEndBefore - (lines.length - 1));
-            }
-        }
-    } catch (e) {
-        // Fallback to server-provided defaults
+    // Get line numbers from the hunk-lines data attributes
+    const context = hunkContext(triggerButton);
+    const hunkLinesDiv = context?.currentHunk?.querySelector('.hunk-lines');
+
+    let startLineNumLeft, startLineNumRight;
+
+    if (hunkLinesDiv && direction === 'before') {
+        // For 'before' expansion, start from the data attributes and count backwards
+        const leftStart = parseInt(hunkLinesDiv.dataset.leftStartLine);
+        const rightStart = parseInt(hunkLinesDiv.dataset.rightStartLine);
+        startLineNumLeft = leftStart - lines.length;
+        startLineNumRight = rightStart - lines.length;
+    } else if (hunkLinesDiv && direction === 'after') {
+        // For 'after' expansion, start from the end data attributes and count forwards
+        const leftEnd = parseInt(hunkLinesDiv.dataset.leftEndLine);
+        const rightEnd = parseInt(hunkLinesDiv.dataset.rightEndLine);
+        startLineNumLeft = leftEnd + 1;
+        startLineNumRight = rightEnd + 1;
+    } else {
+        // Fallback: should not happen with proper data attributes
+        if (DEBUG) console.warn('Missing hunk-lines data attributes, using fallback line numbering');
+        startLineNumRight = 1;
+        startLineNumLeft = 1;
     }
 
     let html = `<div id="${expansionId}" class="expanded-context bg-gray-25">`;
@@ -852,6 +859,31 @@ function insertExpandedContext(button, filePath, hunkIndex, direction, expandedH
 }
 
 // Range conflict detection and state management functions
+
+function updateHunkLinesDataAttributes(button, direction, linesAdded) {
+    // Find the hunk-lines div and update its data attributes
+    const context = hunkContext(button);
+    const hunkLinesDiv = context?.currentHunk?.querySelector('.hunk-lines');
+
+    if (!hunkLinesDiv) return;
+
+    const currentLeftStart = parseInt(hunkLinesDiv.dataset.leftStartLine);
+    const currentLeftEnd = parseInt(hunkLinesDiv.dataset.leftEndLine);
+    const currentRightStart = parseInt(hunkLinesDiv.dataset.rightStartLine);
+    const currentRightEnd = parseInt(hunkLinesDiv.dataset.rightEndLine);
+
+    if (direction === 'before') {
+        // Update start lines by moving them backwards
+        hunkLinesDiv.dataset.leftStartLine = (currentLeftStart - linesAdded).toString();
+        hunkLinesDiv.dataset.rightStartLine = (currentRightStart - linesAdded).toString();
+    } else if (direction === 'after') {
+        // Update end lines by moving them forwards
+        hunkLinesDiv.dataset.leftEndLine = (currentLeftEnd + linesAdded).toString();
+        hunkLinesDiv.dataset.rightEndLine = (currentRightEnd + linesAdded).toString();
+    }
+
+    if (DEBUG) console.log(`Updated hunk-lines data attributes: leftStart=${hunkLinesDiv.dataset.leftStartLine}, leftEnd=${hunkLinesDiv.dataset.leftEndLine}, rightStart=${hunkLinesDiv.dataset.rightStartLine}, rightEnd=${hunkLinesDiv.dataset.rightEndLine}`);
+}
 
 function updateHunkRangeAfterExpansion(button, targetStart, targetEnd) {
     // Get the hunk element containing this button
@@ -1002,7 +1034,7 @@ function mergeHunks(firstHunk, secondHunk) {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async() => {
     await DiffState.init();
 
     // Apply initial state - state has already been restored in restoreState()

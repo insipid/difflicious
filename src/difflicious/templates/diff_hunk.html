@@ -1,14 +1,14 @@
 <!-- Single Hunk -->
 <div class="hunk border-b border-gray-100 last:border-b-0" data-line-start="{{ hunk.line_start }}"
     data-line-end="{{ hunk.line_end }}" data-left-line-start="{{ hunk.left_start or 0 }}"
-    data-left-line-end="{{ hunk.left_end or 0 }}" data-file-line-count="{{ file.line_count or 0 }}">
+    data-left-line-end="{{ hunk.left_end or 0 }}">
 
     <!-- Up Expansion Controls (before hunk) -->
     {% if hunk.can_expand_before %}
     <div class="hunk-expansion bg-blue-50 text-xs font-mono text-blue-800 border-b border-blue-100 flex">
         <!-- Left Side Controls -->
-        <div class="flex-1 border-r border-blue-200">
-            <div class="flex">
+        <div class="flex-1 border-r border-blue-200 min-w-0">
+            <div class="flex min-w-0">
                 <div class="w-12 bg-blue-100 border-r border-blue-200 select-none flex flex-col">
                     <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'before', 10, 'pygments')"
                         class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center h-full"
@@ -18,7 +18,7 @@
                         ▲
                     </button>
                 </div>
-                <div class="flex-1 px-2 py-2 overflow-hidden whitespace-nowrap flex items-center">
+                <div class="flex-1 px-2 py-2 overflow-hidden whitespace-nowrap flex items-center min-w-0">
                     {% if hunk.section_header %}
                     <span>{{ hunk.section_header }}</span>
                     {% else %}
@@ -29,8 +29,8 @@
         </div>
 
         <!-- Right Side Controls -->
-        <div class="flex-1">
-            <div class="flex">
+        <div class="flex-1 min-w-0">
+            <div class="flex min-w-0">
                 <div class="w-12 bg-blue-100 border-r border-blue-200 select-none flex flex-col">
                     <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'before', 10, 'pygments')"
                         class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center h-full"
@@ -40,7 +40,7 @@
                         ▲
                     </button>
                 </div>
-                <div class="flex-1 px-2 py-2 overflow-hidden">
+                <div class="flex-1 px-2 py-2 overflow-hidden min-w-0">
                     &nbsp;
                 </div>
             </div>
@@ -49,7 +49,11 @@
     {% endif %}
 
     <!-- Hunk Lines -->
-    <div class="hunk-lines font-mono text-xs">
+    <div class="hunk-lines font-mono text-xs" 
+         data-left-start-line="{{ hunk.old_start }}" 
+         data-left-end-line="{{ hunk.old_start + hunk.old_count - 1 }}" 
+         data-right-start-line="{{ hunk.new_start }}" 
+         data-right-end-line="{{ hunk.new_start + hunk.new_count - 1 }}">
         {% for line in hunk.lines %}
         <div class="diff-line flex line-{{ line.type }}">
             <!-- Left Side (Before) -->
@@ -69,17 +73,17 @@
                         <span class="text-gray-400">&nbsp;</span>
                         {% endif %}
                         {% if line.left and (line.left.highlighted_content or line.left.content) %}
-                            {% if line.left.highlighted_content %}
-                                <span>{{ line.left.highlighted_content|safe }}</span>
-                            {% elif line.left.content %}
-                                <span>{{ line.left.content }}</span>
-                            {% endif %}
-                            {% if line.left.missing_newline %}
-                                <span class="no-newline-indicator text-red-500" aria-label="No newline at end of file">↩</span>
-                            {% endif %}
+                        {% if line.left.highlighted_content %}
+                        <span>{{ line.left.highlighted_content|safe }}</span>
+                        {% elif line.left.content %}
+                        <span>{{ line.left.content }}</span>
+                        {% endif %}
+                        {% if line.left.missing_newline %}
+                        <span class="no-newline-indicator text-red-500" aria-label="No newline at end of file">↩</span>
+                        {% endif %}
                         {% else %}
-                            <!-- Ensure empty content areas still take up space -->
-                            <span>&nbsp;</span>
+                        <!-- Ensure empty content areas still take up space -->
+                        <span>&nbsp;</span>
                         {% endif %}
                     </div>
                 </div>
@@ -102,17 +106,17 @@
                         <span class="text-gray-400">&nbsp;</span>
                         {% endif %}
                         {% if line.right and (line.right.highlighted_content or line.right.content) %}
-                            {% if line.right.highlighted_content %}
-                                <span>{{ line.right.highlighted_content|safe }}</span>
-                            {% elif line.right.content %}
-                                <span>{{ line.right.content }}</span>
-                            {% endif %}
-                            {% if line.right.missing_newline %}
-                                <span class="no-newline-indicator text-red-500" aria-label="No newline at end of file">↩</span>
-                            {% endif %}
+                        {% if line.right.highlighted_content %}
+                        <span>{{ line.right.highlighted_content|safe }}</span>
+                        {% elif line.right.content %}
+                        <span>{{ line.right.content }}</span>
+                        {% endif %}
+                        {% if line.right.missing_newline %}
+                        <span class="no-newline-indicator text-red-500" aria-label="No newline at end of file">↩</span>
+                        {% endif %}
                         {% else %}
-                            <!-- Ensure empty content areas still take up space -->
-                            <span>&nbsp;</span>
+                        <!-- Ensure empty content areas still take up space -->
+                        <span>&nbsp;</span>
                         {% endif %}
                     </div>
                 </div>
@@ -125,8 +129,8 @@
     {% if hunk.can_expand_after %}
     <div class="hunk-expansion bg-blue-50 text-xs font-mono text-blue-800 border-t border-blue-100 flex">
         <!-- Left Side Controls -->
-        <div class="flex-1 border-r border-blue-200">
-            <div class="flex">
+        <div class="flex-1 border-r border-blue-200 min-w-0">
+            <div class="flex min-w-0">
                 <div class="w-12 bg-blue-100 border-r border-blue-200 select-none flex flex-col">
                     <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'after', 10, 'pygments')"
                         class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center h-full"
@@ -136,27 +140,25 @@
                         ▼
                     </button>
                 </div>
-                <div class="flex-1 px-2 py-2 overflow-hidden whitespace-nowrap flex items-center">
+                <div class="flex-1 px-2 py-2 overflow-hidden whitespace-nowrap flex items-center min-w-0">
                     &nbsp;
                 </div>
             </div>
         </div>
 
         <!-- Right Side Controls -->
-        <div class="flex-1">
-            <div class="flex">
+        <div class="flex-1 min-w-0">
+            <div class="flex min-w-0">
                 <div class="w-12 bg-blue-100 border-r border-blue-200 select-none flex flex-col">
                     <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'after', 10, 'pygments')"
                         class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center h-full"
                         data-target-start="{{ hunk.expand_after_start }}" data-target-end="{{ hunk.expand_after_end }}"
                         data-direction="after"
-                        data-line-start="{{ hunk.line_start }}" data-line-end="{{ hunk.line_end }}"
-                        data-line-count="{{ hunk.line_count }}"
                         title="Expand 10 lines down ({{ hunk.expand_after_start }}-{{ hunk.expand_after_end }})">
                         ▼
                     </button>
                 </div>
-                <div class="flex-1 px-2 py-2 overflow-hidden">
+                <div class="flex-1 px-2 py-2 overflow-hidden min-w-0">
                     &nbsp;
                 </div>
             </div>
