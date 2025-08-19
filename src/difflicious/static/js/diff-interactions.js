@@ -411,7 +411,7 @@ async function expandContext(button, filePath, hunkIndex, direction, contextLine
             // Insert the expanded context
             insertExpandedContext(button, filePath, hunkIndex, direction, expandedHtml);
 
-            // Update data attributes after expansion
+            // Update data attributes after expansion to maintain consistency for future expansions
             updateHunkLinesDataAttributes(button, direction, result.lines.length);
 
             // Common post-processing logic
@@ -676,24 +676,37 @@ function createExpandedContextHtml(result, expansionId, triggerButton, direction
     // Create HTML for Pygments-formatted expanded context lines
     const lines = result.lines || [];
 
-    // Get line numbers from the hunk-lines data attributes
+    // Use the original working logic from before the broken refactoring
     const context = hunkContext(triggerButton);
     const hunkLinesDiv = context?.currentHunk?.querySelector('.hunk-lines');
 
     let startLineNumLeft, startLineNumRight;
 
-    if (hunkLinesDiv && direction === 'before') {
-        // For 'before' expansion, start from the data attributes and count backwards
-        const leftStart = parseInt(hunkLinesDiv.dataset.leftStartLine);
-        const rightStart = parseInt(hunkLinesDiv.dataset.rightStartLine);
-        startLineNumLeft = leftStart - lines.length;
-        startLineNumRight = rightStart - lines.length;
-    } else if (hunkLinesDiv && direction === 'after') {
-        // For 'after' expansion, start from the end data attributes and count forwards
-        const leftEnd = parseInt(hunkLinesDiv.dataset.leftEndLine);
-        const rightEnd = parseInt(hunkLinesDiv.dataset.rightEndLine);
-        startLineNumLeft = leftEnd + 1;
-        startLineNumRight = rightEnd + 1;
+    if (hunkLinesDiv) {
+        const curRightStart = parseInt(hunkLinesDiv.dataset.rightStartLine);
+        const curRightEnd = parseInt(hunkLinesDiv.dataset.rightEndLine);
+        const curLeftStart = parseInt(hunkLinesDiv.dataset.leftStartLine || '0');
+        const curLeftEnd = parseInt(hunkLinesDiv.dataset.leftEndLine || '0');
+
+        if (direction === 'after') {
+            // Right side: continue from right end
+            startLineNumRight = curRightEnd + 1;
+
+            // Left side: use the ORIGINAL working logic that was removed
+            const leftBase = (curLeftEnd || (curLeftStart + (curRightEnd - curRightStart)));
+            startLineNumLeft = (leftBase || 0) + 1;
+
+            if (DEBUG) console.log(`After expansion (original logic): curLeftStart=${curLeftStart}, curLeftEnd=${curLeftEnd}, curRightStart=${curRightStart}, curRightEnd=${curRightEnd}, leftBase=${leftBase}, calculated: left=${startLineNumLeft}, right=${startLineNumRight}`);
+        } else if (direction === 'before') {
+            // Right side: expand backwards
+            startLineNumRight = curRightStart - lines.length;
+
+            // Left side: use the ORIGINAL working logic that was removed  
+            const leftEndBefore = (curLeftStart || 1) - 1;
+            startLineNumLeft = Math.max(1, leftEndBefore - (lines.length - 1));
+
+            if (DEBUG) console.log(`Before expansion (original logic): curLeftStart=${curLeftStart}, leftEndBefore=${leftEndBefore}, lines=${lines.length}, calculated: left=${startLineNumLeft}, right=${startLineNumRight}`);
+        }
     } else {
         // Fallback: should not happen with proper data attributes
         if (DEBUG) console.warn('Missing hunk-lines data attributes, using fallback line numbering');
@@ -754,22 +767,50 @@ function createPlainContextHtml(result, expansionId, triggerButton, direction) {
     let startLineNumLeft, startLineNumRight;
 
     if (hunkLinesDiv && direction === 'before') {
-        // For 'before' expansion, start from the data attributes and count backwards
-        const leftStart = parseInt(hunkLinesDiv.dataset.leftStartLine);
-        const rightStart = parseInt(hunkLinesDiv.dataset.rightStartLine);
-        startLineNumLeft = leftStart - lines.length;
-        startLineNumRight = rightStart - lines.length;
+        // For 'before' expansion, calculate backwards from the current hunk start
+        const currentLeftStart = parseInt(hunkLinesDiv.dataset.leftStartLine);
+        const currentRightStart = parseInt(hunkLinesDiv.dataset.rightStartLine);
+
+        if (isNaN(currentLeftStart) || isNaN(currentRightStart)) {
+            if (DEBUG) console.warn('Invalid hunk data attributes for before expansion, using fallback');
+            startLineNumRight = result.right_start_line || result.start_line || 1;
+            startLineNumLeft = result.left_start_line || startLineNumRight;
+        } else {
+            // Both sides expand backwards by the same number of lines
+            startLineNumLeft = currentLeftStart - lines.length;
+            startLineNumRight = currentRightStart - lines.length;
+            if (DEBUG) console.log(`Before expansion: leftStart=${currentLeftStart}, rightStart=${currentRightStart}, expansion lines=${lines.length}, calculated start: left=${startLineNumLeft}, right=${startLineNumRight}`);
+        }
     } else if (hunkLinesDiv && direction === 'after') {
-        // For 'after' expansion, start from the end data attributes and count forwards
-        const leftEnd = parseInt(hunkLinesDiv.dataset.leftEndLine);
-        const rightEnd = parseInt(hunkLinesDiv.dataset.rightEndLine);
-        startLineNumLeft = leftEnd + 1;
-        startLineNumRight = rightEnd + 1;
+        // For 'after' expansion, we need to check if left/right sides have diverged
+        const currentLeftEnd = parseInt(hunkLinesDiv.dataset.leftEndLine);
+        const currentRightEnd = parseInt(hunkLinesDiv.dataset.rightEndLine);
+
+        if (isNaN(currentLeftEnd) || isNaN(currentRightEnd)) {
+            if (DEBUG) console.warn('Invalid hunk data attributes for after expansion, using fallback');
+            startLineNumRight = result.right_start_line || result.start_line || 1;
+            startLineNumLeft = result.left_start_line || startLineNumRight;
+        } else {
+            // Right side always continues from the right end
+            startLineNumRight = currentRightEnd + 1;
+
+            // Left side logic: if left and right are tracking together, continue together
+            // Otherwise, left side continues from its own end
+            if (currentLeftEnd === 0) {
+                // Left side hasn't been set or is at 0, derive from right side
+                startLineNumLeft = startLineNumRight;
+            } else {
+                // Left side has its own tracking, continue from its end
+                startLineNumLeft = currentLeftEnd + 1;
+            }
+
+            if (DEBUG) console.log(`After expansion: leftEnd=${currentLeftEnd}, rightEnd=${currentRightEnd}, calculated start: left=${startLineNumLeft}, right=${startLineNumRight}`);
+        }
     } else {
         // Fallback: should not happen with proper data attributes
-        if (DEBUG) console.warn('Missing hunk-lines data attributes, using fallback line numbering');
-        startLineNumRight = 1;
-        startLineNumLeft = 1;
+        if (DEBUG) console.warn('Missing hunk-lines div or invalid direction, using fallback line numbering');
+        startLineNumRight = result.right_start_line || result.start_line || 1;
+        startLineNumLeft = result.left_start_line || startLineNumRight;
     }
 
     let html = `<div id="${expansionId}" class="expanded-context bg-gray-25">`;
@@ -872,6 +913,8 @@ function updateHunkLinesDataAttributes(button, direction, linesAdded) {
     const currentRightStart = parseInt(hunkLinesDiv.dataset.rightStartLine);
     const currentRightEnd = parseInt(hunkLinesDiv.dataset.rightEndLine);
 
+    if (DEBUG) console.log(`Updating hunk data attributes: direction=${direction}, linesAdded=${linesAdded}, current: leftStart=${currentLeftStart}, leftEnd=${currentLeftEnd}, rightStart=${currentRightStart}, rightEnd=${currentRightEnd}`);
+
     if (direction === 'before') {
         // Update start lines by moving them backwards
         hunkLinesDiv.dataset.leftStartLine = (currentLeftStart - linesAdded).toString();
@@ -882,7 +925,7 @@ function updateHunkLinesDataAttributes(button, direction, linesAdded) {
         hunkLinesDiv.dataset.rightEndLine = (currentRightEnd + linesAdded).toString();
     }
 
-    if (DEBUG) console.log(`Updated hunk-lines data attributes: leftStart=${hunkLinesDiv.dataset.leftStartLine}, leftEnd=${hunkLinesDiv.dataset.leftEndLine}, rightStart=${hunkLinesDiv.dataset.rightStartLine}, rightEnd=${hunkLinesDiv.dataset.rightEndLine}`);
+    if (DEBUG) console.log(`Updated hunk data attributes: leftStart=${hunkLinesDiv.dataset.leftStartLine}, leftEnd=${hunkLinesDiv.dataset.leftEndLine}, rightStart=${hunkLinesDiv.dataset.rightStartLine}, rightEnd=${hunkLinesDiv.dataset.rightEndLine}`);
 }
 
 function updateHunkRangeAfterExpansion(button, targetStart, targetEnd) {
@@ -1034,7 +1077,7 @@ function mergeHunks(firstHunk, secondHunk) {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', async() => {
+document.addEventListener('DOMContentLoaded', async () => {
     await DiffState.init();
 
     // Apply initial state - state has already been restored in restoreState()
@@ -1472,8 +1515,8 @@ function renderSideBySideLine(line) {
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         ${leftContent
-        ? (leftBg.includes('red') ? `<span class="text-red-600">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-gray-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`)
-        : ''}
+            ? (leftBg.includes('red') ? `<span class="text-red-600">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-gray-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`)
+            : ''}
                     </div>
                 </div>
             </div>
@@ -1486,8 +1529,8 @@ function renderSideBySideLine(line) {
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         ${rightContent
-        ? (rightBg.includes('green') ? `<span class="text-green-600">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-gray-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`)
-        : ''}
+            ? (rightBg.includes('green') ? `<span class="text-green-600">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-gray-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`)
+            : ''}
                     </div>
                 </div>
             </div>
