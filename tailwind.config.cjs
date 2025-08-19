@@ -1,9 +1,20 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: ['class', '[data-theme="dark"]'], // Use data-theme attribute for dark mode
+  darkMode: 'class', // Use class-based dark mode
   content: [
     './src/difflicious/templates/**/*.html',
     './src/difflicious/static/js/**/*.js',
+  ],
+  safelist: [
+    // Force dark mode classes to be included
+    'dark:bg-neutral-700',
+    'dark:bg-neutral-800', 
+    'dark:bg-neutral-900',
+    'dark:border-neutral-600',
+    'dark:border-neutral-700',
+    'dark:text-neutral-100',
+    'dark:bg-green-900/20',
+    'dark:bg-red-900/20'
   ],
   theme: {
     extend: {

@@ -1544,10 +1544,15 @@ function renderSideBySideLine(line) {
 // Theme switching functionality
 function toggleTheme() {
     const htmlElement = document.documentElement;
-    const currentTheme = htmlElement.getAttribute('data-theme') || 'light';
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    const isDark = htmlElement.classList.contains('dark');
+    const newTheme = isDark ? 'light' : 'dark';
 
-    htmlElement.setAttribute('data-theme', newTheme);
+    if (isDark) {
+        htmlElement.classList.remove('dark');
+    } else {
+        htmlElement.classList.add('dark');
+    }
+    
     DiffState.theme = newTheme;
 
     // Update theme icon
@@ -1559,7 +1564,7 @@ function toggleTheme() {
     // Save theme preference
     localStorage.setItem('difflicious-theme', newTheme);
 
-    if (DEBUG) console.log(`Theme switched from ${currentTheme} to ${newTheme}`);
+    if (DEBUG) console.log(`Theme switched to ${newTheme}`);
 }
 
 // Initialize theme on load
@@ -1568,7 +1573,12 @@ function initializeTheme() {
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const defaultTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
 
-    document.documentElement.setAttribute('data-theme', defaultTheme);
+    if (defaultTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+    
     DiffState.theme = defaultTheme;
 
     // Update theme icon
