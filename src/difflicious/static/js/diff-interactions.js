@@ -702,7 +702,7 @@ function createExpandedContextHtml(result, expansionId, triggerButton, direction
             // Right side: expand backwards
             startLineNumRight = curRightStart - lines.length;
 
-            // Left side: use the ORIGINAL working logic that was removed  
+            // Left side: use the ORIGINAL working logic that was removed
             const leftEndBefore = (curLeftStart || 1) - 1;
             startLineNumLeft = Math.max(1, leftEndBefore - (lines.length - 1));
 
@@ -1078,7 +1078,7 @@ function mergeHunks(firstHunk, secondHunk) {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async() => {
     initializeTheme();
     await DiffState.init();
 
@@ -1518,8 +1518,8 @@ function renderSideBySideLine(line) {
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         ${leftContent
-            ? (leftBg.includes('red') ? `<span class="text-red-600">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`)
-            : ''}
+        ? (leftBg.includes('red') ? `<span class="text-red-600">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`)
+        : ''}
                     </div>
                 </div>
             </div>
@@ -1532,8 +1532,8 @@ function renderSideBySideLine(line) {
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         ${rightContent
-            ? (rightBg.includes('green') ? `<span class="text-green-600">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`)
-            : ''}
+        ? (rightBg.includes('green') ? `<span class="text-green-600">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`)
+        : ''}
                     </div>
                 </div>
             </div>
@@ -1546,19 +1546,19 @@ function toggleTheme() {
     const htmlElement = document.documentElement;
     const currentTheme = htmlElement.getAttribute('data-theme') || 'light';
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    
+
     htmlElement.setAttribute('data-theme', newTheme);
     DiffState.theme = newTheme;
-    
+
     // Update theme icon
     const themeIcon = document.getElementById('theme-icon');
     if (themeIcon) {
         themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
     }
-    
+
     // Save theme preference
     localStorage.setItem('difflicious-theme', newTheme);
-    
+
     if (DEBUG) console.log(`Theme switched from ${currentTheme} to ${newTheme}`);
 }
 
@@ -1567,16 +1567,16 @@ function initializeTheme() {
     const savedTheme = localStorage.getItem('difflicious-theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const defaultTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
-    
+
     document.documentElement.setAttribute('data-theme', defaultTheme);
     DiffState.theme = defaultTheme;
-    
+
     // Update theme icon
     const themeIcon = document.getElementById('theme-icon');
     if (themeIcon) {
         themeIcon.textContent = defaultTheme === 'dark' ? '☀️' : '🌙';
     }
-    
+
     // Listen for system theme changes
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
         if (!localStorage.getItem('difflicious-theme')) {
