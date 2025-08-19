@@ -695,6 +695,10 @@ video {
   min-height: 100vh;
 }
 
+.min-h-\[2rem\] {
+  min-height: 2rem;
+}
+
 .w-12 {
   width: 3rem;
 }
@@ -1123,6 +1127,10 @@ video {
 .text-red-700 {
   --tw-text-opacity: 1;
   color: rgb(185 28 28 / var(--tw-text-opacity, 1));
+}
+
+.text-transparent {
+  color: transparent;
 }
 
 .shadow-sm {

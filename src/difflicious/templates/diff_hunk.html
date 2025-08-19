@@ -18,11 +18,11 @@
                         ▲
                     </button>
                 </div>
-                <div class="flex-1 px-2 py-2 overflow-hidden whitespace-nowrap flex items-center">
+                <div class="flex-1 px-2 py-2 overflow-hidden whitespace-nowrap flex items-center min-h-[2rem]">
                     {% if hunk.section_header %}
                     <span>{{ hunk.section_header }}</span>
                     {% else %}
-                    &nbsp;
+                    <span class="text-transparent">&nbsp;</span>
                     {% endif %}
                 </div>
             </div>
@@ -40,8 +40,8 @@
                         ▲
                     </button>
                 </div>
-                <div class="flex-1 px-2 py-2 overflow-hidden">
-                    &nbsp;
+                <div class="flex-1 px-2 py-2 overflow-hidden min-h-[2rem] flex items-center">
+                    <span class="text-transparent">&nbsp;</span>
                 </div>
             </div>
         </div>
@@ -138,8 +138,8 @@
                         ▼
                     </button>
                 </div>
-                <div class="flex-1 px-2 py-2 overflow-hidden whitespace-nowrap flex items-center">
-                    &nbsp;
+                <div class="flex-1 px-2 py-2 overflow-hidden whitespace-nowrap flex items-center min-h-[2rem]">
+                    <span class="text-transparent">&nbsp;</span>
                 </div>
             </div>
         </div>
@@ -156,8 +156,8 @@
                         ▼
                     </button>
                 </div>
-                <div class="flex-1 px-2 py-2 overflow-hidden">
-                    &nbsp;
+                <div class="flex-1 px-2 py-2 overflow-hidden min-h-[2rem] flex items-center">
+                    <span class="text-transparent">&nbsp;</span>
                 </div>
             </div>
         </div>
