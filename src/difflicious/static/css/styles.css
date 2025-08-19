@@ -14,6 +14,51 @@
     --color-border: #e2e8f0;
     --color-border-hover: #cbd5e1;
 
+    /* Diff-specific colors */
+    --color-diff-addition-bg: #dcfce7;
+    --color-diff-addition-text: #059669;
+    --color-diff-deletion-bg: #fef2f2;
+    --color-diff-deletion-text: #dc2626;
+    --color-diff-context-bg: #ffffff;
+    --color-diff-context-text: #64748b;
+    --color-expanded-context-bg: #f9fafb;
+
+    /* Neutral color variables for gray-* classes */
+    --color-neutral-50: #f9fafb;
+    --color-neutral-100: #f3f4f6;
+    --color-neutral-200: #e5e7eb;
+    --color-neutral-300: #d1d5db;
+    --color-neutral-400: #9ca3af;
+    --color-neutral-500: #6b7280;
+    --color-neutral-600: #4b5563;
+    --color-neutral-700: #374151;
+    --color-neutral-800: #1f2937;
+    --color-neutral-900: #111827;
+
+    /* Semantic color backgrounds */
+    --color-danger-bg: #fef2f2;
+    --color-danger-bg-100: #fee2e2;
+    --color-danger-text: #ef4444;
+    --color-danger-text-strong: #dc2626;
+    --color-danger-text-600: #dc2626;
+    --color-danger-text-500: #ef4444;
+    --color-success-bg: #dcfce7;
+    --color-success-bg-100: #dcfce7;
+    --color-success-text: #059669;
+    --color-success-text-600: #059669;
+    --color-success-text-800: #065f46;
+    --color-info-bg: #eff6ff;
+    --color-info-bg-50: #eff6ff;
+    --color-info-bg-100: #dbeafe;
+    --color-info-bg-200: #bfdbfe;
+    --color-info-text: #1e40af;
+    --color-info-text-600: #2563eb;
+    --color-info-text-800: #1e40af;
+
+    /* Focus and ring colors */
+    --color-focus-ring: #3b82f6;
+    --color-focus-border: #2563eb;
+
     --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
 
@@ -26,6 +71,67 @@
     --border-radius: 0.5rem;
     --border-radius-sm: 0.25rem;
     --box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+    --color-primary: #3b82f6;
+    --color-primary-hover: #2563eb;
+    --color-success: #10b981;
+    --color-danger: #ef4444;
+    --color-warning: #f59e0b;
+    --color-bg: #0f172a;
+    --color-bg-secondary: #1e293b;
+    --color-bg-tertiary: #334155;
+    --color-text: #f1f5f9;
+    --color-text-secondary: #94a3b8;
+    --color-border: #334155;
+    --color-border-hover: #475569;
+
+    /* Diff-specific colors for dark mode */
+    --color-diff-addition-bg: #0f2e14;
+    --color-diff-addition-text: #10b981;
+    --color-diff-deletion-bg: #2e0f14;
+    --color-diff-deletion-text: #ef4444;
+    --color-diff-context-bg: #0f172a;
+    --color-diff-context-text: #94a3b8;
+    --color-expanded-context-bg: #1e293b;
+
+    /* Dark theme neutral colors */
+    --color-neutral-50: #1e293b;
+    --color-neutral-100: #334155;
+    --color-neutral-200: #475569;
+    --color-neutral-300: #64748b;
+    --color-neutral-400: #94a3b8;
+    --color-neutral-500: #64748b;
+    --color-neutral-600: #475569;
+    --color-neutral-700: #cbd5e1;
+    --color-neutral-800: #e2e8f0;
+    --color-neutral-900: #f1f5f9;
+
+    /* Dark theme semantic colors */
+    --color-danger-bg: #2e0f14;
+    --color-danger-bg-100: #2e0f14;
+    --color-danger-text: #ef4444;
+    --color-danger-text-strong: #f87171;
+    --color-danger-text-600: #f87171;
+    --color-danger-text-500: #ef4444;
+    --color-success-bg: #0f2e14;
+    --color-success-bg-100: #0f2e14;
+    --color-success-text: #10b981;
+    --color-success-text-600: #10b981;
+    --color-success-text-800: #34d399;
+    --color-info-bg: #0f1829;
+    --color-info-bg-50: #0f1829;
+    --color-info-bg-100: #1e293b;
+    --color-info-bg-200: #334155;
+    --color-info-text: #60a5fa;
+    --color-info-text-600: #3b82f6;
+    --color-info-text-800: #60a5fa;
+
+    /* Focus and ring colors for dark mode */
+    --color-focus-ring: #60a5fa;
+    --color-focus-border: #3b82f6;
 }
 
 * {
@@ -313,17 +419,17 @@ body {
 
 /* Diff syntax highlighting */
 .diff-addition {
-    background-color: #dcfce7;
-    color: var(--color-success);
+    background-color: var(--color-diff-addition-bg);
+    color: var(--color-diff-addition-text);
 }
 
 .diff-deletion {
-    background-color: #fef2f2;
-    color: var(--color-danger);
+    background-color: var(--color-diff-deletion-bg);
+    color: var(--color-diff-deletion-text);
 }
 
 .diff-context {
-    color: var(--color-text-secondary);
+    color: var(--color-diff-context-text);
 }
 
 /* Simple highlight for filename search */
@@ -334,22 +440,22 @@ body {
 
 /* Expanded Context Styles */
 .expanded-context {
-    background-color: #f9fafb;
+    background-color: var(--color-expanded-context-bg);
     opacity: 0.95;
 }
 
 .expanded-context .diff-line {
-    background-color: #f9fafb;
+    background-color: var(--color-expanded-context-bg);
 }
 
 .expanded-context .line-num {
-    background-color: #f3f4f6 !important;
-    color: #6b7280;
+    background-color: var(--color-neutral-100) !important;
+    color: var(--color-neutral-500);
     font-style: normal;
 }
 
 .expanded-context .line-content {
-    color: #374151;
+    color: var(--color-neutral-700);
 }
 
 /* Expanded context animation - simple fade in */
@@ -369,7 +475,7 @@ body {
 
 /* No newline indicator styles */
 .no-newline-indicator {
-    color: #dc2626;
+    color: var(--color-danger);
     font-weight: 900;
     margin-left: 0.25rem;
     opacity: 1;
