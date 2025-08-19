@@ -7,9 +7,9 @@
         <p class="text-red-500 mb-4">{{ error }}</p>
         {% else %}
         <div class="text-6xl mb-4">✨</div>
-        <h2 class="text-xl font-semibold text-gray-900 mb-2">No changes found</h2>
+        <h2 class="text-xl font-semibold text-neutral-900 mb-2">No changes found</h2>
         {% endif %}
-        <div class="text-gray-600 space-y-2">
+        <div class="text-neutral-600 space-y-2">
             {% if not unstaged and not untracked %}
             <p>Enable "Unstaged" or "Untracked" to see changes.</p>
             {% elif unstaged and not untracked %}
@@ -20,7 +20,7 @@
             <p>Your working directory is clean - no unstaged or untracked files.</p>
             {% endif %}
             {% if current_base_ref != 'main' %}
-            <p class="text-sm text-gray-500 mt-3">
+            <p class="text-sm text-neutral-500 mt-3">
                 Comparing against: <span class="font-mono">{{ current_base_ref }}</span>
             </p>
             {% endif %}
