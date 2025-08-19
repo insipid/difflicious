@@ -11,8 +11,9 @@ Based on my analysis of the codebase, here's what I found:
 - Current styling approach: Uses CSS custom properties in `styles.css` with light theme as default
 
 **Current Color System:**
-The application already uses a well-structured CSS custom properties system in `/src/difflicious/static/css/styles.css`:
+The application uses a **hybrid approach** with both CSS custom properties and hardcoded Tailwind classes:
 
+**1. CSS Custom Properties (in styles.css):**
 ```css
 :root {
     --color-primary: #2563eb;
@@ -29,6 +30,16 @@ The application already uses a well-structured CSS custom properties system in `
     --color-border-hover: #cbd5e1;
 }
 ```
+
+**2. Hardcoded Tailwind Classes (in HTML templates):**
+⚠️ **Critical Issue:** The HTML templates extensively use hardcoded Tailwind color classes:
+- `bg-gray-50`, `bg-gray-100`, `text-gray-400`, `text-gray-500`, `text-gray-700` (neutral colors)
+- `bg-red-50`, `text-red-600`, `text-red-500` (deletion indicators) 
+- `bg-green-50` (addition indicators)
+- `bg-blue-50`, `bg-blue-100`, `bg-blue-200`, `text-blue-800` (expansion areas)
+- `border-gray-100`, `border-gray-200`, `border-blue-100` (borders)
+
+This creates a **theme implementation challenge** where CSS custom properties alone are insufficient - the hardcoded Tailwind classes must be converted to use CSS variables to enable proper dark theme switching.
 
 ## Implementation Strategy
 
@@ -133,7 +144,9 @@ const ThemeManager = {
 }
 ```
 
-### 3. Tailwind CSS Integration
+### 3. Tailwind CSS Integration & Hardcoded Class Resolution
+
+**Critical Challenge:** The current templates use hardcoded Tailwind classes that bypass the CSS custom properties system entirely. These must be addressed for dark theme support.
 
 **Tailwind Configuration Update:**
 ```javascript
@@ -147,7 +160,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Map to CSS custom properties
+        // Map existing custom properties
         primary: 'var(--color-primary)',
         'primary-hover': 'var(--color-primary-hover)',
         success: 'var(--color-success)',
@@ -160,11 +173,80 @@ module.exports = {
         'text-secondary': 'var(--color-text-secondary)',
         'border-primary': 'var(--color-border)',
         'border-hover': 'var(--color-border-hover)',
+        
+        // Add variables for all hardcoded classes found in templates
+        gray: {
+          50: 'var(--color-neutral-50)',
+          100: 'var(--color-neutral-100)',
+          400: 'var(--color-neutral-400)',
+          500: 'var(--color-neutral-500)',
+          700: 'var(--color-neutral-700)',
+        },
+        red: {
+          50: 'var(--color-danger-bg)',
+          500: 'var(--color-danger-text)',
+          600: 'var(--color-danger-text-strong)',
+        },
+        green: {
+          50: 'var(--color-success-bg)',
+        },
+        blue: {
+          50: 'var(--color-info-bg)',
+          100: 'var(--color-info-bg-secondary)',
+          200: 'var(--color-info-bg-interactive)',
+          800: 'var(--color-info-text)',
+        },
       }
     }
   },
   plugins: []
 };
+```
+
+**Required CSS Variable Extensions:**
+The CSS custom properties must be extended to support all hardcoded Tailwind classes:
+```css
+:root {
+  /* Existing variables... */
+  
+  /* Add neutral color variables for gray-* classes */
+  --color-neutral-50: #f9fafb;
+  --color-neutral-100: #f3f4f6;
+  --color-neutral-400: #9ca3af;
+  --color-neutral-500: #6b7280;
+  --color-neutral-700: #374151;
+  
+  /* Add semantic color backgrounds */
+  --color-danger-bg: #fef2f2;
+  --color-danger-text: #ef4444;
+  --color-danger-text-strong: #dc2626;
+  --color-success-bg: #dcfce7;
+  --color-info-bg: #eff6ff;
+  --color-info-bg-secondary: #dbeafe;
+  --color-info-bg-interactive: #bfdbfe;
+  --color-info-text: #1e40af;
+}
+
+[data-theme="dark"] {
+  /* Existing dark variables... */
+  
+  /* Dark theme neutral colors */
+  --color-neutral-50: #1e293b;
+  --color-neutral-100: #334155;
+  --color-neutral-400: #94a3b8;
+  --color-neutral-500: #64748b;
+  --color-neutral-700: #cbd5e1;
+  
+  /* Dark theme semantic colors */
+  --color-danger-bg: #2e0f14;
+  --color-danger-text: #ef4444;
+  --color-danger-text-strong: #f87171;
+  --color-success-bg: #0f2e14;
+  --color-info-bg: #0f1829;
+  --color-info-bg-secondary: #1e293b;
+  --color-info-bg-interactive: #334155;
+  --color-info-text: #60a5fa;
+}
 ```
 
 ### 4. UI Theme Toggle Component
@@ -242,9 +324,12 @@ function updateSyntaxHighlighting(theme) {
 ### 8. Implementation Steps
 
 1. **Phase 1: CSS Foundation**
-   - Extend existing CSS custom properties with dark theme variants
-   - Update Tailwind configuration
+   - Audit all hardcoded Tailwind color classes in HTML templates
+   - Extend existing CSS custom properties with dark theme variants 
+   - Add CSS variables for all hardcoded Tailwind classes (gray-*, red-*, green-*, blue-*)
+   - Update Tailwind configuration to map colors to CSS custom properties
    - Test color contrast ratios for accessibility
+   - **Note:** This phase requires both CSS updates AND template modifications due to extensive hardcoded classes
 
 2. **Phase 2: JavaScript Theme Management**
    - Add `ThemeManager` to `diff-interactions.js`
@@ -277,10 +362,15 @@ function updateSyntaxHighlighting(theme) {
 - **Maintainable:** Centralized color management through CSS variables
 
 **Technical Benefits:**
-- No need to rewrite existing styles - just add dark theme variants
-- Leverages browser-native `prefers-color-scheme` media query
-- Compatible with existing Tailwind utilities
+- Builds on existing CSS custom properties foundation in `styles.css`
+- Leverages browser-native `prefers-color-scheme` media query  
+- Once implemented, compatible with all Tailwind utilities via CSS variable mapping
 - Easy to extend with additional themes in the future
+
+**Technical Challenges Addressed:**
+- ⚠️ **Hardcoded Tailwind Classes:** Extensive template refactoring required to convert hardcoded `bg-gray-50`, `text-red-600`, etc. to CSS variable-based equivalents
+- **Dual System Management:** Must maintain compatibility between CSS custom properties and Tailwind's utility system
+- **Template Updates:** All HTML templates require updates to use CSS variable-mapped Tailwind classes
 
 ### 10. Accessibility Considerations
 
