@@ -73,7 +73,7 @@
 
                 <!-- Theme Toggle -->
                 <div class="flex items-center">
-                    <button onclick="toggleTheme()"
+                    <button type="button" onclick="toggleTheme(); event.preventDefault(); event.stopPropagation();"
                         class="p-2 rounded-md hover:bg-neutral-100 text-neutral-600 hover:text-neutral-900 transition-colors"
                         title="Toggle dark/light theme">
                         <span id="theme-icon">🌙</span>

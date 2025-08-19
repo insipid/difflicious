@@ -1565,6 +1565,9 @@ function toggleTheme() {
     localStorage.setItem('difflicious-theme', newTheme);
 
     if (DEBUG) console.log(`Theme switched to ${newTheme}`);
+    
+    // Prevent any form submission or navigation
+    return false;
 }
 
 // Initialize theme on load
