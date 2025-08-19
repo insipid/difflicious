@@ -86,7 +86,7 @@ def create_app() -> Flask:
     logger = logging.getLogger(__name__)
 
     @app.context_processor
-    def inject_font_config():
+    def inject_font_config() -> dict[str, dict]:
         """Inject font configuration into all templates."""
         return {"font_config": FONT_CONFIG}
 
