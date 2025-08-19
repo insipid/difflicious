@@ -22,6 +22,60 @@ def create_app() -> Flask:
 
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
+    # Font configuration
+    AVAILABLE_FONTS = {
+        "fira-code": {
+            "name": "Fira Code",
+            "css_family": "'Fira Code', monospace",
+            "google_fonts_url": "https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&display=swap",
+        },
+        "jetbrains-mono": {
+            "name": "JetBrains Mono",
+            "css_family": "'JetBrains Mono', monospace",
+            "google_fonts_url": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap",
+        },
+        "source-code-pro": {
+            "name": "Source Code Pro",
+            "css_family": "'Source Code Pro', monospace",
+            "google_fonts_url": "https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;600&display=swap",
+        },
+        "ibm-plex-mono": {
+            "name": "IBM Plex Mono",
+            "css_family": "'IBM Plex Mono', monospace",
+            "google_fonts_url": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&display=swap",
+        },
+        "roboto-mono": {
+            "name": "Roboto Mono",
+            "css_family": "'Roboto Mono', monospace",
+            "google_fonts_url": "https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500&display=swap",
+        },
+        "inconsolata": {
+            "name": "Inconsolata",
+            "css_family": "'Inconsolata', monospace",
+            "google_fonts_url": "https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;300;400;500;600;700;800;900&display=swap",
+        },
+    }
+
+    # Get font selection from environment variable with default
+    selected_font_key = os.getenv("DIFFLICIOUS_FONT", "jetbrains-mono")
+
+    # Validate font selection and fallback to default
+    if selected_font_key not in AVAILABLE_FONTS:
+        selected_font_key = "jetbrains-mono"
+
+    selected_font = AVAILABLE_FONTS[selected_font_key]
+
+    # Font configuration for templates
+    FONT_CONFIG = {
+        "selected_font_key": selected_font_key,
+        "selected_font": selected_font,
+        "available_fonts": AVAILABLE_FONTS,
+        "google_fonts_enabled": os.getenv(
+            "DIFFLICIOUS_DISABLE_GOOGLE_FONTS", "false"
+        ).lower()
+        != "true",
+    }
+
     # Register jinja-partials extension
     import jinja_partials  # type: ignore[import-untyped]
 
@@ -30,6 +84,11 @@ def create_app() -> Flask:
     # Configure logging
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
+
+    @app.context_processor
+    def inject_font_config() -> dict[str, dict]:
+        """Inject font configuration into all templates."""
+        return {"font_config": FONT_CONFIG}
 
     @app.route("/")
     def index() -> str:
