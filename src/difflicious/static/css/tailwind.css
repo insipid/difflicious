@@ -857,25 +857,24 @@ video {
   border-top-width: 1px;
 }
 
-.border-blue-100 {
-  border-color: var(--color-info-bg-100);
-}
-
-.border-blue-200 {
-  border-color: var(--color-info-bg-200);
-}
-
-.border-blue-600 {
-  border-color: var(--color-info-text-600);
+.border-danger-bg-300 {
+  border-color: var(--color-danger-bg-300);
 }
 
 .border-gray-50 {
   border-color: var(--color-neutral-50);
 }
 
-.border-green-300 {
-  --tw-border-opacity: 1;
-  border-color: rgb(134 239 172 / var(--tw-border-opacity, 1));
+.border-info-bg-100 {
+  border-color: var(--color-info-bg-100);
+}
+
+.border-info-bg-200 {
+  border-color: var(--color-info-bg-200);
+}
+
+.border-info-text-600 {
+  border-color: var(--color-info-text-600);
 }
 
 .border-neutral-100 {
@@ -890,29 +889,32 @@ video {
   border-color: var(--color-neutral-300);
 }
 
-.border-red-300 {
-  --tw-border-opacity: 1;
-  border-color: rgb(252 165 165 / var(--tw-border-opacity, 1));
+.border-success-bg-300 {
+  border-color: var(--color-success-bg-300);
 }
 
-.bg-blue-100 {
-  background-color: var(--color-info-bg-100);
+.bg-danger-bg-100 {
+  background-color: var(--color-danger-bg-100);
 }
 
-.bg-blue-200 {
-  background-color: var(--color-info-bg-200);
-}
-
-.bg-blue-50 {
-  background-color: var(--color-info-bg-50);
-}
-
-.bg-green-100 {
-  background-color: var(--color-success-bg-100);
+.bg-danger-bg-50 {
+  background-color: var(--color-danger-bg-50);
 }
 
 .bg-green-50 {
   background-color: var(--color-success-bg);
+}
+
+.bg-info-bg-100 {
+  background-color: var(--color-info-bg-100);
+}
+
+.bg-info-bg-200 {
+  background-color: var(--color-info-bg-200);
+}
+
+.bg-info-bg-50 {
+  background-color: var(--color-info-bg-50);
 }
 
 .bg-neutral-100 {
@@ -923,12 +925,16 @@ video {
   background-color: var(--color-neutral-50);
 }
 
-.bg-red-100 {
-  background-color: var(--color-danger-bg-100);
-}
-
 .bg-red-50 {
   background-color: var(--color-danger-bg);
+}
+
+.bg-success-bg-100 {
+  background-color: var(--color-success-bg-100);
+}
+
+.bg-success-bg-50 {
+  background-color: var(--color-success-bg-50);
 }
 
 .bg-white {
@@ -1044,20 +1050,24 @@ video {
   font-style: italic;
 }
 
-.text-blue-600 {
+.text-danger-text-500 {
+  color: var(--color-danger-text-500);
+}
+
+.text-danger-text-600 {
+  color: var(--color-danger-text-600);
+}
+
+.text-danger-text-700 {
+  color: var(--color-danger-text-700);
+}
+
+.text-info-text-600 {
   color: var(--color-info-text-600);
 }
 
-.text-blue-800 {
+.text-info-text-800 {
   color: var(--color-info-text-800);
-}
-
-.text-green-600 {
-  color: var(--color-success-text-600);
-}
-
-.text-green-800 {
-  color: var(--color-success-text-800);
 }
 
 .text-neutral-400 {
@@ -1080,21 +1090,8 @@ video {
   color: var(--color-neutral-900);
 }
 
-.text-red-500 {
-  color: var(--color-danger-text-500);
-}
-
-.text-red-600 {
-  color: var(--color-danger-text-600);
-}
-
-.text-red-700 {
-  --tw-text-opacity: 1;
-  color: rgb(185 28 28 / var(--tw-text-opacity, 1));
-}
-
-.text-red-800 {
-  color: var(--color-danger-text-strong);
+.text-success-text-600 {
+  color: var(--color-success-text-600);
 }
 
 .text-transparent {
@@ -1138,8 +1135,12 @@ video {
   border-bottom-width: 0px;
 }
 
-.hover\:bg-blue-300:hover {
-  background-color: var(--color-info-bg-200);
+.hover\:bg-danger-bg-200:hover {
+  background-color: var(--color-danger-bg-200);
+}
+
+.hover\:bg-info-bg-300:hover {
+  background-color: var(--color-info-bg-300);
 }
 
 .hover\:bg-neutral-100:hover {
@@ -1154,11 +1155,6 @@ video {
   background-color: var(--color-neutral-50);
 }
 
-.hover\:bg-red-200:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(254 202 202 / var(--tw-bg-opacity, 1));
-}
-
 .hover\:text-neutral-600:hover {
   color: var(--color-neutral-600);
 }
@@ -1171,8 +1167,8 @@ video {
   text-decoration-line: underline;
 }
 
-.focus\:border-blue-500:focus {
-  border-color: var(--color-focus-ring);
+.focus\:border-info-text-600:focus {
+  border-color: var(--color-info-text-600);
 }
 
 .focus\:outline-none:focus {
@@ -1186,8 +1182,8 @@ video {
   box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 
-.focus\:ring-blue-500:focus {
-  --tw-ring-color: var(--color-focus-ring);
+.focus\:ring-info-text-600:focus {
+  --tw-ring-color: var(--color-info-text-600);
 }
 
 .focus\:ring-neutral-400:focus {

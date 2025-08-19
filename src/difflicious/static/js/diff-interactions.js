@@ -733,7 +733,7 @@ function createExpandedContextHtml(result, expansionId, triggerButton, direction
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-neutral-400">&nbsp;</span>
                         <span class="highlight">${content}</span>
-                        ${lineData.missing_newline ? '<span class="no-newline-indicator text-red-500">↩</span>' : ''}
+                        ${lineData.missing_newline ? '<span class="no-newline-indicator text-danger-text-500">↩</span>' : ''}
                     </div>
                 </div>
             </div>
@@ -746,7 +746,7 @@ function createExpandedContextHtml(result, expansionId, triggerButton, direction
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-neutral-400">&nbsp;</span>
                         <span class="highlight">${content}</span>
-                        ${lineData.missing_newline ? '<span class="no-newline-indicator text-red-500">↩</span>' : ''}
+                        ${lineData.missing_newline ? '<span class="no-newline-indicator text-danger-text-500">↩</span>' : ''}
                     </div>
                 </div>
             </div>
@@ -832,7 +832,7 @@ function createPlainContextHtml(result, expansionId, triggerButton, direction) {
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-neutral-400">&nbsp;</span>
                         <span>${content}</span>
-                        ${line.missing_newline ? '<span class="no-newline-indicator text-red-500">↩</span>' : ''}
+                        ${line.missing_newline ? '<span class="no-newline-indicator text-danger-text-500">↩</span>' : ''}
                     </div>
                 </div>
             </div>
@@ -845,7 +845,7 @@ function createPlainContextHtml(result, expansionId, triggerButton, direction) {
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         <span class="text-neutral-400">&nbsp;</span>
                         <span>${content}</span>
-                        ${line.missing_newline ? '<span class="no-newline-indicator text-red-500">↩</span>' : ''}
+                        ${line.missing_newline ? '<span class="no-newline-indicator text-danger-text-500">↩</span>' : ''}
                     </div>
                 </div>
             </div>
@@ -1078,7 +1078,7 @@ function mergeHunks(firstHunk, secondHunk) {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', async() => {
+document.addEventListener('DOMContentLoaded', async () => {
     initializeTheme();
     await DiffState.init();
 
@@ -1285,13 +1285,13 @@ async function loadFullDiff(filePath, fileId) {
     } catch (error) {
         console.error('Full diff error:', error);
         fileContentElement.innerHTML = `
-            <div class="p-8 text-center text-red-500">
+            <div class="p-8 text-center text-danger-text-500">
                 <div class="text-4xl mb-2">⚠️</div>
                 <p class="font-medium">Failed to load full diff</p>
                 <p class="text-sm mt-2">${escapeHtml(error.message)}</p>
                 <p class="text-xs mt-4 text-neutral-400">Check the browser console for more details</p>
                 <button onclick="loadFullDiff('${filePath}', '${fileId}')"
-                        class="mt-4 px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors">
+                        class="mt-4 px-3 py-1 text-sm bg-danger-bg-100 text-danger-text-700 rounded hover:bg-danger-bg-200 transition-colors">
                     Retry
                 </button>
             </div>
@@ -1354,10 +1354,10 @@ async function renderFullDiff(contentElement, diffData, fileId) {
                 htmlContent += `<div class="hunk-header bg-neutral-50 px-4 py-2 text-sm font-mono text-neutral-600 border-b border-neutral-200">${escapeHtml(line)}</div>`;
             } else if (line.startsWith('+')) {
                 // Addition
-                htmlContent += `<div class="diff-line addition bg-green-50 border-l-4 border-green-300 px-4 py-1 text-sm font-mono"><span class="text-green-600">+</span>${escapeHtml(line.substring(1))}</div>`;
+                htmlContent += `<div class="diff-line addition bg-success-bg-50 border-l-4 border-success-bg-300 px-4 py-1 text-sm font-mono"><span class="text-success-text-600">+</span>${escapeHtml(line.substring(1))}</div>`;
             } else if (line.startsWith('-')) {
                 // Deletion
-                htmlContent += `<div class="diff-line deletion bg-red-50 border-l-4 border-red-300 px-4 py-1 text-sm font-mono"><span class="text-red-600">-</span>${escapeHtml(line.substring(1))}</div>`;
+                htmlContent += `<div class="diff-line deletion bg-danger-bg-50 border-l-4 border-danger-bg-300 px-4 py-1 text-sm font-mono"><span class="text-danger-text-600">-</span>${escapeHtml(line.substring(1))}</div>`;
             } else if (line.startsWith(' ') || line === '') {
                 // Context line
                 htmlContent += `<div class="diff-line context bg-white px-4 py-1 text-sm font-mono"><span class="text-neutral-400"> </span>${escapeHtml(line.substring(1) || '')}</div>`;
@@ -1479,8 +1479,8 @@ function renderSideBySideLine(line) {
         rightContent = line.right.content || '';
         leftLineNum = line.left.line_num || '';
         rightLineNum = line.right.line_num || '';
-        leftBg = 'bg-red-50';
-        rightBg = 'bg-green-50';
+        leftBg = 'bg-danger-bg-50';
+        rightBg = 'bg-success-bg-50';
     } else if (line.left) {
         // Deletion only
         leftContent = line.left.content || '';
@@ -1490,17 +1490,17 @@ function renderSideBySideLine(line) {
         // Addition only
         rightContent = line.right.content || '';
         rightLineNum = line.right.line_num || '';
-        rightBg = 'bg-green-50';
+        rightBg = 'bg-success-bg-50';
     } else {
         // Simple line structure
         if (line.type === 'addition') {
             rightContent = line.content || '';
             rightLineNum = line.new_line_number || '';
-            rightBg = 'bg-green-50';
+            rightBg = 'bg-success-bg-50';
         } else if (line.type === 'deletion') {
             leftContent = line.content || '';
             leftLineNum = line.old_line_number || '';
-            leftBg = 'bg-red-50';
+            leftBg = 'bg-danger-bg-50';
         } else {
             leftContent = rightContent = line.content || '';
             leftLineNum = line.old_line_number || '';
@@ -1518,8 +1518,8 @@ function renderSideBySideLine(line) {
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         ${leftContent
-        ? (leftBg.includes('red') ? `<span class="text-red-600">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`)
-        : ''}
+            ? (leftBg.includes('danger') ? `<span class="text-danger-text-600">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`)
+            : ''}
                     </div>
                 </div>
             </div>
@@ -1532,8 +1532,8 @@ function renderSideBySideLine(line) {
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         ${rightContent
-        ? (rightBg.includes('green') ? `<span class="text-green-600">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`)
-        : ''}
+            ? (rightBg.includes('success') ? `<span class="text-success-text-600">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`)
+            : ''}
                     </div>
                 </div>
             </div>
@@ -1544,15 +1544,15 @@ function renderSideBySideLine(line) {
 // Theme switching functionality
 function toggleTheme() {
     const htmlElement = document.documentElement;
-    const isDark = htmlElement.classList.contains('dark');
+    const isDark = htmlElement.getAttribute('data-theme') === 'dark';
     const newTheme = isDark ? 'light' : 'dark';
 
     if (isDark) {
-        htmlElement.classList.remove('dark');
+        htmlElement.removeAttribute('data-theme');
     } else {
-        htmlElement.classList.add('dark');
+        htmlElement.setAttribute('data-theme', 'dark');
     }
-    
+
     DiffState.theme = newTheme;
 
     // Update theme icon
@@ -1574,11 +1574,11 @@ function initializeTheme() {
     const defaultTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
 
     if (defaultTheme === 'dark') {
-        document.documentElement.classList.add('dark');
+        document.documentElement.setAttribute('data-theme', 'dark');
     } else {
-        document.documentElement.classList.remove('dark');
+        document.documentElement.removeAttribute('data-theme');
     }
-    
+
     DiffState.theme = defaultTheme;
 
     // Update theme icon
@@ -1591,7 +1591,11 @@ function initializeTheme() {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
         if (!localStorage.getItem('difflicious-theme')) {
             const newTheme = e.matches ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', newTheme);
+            if (newTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
             DiffState.theme = newTheme;
             if (themeIcon) {
                 themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';

@@ -37,13 +37,19 @@
 
     /* Semantic color backgrounds */
     --color-danger-bg: #fef2f2;
+    --color-danger-bg-50: #fef2f2;
     --color-danger-bg-100: #fee2e2;
+    --color-danger-bg-200: #fecaca;
+    --color-danger-bg-300: #fca5a5;
     --color-danger-text: #ef4444;
     --color-danger-text-strong: #dc2626;
     --color-danger-text-600: #dc2626;
     --color-danger-text-500: #ef4444;
+    --color-danger-text-700: #b91c1c;
     --color-success-bg: #dcfce7;
+    --color-success-bg-50: #dcfce7;
     --color-success-bg-100: #dcfce7;
+    --color-success-bg-300: #86efac;
     --color-success-text: #059669;
     --color-success-text-600: #059669;
     --color-success-text-800: #065f46;
@@ -58,6 +64,9 @@
     /* Focus and ring colors */
     --color-focus-ring: #3b82f6;
     --color-focus-border: #2563eb;
+
+    /* Additional info colors for expansion areas */
+    --color-info-bg-300: #93c5fd;
 
     --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
@@ -111,13 +120,19 @@
 
     /* Dark theme semantic colors */
     --color-danger-bg: #2e0f14;
+    --color-danger-bg-50: #2e0f14;
     --color-danger-bg-100: #2e0f14;
+    --color-danger-bg-200: #3e1f24;
+    --color-danger-bg-300: #4e2f34;
     --color-danger-text: #ef4444;
     --color-danger-text-strong: #f87171;
     --color-danger-text-600: #f87171;
     --color-danger-text-500: #ef4444;
+    --color-danger-text-700: #fca5a5;
     --color-success-bg: #0f2e14;
+    --color-success-bg-50: #0f2e14;
     --color-success-bg-100: #0f2e14;
+    --color-success-bg-300: #1e3e24;
     --color-success-text: #10b981;
     --color-success-text-600: #10b981;
     --color-success-text-800: #34d399;
@@ -132,6 +147,9 @@
     /* Focus and ring colors for dark mode */
     --color-focus-ring: #60a5fa;
     --color-focus-border: #3b82f6;
+
+    /* Additional info colors for expansion areas in dark mode */
+    --color-info-bg-300: #475569;
 }
 
 * {
