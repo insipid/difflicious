@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: 'class', // Use class-based dark mode
+  darkMode: ['class', '[data-theme="dark"]'], // Use data-theme attribute for dark mode
   content: [
     './src/difflicious/templates/**/*.html',
     './src/difflicious/static/js/**/*.js',

@@ -1,8 +1,8 @@
 <!-- Toolbar -->
-<header class="bg-white border-b border-neutral-200 px-4 py-3">
+<header class="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-700 px-4 py-3">
     <div class="flex items-center justify-between">
         <div class="flex items-center space-x-4 flex-1">
-            <h1 class="text-xl font-semibold text-neutral-900">
+            <h1 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
                 <a href="/" class="hover:underline">Difflicious</a>
             </h1>
 
@@ -17,7 +17,7 @@
                     </svg>
                 </label>
                 <select name="base_ref" onchange="this.form.submit()"
-                    class="bg-white border border-neutral-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    class="bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-neutral-100">
                     {% for branch in branches.all %}
                     <option value="{{ branch }}" {% if branch==current_base_ref %}selected{% endif %}>
                         {{ branch }}
@@ -87,7 +87,7 @@
                     </svg>
                     <input id="diff-search-input" type="text" name="search" value="{{ search_filter or '' }}"
                         placeholder="Filter files..."
-                        class="border border-neutral-300 rounded-md pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        class="bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 rounded-md pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-neutral-100">
                     <button id="diff-search-clear" type="button"
                         class="hidden absolute inset-y-0 right-2 my-auto text-neutral-400 hover:text-neutral-600"
                         aria-label="Clear search">

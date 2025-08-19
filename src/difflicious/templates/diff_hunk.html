@@ -56,10 +56,10 @@
         <div class="diff-line flex line-{{ line.type }}">
             <!-- Left Side (Before) -->
             <div
-                class="line-left flex-1 border-r border-neutral-200 {% if line.left and line.left.type == 'deletion' %}bg-red-50{% elif line.type == 'context' %}bg-neutral-50{% else %}bg-white{% endif %}">
+                class="line-left flex-1 border-r border-neutral-200 dark:border-neutral-600 {% if line.left and line.left.type == 'deletion' %}bg-red-50 dark:bg-red-900/20{% elif line.type == 'context' %}bg-neutral-50 dark:bg-neutral-800{% else %}bg-white dark:bg-neutral-800{% endif %}">
                 <div class="flex">
                     <div
-                        class="line-num w-12 px-2 py-1 text-neutral-400 text-right bg-neutral-50 border-r border-neutral-200 select-none">
+                        class="line-num w-12 px-2 py-1 text-neutral-400 text-right bg-neutral-50 dark:bg-neutral-700 border-r border-neutral-200 dark:border-neutral-600 select-none">
                         {% if line.left and line.left.line_num %}
                         <span>{{ line.left.line_num }}</span>
                         {% endif %}
@@ -89,10 +89,10 @@
 
             <!-- Right Side (After) -->
             <div
-                class="line-right flex-1 {% if line.right and line.right.type == 'addition' %}bg-green-50{% elif line.type == 'context' %}bg-neutral-50{% else %}bg-white{% endif %}">
+                class="line-right flex-1 {% if line.right and line.right.type == 'addition' %}bg-green-50 dark:bg-green-900/20{% elif line.type == 'context' %}bg-neutral-50 dark:bg-neutral-800{% else %}bg-white dark:bg-neutral-800{% endif %}">
                 <div class="flex">
                     <div
-                        class="line-num w-12 px-2 py-1 text-neutral-400 text-right bg-neutral-50 border-r border-neutral-200 select-none">
+                        class="line-num w-12 px-2 py-1 text-neutral-400 text-right bg-neutral-50 dark:bg-neutral-700 border-r border-neutral-200 dark:border-neutral-600 select-none">
                         {% if line.right and line.right.line_num %}
                         <span>{{ line.right.line_num }}</span>
                         {% endif %}
