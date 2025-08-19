@@ -64,6 +64,56 @@ uv sync
 uv run difflicious
 ```
 
+## Font Customization
+
+Difflicious supports beautiful programming fonts via Google Fonts CDN integration. You can customize the font used for code and diff content.
+
+### Available Fonts
+
+- **JetBrains Mono** (default) - Designed specifically for developers
+- **Fira Code** - Popular programming font with ligatures
+- **Source Code Pro** - Adobe's professional programming font
+- **IBM Plex Mono** - Modern, clean monospace design
+- **Roboto Mono** - Google's versatile monospace font
+- **Inconsolata** - Humanist monospace font
+
+### Font Configuration
+
+Set the `DIFFLICIOUS_FONT` environment variable to choose your preferred font:
+
+```bash
+# Use Fira Code
+export DIFFLICIOUS_FONT=fira-code
+difflicious
+
+# Use Source Code Pro
+export DIFFLICIOUS_FONT=source-code-pro
+difflicious
+
+# List all available fonts
+difflicious --list-fonts
+```
+
+### Available Font Keys
+
+- `jetbrains-mono` - JetBrains Mono (default)
+- `fira-code` - Fira Code
+- `source-code-pro` - Source Code Pro  
+- `ibm-plex-mono` - IBM Plex Mono
+- `roboto-mono` - Roboto Mono
+- `inconsolata` - Inconsolata
+
+### Disable Google Fonts
+
+If you prefer to use system fonts only (no external CDN requests):
+
+```bash
+export DIFFLICIOUS_DISABLE_GOOGLE_FONTS=true
+difflicious
+```
+
+This will fall back to system monospace fonts like SF Mono, Cascadia Code, Monaco, and Consolas.
+
 ## Technology Stack
 
 - **Backend**: Python Flask for minimal setup and excellent git integration

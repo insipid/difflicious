@@ -9,6 +9,13 @@
     <!-- Tailwind CSS (local build) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}">
 
+    <!-- Google Fonts -->
+    {% if font_config.google_fonts_enabled %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="{{ font_config.selected_font.google_fonts_url }}" rel="stylesheet">
+    {% endif %}
+
     <!-- Favicon -->
     <link rel="icon" href="/favicon.ico" type="image/png">
 
@@ -21,6 +28,13 @@
                 {
                 syntax_css|safe
             }
+        }
+    </style>
+
+    <!-- Dynamic Font CSS -->
+    <style>
+        :root {
+            --font-family-mono: {{ font_config.selected_font.css_family|safe }}, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'DejaVu Sans Mono', 'Liberation Mono', 'Courier New', monospace;
         }
     </style>
 
