@@ -7,7 +7,7 @@
     {% if hunk.can_expand_before %}
     <div class="hunk-expansion bg-info-bg-50 text-xs font-mono text-info-text-800 border-b border-info-bg-100 flex">
         <!-- Left Side Controls -->
-        <div class="flex-1 border-r border-info-bg-200">
+        <div class="flex-1 border-r border-info-bg-200 max-w-0">
             <div class="flex">
                 <div class="w-12 bg-info-bg-100 border-r border-info-bg-200 select-none flex flex-col">
                     <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'before', 10, 'pygments')"
@@ -18,7 +18,7 @@
                         ▲
                     </button>
                 </div>
-                <div class="flex-1 px-2 py-2 overflow-hidden flex items-center min-h-[2rem] min-w-0">
+                <div class="flex-1 px-2 py-2 overflow-hidden flex items-center min-h-[2rem] min-w-0 max-w-0">
                     {% if hunk.section_header %}
                     <div class="w-full overflow-hidden">
                         <span class="truncate block">{{ hunk.section_header }}</span>

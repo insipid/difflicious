@@ -722,6 +722,12 @@ body {
     width: 100% !important;
 }
 
+/* Force max-width constraint on flex containers */
+.hunk-expansion .flex-1 {
+    max-width: 0 !important;
+    flex: 1 1 0% !important;
+}
+
 /* Force diff colors to be more prominent */
 .diff-line .line-left.bg-red-50,
 .diff-line .line-left.bg-danger-bg-50 {

@@ -107,6 +107,9 @@ module.exports = {
       minWidth: {
         '0': '0px',
       },
+      maxWidth: {
+        '0': '0px',
+      },
       wordBreak: {
         'words': 'break-word',
       },
