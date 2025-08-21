@@ -697,8 +697,9 @@ body {
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
-    max-width: 200px !important;
     display: block !important;
+    flex: 1 !important;
+    min-width: 0 !important;
 }
 
 /* Ensure navigation buttons stay visible */
