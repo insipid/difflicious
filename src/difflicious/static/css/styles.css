@@ -685,6 +685,7 @@ body {
 /* File header text truncation fixes */
 .file-header {
     min-width: 0;
+    overflow: hidden;
 }
 
 .file-header .flex {
@@ -693,16 +694,38 @@ body {
 }
 
 .file-header .font-mono {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 100%;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    max-width: 200px !important;
+    display: block !important;
 }
 
 /* Ensure navigation buttons stay visible */
 .file-header .flex-shrink-0 {
-    flex-shrink: 0;
-    min-width: fit-content;
+    flex-shrink: 0 !important;
+    min-width: fit-content !important;
+}
+
+/* Force diff colors to be more prominent */
+.diff-line .line-left.bg-red-50,
+.diff-line .line-left.bg-danger-bg-50 {
+    background-color: #fca5a5 !important;
+}
+
+.diff-line .line-right.bg-green-50,
+.diff-line .line-right.bg-success-bg-50 {
+    background-color: #86efac !important;
+}
+
+[data-theme="dark"] .diff-line .line-left.bg-red-50,
+[data-theme="dark"] .diff-line .line-left.bg-danger-bg-50 {
+    background-color: #3e1f34 !important;
+}
+
+[data-theme="dark"] .diff-line .line-right.bg-green-50,
+[data-theme="dark"] .diff-line .line-right.bg-success-bg-50 {
+    background-color: #1e4e34 !important;
 }
 
 /* Responsive Design */
