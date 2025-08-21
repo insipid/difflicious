@@ -459,6 +459,12 @@ body {
     background-color: var(--color-diff-context-bg);
 }
 
+/* Dark theme: Make line numbers brighter version of diff line background */
+[data-theme="dark"] .diff-line .line-num {
+    background-color: #1a2332 !important;
+    color: #94a3b8;
+}
+
 /* Simple highlight for filename search */
 .search-highlight {
     outline: 2px solid var(--color-primary);
@@ -753,23 +759,22 @@ body {
 }
 
 /* Force diff colors to be more prominent */
-.diff-line .line-left.bg-red-50,
-.diff-line .line-left.bg-danger-bg-50 {
+.diff-line .line-left.bg-red-50 {
     background-color: #fecaca !important;
 }
 
-.diff-line .line-right.bg-green-50,
-.diff-line .line-right.bg-success-bg-50 {
+.diff-line .line-right.bg-green-50 {
     background-color: #bbf7d0 !important;
 }
 
+/* Dark theme: Force diff colors to override general background */
 [data-theme="dark"] .diff-line .line-left.bg-red-50,
-[data-theme="dark"] .diff-line .line-left.bg-danger-bg-50 {
+[data-theme="dark"] .diff-line .line-left.dark\\:bg-red-900\\/20 {
     background-color: #4e2f44 !important;
 }
 
 [data-theme="dark"] .diff-line .line-right.bg-green-50,
-[data-theme="dark"] .diff-line .line-right.bg-success-bg-50 {
+[data-theme="dark"] .diff-line .line-right.dark\\:bg-green-900\\/20 {
     background-color: #2e5e44 !important;
 }
 
