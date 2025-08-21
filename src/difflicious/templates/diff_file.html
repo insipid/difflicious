@@ -15,14 +15,14 @@
                 title="Show complete file diff with unlimited context" id="expand-icon-{{ file_id }}">
                 ↕
             </span>
-            <span class="text-xs px-2 py-1 rounded
+            <span class="font-mono text-sm text-neutral-900 min-w-0" title="{{ file.path }}">{{ file.path }}</span>
+            <span class="text-xs px-2 py-1 rounded ml-2
                 {%- if file.status == 'added' %} bg-success-bg-100 text-success-text-800
                 {%- elif file.status == 'deleted' %} bg-danger-bg-100 text-danger-text-800
                 {%- else %} bg-neutral-100 text-neutral-500
                 {%- endif %}">
                 {{ file.status }}
             </span>
-            <span class="font-mono text-sm text-neutral-900 min-w-0" title="{{ file.path }}">{{ file.path }}</span>
         </div>
 
         <div class="flex items-center space-x-2 text-xs flex-shrink-0">
