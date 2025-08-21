@@ -15,9 +15,9 @@
     --color-border-hover: #cbd5e1;
 
     /* Diff-specific colors */
-    --color-diff-addition-bg: #86efac;
+    --color-diff-addition-bg: #bbf7d0;
     --color-diff-addition-text: #059669;
-    --color-diff-deletion-bg: #fca5a5;
+    --color-diff-deletion-bg: #fecaca;
     --color-diff-deletion-text: #dc2626;
     --color-diff-context-bg: #ffffff;
     --color-diff-context-text: #64748b;
@@ -36,20 +36,20 @@
     --color-neutral-900: #111827;
 
     /* Semantic color backgrounds */
-    --color-danger-bg: #fca5a5;
-    --color-danger-bg-50: #fca5a5;
-    --color-danger-bg-100: #f87171;
-    --color-danger-bg-200: #ef4444;
-    --color-danger-bg-300: #dc2626;
+    --color-danger-bg: #fecaca;
+    --color-danger-bg-50: #fecaca;
+    --color-danger-bg-100: #fca5a5;
+    --color-danger-bg-200: #f87171;
+    --color-danger-bg-300: #ef4444;
     --color-danger-text: #ef4444;
     --color-danger-text-strong: #dc2626;
     --color-danger-text-600: #dc2626;
     --color-danger-text-500: #ef4444;
     --color-danger-text-700: #b91c1c;
-    --color-success-bg: #86efac;
-    --color-success-bg-50: #86efac;
-    --color-success-bg-100: #4ade80;
-    --color-success-bg-300: #22c55e;
+    --color-success-bg: #bbf7d0;
+    --color-success-bg-50: #bbf7d0;
+    --color-success-bg-100: #86efac;
+    --color-success-bg-300: #4ade80;
     --color-success-text: #059669;
     --color-success-text-600: #059669;
     --color-success-text-800: #065f46;
@@ -98,9 +98,9 @@
     --color-border-hover: #475569;
 
     /* Diff-specific colors for dark mode */
-    --color-diff-addition-bg: #1e4e34;
+    --color-diff-addition-bg: #2e5e44;
     --color-diff-addition-text: #4ade80;
-    --color-diff-deletion-bg: #3e1f34;
+    --color-diff-deletion-bg: #4e2f44;
     --color-diff-deletion-text: #f87171;
     --color-diff-context-bg: #0f172a;
     --color-diff-context-text: #94a3b8;
@@ -119,20 +119,20 @@
     --color-neutral-900: #f1f5f9;
 
     /* Dark theme semantic colors */
-    --color-danger-bg: #3e1f34;
-    --color-danger-bg-50: #3e1f34;
-    --color-danger-bg-100: #4e2f44;
-    --color-danger-bg-200: #5e3f54;
-    --color-danger-bg-300: #6e4f64;
+    --color-danger-bg: #4e2f44;
+    --color-danger-bg-50: #4e2f44;
+    --color-danger-bg-100: #5e3f54;
+    --color-danger-bg-200: #6e4f64;
+    --color-danger-bg-300: #7e5f74;
     --color-danger-text: #f87171;
     --color-danger-text-strong: #fca5a5;
     --color-danger-text-600: #f87171;
     --color-danger-text-500: #f87171;
     --color-danger-text-700: #fca5a5;
-    --color-success-bg: #1e4e34;
-    --color-success-bg-50: #1e4e34;
-    --color-success-bg-100: #2e5e44;
-    --color-success-bg-300: #3e6e54;
+    --color-success-bg: #2e5e44;
+    --color-success-bg-50: #2e5e44;
+    --color-success-bg-100: #3e6e54;
+    --color-success-bg-300: #4e7e64;
     --color-success-text: #10b981;
     --color-success-text-600: #10b981;
     --color-success-text-800: #34d399;
@@ -710,22 +710,22 @@ body {
 /* Force diff colors to be more prominent */
 .diff-line .line-left.bg-red-50,
 .diff-line .line-left.bg-danger-bg-50 {
-    background-color: #fca5a5 !important;
+    background-color: #fecaca !important;
 }
 
 .diff-line .line-right.bg-green-50,
 .diff-line .line-right.bg-success-bg-50 {
-    background-color: #86efac !important;
+    background-color: #bbf7d0 !important;
 }
 
 [data-theme="dark"] .diff-line .line-left.bg-red-50,
 [data-theme="dark"] .diff-line .line-left.bg-danger-bg-50 {
-    background-color: #3e1f34 !important;
+    background-color: #4e2f44 !important;
 }
 
 [data-theme="dark"] .diff-line .line-right.bg-green-50,
 [data-theme="dark"] .diff-line .line-right.bg-success-bg-50 {
-    background-color: #1e4e34 !important;
+    background-color: #2e5e44 !important;
 }
 
 /* Responsive Design */
