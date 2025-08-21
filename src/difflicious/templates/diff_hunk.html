@@ -18,9 +18,9 @@
                         ▲
                     </button>
                 </div>
-                <div class="flex-1 px-2 py-2 overflow-hidden whitespace-nowrap flex items-center min-h-[2rem]">
+                <div class="flex-1 px-2 py-2 overflow-hidden flex items-center min-h-[2rem] min-w-0">
                     {% if hunk.section_header %}
-                    <span>{{ hunk.section_header }}</span>
+                    <span class="break-words">{{ hunk.section_header }}</span>
                     {% else %}
                     <span class="text-transparent">&nbsp;</span>
                     {% endif %}

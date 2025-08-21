@@ -103,7 +103,13 @@ module.exports = {
           600: 'var(--color-info-text-600)',
           800: 'var(--color-info-text-800)',
         },
-      }
+      },
+      minWidth: {
+        '0': '0px',
+      },
+      wordBreak: {
+        'words': 'break-word',
+      },
     }
   },
   plugins: []
