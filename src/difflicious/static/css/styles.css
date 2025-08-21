@@ -708,6 +708,13 @@ body {
     min-width: fit-content !important;
 }
 
+/* Force truncation for hunk section headers */
+.hunk-expansion .truncate {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
 /* Force diff colors to be more prominent */
 .diff-line .line-left.bg-red-50,
 .diff-line .line-left.bg-danger-bg-50 {
