@@ -713,6 +713,13 @@ body {
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+.hunk-expansion .overflow-hidden {
+    overflow: hidden !important;
+    width: 100% !important;
 }
 
 /* Force diff colors to be more prominent */
