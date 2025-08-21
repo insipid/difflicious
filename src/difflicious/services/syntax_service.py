@@ -18,11 +18,18 @@ class SyntaxHighlightingService:
 
     def __init__(self) -> None:
         """Initialize the syntax highlighting service."""
-        # Configure HTML formatter
-        self.formatter = HtmlFormatter(
+        # Configure HTML formatters for both themes
+        self.light_formatter = HtmlFormatter(
             nowrap=True,  #        # Don't wrap in <pre> tags
             noclasses=True,  #     # Use inline styles for consistency
-            style="default",  #    # Use default theme for compatibility
+            style="default",  #    # Use default theme for light mode
+            cssclass="highlight",  # CSS class for highlighted code
+        )
+        
+        self.dark_formatter = HtmlFormatter(
+            nowrap=True,  #        # Don't wrap in <pre> tags
+            noclasses=True,  #     # Use inline styles for consistency
+            style="one-dark",  #   # Use one-dark theme for dark mode
             cssclass="highlight",  # CSS class for highlighted code
         )
 
@@ -73,12 +80,13 @@ class SyntaxHighlightingService:
             "dockerfile": "dockerfile",
         }
 
-    def highlight_diff_line(self, content: str, file_path: str) -> str:
+    def highlight_diff_line(self, content: str, file_path: str, theme: str = "light") -> str:
         """Highlight a single line of diff content.
 
         Args:
             content: The code content to highlight
             file_path: Path to determine language
+            theme: Theme to use ("light" or "dark")
 
         Returns:
             HTML-highlighted code content
@@ -98,7 +106,8 @@ class SyntaxHighlightingService:
             )
 
             lexer = self._get_cached_lexer(file_path)
-            highlighted = highlight(rest, lexer, self.formatter)
+            formatter = self.dark_formatter if theme == "dark" else self.light_formatter
+            highlighted = highlight(rest, lexer, formatter)
             return (nbsp_prefix + str(highlighted)).rstrip("\n")
         except Exception as e:
             logger.debug(f"Highlighting failed for {file_path}: {e}")
@@ -132,9 +141,18 @@ class SyntaxHighlightingService:
         return self._lexer_cache[file_ext]
 
     def get_css_styles(self) -> str:
-        """Get CSS styles for syntax highlighting.
+        """Get CSS styles for syntax highlighting for both light and dark themes.
 
         Returns:
-            CSS styles as string
+            CSS styles as string with theme-specific rules
         """
-        return str(self.formatter.get_style_defs(".highlight"))
+        light_styles = str(self.light_formatter.get_style_defs(".highlight"))
+        dark_styles = str(self.dark_formatter.get_style_defs("[data-theme=\"dark\"] .highlight"))
+        
+        return f"""
+/* Light theme syntax highlighting */
+{light_styles}
+
+/* Dark theme syntax highlighting */
+{dark_styles}
+"""

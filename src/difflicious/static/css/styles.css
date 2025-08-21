@@ -102,7 +102,7 @@
     --color-diff-addition-text: #4ade80;
     --color-diff-deletion-bg: #4e2f44;
     --color-diff-deletion-text: #f87171;
-    --color-diff-context-bg: #0f172a;
+    --color-diff-context-bg: #0a0f1a;
     --color-diff-context-text: #94a3b8;
     --color-expanded-context-bg: #1e293b;
 
@@ -448,6 +448,15 @@ body {
 
 .diff-context {
     color: var(--color-diff-context-text);
+}
+
+/* Dark theme: Make diff line backgrounds darker for better contrast */
+[data-theme="dark"] .diff-line {
+    background-color: var(--color-diff-context-bg);
+}
+
+[data-theme="dark"] .diff-line .line-content {
+    background-color: var(--color-diff-context-bg);
 }
 
 /* Simple highlight for filename search */
