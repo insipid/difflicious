@@ -730,9 +730,9 @@ function createExpandedContextHtml(result, expansionId, triggerButton, direction
                     <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right bg-neutral-50 border-r border-neutral-200 select-none">
                         <span>${lineNumLeft}</span>
                     </div>
-                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
+                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
                         <span class="text-neutral-400">&nbsp;</span>
-                        <span class="highlight">${content}</span>
+                        <span class="highlight break-words">${content}</span>
                         ${lineData.missing_newline ? '<span class="no-newline-indicator text-danger-text-500">↩</span>' : ''}
                     </div>
                 </div>
@@ -743,9 +743,9 @@ function createExpandedContextHtml(result, expansionId, triggerButton, direction
                     <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right bg-neutral-50 border-r border-neutral-200 select-none">
                         <span>${lineNumRight}</span>
                     </div>
-                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
+                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
                         <span class="text-neutral-400">&nbsp;</span>
-                        <span class="highlight">${content}</span>
+                        <span class="highlight break-words">${content}</span>
                         ${lineData.missing_newline ? '<span class="no-newline-indicator text-danger-text-500">↩</span>' : ''}
                     </div>
                 </div>
@@ -829,9 +829,9 @@ function createPlainContextHtml(result, expansionId, triggerButton, direction) {
                     <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right bg-neutral-50 border-r border-neutral-200 select-none">
                         <span>${lineNumLeft}</span>
                     </div>
-                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
+                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
                         <span class="text-neutral-400">&nbsp;</span>
-                        <span>${content}</span>
+                        <span class="break-words">${content}</span>
                         ${line.missing_newline ? '<span class="no-newline-indicator text-danger-text-500">↩</span>' : ''}
                     </div>
                 </div>
@@ -842,9 +842,9 @@ function createPlainContextHtml(result, expansionId, triggerButton, direction) {
                     <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right bg-neutral-50 border-r border-neutral-200 select-none">
                         <span>${lineNumRight}</span>
                     </div>
-                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
+                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
                         <span class="text-neutral-400">&nbsp;</span>
-                        <span>${content}</span>
+                        <span class="break-words">${content}</span>
                         ${line.missing_newline ? '<span class="no-newline-indicator text-danger-text-500">↩</span>' : ''}
                     </div>
                 </div>
