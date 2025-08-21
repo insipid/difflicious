@@ -110,6 +110,15 @@ module.exports = {
       wordBreak: {
         'words': 'break-word',
       },
+      textOverflow: {
+        'ellipsis': 'ellipsis',
+      },
+      overflow: {
+        'hidden': 'hidden',
+      },
+      whiteSpace: {
+        'nowrap': 'nowrap',
+      },
     }
   },
   plugins: []

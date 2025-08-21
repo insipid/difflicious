@@ -821,7 +821,9 @@ video {
   overflow-y: auto;
 }
 
-.whitespace-nowrap {
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
