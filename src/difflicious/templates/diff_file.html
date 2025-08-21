@@ -3,9 +3,9 @@
 <div class="file-diff bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-sm"
     data-file="{{ file_id }}">
     <!-- File Header -->
-    <div class="file-header flex items-center justify-between p-4 cursor-pointer hover:bg-neutral-50 transition-colors"
+    <div class="file-header flex items-center p-4 cursor-pointer hover:bg-neutral-50 transition-colors"
         onclick="toggleFile('{{ file_id }}')">
-        <div class="flex items-center space-x-3 min-w-0 flex-1">
+        <div class="flex items-center space-x-3 min-w-0">
             <span class="toggle-icon text-neutral-400 transition-transform duration-200"
                 data-expanded="{{ 'true' if file.expanded else 'false' }}">
                 {{ '▼' if file.expanded else '▶' }}
@@ -15,11 +15,8 @@
                 title="Show complete file diff with unlimited context" id="expand-icon-{{ file_id }}">
                 ↕
             </span>
-            <span class="font-mono text-sm text-neutral-900 min-w-0 flex-1" title="{{ file.path }}">{{ file.path }}</span>
-        </div>
-        
-        <div class="flex items-center space-x-3 flex-shrink-0">
-            <span class="text-xs px-2 py-1 rounded
+            <span class="font-mono text-sm text-neutral-900 min-w-0" title="{{ file.path }}">{{ file.path }}</span>
+            <span class="text-xs px-2 py-1 rounded ml-2
                 {%- if file.status == 'added' %} bg-success-bg-100 text-success-text-800
                 {%- elif file.status == 'deleted' %} bg-danger-bg-100 text-danger-text-800
                 {%- else %} bg-neutral-100 text-neutral-500
@@ -27,6 +24,8 @@
                 {{ file.status }}
             </span>
         </div>
+        
+        <div class="flex-1"></div>
 
         <div class="flex items-center space-x-2 text-xs flex-shrink-0">
             <!-- File Stats -->
