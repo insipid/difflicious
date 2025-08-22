@@ -455,9 +455,7 @@ body {
     background-color: var(--color-diff-context-bg);
 }
 
-[data-theme="dark"] .diff-line .line-content {
-    background-color: var(--color-diff-context-bg);
-}
+/* Don't set background on line-content - let parent elements handle it */
 
 /* Dark theme: Make line numbers brighter version of diff line background */
 [data-theme="dark"] .diff-line .line-num {
@@ -796,23 +794,9 @@ body {
     background-color: #2e5e44 !important;
 }
 
-/* Force dark mode diff colors with maximum specificity */
-[data-theme="dark"] .diff-line .line-left:has([class*="text-danger-text"]) {
-    background-color: #4e2f44 !important;
-}
 
-[data-theme="dark"] .diff-line .line-right:has([class*="text-success-text"]) {
-    background-color: #2e5e44 !important;
-}
 
-/* Alternative approach: target based on content */
-[data-theme="dark"] .diff-line .line-left .line-content:first-child:contains("-") {
-    background-color: #4e2f44 !important;
-}
 
-[data-theme="dark"] .diff-line .line-right .line-content:first-child:contains("+") {
-    background-color: #2e5e44 !important;
-}
 
 /* Most direct approach: override all dark mode backgrounds for diff lines */
 [data-theme="dark"] .diff-line .line-left {
@@ -835,6 +819,17 @@ body {
 [data-theme="dark"] .diff-line .line-right[class*="green"] {
     background-color: #2e5e44 !important;
 }
+
+/* Target specific line types based on content */
+[data-theme="dark"] .diff-line.line-deletion .line-left {
+    background-color: #4e2f44 !important;
+}
+
+[data-theme="dark"] .diff-line.line-addition .line-right {
+    background-color: #2e5e44 !important;
+}
+
+
 
 /* Responsive Design */
 @media (max-width: 768px) {
