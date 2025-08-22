@@ -20,6 +20,7 @@ SAFE_GIT_OPTIONS = {
     "--branch",
     "--ahead-behind",
     "--no-renames",
+    "--find-renames",
     "--name-only",
     "--name-status",
     "--numstat",
@@ -649,7 +650,7 @@ class GitRepository:
                 # For HEAD comparison, we need both unstaged and staged status
 
                 # Get unstaged changes (working directory vs index)
-                unstaged_args = ["diff", "--name-status"]
+                unstaged_args = ["diff", "--name-status", "--find-renames"]
                 stdout, stderr, return_code = self._execute_git_command(unstaged_args)
                 if return_code == 0:
                     for line in stdout.strip().split("\n"):
@@ -662,7 +663,7 @@ class GitRepository:
                                 status_map[filename] = status
 
                 # Get staged changes (index vs HEAD)
-                staged_args = ["diff", "--cached", "--name-status"]
+                staged_args = ["diff", "--cached", "--name-status", "--find-renames"]
                 stdout, stderr, return_code = self._execute_git_command(staged_args)
                 if return_code == 0:
                     for line in stdout.strip().split("\n"):
@@ -677,7 +678,7 @@ class GitRepository:
                                     status_map[filename] = status
             else:
                 # For branch comparison, get status of working directory vs reference branch
-                branch_args = ["diff", "--name-status", reference_point]
+                branch_args = ["diff", "--name-status", "--find-renames", reference_point]
                 stdout, stderr, return_code = self._execute_git_command(branch_args)
                 if return_code == 0:
                     for line in stdout.strip().split("\n"):
@@ -703,8 +704,8 @@ class GitRepository:
         and merges the results.
         """
         # Build args for numstat and name-status
-        numstat_args = ["diff", "--numstat", *base_args]
-        namestat_args = ["diff", "--name-status", *base_args]
+        numstat_args = ["diff", "--numstat", "--find-renames", *base_args]
+        namestat_args = ["diff", "--name-status", "--find-renames", *base_args]
 
         if file_path:
             if not self._is_safe_file_path(file_path):

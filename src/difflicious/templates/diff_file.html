@@ -19,9 +19,10 @@
             <span class="text-xs px-2 py-1 rounded ml-2
                 {%- if file.status == 'added' %} bg-success-bg-100 text-success-text-800
                 {%- elif file.status == 'deleted' %} bg-danger-bg-100 text-danger-text-800
+                {%- elif file.status == 'renamed' %} bg-warning-bg-100 text-warning-text-800
                 {%- else %} bg-neutral-100 text-neutral-500
                 {%- endif %}">
-                {{ file.status }}
+                {%- if file.status == 'renamed' %}moved{%- else %}{{ file.status }}{%- endif %}
             </span>
         </div>
 

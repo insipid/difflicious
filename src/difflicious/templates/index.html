@@ -28,15 +28,24 @@ is_head_comparison=is_head_comparison) }}
             {{ render_partial('partials/global_controls.html') }}
 
             <!-- Render Diff Groups -->
-            {% if not untracked and groups.get('changes') %}
-                <div class="group-content space-y-4" data-group-content="ungrouped">
-                    {% for file in groups['changes'].files %}
-                    {% set group_name = 'changes' %}
-                    {% include 'diff_file.html' with context %}
-                    {% endfor %}
-                </div>
+            {% if not is_head_comparison and not untracked and groups.get('changes') %}
+            <!-- Branch comparison with no untracked files: show all changes at top level -->
+            <div class="group-content space-y-4" data-group-content="ungrouped">
+                {% for file in groups['changes'].files %}
+                {% set group_name = 'changes' %}
+                {% include 'diff_file.html' with context %}
+                {% endfor %}
+            </div>
+            {% elif not untracked and groups.get('changes') %}
+            <!-- HEAD comparison with no untracked files: show ungrouped -->
+            <div class="group-content space-y-4" data-group-content="ungrouped">
+                {% for file in groups['changes'].files %}
+                {% set group_name = 'changes' %}
+                {% include 'diff_file.html' with context %}
+                {% endfor %}
+            </div>
             {% else %}
-                {% include "diff_groups.html" %}
+            {% include "diff_groups.html" %}
             {% endif %}
         </div>
     </div>
