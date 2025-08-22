@@ -821,24 +821,20 @@ body {
 }
 
 /* Strong colors for line numbers in dark mode */
-[data-theme="dark"] .line-num.bg-red-50,
-[data-theme="dark"] .line-num.dark\\:bg-red-900\\/20 {
+[data-theme="dark"] .line-num[class*="bg-red"] {
     background-color: #6e3f64 !important;
 }
 
-[data-theme="dark"] .line-num.bg-green-50,
-[data-theme="dark"] .line-num.dark\\:bg-green-900\\/20 {
+[data-theme="dark"] .line-num[class*="bg-green"] {
     background-color: #3e6e54 !important;
 }
 
 /* Softer colors for content areas in dark mode */
-[data-theme="dark"] .line-content.bg-red-50,
-[data-theme="dark"] .line-content.dark\\:bg-red-900\\/20 {
+[data-theme="dark"] .line-content[class*="bg-red"] {
     background-color: #3e2f34 !important;
 }
 
-[data-theme="dark"] .line-content.bg-green-50,
-[data-theme="dark"] .line-content.dark\\:bg-green-900\\/20 {
+[data-theme="dark"] .line-content[class*="bg-green"] {
     background-color: #2e3f34 !important;
 }
 
