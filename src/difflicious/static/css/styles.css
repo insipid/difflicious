@@ -778,6 +778,64 @@ body {
     background-color: #2e5e44 !important;
 }
 
+/* Additional dark mode diff color rules with higher specificity */
+[data-theme="dark"] .diff-line .line-left[class*="bg-red"] {
+    background-color: #4e2f44 !important;
+}
+
+[data-theme="dark"] .diff-line .line-right[class*="bg-green"] {
+    background-color: #2e5e44 !important;
+}
+
+/* Direct targeting of the exact classes used in the template */
+[data-theme="dark"] .line-left.dark\\:bg-red-900\\/20 {
+    background-color: #4e2f44 !important;
+}
+
+[data-theme="dark"] .line-right.dark\\:bg-green-900\\/20 {
+    background-color: #2e5e44 !important;
+}
+
+/* Force dark mode diff colors with maximum specificity */
+[data-theme="dark"] .diff-line .line-left:has([class*="text-danger-text"]) {
+    background-color: #4e2f44 !important;
+}
+
+[data-theme="dark"] .diff-line .line-right:has([class*="text-success-text"]) {
+    background-color: #2e5e44 !important;
+}
+
+/* Alternative approach: target based on content */
+[data-theme="dark"] .diff-line .line-left .line-content:first-child:contains("-") {
+    background-color: #4e2f44 !important;
+}
+
+[data-theme="dark"] .diff-line .line-right .line-content:first-child:contains("+") {
+    background-color: #2e5e44 !important;
+}
+
+/* Most direct approach: override all dark mode backgrounds for diff lines */
+[data-theme="dark"] .diff-line .line-left {
+    background-color: var(--color-diff-context-bg) !important;
+}
+
+[data-theme="dark"] .diff-line .line-right {
+    background-color: var(--color-diff-context-bg) !important;
+}
+
+/* Then force the specific colors for additions/deletions */
+[data-theme="dark"] .diff-line .line-left.bg-red-50,
+[data-theme="dark"] .diff-line .line-left.dark\\:bg-red-900\\/20,
+[data-theme="dark"] .diff-line .line-left[class*="red"] {
+    background-color: #4e2f44 !important;
+}
+
+[data-theme="dark"] .diff-line .line-right.bg-green-50,
+[data-theme="dark"] .diff-line .line-right.dark\\:bg-green-900\\/20,
+[data-theme="dark"] .diff-line .line-right[class*="green"] {
+    background-color: #2e5e44 !important;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .header .container {
