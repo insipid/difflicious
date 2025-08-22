@@ -10,7 +10,8 @@ class TestSyntaxHighlightingService:
         """Test service initialization."""
         service = SyntaxHighlightingService()
 
-        assert service.formatter is not None
+        assert service.light_formatter is not None
+        assert service.dark_formatter is not None
         assert service._lexer_cache == {}
         assert isinstance(service.language_map, dict)
         assert "py" in service.language_map
@@ -165,10 +166,17 @@ class TestSyntaxHighlightingService:
         """Test that formatter is configured correctly."""
         service = SyntaxHighlightingService()
 
-        formatter = service.formatter
+        light_formatter = service.light_formatter
+        dark_formatter = service.dark_formatter
 
-        # Check formatter settings
-        assert formatter.nowrap is True  # Should not wrap in <pre> tags
-        assert formatter.noclasses is True  # Should use inline styles
-        assert formatter.style.name == "default"  # Should use default style
-        assert formatter.cssclass == "highlight"  # Should use correct CSS class
+        # Check light formatter settings
+        assert light_formatter.nowrap is True  # Should not wrap in <pre> tags
+        assert light_formatter.noclasses is True  # Should use inline styles
+        assert light_formatter.style.name == "default"  # Should use default style
+        assert light_formatter.cssclass == "highlight"  # Should use correct CSS class
+
+        # Check dark formatter settings
+        assert dark_formatter.nowrap is True  # Should not wrap in <pre> tags
+        assert dark_formatter.noclasses is True  # Should use inline styles
+        assert dark_formatter.style.name == "one-dark"  # Should use one-dark style
+        assert dark_formatter.cssclass == "highlight"  # Should use correct CSS class

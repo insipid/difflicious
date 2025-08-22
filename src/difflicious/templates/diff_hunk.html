@@ -1,26 +1,28 @@
 <!-- Single Hunk -->
-<div class="hunk border-b border-gray-100 last:border-b-0" data-line-start="{{ hunk.line_start }}"
+<div class="hunk border-b border-neutral-100 last:border-b-0" data-line-start="{{ hunk.line_start }}"
     data-line-end="{{ hunk.line_end }}" data-left-line-start="{{ hunk.left_start or 0 }}"
     data-left-line-end="{{ hunk.left_end or 0 }}">
 
     <!-- Up Expansion Controls (before hunk) -->
     {% if hunk.can_expand_before %}
-    <div class="hunk-expansion bg-blue-50 text-xs font-mono text-blue-800 border-b border-blue-100 flex">
+    <div class="hunk-expansion bg-info-bg-50 text-xs font-mono text-info-text-800 border-b border-info-bg-100 flex">
         <!-- Left Side Controls -->
-        <div class="flex-1 border-r border-blue-200">
+        <div class="flex-1 border-r border-info-bg-200">
             <div class="flex">
-                <div class="w-12 bg-blue-100 border-r border-blue-200 select-none flex flex-col">
+                <div class="w-12 bg-info-bg-100 border-r border-info-bg-200 select-none flex flex-col">
                     <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'before', 10, 'pygments')"
-                        class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center h-full"
+                        class="expansion-btn w-full px-2 py-1 text-xs bg-info-bg-200 hover:bg-info-bg-300 text-info-text-800 transition-colors flex items-center justify-center h-full"
                         data-target-start="{{ hunk.expand_before_start }}"
                         data-target-end="{{ hunk.expand_before_end }}" data-direction="before"
                         title="Expand 10 lines up ({{ hunk.expand_before_start }}-{{ hunk.expand_before_end }})">
                         ▲
                     </button>
                 </div>
-                <div class="flex-1 px-2 py-2 overflow-hidden whitespace-nowrap flex items-center min-h-[2rem]">
+                <div class="flex-1 px-2 py-2 overflow-hidden flex items-center min-h-[2rem] min-w-0">
                     {% if hunk.section_header %}
-                    <span>{{ hunk.section_header }}</span>
+                    <div class="w-full overflow-hidden">
+                        <span class="truncate block">{{ hunk.section_header }}</span>
+                    </div>
                     {% else %}
                     <span class="text-transparent">&nbsp;</span>
                     {% endif %}
@@ -31,9 +33,9 @@
         <!-- Right Side Controls -->
         <div class="flex-1">
             <div class="flex">
-                <div class="w-12 bg-blue-100 border-r border-blue-200 select-none flex flex-col">
+                <div class="w-12 bg-info-bg-100 border-r border-info-bg-200 select-none flex flex-col">
                     <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'before', 10, 'pygments')"
-                        class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center h-full"
+                        class="expansion-btn w-full px-2 py-1 text-xs bg-info-bg-200 hover:bg-info-bg-300 text-info-text-800 transition-colors flex items-center justify-center h-full"
                         data-target-start="{{ hunk.expand_before_start }}"
                         data-target-end="{{ hunk.expand_before_end }}" data-direction="before"
                         title="Expand 10 lines up ({{ hunk.expand_before_start }}-{{ hunk.expand_before_end }})">
@@ -55,20 +57,20 @@
         {% for line in hunk.lines %}
         <div class="diff-line flex line-{{ line.type }}">
             <!-- Left Side (Before) -->
-            <div
-                class="line-left flex-1 border-r border-gray-200 {% if line.left and line.left.type == 'deletion' %}bg-red-50{% elif line.type == 'context' %}bg-gray-50{% else %}bg-white{% endif %}">
+            <div class="line-left flex-1 border-r border-neutral-200 dark:border-neutral-600">
                 <div class="flex">
                     <div
-                        class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
+                        class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 dark:border-neutral-600 select-none {% if line.left and line.left.type == 'deletion' %}bg-red-50 dark:bg-red-900/20{% endif %}">
                         {% if line.left and line.left.line_num %}
                         <span>{{ line.left.line_num }}</span>
                         {% endif %}
                     </div>
-                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
+                    <div
+                        class="line-content flex-1 px-2 py-1 overflow-x-auto {% if line.left and line.left.type == 'deletion' %}bg-red-50 dark:bg-red-900/20{% endif %}">
                         {% if line.left and line.left.type == 'deletion' %}
-                        <span class="text-red-600">-</span>
+                        <span class="text-danger-text-600">-</span>
                         {% elif line.type == 'context' %}
-                        <span class="text-gray-400">&nbsp;</span>
+                        <span class="text-neutral-400">&nbsp;</span>
                         {% endif %}
                         {% if line.left and (line.left.highlighted_content or line.left.content) %}
                         {% if line.left.highlighted_content %}
@@ -77,7 +79,8 @@
                         <span>{{ line.left.content }}</span>
                         {% endif %}
                         {% if line.left.missing_newline %}
-                        <span class="no-newline-indicator text-red-500" aria-label="No newline at end of file">↩</span>
+                        <span class="no-newline-indicator text-danger-text-500"
+                            aria-label="No newline at end of file">↩</span>
                         {% endif %}
                         {% else %}
                         <!-- Ensure empty content areas still take up space -->
@@ -88,20 +91,20 @@
             </div>
 
             <!-- Right Side (After) -->
-            <div
-                class="line-right flex-1 {% if line.right and line.right.type == 'addition' %}bg-green-50{% elif line.type == 'context' %}bg-gray-50{% else %}bg-white{% endif %}">
+            <div class="line-right flex-1">
                 <div class="flex">
                     <div
-                        class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
+                        class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 dark:border-neutral-600 select-none {% if line.right and line.right.type == 'addition' %}bg-green-50 dark:bg-green-900/20{% endif %}">
                         {% if line.right and line.right.line_num %}
                         <span>{{ line.right.line_num }}</span>
                         {% endif %}
                     </div>
-                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
+                    <div
+                        class="line-content flex-1 px-2 py-1 overflow-x-auto {% if line.right and line.right.type == 'addition' %}bg-green-50 dark:bg-green-900/20{% endif %}">
                         {% if line.right and line.right.type == 'addition' %}
-                        <span class="text-green-600">+</span>
+                        <span class="text-success-text-600">+</span>
                         {% elif line.type == 'context' %}
-                        <span class="text-gray-400">&nbsp;</span>
+                        <span class="text-neutral-400">&nbsp;</span>
                         {% endif %}
                         {% if line.right and (line.right.highlighted_content or line.right.content) %}
                         {% if line.right.highlighted_content %}
@@ -110,7 +113,8 @@
                         <span>{{ line.right.content }}</span>
                         {% endif %}
                         {% if line.right.missing_newline %}
-                        <span class="no-newline-indicator text-red-500" aria-label="No newline at end of file">↩</span>
+                        <span class="no-newline-indicator text-danger-text-500"
+                            aria-label="No newline at end of file">↩</span>
                         {% endif %}
                         {% else %}
                         <!-- Ensure empty content areas still take up space -->
@@ -125,20 +129,20 @@
 
     <!-- Down Expansion Controls (after hunk) -->
     {% if hunk.can_expand_after %}
-    <div class="hunk-expansion bg-blue-50 text-xs font-mono text-blue-800 border-t border-blue-100 flex">
+    <div class="hunk-expansion bg-info-bg-50 text-xs font-mono text-info-text-800 border-t border-info-bg-100 flex">
         <!-- Left Side Controls -->
-        <div class="flex-1 border-r border-blue-200">
+        <div class="flex-1 border-r border-info-bg-200">
             <div class="flex">
-                <div class="w-12 bg-blue-100 border-r border-blue-200 select-none flex flex-col">
+                <div class="w-12 bg-info-bg-100 border-r border-info-bg-200 select-none flex flex-col">
                     <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'after', 10, 'pygments')"
-                        class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center h-full"
+                        class="expansion-btn w-full px-2 py-1 text-xs bg-info-bg-200 hover:bg-info-bg-300 text-info-text-800 transition-colors flex items-center justify-center h-full"
                         data-target-start="{{ hunk.expand_after_start }}" data-target-end="{{ hunk.expand_after_end }}"
                         data-direction="after"
                         title="Expand 10 lines down ({{ hunk.expand_after_start }}-{{ hunk.expand_after_end }})">
                         ▼
                     </button>
                 </div>
-                <div class="flex-1 px-2 py-2 overflow-hidden whitespace-nowrap flex items-center min-h-[2rem]">
+                <div class="flex-1 px-2 py-2 overflow-hidden flex items-center min-h-[2rem] min-w-0">
                     <span class="text-transparent">&nbsp;</span>
                 </div>
             </div>
@@ -147,9 +151,9 @@
         <!-- Right Side Controls -->
         <div class="flex-1">
             <div class="flex">
-                <div class="w-12 bg-blue-100 border-r border-blue-200 select-none flex flex-col">
+                <div class="w-12 bg-info-bg-100 border-r border-info-bg-200 select-none flex flex-col">
                     <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'after', 10, 'pygments')"
-                        class="expansion-btn w-full px-2 py-1 text-xs bg-blue-200 hover:bg-blue-300 text-blue-800 transition-colors flex items-center justify-center h-full"
+                        class="expansion-btn w-full px-2 py-1 text-xs bg-info-bg-200 hover:bg-info-bg-300 text-info-text-800 transition-colors flex items-center justify-center h-full"
                         data-target-start="{{ hunk.expand_after_start }}" data-target-end="{{ hunk.expand_after_end }}"
                         data-direction="after"
                         title="Expand 10 lines down ({{ hunk.expand_after_start }}-{{ hunk.expand_after_end }})">

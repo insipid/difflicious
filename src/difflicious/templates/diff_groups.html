@@ -5,12 +5,12 @@
     <!-- Group Header (hidden for staged-only view or ungrouped 'changes' view) -->
     {% set hide_header = (group_key == 'staged' and not unstaged and not untracked) or (group_key == 'changes' and not untracked) %}
     {% if not hide_header %}
-    <div class="group-header flex items-center space-x-3 px-2 py-2 cursor-pointer hover:bg-gray-50 transition-colors rounded"
+    <div class="group-header flex items-center space-x-3 px-2 py-2 cursor-pointer hover:bg-neutral-50 transition-colors rounded"
          onclick="toggleGroup('{{ group_key }}')">
-        <span class="toggle-icon text-gray-400 transition-transform duration-200" 
+        <span class="toggle-icon text-neutral-400 transition-transform duration-200" 
               data-expanded="true">▼</span>
-        <h3 class="text-gray-700">{{ group_key|title }}</h3>
-        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+        <h3 class="text-neutral-700">{{ group_key|title }}</h3>
+        <span class="text-xs text-neutral-500 bg-neutral-100 px-2 py-1 rounded">
             {{ group.count }} files
         </span>
     </div>

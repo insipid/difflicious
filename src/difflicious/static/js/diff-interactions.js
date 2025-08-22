@@ -16,6 +16,7 @@ const DiffState = {
     expandedGroups: new Set(['untracked', 'unstaged', 'staged']),
     repositoryName: null,
     storageKey: 'difflicious-state', // fallback key
+    theme: 'light', // current theme
 
     async init() {
         await this.initializeRepository();
@@ -701,7 +702,7 @@ function createExpandedContextHtml(result, expansionId, triggerButton, direction
             // Right side: expand backwards
             startLineNumRight = curRightStart - lines.length;
 
-            // Left side: use the ORIGINAL working logic that was removed  
+            // Left side: use the ORIGINAL working logic that was removed
             const leftEndBefore = (curLeftStart || 1) - 1;
             startLineNumLeft = Math.max(1, leftEndBefore - (lines.length - 1));
 
@@ -714,7 +715,7 @@ function createExpandedContextHtml(result, expansionId, triggerButton, direction
         startLineNumLeft = 1;
     }
 
-    let html = `<div id="${expansionId}" class="expanded-context bg-gray-25">`;
+    let html = `<div id="${expansionId}" class="expanded-context bg-neutral-25">`;
 
     lines.forEach((lineData, index) => {
         const lineNumRight = startLineNumRight + index;
@@ -722,30 +723,30 @@ function createExpandedContextHtml(result, expansionId, triggerButton, direction
         const content = lineData.highlighted_content || lineData.content || '';
 
         html += `
-        <div class="diff-line grid grid-cols-2 border-b border-gray-50 hover:bg-gray-25 line-context">
+        <div class="diff-line grid grid-cols-2 hover:bg-neutral-25 line-context">
             <!-- Left Side (Before) -->
-            <div class="line-left border-r border-gray-200 bg-gray-25">
+            <div class="line-left border-r border-neutral-200">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
+                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 select-none">
                         <span>${lineNumLeft}</span>
                     </div>
-                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
-                        <span class="text-gray-400">&nbsp;</span>
-                        <span class="highlight">${content}</span>
-                        ${lineData.missing_newline ? '<span class="no-newline-indicator text-red-500">↩</span>' : ''}
+                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
+                        <span class="text-neutral-400">&nbsp;</span>
+                        <span class="highlight break-words">${content}</span>
+                        ${lineData.missing_newline ? '<span class="no-newline-indicator text-danger-text-500">↩</span>' : ''}
                     </div>
                 </div>
             </div>
             <!-- Right Side (After) -->
-            <div class="line-right bg-gray-25">
+            <div class="line-right">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
+                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 select-none">
                         <span>${lineNumRight}</span>
                     </div>
-                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
-                        <span class="text-gray-400">&nbsp;</span>
-                        <span class="highlight">${content}</span>
-                        ${lineData.missing_newline ? '<span class="no-newline-indicator text-red-500">↩</span>' : ''}
+                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
+                        <span class="text-neutral-400">&nbsp;</span>
+                        <span class="highlight break-words">${content}</span>
+                        ${lineData.missing_newline ? '<span class="no-newline-indicator text-danger-text-500">↩</span>' : ''}
                     </div>
                 </div>
             </div>
@@ -813,7 +814,7 @@ function createPlainContextHtml(result, expansionId, triggerButton, direction) {
         startLineNumLeft = result.left_start_line || startLineNumRight;
     }
 
-    let html = `<div id="${expansionId}" class="expanded-context bg-gray-25">`;
+    let html = `<div id="${expansionId}" class="expanded-context bg-neutral-25">`;
 
     lines.forEach((line, index) => {
         const lineNumRight = startLineNumRight + index;
@@ -821,30 +822,30 @@ function createPlainContextHtml(result, expansionId, triggerButton, direction) {
         const content = escapeHtml(line || '');
 
         html += `
-        <div class="diff-line grid grid-cols-2 border-b border-gray-50 hover:bg-gray-25 line-context">
+        <div class="diff-line grid grid-cols-2 hover:bg-neutral-25 line-context">
             <!-- Left Side (Before) -->
-            <div class="line-left border-r border-gray-200 bg-gray-25">
+            <div class="line-left border-r border-neutral-200">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
+                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 select-none">
                         <span>${lineNumLeft}</span>
                     </div>
-                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
-                        <span class="text-gray-400">&nbsp;</span>
-                        <span>${content}</span>
-                        ${line.missing_newline ? '<span class="no-newline-indicator text-red-500">↩</span>' : ''}
+                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
+                        <span class="text-neutral-400">&nbsp;</span>
+                        <span class="break-words">${content}</span>
+                        ${line.missing_newline ? '<span class="no-newline-indicator text-danger-text-500">↩</span>' : ''}
                     </div>
                 </div>
             </div>
             <!-- Right Side (After) -->
-            <div class="line-right bg-gray-25">
+            <div class="line-right">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
+                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 select-none">
                         <span>${lineNumRight}</span>
                     </div>
-                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
-                        <span class="text-gray-400">&nbsp;</span>
-                        <span>${content}</span>
-                        ${line.missing_newline ? '<span class="no-newline-indicator text-red-500">↩</span>' : ''}
+                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
+                        <span class="text-neutral-400">&nbsp;</span>
+                        <span class="break-words">${content}</span>
+                        ${line.missing_newline ? '<span class="no-newline-indicator text-danger-text-500">↩</span>' : ''}
                     </div>
                 </div>
             </div>
@@ -1077,13 +1078,14 @@ function mergeHunks(firstHunk, secondHunk) {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async() => {
+    initializeTheme();
     await DiffState.init();
 
     // Apply initial state - state has already been restored in restoreState()
     setTimeout(() => {
         // Just ensure files not in expanded state are properly collapsed
-        $$('[data-file]').forEach(fileElement => {
+        $$('[data-file]').forEach((fileElement) => {
             const filePath = fileElement.dataset.file;
             const contentElement = $(`[data-file-content="${filePath}"]`);
             const toggleIcon = fileElement.querySelector('.toggle-icon');
@@ -1138,6 +1140,7 @@ window.collapseAllFiles = collapseAllFiles;
 window.navigateToPreviousFile = navigateToPreviousFile;
 window.navigateToNextFile = navigateToNextFile;
 window.expandContext = expandContext;
+window.toggleTheme = toggleTheme;
 // This is just to shut up eslint. It triggers the no-unused-vars
 // because it can't detect the usage because it's in the HTML in the
 // onclick handler.
@@ -1242,7 +1245,7 @@ async function loadFullDiff(filePath, fileId) {
 
     // Show loading indicator in content area
     fileContentElement.innerHTML = `
-        <div class="p-8 text-center text-gray-500">
+        <div class="p-8 text-center text-neutral-500">
             <div class="text-4xl mb-2">⏳</div>
             <p>Loading full diff...</p>
             <p class="text-sm">Fetching complete file comparison with unlimited context</p>
@@ -1269,7 +1272,7 @@ async function loadFullDiff(filePath, fileId) {
             } else {
                 // No changes to show
                 fileContentElement.innerHTML = `
-                    <div class="p-8 text-center text-gray-500">
+                    <div class="p-8 text-center text-neutral-500">
                         <div class="text-4xl mb-2">✓</div>
                         <p>No changes in this file</p>
                         <p class="text-sm">${result.comparison_mode}</p>
@@ -1282,13 +1285,13 @@ async function loadFullDiff(filePath, fileId) {
     } catch (error) {
         console.error('Full diff error:', error);
         fileContentElement.innerHTML = `
-            <div class="p-8 text-center text-red-500">
+            <div class="p-8 text-center text-danger-text-500">
                 <div class="text-4xl mb-2">⚠️</div>
                 <p class="font-medium">Failed to load full diff</p>
                 <p class="text-sm mt-2">${escapeHtml(error.message)}</p>
-                <p class="text-xs mt-4 text-gray-400">Check the browser console for more details</p>
+                <p class="text-xs mt-4 text-neutral-400">Check the browser console for more details</p>
                 <button onclick="loadFullDiff('${filePath}', '${fileId}')"
-                        class="mt-4 px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors">
+                        class="mt-4 px-3 py-1 text-sm bg-danger-bg-100 text-danger-text-700 rounded hover:bg-danger-bg-200 transition-colors">
                     Retry
                 </button>
             </div>
@@ -1339,7 +1342,7 @@ async function renderFullDiff(contentElement, diffData, fileId) {
         const lines = diffData.diff_content.split('\n');
         let htmlContent = `
             <div class="full-diff-container">
-                <div class="full-diff-header bg-gray-100 px-4 py-2 text-sm text-gray-700 border-b">
+                <div class="full-diff-header bg-neutral-100 px-4 py-2 text-sm text-neutral-700 border-b">
                     <span class="font-medium">Full diff:</span> ${escapeHtml(diffData.comparison_mode)} (unlimited context)
                 </div>
                 <div class="full-diff-content">
@@ -1348,22 +1351,22 @@ async function renderFullDiff(contentElement, diffData, fileId) {
         for (const line of lines) {
             if (line.startsWith('@@')) {
                 // Hunk header
-                htmlContent += `<div class="hunk-header bg-gray-50 px-4 py-2 text-sm font-mono text-gray-600 border-b border-gray-200">${escapeHtml(line)}</div>`;
+                htmlContent += `<div class="hunk-header bg-neutral-50 px-4 py-2 text-sm font-mono text-neutral-600 border-b border-neutral-200">${escapeHtml(line)}</div>`;
             } else if (line.startsWith('+')) {
                 // Addition
-                htmlContent += `<div class="diff-line addition bg-green-50 border-l-4 border-green-300 px-4 py-1 text-sm font-mono"><span class="text-green-600">+</span>${escapeHtml(line.substring(1))}</div>`;
+                htmlContent += `<div class="diff-line addition bg-success-bg-50 border-l-4 border-success-bg-300 px-4 py-1 text-sm font-mono"><span class="text-success-text-600">+</span>${escapeHtml(line.substring(1))}</div>`;
             } else if (line.startsWith('-')) {
                 // Deletion
-                htmlContent += `<div class="diff-line deletion bg-red-50 border-l-4 border-red-300 px-4 py-1 text-sm font-mono"><span class="text-red-600">-</span>${escapeHtml(line.substring(1))}</div>`;
+                htmlContent += `<div class="diff-line deletion bg-danger-bg-50 border-l-4 border-danger-bg-300 px-4 py-1 text-sm font-mono"><span class="text-danger-text-600">-</span>${escapeHtml(line.substring(1))}</div>`;
             } else if (line.startsWith(' ') || line === '') {
                 // Context line
-                htmlContent += `<div class="diff-line context bg-white px-4 py-1 text-sm font-mono"><span class="text-gray-400"> </span>${escapeHtml(line.substring(1) || '')}</div>`;
+                htmlContent += `<div class="diff-line context bg-white px-4 py-1 text-sm font-mono"><span class="text-neutral-400"> </span>${escapeHtml(line.substring(1) || '')}</div>`;
             } else if (line.startsWith('diff --git') || line.startsWith('index ') || line.startsWith('+++') || line.startsWith('---')) {
                 // File header lines - skip or style differently
-                htmlContent += `<div class="file-header-line text-xs text-gray-500 px-4 py-1 font-mono bg-gray-25">${escapeHtml(line)}</div>`;
+                htmlContent += `<div class="file-header-line text-xs text-neutral-500 px-4 py-1 font-mono bg-neutral-25">${escapeHtml(line)}</div>`;
             } else {
                 // Other lines
-                htmlContent += `<div class="diff-line other px-4 py-1 text-sm font-mono text-gray-600">${escapeHtml(line)}</div>`;
+                htmlContent += `<div class="diff-line other px-4 py-1 text-sm font-mono text-neutral-600">${escapeHtml(line)}</div>`;
             }
         }
 
@@ -1377,11 +1380,11 @@ async function renderFullDiff(contentElement, diffData, fileId) {
         console.log('No diff content available');
         // No diff content available
         contentElement.innerHTML = `
-            <div class="p-8 text-center text-gray-500">
+            <div class="p-8 text-center text-neutral-500">
                 <div class="text-4xl mb-2">📄</div>
                 <p>No diff content available</p>
                 <p class="text-sm">The full diff is empty or could not be processed.</p>
-                <p class="text-xs mt-2 text-gray-400">Comparison: ${escapeHtml(diffData.comparison_mode || 'unknown')}</p>
+                <p class="text-xs mt-2 text-neutral-400">Comparison: ${escapeHtml(diffData.comparison_mode || 'unknown')}</p>
             </div>
         `;
     }
@@ -1424,7 +1427,7 @@ function renderSideBySideHunk(hunk, filePath, hunkIndex) {
     }
 
     let html = `
-        <div class="hunk border-b border-gray-100 last:border-b-0">
+        <div class="hunk border-b border-neutral-100 last:border-b-0">
             <!-- Hunk Lines -->
             <div class="hunk-lines font-mono text-xs">
     `;
@@ -1435,7 +1438,7 @@ function renderSideBySideHunk(hunk, filePath, hunkIndex) {
         }
     } else {
         console.warn('Hunk has no lines array:', hunk);
-        html += '<div class="p-4 text-center text-gray-500">No line data available for this hunk</div>';
+        html += '<div class="p-4 text-center text-neutral-500">No line data available for this hunk</div>';
     }
 
     html += `
@@ -1468,16 +1471,16 @@ function renderSideBySideLine(line) {
         rightContent = line.right?.content || '';
         leftLineNum = line.left?.line_num || '';
         rightLineNum = line.right?.line_num || '';
-        leftBg = 'bg-gray-25';
-        rightBg = 'bg-gray-25';
+        leftBg = 'bg-neutral-25';
+        rightBg = 'bg-neutral-25';
     } else if (line.left && line.right) {
         // Changed line - deletion on left, addition on right
         leftContent = line.left.content || '';
         rightContent = line.right.content || '';
         leftLineNum = line.left.line_num || '';
         rightLineNum = line.right.line_num || '';
-        leftBg = 'bg-red-50';
-        rightBg = 'bg-green-50';
+        leftBg = 'bg-danger-bg-50';
+        rightBg = 'bg-success-bg-50';
     } else if (line.left) {
         // Deletion only
         leftContent = line.left.content || '';
@@ -1487,17 +1490,17 @@ function renderSideBySideLine(line) {
         // Addition only
         rightContent = line.right.content || '';
         rightLineNum = line.right.line_num || '';
-        rightBg = 'bg-green-50';
+        rightBg = 'bg-success-bg-50';
     } else {
         // Simple line structure
         if (line.type === 'addition') {
             rightContent = line.content || '';
             rightLineNum = line.new_line_number || '';
-            rightBg = 'bg-green-50';
+            rightBg = 'bg-success-bg-50';
         } else if (line.type === 'deletion') {
             leftContent = line.content || '';
             leftLineNum = line.old_line_number || '';
-            leftBg = 'bg-red-50';
+            leftBg = 'bg-danger-bg-50';
         } else {
             leftContent = rightContent = line.content || '';
             leftLineNum = line.old_line_number || '';
@@ -1506,17 +1509,17 @@ function renderSideBySideLine(line) {
     }
 
     return `
-        <div class="diff-line grid grid-cols-2 border-b border-gray-50 hover:bg-gray-25 line-${line.type || 'context'}">
+        <div class="diff-line grid grid-cols-2 border-b border-gray-50 hover:bg-neutral-25 line-${line.type || 'context'}">
             <!-- Left Side (Before) -->
-            <div class="line-left border-r border-gray-200 ${leftBg}">
+            <div class="line-left border-r border-neutral-200 ${leftBg}">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
+                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right bg-neutral-50 border-r border-neutral-200 select-none">
                         ${leftLineNum ? `<span>${leftLineNum}</span>` : ''}
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         ${leftContent
-            ? (leftBg.includes('red') ? `<span class="text-red-600">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-gray-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`)
-            : ''}
+        ? (leftBg.includes('danger') ? `<span class="text-danger-text-600">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`)
+        : ''}
                     </div>
                 </div>
             </div>
@@ -1524,16 +1527,82 @@ function renderSideBySideLine(line) {
             <!-- Right Side (After) -->
             <div class="line-right ${rightBg}">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-gray-400 text-right bg-gray-50 border-r border-gray-200 select-none">
+                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right bg-neutral-50 border-r border-neutral-200 select-none">
                         ${rightLineNum ? `<span>${rightLineNum}</span>` : ''}
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         ${rightContent
-            ? (rightBg.includes('green') ? `<span class="text-green-600">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-gray-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`)
-            : ''}
+        ? (rightBg.includes('success') ? `<span class="text-success-text-600">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`)
+        : ''}
                     </div>
                 </div>
             </div>
         </div>
     `;
+}
+
+// Theme switching functionality
+function toggleTheme() {
+    const htmlElement = document.documentElement;
+    const isDark = htmlElement.getAttribute('data-theme') === 'dark';
+    const newTheme = isDark ? 'light' : 'dark';
+
+    if (isDark) {
+        htmlElement.removeAttribute('data-theme');
+    } else {
+        htmlElement.setAttribute('data-theme', 'dark');
+    }
+
+    DiffState.theme = newTheme;
+
+    // Update theme icon
+    const themeIcon = document.getElementById('theme-icon');
+    if (themeIcon) {
+        themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+    }
+
+    // Save theme preference
+    localStorage.setItem('difflicious-theme', newTheme);
+
+    if (DEBUG) console.log(`Theme switched to ${newTheme}`);
+
+    // Prevent any form submission or navigation
+    return false;
+}
+
+// Initialize theme on load
+function initializeTheme() {
+    const savedTheme = localStorage.getItem('difflicious-theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const defaultTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+
+    if (defaultTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+        document.documentElement.removeAttribute('data-theme');
+    }
+
+    DiffState.theme = defaultTheme;
+
+    // Update theme icon
+    const themeIcon = document.getElementById('theme-icon');
+    if (themeIcon) {
+        themeIcon.textContent = defaultTheme === 'dark' ? '☀️' : '🌙';
+    }
+
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!localStorage.getItem('difflicious-theme')) {
+            const newTheme = e.matches ? 'dark' : 'light';
+            if (newTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+            DiffState.theme = newTheme;
+            if (themeIcon) {
+                themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            }
+        }
+    });
 }
