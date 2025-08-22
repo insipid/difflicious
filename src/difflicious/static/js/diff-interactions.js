@@ -723,11 +723,11 @@ function createExpandedContextHtml(result, expansionId, triggerButton, direction
         const content = lineData.highlighted_content || lineData.content || '';
 
         html += `
-        <div class="diff-line grid grid-cols-2 border-b border-gray-50 hover:bg-neutral-25 line-context">
+        <div class="diff-line grid grid-cols-2 hover:bg-neutral-25 line-context">
             <!-- Left Side (Before) -->
-            <div class="line-left border-r border-neutral-200 bg-neutral-25">
+            <div class="line-left border-r border-neutral-200">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right bg-neutral-50 border-r border-neutral-200 select-none">
+                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 select-none">
                         <span>${lineNumLeft}</span>
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
@@ -738,9 +738,9 @@ function createExpandedContextHtml(result, expansionId, triggerButton, direction
                 </div>
             </div>
             <!-- Right Side (After) -->
-            <div class="line-right bg-neutral-25">
+            <div class="line-right">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right bg-neutral-50 border-r border-neutral-200 select-none">
+                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 select-none">
                         <span>${lineNumRight}</span>
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
@@ -822,11 +822,11 @@ function createPlainContextHtml(result, expansionId, triggerButton, direction) {
         const content = escapeHtml(line || '');
 
         html += `
-        <div class="diff-line grid grid-cols-2 border-b border-gray-50 hover:bg-neutral-25 line-context">
+        <div class="diff-line grid grid-cols-2 hover:bg-neutral-25 line-context">
             <!-- Left Side (Before) -->
-            <div class="line-left border-r border-neutral-200 bg-neutral-25">
+            <div class="line-left border-r border-neutral-200">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right bg-neutral-50 border-r border-neutral-200 select-none">
+                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 select-none">
                         <span>${lineNumLeft}</span>
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
@@ -837,9 +837,9 @@ function createPlainContextHtml(result, expansionId, triggerButton, direction) {
                 </div>
             </div>
             <!-- Right Side (After) -->
-            <div class="line-right bg-neutral-25">
+            <div class="line-right">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right bg-neutral-50 border-r border-neutral-200 select-none">
+                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 select-none">
                         <span>${lineNumRight}</span>
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
@@ -1078,14 +1078,14 @@ function mergeHunks(firstHunk, secondHunk) {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async() => {
     initializeTheme();
     await DiffState.init();
 
     // Apply initial state - state has already been restored in restoreState()
     setTimeout(() => {
         // Just ensure files not in expanded state are properly collapsed
-        $$('[data-file]').forEach(fileElement => {
+        $$('[data-file]').forEach((fileElement) => {
             const filePath = fileElement.dataset.file;
             const contentElement = $(`[data-file-content="${filePath}"]`);
             const toggleIcon = fileElement.querySelector('.toggle-icon');
@@ -1518,8 +1518,8 @@ function renderSideBySideLine(line) {
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         ${leftContent
-            ? (leftBg.includes('danger') ? `<span class="text-danger-text-600">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`)
-            : ''}
+        ? (leftBg.includes('danger') ? `<span class="text-danger-text-600">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`)
+        : ''}
                     </div>
                 </div>
             </div>
@@ -1532,8 +1532,8 @@ function renderSideBySideLine(line) {
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         ${rightContent
-            ? (rightBg.includes('success') ? `<span class="text-success-text-600">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`)
-            : ''}
+        ? (rightBg.includes('success') ? `<span class="text-success-text-600">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`)
+        : ''}
                     </div>
                 </div>
             </div>
@@ -1565,7 +1565,7 @@ function toggleTheme() {
     localStorage.setItem('difflicious-theme', newTheme);
 
     if (DEBUG) console.log(`Theme switched to ${newTheme}`);
-    
+
     // Prevent any form submission or navigation
     return false;
 }

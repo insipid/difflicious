@@ -25,7 +25,7 @@ class SyntaxHighlightingService:
             style="default",  #    # Use default theme for light mode
             cssclass="highlight",  # CSS class for highlighted code
         )
-        
+
         self.dark_formatter = HtmlFormatter(
             nowrap=True,  #        # Don't wrap in <pre> tags
             noclasses=True,  #     # Use inline styles for consistency
@@ -80,7 +80,9 @@ class SyntaxHighlightingService:
             "dockerfile": "dockerfile",
         }
 
-    def highlight_diff_line(self, content: str, file_path: str, theme: str = "light") -> str:
+    def highlight_diff_line(
+        self, content: str, file_path: str, theme: str = "light"
+    ) -> str:
         """Highlight a single line of diff content.
 
         Args:
@@ -147,8 +149,10 @@ class SyntaxHighlightingService:
             CSS styles as string with theme-specific rules
         """
         light_styles = str(self.light_formatter.get_style_defs(".highlight"))
-        dark_styles = str(self.dark_formatter.get_style_defs("[data-theme=\"dark\"] .highlight"))
-        
+        dark_styles = str(
+            self.dark_formatter.get_style_defs('[data-theme="dark"] .highlight')
+        )
+
         return f"""
 /* Light theme syntax highlighting */
 {light_styles}

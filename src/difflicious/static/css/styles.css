@@ -102,7 +102,7 @@
     --color-diff-addition-text: #4ade80;
     --color-diff-deletion-bg: #4e2f44;
     --color-diff-deletion-text: #f87171;
-    --color-diff-context-bg: #0a0f1a;
+    --color-diff-context-bg: #020408;
     --color-diff-context-text: #94a3b8;
     --color-expanded-context-bg: #1e293b;
 
@@ -531,7 +531,7 @@ body {
 
 /* Dark theme syntax highlighting improvements */
 [data-theme="dark"] .highlight {
-    background-color: transparent;
+    background-color: var(--color-diff-context-bg) !important;
 }
 
 [data-theme="dark"] .highlight .hll {
@@ -822,7 +822,7 @@ body {
 
 /* Strong colors for line numbers in dark mode */
 [data-theme="dark"] .line-num[class*="bg-red"] {
-    background-color: #6e3f64 !important;
+    background-color: #5e2f34 !important;
 }
 
 [data-theme="dark"] .line-num[class*="bg-green"] {
@@ -831,7 +831,7 @@ body {
 
 /* Softer colors for content areas in dark mode */
 [data-theme="dark"] .line-content[class*="bg-red"] {
-    background-color: #3e2f34 !important;
+    background-color: #2a1f24 !important;
 }
 
 [data-theme="dark"] .line-content[class*="bg-green"] {
