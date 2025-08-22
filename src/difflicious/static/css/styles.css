@@ -53,6 +53,8 @@
     --color-success-text: #059669;
     --color-success-text-600: #059669;
     --color-success-text-800: #065f46;
+    --color-warning-bg-100: #fef3c7;
+    --color-warning-text-800: #92400e;
     --color-info-bg: #eff6ff;
     --color-info-bg-50: #eff6ff;
     --color-info-bg-100: #dbeafe;
@@ -136,6 +138,8 @@
     --color-success-text: #10b981;
     --color-success-text-600: #10b981;
     --color-success-text-800: #34d399;
+    --color-warning-bg-100: #fef3c7;
+    --color-warning-text-800: #ca8a04;
     --color-info-bg: #1e293b;
     --color-info-bg-50: #1e293b;
     --color-info-bg-100: #334155;

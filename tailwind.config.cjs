@@ -56,6 +56,10 @@ module.exports = {
         'success-bg-300': 'var(--color-success-bg-300)',
         'success-text-600': 'var(--color-success-text-600)',
 
+        // Warning colors
+        'warning-bg-100': 'var(--color-warning-bg-100)',
+        'warning-text-800': 'var(--color-warning-text-800)',
+
         // Add variables for all hardcoded classes found in templates
         gray: {
           50: 'var(--color-neutral-50)',

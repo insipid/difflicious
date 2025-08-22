@@ -80,6 +80,9 @@ class TemplateRenderingService(BaseService):
                     # Remove unstaged group based on checkbox selection (staged always visible)
                     if not unstaged and "unstaged" in grouped_diffs:
                         del grouped_diffs["unstaged"]
+                    
+                    # Ensure staged changes are always included in HEAD comparison mode
+                    # The git operations always include staged changes, so we don't need to modify the request
                 else:
                     # Working directory vs branch comparison - always show changes
                     grouped_diffs = self.diff_service.get_grouped_diffs(
