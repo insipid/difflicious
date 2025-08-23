@@ -740,6 +740,9 @@ class GitRepository:
         # Parse name-status output
         namestat_stdout, _, rc_ns = self._execute_git_command(namestat_args)
         if rc_ns == 0 and namestat_stdout:
+            # Track old paths from renames to filter them out
+            old_paths_from_renames = set()
+            
             for line in namestat_stdout.strip().split("\n"):
                 if not line.strip():
                     continue
@@ -748,6 +751,13 @@ class GitRepository:
                     status_code = parts[0]
                     # Handle renames/copies: last column is the new path
                     path = parts[-1]
+                    
+                    # For renames, track the old path to filter it out later and store it
+                    old_path_for_file = None
+                    if status_code.startswith("R") and len(parts) >= 3:
+                        old_path_for_file = parts[1]  # Second column is the old path
+                        old_paths_from_renames.add(old_path_for_file)
+                    
                     status_map = {
                         "M": "modified",
                         "A": "added",
@@ -761,8 +771,10 @@ class GitRepository:
                     status = status_map.get(status_code[0], "modified")
                     if path in files:
                         files[path]["status"] = status
+                        if old_path_for_file:
+                            files[path]["old_path"] = old_path_for_file
                     else:
-                        files[path] = {
+                        file_data = {
                             "path": path,
                             "additions": 0,
                             "deletions": 0,
@@ -770,6 +782,12 @@ class GitRepository:
                             "status": status,
                             "content": "",
                         }
+                        if old_path_for_file:
+                            file_data["old_path"] = old_path_for_file
+                        files[path] = file_data
+            
+            # Filter out old paths from renames (they would show as deleted)
+            files = {path: data for path, data in files.items() if path not in old_paths_from_renames}
 
         return list(files.values())
 

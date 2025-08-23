@@ -324,11 +324,19 @@ def create_app() -> Flask:
         use_head = request.args.get("use_head", "false").lower() == "true"
 
         try:
-            diff_service = DiffService()
-
-            # Map to the legacy DiffService interface (which internally uses new get_diff)
-            if use_head:
-                # Working directory vs HEAD comparison
+            # Use template service logic for proper branch comparison handling
+            template_service = TemplateRenderingService()
+            
+            # Get basic repository information
+            repo_status = template_service.git_service.get_repository_status()
+            current_branch = repo_status.get("current_branch", "unknown")
+            
+            # Determine if this is a HEAD comparison
+            is_head_comparison = base_ref in ["HEAD", current_branch] if base_ref else False
+            
+            if is_head_comparison:
+                # Working directory vs HEAD comparison - use diff service directly
+                diff_service = DiffService()
                 grouped_data = diff_service.get_grouped_diffs(
                     base_ref="HEAD",
                     unstaged=unstaged,
@@ -336,13 +344,16 @@ def create_app() -> Flask:
                     file_path=file_path,
                 )
             else:
-                # Working directory vs default branch comparison
-                grouped_data = diff_service.get_grouped_diffs(
-                    base_ref=base_ref,  # None -> default branch
+                # Working directory vs branch comparison - use template service logic
+                # This ensures proper combining of staged/unstaged into "changes" group
+                template_data = template_service.prepare_diff_data_for_template(
+                    base_ref=base_ref,
                     unstaged=unstaged,
+                    staged=True,  # Always include staged for branch comparisons
                     untracked=untracked,
                     file_path=file_path,
                 )
+                grouped_data = template_data["groups"]
 
             # Calculate total files across all groups
             total_files = sum(group["count"] for group in grouped_data.values())

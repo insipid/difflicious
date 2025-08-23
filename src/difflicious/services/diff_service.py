@@ -79,10 +79,30 @@ class DiffService(BaseService):
         Returns:
             Processed diff data ready for frontend consumption
         """
-        for _group_name, group_data in grouped_diffs.items():
+        # Track old paths from renames to filter them out
+        old_paths_from_renames = set()
+        
+        # First pass: identify old paths from renames
+        for group_name, group_data in grouped_diffs.items():
+            for diff in group_data["files"]:
+                if diff.get("status") == "renamed" and diff.get("old_path"):
+                    old_paths_from_renames.add(diff["old_path"])
+        
+        # Second pass: process files and filter out old paths
+        for group_name, group_data in grouped_diffs.items():
             formatted_files = []
 
             for diff in group_data["files"]:
+                # Skip old paths from renames
+                if diff.get("path") in old_paths_from_renames:
+                    continue
+                
+                # Skip files with rename notation in path (e.g., "{doc => docs}/..." or "old => new")
+                path = diff.get("path", "")
+                # Only filter if the path contains "=>" and looks like a file path (not just line numbers)
+                if ("=>" in path and ("/" in path or path.startswith("{"))) or (path.startswith("{") and "}" in path):
+                    continue
+                    
                 processed_diff = self._process_single_diff(diff)
                 formatted_files.append(processed_diff)
 
@@ -107,15 +127,17 @@ class DiffService(BaseService):
                 if parsed_diff:
                     # Take the first parsed diff item and update it with our metadata
                     formatted_diff = parsed_diff[0]
-                    formatted_diff.update(
-                        {
-                            "path": diff["path"],
-                            "additions": diff["additions"],
-                            "deletions": diff["deletions"],
-                            "changes": diff["changes"],
-                            "status": diff["status"],
-                        }
-                    )
+                    update_data = {
+                        "path": diff["path"],
+                        "additions": diff["additions"],
+                        "deletions": diff["deletions"],
+                        "changes": diff["changes"],
+                        "status": diff["status"],
+                    }
+                    # Preserve old_path for renamed files
+                    if "old_path" in diff:
+                        update_data["old_path"] = diff["old_path"]
+                    formatted_diff.update(update_data)
                     return formatted_diff
             except DiffParseError as e:
                 logger.warning(f"Failed to parse diff for {diff['path']}: {e}")
