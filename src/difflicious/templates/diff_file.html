@@ -3,39 +3,43 @@
 <div class="file-diff bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-sm"
     data-file="{{ file_id }}">
     <!-- File Header -->
-    <div class="file-header flex items-center p-4 cursor-pointer hover:bg-neutral-50 transition-colors"
+    <div class="file-header flex items-start p-4 cursor-pointer hover:bg-neutral-50 transition-colors"
         onclick="toggleFile('{{ file_id }}')">
-        <div class="flex items-center space-x-3 min-w-0 flex-1">
-            <span class="toggle-icon text-neutral-400 transition-transform duration-200 flex-shrink-0"
+        <div class="flex items-start space-x-3 flex-1" style="overflow: visible;">
+            <span class="toggle-icon text-neutral-400 transition-transform duration-200 flex-shrink-0 self-center"
                 data-expanded="{{ 'true' if file.expanded else 'false' }}">
                 {{ '▼' if file.expanded else '▶' }}
             </span>
             <span
-                class="expand-icon text-neutral-400 hover:text-neutral-600 cursor-pointer transition-colors flex-shrink-0"
+                class="expand-icon text-neutral-400 hover:text-neutral-600 cursor-pointer transition-colors flex-shrink-0 self-center"
                 onclick="loadFullDiff('{{ file.path }}', '{{ file_id }}'); event.stopPropagation()"
                 title="Show complete file diff with unlimited context" id="expand-icon-{{ file_id }}">
                 ↕
             </span>
-            <div class="flex items-center flex-wrap gap-x-2 gap-y-1 min-w-0 flex-1">
-                <span class="font-mono text-sm text-neutral-900 break-words overflow-visible" title="{{ file.path }}">
-                    {%- if file.status == 'renamed' and file.old_path -%}
-                    {{ file.old_path }} → {{ file.path }}
-                    {%- else -%}
-                    {{ file.path }}
-                    {%- endif -%}
-                </span>
-                <span class="text-xs px-2 py-1 rounded flex-shrink-0
-                    {%- if file.status == 'added' %} bg-success-bg-100 text-success-text-800
-                    {%- elif file.status == 'deleted' %} bg-danger-bg-100 text-danger-text-800
-                    {%- elif file.status == 'renamed' %} bg-warning-bg-100 text-warning-text-800
-                    {%- else %} bg-neutral-100 text-neutral-500
-                    {%- endif %}">
-                    {%- if file.status == 'renamed' %}moved{%- else %}{{ file.status }}{%- endif %}
-                </span>
+            <div class="flex-1">
+                <div class="flex items-center flex-wrap gap-x-2 gap-y-1 pr-4">
+                    <span class="font-mono text-sm text-neutral-900 break-words"
+                        style="word-wrap: break-word !important; overflow-wrap: break-word !important; white-space: normal !important; overflow: visible !important; text-overflow: clip !important;"
+                        title="{{ file.path }}">
+                        {%- if file.status == 'renamed' and file.old_path -%}
+                        {{ file.old_path }} → {{ file.path }}
+                        {%- else -%}
+                        {{ file.path }}
+                        {%- endif -%}
+                    </span>
+                    <span class="text-xs px-2 py-1 rounded flex-shrink-0
+                        {%- if file.status == 'added' %} bg-success-bg-100 text-success-text-800
+                        {%- elif file.status == 'deleted' %} bg-danger-bg-100 text-danger-text-800
+                        {%- elif file.status == 'renamed' %} bg-warning-bg-100 text-warning-text-800
+                        {%- else %} bg-neutral-100 text-neutral-500
+                        {%- endif %}">
+                        {%- if file.status == 'renamed' %}moved{%- else %}{{ file.status }}{%- endif %}
+                    </span>
+                </div>
             </div>
         </div>
 
-        <div class="flex items-center space-x-2 text-xs flex-shrink-0 ml-4">
+        <div class="flex items-center space-x-2 text-xs flex-shrink-0 ml-4 self-center">
             <!-- File Stats -->
             {% if file.additions > 0 %}
             <span class="bg-success-bg-100 text-success-text-800 px-2 py-1 rounded">
