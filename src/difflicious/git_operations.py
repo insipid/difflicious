@@ -713,7 +713,7 @@ class GitRepository:
             numstat_args.append(file_path)
             namestat_args.append(file_path)
 
-        # Parse numstat output
+        # Parse numstat output first to get additions/deletions
         numstat_stdout, _, rc_num = self._execute_git_command(numstat_args)
         files = {}
         if rc_num == 0 and numstat_stdout:
@@ -723,6 +723,9 @@ class GitRepository:
                 parts = line.split("\t")
                 if len(parts) >= 3:
                     add_str, del_str, path = parts[0], parts[1], parts[2]
+                    # Skip paths with "=>" notation (rename notation from numstat)
+                    if "=>" in path:
+                        continue
                     try:
                         additions = int(add_str) if add_str != "-" else 0
                         deletions = int(del_str) if del_str != "-" else 0
@@ -737,12 +740,13 @@ class GitRepository:
                         "content": "",
                     }
 
-        # Parse name-status output
+        # Parse name-status output to get status and establish order
         namestat_stdout, _, rc_ns = self._execute_git_command(namestat_args)
+        file_order = []  # Track the order of files as they appear in name-status
         if rc_ns == 0 and namestat_stdout:
             # Track old paths from renames to filter them out
             old_paths_from_renames = set()
-            
+
             for line in namestat_stdout.strip().split("\n"):
                 if not line.strip():
                     continue
@@ -751,13 +755,13 @@ class GitRepository:
                     status_code = parts[0]
                     # Handle renames/copies: last column is the new path
                     path = parts[-1]
-                    
+
                     # For renames, track the old path to filter it out later and store it
                     old_path_for_file = None
                     if status_code.startswith("R") and len(parts) >= 3:
                         old_path_for_file = parts[1]  # Second column is the old path
                         old_paths_from_renames.add(old_path_for_file)
-                    
+
                     status_map = {
                         "M": "modified",
                         "A": "added",
@@ -785,11 +789,18 @@ class GitRepository:
                         if old_path_for_file:
                             file_data["old_path"] = old_path_for_file
                         files[path] = file_data
-            
+
+                    # Add to order list (this establishes the order from name-status)
+                    if path not in file_order:
+                        file_order.append(path)
+
             # Filter out old paths from renames (they would show as deleted)
             files = {path: data for path, data in files.items() if path not in old_paths_from_renames}
+            # Also remove old paths from the order list
+            file_order = [path for path in file_order if path not in old_paths_from_renames]
 
-        return list(files.values())
+        # Return files in the order they appeared in the git output
+        return [files[path] for path in file_order if path in files]
 
     def _get_file_diff(
         self,

@@ -81,28 +81,28 @@ class DiffService(BaseService):
         """
         # Track old paths from renames to filter them out
         old_paths_from_renames = set()
-        
+
         # First pass: identify old paths from renames
-        for group_name, group_data in grouped_diffs.items():
+        for _group_name, group_data in grouped_diffs.items():
             for diff in group_data["files"]:
                 if diff.get("status") == "renamed" and diff.get("old_path"):
                     old_paths_from_renames.add(diff["old_path"])
-        
+
         # Second pass: process files and filter out old paths
-        for group_name, group_data in grouped_diffs.items():
+        for _group_name, group_data in grouped_diffs.items():
             formatted_files = []
 
             for diff in group_data["files"]:
                 # Skip old paths from renames
                 if diff.get("path") in old_paths_from_renames:
                     continue
-                
+
                 # Skip files with rename notation in path (e.g., "{doc => docs}/..." or "old => new")
                 path = diff.get("path", "")
-                # Only filter if the path contains "=>" and looks like a file path (not just line numbers)
-                if ("=>" in path and ("/" in path or path.startswith("{"))) or (path.startswith("{") and "}" in path):
+                # Filter if the path contains "=>" (rename notation)
+                if "=>" in path:
                     continue
-                    
+
                 processed_diff = self._process_single_diff(diff)
                 formatted_files.append(processed_diff)
 

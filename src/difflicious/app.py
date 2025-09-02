@@ -326,16 +326,18 @@ def create_app() -> Flask:
         try:
             # Use template service logic for proper branch comparison handling
             template_service = TemplateRenderingService()
-            
+
             # Get basic repository information
             repo_status = template_service.git_service.get_repository_status()
             current_branch = repo_status.get("current_branch", "unknown")
-            
+
             # Determine if this is a HEAD comparison
-            is_head_comparison = base_ref in ["HEAD", current_branch] if base_ref else False
-            
+            # If no base_ref is provided, default to HEAD comparison
+            is_head_comparison = base_ref in ["HEAD", current_branch] if base_ref else True
+
             if is_head_comparison:
                 # Working directory vs HEAD comparison - use diff service directly
+                # This keeps unstaged and staged as separate groups
                 diff_service = DiffService()
                 grouped_data = diff_service.get_grouped_diffs(
                     base_ref="HEAD",
