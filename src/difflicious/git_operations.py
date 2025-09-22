@@ -60,9 +60,15 @@ class GitRepository:
         """Initialize git repository wrapper.
 
         Args:
-            repo_path: Path to git repository. Defaults to current working directory.
+            repo_path: Path to git repository. Defaults to DIFFLICIOUS_REPO_PATH environment
+                      variable if set, otherwise current working directory.
         """
-        self.repo_path = Path(repo_path) if repo_path else Path.cwd()
+        if repo_path:
+            self.repo_path = Path(repo_path)
+        else:
+            # Check for environment variable first, then fall back to current directory
+            env_repo_path = os.environ.get('DIFFLICIOUS_REPO_PATH')
+            self.repo_path = Path(env_repo_path) if env_repo_path else Path.cwd()
         self._validate_repository()
 
     def _validate_repository(self) -> None:
@@ -994,7 +1000,8 @@ def get_git_repository(repo_path: Optional[str] = None) -> GitRepository:
     """Factory function to create a GitRepository instance.
 
     Args:
-        repo_path: Optional path to git repository
+        repo_path: Optional path to git repository. Defaults to DIFFLICIOUS_REPO_PATH
+                  environment variable if set, otherwise current working directory.
 
     Returns:
         GitRepository instance

@@ -705,17 +705,25 @@ body {
     overflow: hidden;
 }
 
+/* Force filename container to only take content width */
+.file-header .flex-shrink {
+    flex-shrink: 1 !important;
+    max-width: fit-content !important;
+    flex-basis: auto !important;
+}
+
 .file-header .flex {
     min-width: 0;
     overflow: hidden;
 }
 
 .file-header .font-mono {
+    /* FIXME: Unsure where these came from, but they suck
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
+    */
     display: block !important;
-    flex: 1 !important;
     min-width: 0 !important;
 }
 
