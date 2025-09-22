@@ -471,9 +471,9 @@ class TestGitRepositoryCommitComparison:
         def resp(args):
             if "rev-parse" in args:
                 return "ok", "", 0
-            if args[:2] == ["diff", "--numstat"] and len(args) == 2:
+            if args[:2] == ["diff", "--numstat"] and "--find-renames" in args:
                 return "1\t0\tfile_a.txt\n", "", 0
-            if args[:2] == ["diff", "--name-status"] and len(args) == 2:
+            if args[:2] == ["diff", "--name-status"] and "--find-renames" in args:
                 return "M\tfile_a.txt\n", "", 0
             if args[:3] == ["diff", "--numstat", "main"]:
                 return "2\t1\tfile_b.txt\n", "", 0
@@ -493,6 +493,7 @@ class TestGitRepositoryCommitComparison:
         out_head = repo.get_diff(
             use_head=True, include_unstaged=True, include_untracked=True
         )
+
         assert out_head["unstaged"]["count"] == 1
         assert out_head["untracked"]["count"] == 1
 
@@ -505,9 +506,9 @@ class TestGitRepositoryCommitComparison:
         def resp_feature(args):
             if "rev-parse" in args:
                 return "ok", "", 0
-            if args[:3] == ["diff", "--numstat", "feature-x"]:
+            if args[:2] == ["diff", "--numstat"] and "feature-x" in args and "--find-renames" in args:
                 return "3\t3\tfx.py\n", "", 0
-            if args[:3] == ["diff", "--name-status", "feature-x"]:
+            if args[:2] == ["diff", "--name-status"] and "feature-x" in args and "--find-renames" in args:
                 return "M\tfx.py\n", "", 0
             if args[:4] == ["diff", "--cached", "feature-x"]:
                 return "", "", 0
@@ -515,6 +516,7 @@ class TestGitRepositoryCommitComparison:
 
         mock_execute.side_effect = resp_feature
         out_feature = repo.get_diff(include_unstaged=True, base_ref="feature-x")
+
         assert out_feature["unstaged"]["count"] == 1
 
     @patch("difflicious.git_operations.GitRepository._execute_git_command")
