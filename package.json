@@ -8,11 +8,12 @@
     "test:js": "jest",
     "test:js:watch": "jest --watch",
     "test:js:coverage": "jest --coverage",
-    "tailwind:build": "tailwindcss -c tailwind.config.cjs -i ./src/difflicious/static/css/tailwind.input.css -o ./src/difflicious/static/css/tailwind.css --minify",
-    "tailwind:watch": "tailwindcss -c tailwind.config.cjs -i ./src/difflicious/static/css/tailwind.input.css -o ./src/difflicious/static/css/tailwind.css --watch"
+    "tailwind:build": "NODE_ENV=production postcss ./src/difflicious/static/css/tailwind.input.css -o ./src/difflicious/static/css/tailwind.css",
+    "tailwind:watch": "postcss ./src/difflicious/static/css/tailwind.input.css -o ./src/difflicious/static/css/tailwind.css --watch"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
+    "cssnano": "^7.1.2",
     "eslint": "^8.57.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.29.1",
@@ -21,6 +22,7 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1",
     "tailwindcss": "^3.4.17"
   },
   "jest": {
