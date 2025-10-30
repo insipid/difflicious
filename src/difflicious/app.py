@@ -326,14 +326,16 @@ def create_app() -> Flask:
         try:
             # Use template service logic for proper branch comparison handling
             template_service = TemplateRenderingService()
-            
+
             # Get basic repository information
             repo_status = template_service.git_service.get_repository_status()
             current_branch = repo_status.get("current_branch", "unknown")
-            
+
             # Determine if this is a HEAD comparison
-            is_head_comparison = base_ref in ["HEAD", current_branch] if base_ref else False
-            
+            is_head_comparison = (
+                base_ref in ["HEAD", current_branch] if base_ref else False
+            )
+
             if is_head_comparison:
                 # Working directory vs HEAD comparison - use diff service directly
                 diff_service = DiffService()
@@ -354,6 +356,12 @@ def create_app() -> Flask:
                     file_path=file_path,
                 )
                 grouped_data = template_data["groups"]
+                # Ensure API always exposes an 'unstaged' key for compatibility
+                if "unstaged" not in grouped_data and "changes" in grouped_data:
+                    grouped_data["unstaged"] = grouped_data["changes"]
+                # Ensure API always exposes a 'staged' key for compatibility
+                if "staged" not in grouped_data:
+                    grouped_data["staged"] = {"files": [], "count": 0}
 
             # Calculate total files across all groups
             total_files = sum(group["count"] for group in grouped_data.values())

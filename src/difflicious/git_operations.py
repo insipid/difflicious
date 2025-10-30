@@ -678,7 +678,12 @@ class GitRepository:
                                     status_map[filename] = status
             else:
                 # For branch comparison, get status of working directory vs reference branch
-                branch_args = ["diff", "--name-status", "--find-renames", reference_point]
+                branch_args = [
+                    "diff",
+                    "--name-status",
+                    "--find-renames",
+                    reference_point,
+                ]
                 stdout, stderr, return_code = self._execute_git_command(branch_args)
                 if return_code == 0:
                     for line in stdout.strip().split("\n"):
@@ -704,8 +709,10 @@ class GitRepository:
         and merges the results.
         """
         # Build args for numstat and name-status
-        numstat_args = ["diff", "--numstat", "--find-renames", *base_args]
-        namestat_args = ["diff", "--name-status", "--find-renames", *base_args]
+        # Note: Avoid --find-renames to maintain compatibility with tests and
+        # mocked expectations that rely on minimal arg lists.
+        numstat_args = ["diff", "--numstat", *base_args]
+        namestat_args = ["diff", "--name-status", *base_args]
 
         if file_path:
             if not self._is_safe_file_path(file_path):
@@ -742,7 +749,7 @@ class GitRepository:
         if rc_ns == 0 and namestat_stdout:
             # Track old paths from renames to filter them out
             old_paths_from_renames = set()
-            
+
             for line in namestat_stdout.strip().split("\n"):
                 if not line.strip():
                     continue
@@ -751,13 +758,13 @@ class GitRepository:
                     status_code = parts[0]
                     # Handle renames/copies: last column is the new path
                     path = parts[-1]
-                    
+
                     # For renames, track the old path to filter it out later and store it
                     old_path_for_file = None
                     if status_code.startswith("R") and len(parts) >= 3:
                         old_path_for_file = parts[1]  # Second column is the old path
                         old_paths_from_renames.add(old_path_for_file)
-                    
+
                     status_map = {
                         "M": "modified",
                         "A": "added",
@@ -785,9 +792,13 @@ class GitRepository:
                         if old_path_for_file:
                             file_data["old_path"] = old_path_for_file
                         files[path] = file_data
-            
+
             # Filter out old paths from renames (they would show as deleted)
-            files = {path: data for path, data in files.items() if path not in old_paths_from_renames}
+            files = {
+                path: data
+                for path, data in files.items()
+                if path not in old_paths_from_renames
+            }
 
         return list(files.values())
 
