@@ -1,0 +1,61 @@
+# Version control
+.git/
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Testing
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+.hypothesis/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Development files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Node modules (if any)
+node_modules/
+package-lock.json
+package.json
+
+# Build artifacts
+build/
+dist/
+*.egg
+
+# Environment files
+.env
+.env.local
+.venv/
+venv/
+
+# CI/CD
+.github/
+
+# Miscellaneous
+*.log
+*.tmp
+parsed_diff_output.json
+rendering_output_sample.json
+test_*.py
+test_*.txt
