@@ -154,10 +154,10 @@ def test_new_feature_works_correctly():
     # Arrange - set up test data
     service = MyService()
     input_data = {"key": "value"}
-    
+
     # Act - perform the operation
     result = service.do_something(input_data)
-    
+
     # Assert - verify the result
     assert result["status"] == "success"
     assert "expected_key" in result

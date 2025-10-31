@@ -215,4 +215,3 @@ For more troubleshooting help, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 - Check [troubleshooting](TROUBLESHOOTING.md) for common issues
 - Read the main [README](../README.md) for features
 - Explore the [development setup](CONTRIBUTING.md#development-setup) for hacking on difflicious
-

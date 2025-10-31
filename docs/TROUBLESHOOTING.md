@@ -302,7 +302,7 @@ If none of these solutions work:
    ```bash
    # Docker logs
    docker logs difflicious
-   
+
    # Or console output if running directly
    ```
 3. Open an issue on GitHub:
