@@ -77,7 +77,9 @@ class TestCLIFonts:
 
         assert result.exit_code == 0
         # Should show current font marker (may depend on environment)
-        assert "JetBrains Mono" in result.output or "currently selected" in result.output
+        assert (
+            "JetBrains Mono" in result.output or "currently selected" in result.output
+        )
 
 
 class TestCLIErrorHandling:

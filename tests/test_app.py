@@ -322,7 +322,9 @@ class TestAPIExpandContext:
 
         mock_syntax_service = Mock()
         mock_syntax_class.return_value = mock_syntax_service
-        mock_syntax_service.highlight_diff_line.return_value = "<span>highlighted</span>"
+        mock_syntax_service.highlight_diff_line.return_value = (
+            "<span>highlighted</span>"
+        )
         mock_syntax_service.get_css_styles.return_value = ".highlight { color: red; }"
 
         # Provide target range to bypass hunk lookup
@@ -486,7 +488,9 @@ class TestAPIDiffFull:
         """Test full diff with DiffServiceError."""
         mock_diff_service = Mock()
         mock_diff_service_class.return_value = mock_diff_service
-        mock_diff_service.get_full_diff_data.side_effect = DiffServiceError("Parse failed")
+        mock_diff_service.get_full_diff_data.side_effect = DiffServiceError(
+            "Parse failed"
+        )
 
         response = client.get("/api/diff/full?file_path=test.py")
         assert response.status_code == 500

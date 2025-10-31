@@ -774,9 +774,6 @@ class TestGitRepositoryFileOperations:
         """Test file lines when file doesn't exist."""
         repo = GitRepository(str(mock_git_repo))
 
-        # Create a temporary file but then make sure it doesn't exist
-        test_file = mock_git_repo / "nonexistent.txt"
-
         with pytest.raises(GitOperationError, match="File not found"):
             repo.get_file_lines("nonexistent.txt", 1, 10)
 

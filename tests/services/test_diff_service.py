@@ -184,7 +184,9 @@ class TestDiffServiceFullDiff:
 
     @patch("difflicious.services.base_service.get_git_repository")
     @patch("difflicious.services.diff_service.parse_git_diff_for_rendering")
-    @patch("difflicious.services.diff_service.DiffService._apply_syntax_highlighting_to_diff")
+    @patch(
+        "difflicious.services.diff_service.DiffService._apply_syntax_highlighting_to_diff"
+    )
     def test_get_full_diff_data_success(
         self, mock_highlight, mock_parse, mock_get_repo
     ):
@@ -192,8 +194,12 @@ class TestDiffServiceFullDiff:
         # Setup mocks
         mock_repo = Mock()
         mock_get_repo.return_value = mock_repo
-        mock_repo.get_full_file_diff.return_value = "diff --git a/test.py b/test.py\n+added line"
-        mock_parse.return_value = [{"chunks": [], "old_file": "test.py", "new_file": "test.py"}]
+        mock_repo.get_full_file_diff.return_value = (
+            "diff --git a/test.py b/test.py\n+added line"
+        )
+        mock_parse.return_value = [
+            {"chunks": [], "old_file": "test.py", "new_file": "test.py"}
+        ]
         mock_highlight.return_value = {"chunks": []}
 
         # Test
@@ -307,8 +313,14 @@ class TestDiffServiceSyntaxHighlighting:
             "hunks": [
                 {
                     "lines": [
-                        {"left": {"content": "def test():"}, "right": {"content": "def test():"}},
-                        {"left": {"content": "    pass"}, "right": {"content": "    pass"}},
+                        {
+                            "left": {"content": "def test():"},
+                            "right": {"content": "def test():"},
+                        },
+                        {
+                            "left": {"content": "    pass"},
+                            "right": {"content": "    pass"},
+                        },
                     ]
                 }
             ]
@@ -368,10 +380,22 @@ class TestDiffServiceHelpers:
         service = DiffService()
 
         # Test different modes
-        assert service._get_comparison_mode_description(None, True, False) == "working directory vs HEAD"
-        assert service._get_comparison_mode_description("feature", False, False) == "working directory vs feature"
-        assert service._get_comparison_mode_description(None, False, True) == "staged vs HEAD"
-        assert service._get_comparison_mode_description(None, False, False) == "working directory vs main branch"
+        assert (
+            service._get_comparison_mode_description(None, True, False)
+            == "working directory vs HEAD"
+        )
+        assert (
+            service._get_comparison_mode_description("feature", False, False)
+            == "working directory vs feature"
+        )
+        assert (
+            service._get_comparison_mode_description(None, False, True)
+            == "staged vs HEAD"
+        )
+        assert (
+            service._get_comparison_mode_description(None, False, False)
+            == "working directory vs main branch"
+        )
 
     @patch("difflicious.services.base_service.get_git_repository")
     @patch("difflicious.services.diff_service.parse_git_diff_for_rendering")
