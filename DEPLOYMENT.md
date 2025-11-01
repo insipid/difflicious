@@ -75,6 +75,96 @@ difflicious
 
 ## Docker Installation
 
+### Building Docker Images
+
+#### Building Locally
+
+To build the Docker image on your local machine:
+
+```bash
+# Build the image
+docker build -t insipid/difflicious:latest .
+
+# Build for multiple platforms (requires Docker Buildx)
+docker buildx build --platform linux/amd64,linux/arm64 -t insipid/difflicious:latest .
+```
+
+**Note:** The Dockerfile uses a multi-stage build with Alpine Linux to create a minimal image (~100MB). The build process:
+- Stage 1: Builds the Python package in a `python:3.11-slim` environment
+- Stage 2: Creates the minimal runtime image with `python:3.11-alpine`
+
+#### Building with Version Tags
+
+For versioned builds:
+
+```bash
+# Build with a specific version tag
+docker build -t insipid/difflicious:v0.9.0 .
+docker build -t insipid/difflicious:latest .
+
+# Tag an existing image
+docker tag insipid/difflicious:latest insipid/difflicious:v0.9.0
+```
+
+### Pushing to Docker Hub
+
+Once you have a Docker Hub account, you can push images manually:
+
+```bash
+# Log in to Docker Hub
+docker login
+
+# Push the latest image
+docker push insipid/difflicious:latest
+
+# Push versioned images
+docker push insipid/difflicious:v0.9.0
+docker push insipid/difflicious:0.9.0
+docker push insipid/difflicious:0.9
+```
+
+#### Setting Up GitHub Actions for Automated Docker Publishing
+
+The project includes GitHub Actions workflows for automated Docker publishing.
+
+**1. Configure Docker Hub Secrets**
+
+Add the following secrets to your GitHub repository:
+- Go to your repository on GitHub
+- Navigate to **Settings** → **Secrets and variables** → **Actions**
+- Click **New repository secret**
+- Add:
+  - `DOCKER_USERNAME`: Your Docker Hub username (e.g., `insipid`)
+  - `DOCKER_HUB_TOKEN`: Your Docker Hub access token (recommended over password)
+
+**Note:** To create a Docker Hub access token:
+1. Go to [Docker Hub](https://hub.docker.com/)
+2. Navigate to **Account Settings** → **Security** → **New Access Token**
+3. Generate a token with appropriate permissions
+4. Copy the token and add it as a GitHub secret
+
+**2. Push Version Tags**
+
+The automated workflow triggers on git tags matching the pattern `v*.*.*`:
+
+```bash
+# Create and push a version tag
+git tag v0.9.0
+git push origin v0.9.0
+```
+
+This will automatically:
+- Build the Docker image for both `linux/amd64` and `linux/arm64` platforms
+- Push to Docker Hub with multiple tags: `v0.9.0`, `0.9.0`, `0.9`, and `latest` (if on main branch)
+- Use GitHub Actions build cache for faster builds
+
+**3. Manual Trigger (Optional)**
+
+You can also trigger the workflow manually:
+- Go to **Actions** tab in GitHub
+- Select **Docker Build and Publish** workflow
+- Click **Run workflow** button
+
 ### Pull and Run
 
 The simplest Docker installation:

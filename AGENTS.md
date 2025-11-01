@@ -10,6 +10,12 @@
 - **Type check**: `uv run mypy src/`
 - **Run app**: `uv run difflicious`
 
+## Docker Commands
+- **Build image**: `docker build -t insipid/difflicious:latest .`
+- **Build multi-platform**: `docker buildx build --platform linux/amd64,linux/arm64 -t insipid/difflicious:latest .`
+- **Push to Docker Hub**: `docker push insipid/difflicious:latest`
+- **Tag version**: `git tag v0.9.0 && git push origin v0.9.0` (triggers automated build/push)
+
 ## Code Style Guidelines
 - **Line length**: 88 characters (Black/Ruff configured)
 - **Imports**: Use absolute imports, group stdlib/third-party/local with blank lines
