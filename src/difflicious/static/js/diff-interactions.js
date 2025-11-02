@@ -60,11 +60,12 @@ const DiffState = {
 
     restoreState() {
         // First, sync with server-rendered state by checking which files are initially visible
+        const serverExpandedFiles = new Set();
         $$('[data-file-content]').forEach(contentElement => {
             const filePath = contentElement.dataset.fileContent;
             const isVisible = contentElement.style.display !== 'none';
             if (isVisible) {
-                this.expandedFiles.add(filePath);
+                serverExpandedFiles.add(filePath);
             }
         });
 
@@ -76,20 +77,23 @@ const DiffState = {
 
                 // Restore file expansion states
                 if (state.expandedFiles) {
-                    // First, ensure all files match the saved expanded state
+                    // Merge server state with localStorage state
+                    // Server state (visible files) takes priority and should always be included
                     const savedExpandedFiles = new Set(state.expandedFiles);
-                    this.expandedFiles = savedExpandedFiles;
+                    this.expandedFiles = new Set([...serverExpandedFiles, ...savedExpandedFiles]);
 
-                    // Apply the saved state to all files
+                    // Apply the merged state to all files
                     $$('[data-file-content]').forEach(contentElement => {
                         const filePath = contentElement.dataset.fileContent;
                         const fileElement = $(`[data-file="${filePath}"]`);
                         const toggleIcon = fileElement?.querySelector('.toggle-icon');
 
                         if (contentElement && fileElement && toggleIcon) {
-                            const shouldBeExpanded = savedExpandedFiles.has(filePath);
+                            // Prioritize server state (if file is visible, it should be expanded)
+                            // Otherwise use saved state
+                            const shouldBeExpanded = serverExpandedFiles.has(filePath) || savedExpandedFiles.has(filePath);
 
-                            // Apply visual state based on saved state
+                            // Apply visual state based on merged state
                             contentElement.style.display = shouldBeExpanded ? 'block' : 'none';
                             toggleIcon.textContent = shouldBeExpanded ? '▼' : '▶';
                             toggleIcon.dataset.expanded = shouldBeExpanded ? 'true' : 'false';
@@ -97,6 +101,9 @@ const DiffState = {
                             if (DEBUG) console.log(`Restored ${shouldBeExpanded ? 'expanded' : 'collapsed'} state for file: ${filePath}`);
                         }
                     });
+                } else {
+                    // No saved files, just use server state
+                    this.expandedFiles = serverExpandedFiles;
                 }
 
                 // Restore group expansion states
@@ -128,11 +135,13 @@ const DiffState = {
                 if (DEBUG) console.log(`Restored state for ${this.repositoryName}:`, state);
             } catch (e) {
                 if (DEBUG) console.warn('Failed to restore state:', e);
-                // Use defaults on error
+                // Use defaults on error, but preserve server state
+                this.expandedFiles = serverExpandedFiles;
                 this.expandedGroups = new Set(['untracked', 'unstaged', 'staged']);
             }
         } else {
-            // No saved state, use defaults
+            // No saved state, use server state and defaults
+            this.expandedFiles = serverExpandedFiles;
             this.expandedGroups = new Set(['untracked', 'unstaged', 'staged']);
         }
     },
@@ -1078,7 +1087,7 @@ function mergeHunks(firstHunk, secondHunk) {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', async() => {
+document.addEventListener('DOMContentLoaded', async () => {
     initializeTheme();
     await DiffState.init();
 
@@ -1518,8 +1527,8 @@ function renderSideBySideLine(line) {
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         ${leftContent
-        ? (leftBg.includes('danger') ? `<span class="text-danger-text-600">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`)
-        : ''}
+            ? (leftBg.includes('danger') ? `<span class="text-danger-text-600">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`)
+            : ''}
                     </div>
                 </div>
             </div>
@@ -1532,8 +1541,8 @@ function renderSideBySideLine(line) {
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         ${rightContent
-        ? (rightBg.includes('success') ? `<span class="text-success-text-600">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`)
-        : ''}
+            ? (rightBg.includes('success') ? `<span class="text-success-text-600">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`)
+            : ''}
                     </div>
                 </div>
             </div>
