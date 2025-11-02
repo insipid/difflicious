@@ -1,4 +1,4 @@
-# npm run test      && \
+npm run test:js     && \
 npm run lint:js     && \
 uv run pytest       && \
 uv run mypy src/    && \
