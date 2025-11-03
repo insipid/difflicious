@@ -1,0 +1,134 @@
+name: Auto Release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  detect-version-change:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Needed to create tags and releases
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2  # Need previous commit to compare versions
+
+    - name: Extract versions
+      id: versions
+      run: |
+        # Get current version (from current commit)
+        CURRENT_VERSION=$(grep -E '^__version__ = ' src/difflicious/__init__.py | sed "s/__version__ = //" | tr -d '"' | tr -d "'")
+        
+        # Get previous version (from previous commit)
+        PREVIOUS_VERSION=$(git show HEAD~1:src/difflicious/__init__.py 2>/dev/null | grep -E '^__version__ = ' | sed "s/__version__ = //" | tr -d '"' | tr -d "'" || echo "")
+        
+        # Handle case where file might not exist in previous commit
+        if [ -z "$PREVIOUS_VERSION" ]; then
+          echo "⚠️ Could not find previous version, assuming first release"
+          PREVIOUS_VERSION="0.0.0"
+        fi
+        
+        echo "previous=$PREVIOUS_VERSION" >> $GITHUB_OUTPUT
+        echo "current=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+        
+        # Check if version changed
+        if [ "$PREVIOUS_VERSION" != "$CURRENT_VERSION" ]; then
+          echo "changed=true" >> $GITHUB_OUTPUT
+          echo "✅ Version changed from $PREVIOUS_VERSION to $CURRENT_VERSION"
+        else
+          echo "changed=false" >> $GITHUB_OUTPUT
+          echo "ℹ️ Version unchanged ($CURRENT_VERSION), skipping release"
+        fi
+
+    - name: Validate version format
+      if: steps.versions.outputs.changed == 'true'
+      run: |
+        VERSION="${{ steps.versions.outputs.current }}"
+        # Validate semantic version format (x.y.z)
+        if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+'; then
+          echo "❌ Invalid version format: $VERSION (expected: x.y.z)"
+          exit 1
+        fi
+        echo "✅ Version format valid: $VERSION"
+
+    - name: Validate changelog entry
+      if: steps.versions.outputs.changed == 'true'
+      run: |
+        VERSION="${{ steps.versions.outputs.current }}"
+        # Check if CHANGELOG.md has entry for this version
+        if ! grep -q "## \[$VERSION\]" CHANGELOG.md; then
+          echo "❌ CHANGELOG.md missing entry for version $VERSION"
+          echo "Please add a changelog entry with format: ## [$VERSION] - YYYY-MM-DD"
+          exit 1
+        fi
+        echo "✅ Changelog entry found for version $VERSION"
+
+    - name: Extract changelog section
+      if: steps.versions.outputs.changed == 'true'
+      id: changelog
+      run: |
+        VERSION="${{ steps.versions.outputs.current }}"
+        # Extract changelog section for this version (everything until next ##)
+        awk "/## \[$VERSION\]/,/^## \[/{if (!/^## \[/ || /## \[$VERSION\]/) print}" CHANGELOG.md | head -n -1 > release_notes.txt || true
+        # If awk didn't work, try simpler approach
+        if [ ! -s release_notes.txt ]; then
+          # Extract from the version header until next version header or end of file
+          sed -n "/## \[$VERSION\]/,/^## \[/p" CHANGELOG.md | sed '$d' > release_notes.txt
+        fi
+        echo "notes<<EOF" >> $GITHUB_OUTPUT
+        cat release_notes.txt >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+    - name: Check if tag already exists
+      if: steps.versions.outputs.changed == 'true'
+      id: tag-check
+      run: |
+        VERSION="${{ steps.versions.outputs.current }}"
+        TAG="v${VERSION}"
+        if git rev-parse "$TAG" >/dev/null 2>&1; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+          echo "⚠️ Tag $TAG already exists, skipping tag creation"
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+          echo "✅ Tag $TAG does not exist, will create"
+        fi
+
+    - name: Create git tag
+      if: steps.versions.outputs.changed == 'true' && steps.tag-check.outputs.exists == 'false'
+      run: |
+        VERSION="${{ steps.versions.outputs.current }}"
+        TAG="v${VERSION}"
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git tag -a "$TAG" -m "Release $TAG"
+        git push origin "$TAG"
+        echo "✅ Created and pushed tag: $TAG"
+
+    - name: Create GitHub Release
+      if: steps.versions.outputs.changed == 'true' && steps.tag-check.outputs.exists == 'false'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ steps.versions.outputs.current }}
+        name: Release v${{ steps.versions.outputs.current }}
+        body: ${{ steps.changelog.outputs.notes }}
+        draft: false
+        prerelease: false
+        generate_release_notes: false
+
+    - name: Release summary
+      if: steps.versions.outputs.changed == 'true'
+      run: |
+        VERSION="${{ steps.versions.outputs.current }}"
+        TAG="v${VERSION}"
+        echo "## Release Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Version: $VERSION" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Tag: $TAG" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ steps.tag-check.outputs.exists }}" == "false" ]; then
+          echo "- ✅ Created GitHub Release" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Docker and PyPI publishing triggered automatically" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- ⚠️ Tag already existed, skipped release creation" >> $GITHUB_STEP_SUMMARY
+        fi

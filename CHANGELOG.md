@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **JavaScript linting** with ESLint
 - **Automated Docker publishing** to Docker Hub on version tags
 - **Automated PyPI publishing** with trusted publishing
+- **Automated release workflow** - Version bumps trigger automatic tag creation, GitHub releases, and publishing
 - **Build caching** for faster CI/CD runs
 
 #### Testing Infrastructure
