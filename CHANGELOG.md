@@ -5,6 +5,14 @@ All notable changes to difflicious will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.1] - 2025-01-28
+
+### Infrastructure & Deployment
+
+#### CI/CD Pipeline
+- **Fixed publishing workflows** - Docker and PyPI publishing now trigger automatically on GitHub release creation
+- **Release automation** - Publishing workflows now respond to both tag pushes and release events for maximum reliability
+
 ## [0.9.0] - 2025-10-31
 
 ### Infrastructure & Deployment
