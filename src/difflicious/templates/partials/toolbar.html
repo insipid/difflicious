@@ -1,15 +1,15 @@
 <!-- Toolbar -->
-<header class="bg-neutral-50 dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-700 px-4 py-3">
+<header class="bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-600 px-4 py-3">
     <div class="flex items-center justify-between">
         <div class="flex items-center space-x-4 flex-1">
-            <h1 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
+            <h1 class="text-xl font-semibold text-neutral-900 dark:text-neutral-300">
                 <a href="/" class="hover:underline">Difflicious</a>
             </h1>
 
             <!-- Base Branch Dropdown -->
             <form method="GET" action="/" class="flex items-center space-x-2 flex-1"
                 onsubmit="return scrubEmptyInputs(this)">
-                <label class="text-sm font-medium text-neutral-700">
+                <label class="text-sm font-medium text-neutral-700 dark:text-neutral-400">
                     <svg width="20" height="20" viewBox="0 0 512 512" fill="currentColor" class="inline" title="Branch"
                         aria-label="Select base branch">
                         <path
@@ -17,7 +17,7 @@
                     </svg>
                 </label>
                 <select name="base_ref" onchange="this.form.submit()"
-                    class="bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-info-text-600 focus:border-info-text-600 dark:text-neutral-100">
+                    class="bg-neutral-50 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-info-text-600 focus:border-info-text-600 text-neutral-900 dark:text-neutral-100">
                     {% for branch in branches.all %}
                     <option value="{{ branch }}" {% if branch==current_base_ref %}selected{% endif %}>
                         {{ branch }}
@@ -32,21 +32,22 @@
                     <!-- HEAD comparison: show "Untracked" and "Unstaged" (staged always visible) -->
                     <label class="flex items-center">
                         <input type="checkbox" name="untracked" value="true" {% if untracked %}checked{% endif %}
-                            class="h-4 w-4 text-info-text-600 focus:ring-info-text-600 border-neutral-300 rounded checkbox-control">
+                            class="h-4 w-4 text-info-text-600 focus:ring-info-text-600 border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 rounded checkbox-control">
                         <svg width="20" height="20" viewBox="0 0 1024 1024" fill="currentColor"
-                            class="ml-1 text-neutral-700" title="Untracked" aria-label="Untracked">
+                            class="ml-1 text-neutral-700 dark:text-neutral-300" title="Untracked"
+                            aria-label="Untracked">
                             <path
                                 d="M854.6 288.7L639.4 73.4c-6-6-14.2-9.4-22.7-9.4H192c-17.7 0-32 14.3-32 32v832c0 17.7 14.3 32 32 32h640c17.7 0 32-14.3 32-32V311.3c0-8.5-3.4-16.6-9.4-22.6zM790.2 326H602V137.8L790.2 326zm1.8 562H232V136h302v216a42 42 0 0 0 42 42h216v494zM402 549c0 5.4 4.4 9.5 9.8 9.5h32.4c5.4 0 9.8-4.2 9.8-9.4 0-28.2 25.8-51.6 58-51.6s58 23.4 58 51.5c0 25.3-21 47.2-49.3 50.9-19.3 2.8-34.5 20.3-34.7 40.1v32c0 5.5 4.5 10 10 10h32c5.5 0 10-4.5 10-10v-12.2c0-6 4-11.5 9.7-13.3 44.6-14.4 75-54 74.3-98.9-.8-55.5-49.2-100.8-108.5-101.6-61.4-.7-111.5 45.6-111.5 103zm78 195a32 32 0 1 0 64 0 32 32 0 1 0-64 0z" />
                         </svg>
-                        <span class="ml-1 text-sm text-neutral-700">Untracked</span>
+                        <span class="ml-1 text-sm text-neutral-700 dark:text-neutral-300">Untracked</span>
                     </label>
 
                     <label class="flex items-center">
                         <input type="checkbox" name="unstaged" value="true" {% if unstaged %}checked{% endif %}
-                            class="h-4 w-4 text-info-text-600 focus:ring-info-text-600 border-neutral-300 rounded checkbox-control">
+                            class="h-4 w-4 text-info-text-600 focus:ring-info-text-600 border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 rounded checkbox-control">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="ml-1 text-neutral-700" title="Unstaged" aria-label="Unstaged">
+                            class="ml-1 text-neutral-700 dark:text-neutral-400" title="Unstaged" aria-label="Unstaged">
                             <circle cx="6" cy="6" r="3" />
                             <path d="M6 9v12" />
                             <path d="m21 3-6 6" />
@@ -54,19 +55,20 @@
                             <path d="M18 11.5V15" />
                             <circle cx="18" cy="18" r="3" />
                         </svg>
-                        <span class="ml-1 text-sm text-neutral-700">Unstaged</span>
+                        <span class="ml-1 text-sm text-neutral-700 dark:text-neutral-400">Unstaged</span>
                     </label>
                     {% else %}
                     <!-- Branch comparison: only show "Untracked" (changes are always visible) -->
                     <label class="flex items-center">
                         <input type="checkbox" name="untracked" value="true" {% if untracked %}checked{% endif %}
-                            class="h-4 w-4 text-info-text-600 focus:ring-info-text-600 border-neutral-300 rounded checkbox-control">
+                            class="h-4 w-4 text-info-text-600 focus:ring-info-text-600 border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 rounded checkbox-control">
                         <svg width="20" height="20" viewBox="0 0 1024 1024" fill="currentColor"
-                            class="ml-1 text-neutral-700" title="Untracked" aria-label="Untracked">
+                            class="ml-1 text-neutral-700 dark:text-neutral-400" title="Untracked"
+                            aria-label="Untracked">
                             <path
                                 d="M854.6 288.7L639.4 73.4c-6-6-14.2-9.4-22.7-9.4H192c-17.7 0-32 14.3-32 32v832c0 17.7 14.3 32 32 32h640c17.7 0 32-14.3 32-32V311.3c0-8.5-3.4-16.6-9.4-22.6zM790.2 326H602V137.8L790.2 326zm1.8 562H232V136h302v216a42 42 0 0 0 42 42h216v494zM402 549c0 5.4 4.4 9.5 9.8 9.5h32.4c5.4 0 9.8-4.2 9.8-9.4 0-28.2 25.8-51.6 58-51.6s58 23.4 58 51.5c0 25.3-21 47.2-49.3 50.9-19.3 2.8-34.5 20.3-34.7 40.1v32c0 5.5 4.5 10 10 10h32c5.5 0 10-4.5 10-10v-12.2c0-6 4-11.5 9.7-13.3 44.6-14.4 75-54 74.3-98.9-.8-55.5-49.2-100.8-108.5-101.6-61.4-.7-111.5 45.6-111.5 103zm78 195a32 32 0 1 0 64 0 32 32 0 1 0-64 0z" />
                         </svg>
-                        <span class="ml-1 text-sm text-neutral-700">Untracked</span>
+                        <span class="ml-1 text-sm text-neutral-700 dark:text-neutral-400">Untracked</span>
                     </label>
                     {% endif %}
                 </div>
@@ -89,9 +91,9 @@
                     </svg>
                     <input id="diff-search-input" type="text" name="search" value="{{ search_filter or '' }}"
                         placeholder="Filter files..."
-                        class="bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 rounded-md pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-info-text-600 focus:border-info-text-600 dark:text-neutral-100">
+                        class="bg-neutral-50 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 rounded-md pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-info-text-600 focus:border-info-text-600 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 dark:placeholder:text-neutral-400">
                     <button id="diff-search-clear" type="button"
-                        class="hidden absolute inset-y-0 right-2 my-auto text-neutral-400 hover:text-neutral-600"
+                        class="hidden absolute inset-y-0 right-2 my-auto text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300"
                         aria-label="Clear search">
                         ×
                     </button>

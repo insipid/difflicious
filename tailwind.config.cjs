@@ -13,6 +13,13 @@ module.exports = {
     'dark:border-neutral-600',
     'dark:border-neutral-700',
     'dark:text-neutral-100',
+    'dark:text-neutral-300',
+    'dark:text-neutral-400',
+    'dark:text-neutral-500',
+    'dark:placeholder:text-neutral-400',
+    'dark:hover:bg-neutral-800',
+    'dark:hover:text-neutral-100',
+    'dark:hover:text-neutral-300',
     'dark:bg-green-900/20',
     'dark:bg-red-900/20'
   ],

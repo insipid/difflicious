@@ -181,6 +181,11 @@ body {
     padding: var(--spacing-md) 0;
 }
 
+/* Override header background in dark mode */
+[data-theme="dark"] header {
+    background-color: #1e293b !important; /* neutral-800 */
+}
+
 .header .container {
     display: flex;
     justify-content: space-between;
@@ -859,7 +864,92 @@ body {
     background-color: #2e5e44 !important;
 }
 
+/* Dark mode input and select styling */
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="search"],
+[data-theme="dark"] select {
+    background-color: var(--color-neutral-100) !important; /* neutral-700 equivalent: #334155 */
+    color: var(--color-text) !important; /* neutral-100 */
+    border-color: var(--color-border) !important; /* neutral-600: #475569 */
+}
 
+[data-theme="dark"] input[type="text"]::placeholder,
+[data-theme="dark"] input[type="search"]::placeholder {
+    color: var(--color-text-secondary) !important; /* neutral-400: #94a3b8 */
+}
+
+[data-theme="dark"] input[type="checkbox"] {
+    background-color: var(--color-neutral-100) !important; /* neutral-700: #334155 */
+    border-color: var(--color-border) !important; /* neutral-600: #475569 */
+    accent-color: var(--color-info-text-600);
+}
+
+[data-theme="dark"] input[type="checkbox"]:checked {
+    background-color: var(--color-info-text-600);
+    border-color: var(--color-info-text-600);
+}
+
+/* Dark mode header and file list backgrounds - force with !important */
+[data-theme="dark"] header,
+[data-theme="dark"] header.bg-neutral-50,
+[data-theme="dark"] header[class*="bg-neutral"],
+[data-theme="dark"] header[class*="dark:bg"] {
+    background-color: #1e293b !important; /* neutral-800 */
+    border-color: #475569 !important; /* neutral-600 - softer border */
+}
+
+[data-theme="dark"] .file-diff,
+[data-theme="dark"] .file-diff.bg-neutral-50,
+[data-theme="dark"] .file-diff[class*="bg-neutral"],
+[data-theme="dark"] .file-diff[class*="dark:bg"] {
+    background-color: #1e293b !important; /* neutral-800 */
+    border-color: #475569 !important; /* neutral-600 - softer border */
+}
+
+[data-theme="dark"] .file-content {
+    border-color: #475569 !important; /* neutral-600 - softer border */
+}
+
+[data-theme="dark"] .file-header,
+[data-theme="dark"] .file-header[class*="hover:bg"] {
+    background-color: #1e293b !important; /* neutral-800 */
+}
+
+[data-theme="dark"] .file-header:hover,
+[data-theme="dark"] .file-header[class*="hover:bg-neutral"]:hover {
+    background-color: #334155 !important; /* neutral-700 */
+}
+
+[data-theme="dark"] .file-header .font-mono,
+[data-theme="dark"] .file-header .font-mono.text-neutral-900,
+[data-theme="dark"] .file-header span[class*="text-neutral-900"],
+[data-theme="dark"] .file-header span[class*="dark:text"] {
+    color: #cbd5e1 !important; /* neutral-300 - less bright */
+}
+
+/* Force darker backgrounds for buttons and modified pills */
+[data-theme="dark"] .dark-button-bg {
+    background-color: #0a0f1a !important; /* Darker than neutral-900 */
+}
+
+[data-theme="dark"] .dark-modified-pill {
+    background-color: #0a0f1a !important; /* Darker than neutral-900 for modified pills */
+}
+
+[data-theme="dark"] .group-header,
+[data-theme="dark"] .group-header[class*="hover:bg"] {
+    background-color: transparent !important;
+}
+
+[data-theme="dark"] .group-header:hover,
+[data-theme="dark"] .group-header[class*="hover:bg-neutral"]:hover {
+    background-color: #334155 !important; /* neutral-700 */
+}
+
+[data-theme="dark"] .group-header h3,
+[data-theme="dark"] .group-header h3[class*="text-neutral"] {
+    color: #cbd5e1 !important; /* neutral-300 */
+}
 
 /* Responsive Design */
 @media (max-width: 768px) {
