@@ -338,21 +338,23 @@ def create_app() -> Flask:
 
             if is_head_comparison:
                 # Working directory vs HEAD comparison - use diff service directly
+                # Always fetch both unstaged and untracked (parameters kept for backward compatibility)
                 diff_service = DiffService()
                 grouped_data = diff_service.get_grouped_diffs(
                     base_ref="HEAD",
-                    unstaged=unstaged,
-                    untracked=untracked,
+                    unstaged=unstaged,  # Parameter kept for backward compatibility
+                    untracked=untracked,  # Parameter kept for backward compatibility
                     file_path=file_path,
                 )
             else:
                 # Working directory vs branch comparison - use template service logic
                 # This ensures proper combining of staged/unstaged into "changes" group
+                # Always fetch both unstaged and untracked (parameters kept for backward compatibility)
                 template_data = template_service.prepare_diff_data_for_template(
                     base_ref=base_ref,
-                    unstaged=unstaged,
+                    unstaged=unstaged,  # Parameter kept for backward compatibility
                     staged=True,  # Always include staged for branch comparisons
-                    untracked=untracked,
+                    untracked=untracked,  # Parameter kept for backward compatibility
                     file_path=file_path,
                 )
                 grouped_data = template_data["groups"]

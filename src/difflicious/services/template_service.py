@@ -66,10 +66,11 @@ class TemplateRenderingService(BaseService):
                 if is_head_comparison:
                     # Working directory vs HEAD comparison
                     # Always get both staged and unstaged files, keep them separate
+                    # Both unstaged and untracked are always fetched for client-side filtering
                     grouped_diffs = self.diff_service.get_grouped_diffs(
                         base_ref="HEAD",
-                        unstaged=True,  # Always get unstaged files for HEAD comparisons
-                        untracked=untracked,
+                        unstaged=unstaged,  # Parameter kept for backward compatibility
+                        untracked=untracked,  # Parameter kept for backward compatibility
                         file_path=file_path,
                     )
 
@@ -77,18 +78,15 @@ class TemplateRenderingService(BaseService):
                     # Files can appear in both groups if they have both staged AND unstaged changes
                     # This is correct behavior - it shows what's ready to commit vs what's still being worked on
 
-                    # Remove unstaged group based on checkbox selection (staged always visible)
-                    if not unstaged and "unstaged" in grouped_diffs:
-                        del grouped_diffs["unstaged"]
-
-                    # Ensure staged changes are always included in HEAD comparison mode
-                    # The git operations always include staged changes, so we don't need to modify the request
+                    # Note: We no longer remove groups based on checkbox selection here.
+                    # All groups are always returned, and the frontend filters visibility.
                 else:
                     # Working directory vs branch comparison - always show changes
+                    # Both unstaged and untracked are always fetched for client-side filtering
                     grouped_diffs = self.diff_service.get_grouped_diffs(
                         base_ref=base_ref,
-                        unstaged=True,  # Always show changes for branch comparisons
-                        untracked=untracked,
+                        unstaged=unstaged,  # Parameter kept for backward compatibility
+                        untracked=untracked,  # Parameter kept for backward compatibility
                         file_path=file_path,
                     )
 
@@ -97,10 +95,11 @@ class TemplateRenderingService(BaseService):
                     )
             else:
                 # Default behavior: compare to default branch - always show changes
+                # Both unstaged and untracked are always fetched for client-side filtering
                 grouped_diffs = self.diff_service.get_grouped_diffs(
                     base_ref=base_ref,
-                    unstaged=True,  # Always show changes for branch comparisons
-                    untracked=untracked,
+                    unstaged=unstaged,  # Parameter kept for backward compatibility
+                    untracked=untracked,  # Parameter kept for backward compatibility
                     file_path=file_path,
                 )
                 grouped_diffs = self._combine_unstaged_and_staged_as_changes(

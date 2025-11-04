@@ -155,8 +155,9 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
             // Special case: if only staged changes are displayed, show files without grouping
             const showingStagedOnly = !this.unstaged && !this.untracked;
 
-            // Add groups that have content (headers always show, but content may be hidden)
-            if (this.groups.untracked.count > 0) {
+            // Add groups that have content and are enabled by toggle state
+            // Untracked group: only show if toggle is enabled AND group has content
+            if (this.untracked && this.groups.untracked.count > 0) {
                 groups.push({
                     key: 'untracked',
                     title: 'Untracked',
@@ -167,7 +168,8 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
                 });
             }
 
-            if (this.groups.unstaged.count > 0) {
+            // Unstaged group: only show if toggle is enabled AND group has content
+            if (this.unstaged && this.groups.unstaged.count > 0) {
                 groups.push({
                     key: 'unstaged',
                     title: 'Unstaged',
@@ -178,6 +180,7 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
                 });
             }
 
+            // Staged group: always show if it has content (staged is always visible)
             if (this.groups.staged.count > 0) {
                 groups.push({
                     key: 'staged',

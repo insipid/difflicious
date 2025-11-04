@@ -50,8 +50,12 @@ const DiffState = {
         if (expandAllBtn) expandAllBtn.addEventListener('click', () => expandAllFiles());
         if (collapseAllBtn) collapseAllBtn.addEventListener('click', () => collapseAllFiles());
 
-        // Form auto-submit on changes
+        // Form auto-submit on changes (but exclude unstaged/untracked toggles for client-side filtering)
         $$('input[type="checkbox"], select').forEach(input => {
+            // Skip unstaged and untracked checkboxes - they use client-side filtering
+            if (input.type === 'checkbox' && (input.name === 'unstaged' || input.name === 'untracked')) {
+                return;
+            }
             input.addEventListener('change', () => {
                 input.closest('form')?.submit();
             });

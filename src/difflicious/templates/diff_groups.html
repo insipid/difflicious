@@ -1,7 +1,8 @@
 <!-- Diff Groups -->
 {% for group_key, group in groups.items() %}
 {% if group.count > 0 %}
-<div class="diff-group space-y-2" data-group="{{ group_key }}">
+{% set should_show = (group_key == 'unstaged' and unstaged) or (group_key == 'untracked' and untracked) or (group_key == 'staged') or (group_key == 'changes') %}
+<div class="diff-group space-y-2" data-group="{{ group_key }}" {% if not should_show %}style="display: none;"{% endif %}>
     <!-- Group Header (hidden for staged-only view or ungrouped 'changes' view) -->
     {% set hide_header = (group_key == 'staged' and not unstaged and not untracked) or (group_key == 'changes' and not untracked) %}
     {% if not hide_header %}

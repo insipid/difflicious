@@ -36,7 +36,11 @@ class DiffService(BaseService):
         Args:
             base_ref: Base reference for comparison (HEAD or branch)
             unstaged: Whether to include unstaged changes (mapped to include_unstaged)
+                Note: This parameter is kept for backward compatibility but is ignored.
+                Both unstaged and untracked data are always fetched.
             untracked: Whether to include untracked files (mapped to include_untracked)
+                Note: This parameter is kept for backward compatibility but is ignored.
+                Both unstaged and untracked data are always fetched.
             file_path: Optional specific file to diff
 
         Returns:
@@ -51,11 +55,13 @@ class DiffService(BaseService):
             current_branch = self.repo.get_current_branch()
             use_head = base_ref in ["HEAD", current_branch] if base_ref else False
 
-            # Get raw diff data from git operations using new interface
+            # Always fetch both unstaged and untracked data for client-side filtering
+            # The unstaged and untracked parameters are kept for backward compatibility
+            # but are ignored here - the frontend will filter visibility based on toggle state
             grouped_diffs = self.repo.get_diff(
                 use_head=use_head,
-                include_unstaged=unstaged,
-                include_untracked=untracked,
+                include_unstaged=True,  # Always fetch unstaged
+                include_untracked=True,  # Always fetch untracked
                 file_path=file_path,
                 base_ref=base_ref,
             )

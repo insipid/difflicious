@@ -8,7 +8,8 @@
 
             <!-- Base Branch Dropdown -->
             <form method="GET" action="/" class="flex items-center space-x-2 flex-1"
-                onsubmit="return scrubEmptyInputs(this)">
+                onsubmit="return scrubEmptyInputs(this)"
+                id="diff-toolbar-form">
                 <label class="text-sm font-medium text-neutral-700 dark:text-neutral-400">
                     <svg width="20" height="20" viewBox="0 0 512 512" fill="currentColor" class="inline" title="Branch"
                         aria-label="Select base branch">
@@ -104,7 +105,45 @@
 </header>
 
 <script>
+    // Global state for toggle visibility (client-side filtering)
+    const ToggleState = {
+        unstaged: {{ unstaged|lower }},
+        untracked: {{ untracked|lower }},
+
+        updateToggle(name, checked) {
+            this[name] = checked;
+            this.updateGroupVisibility();
+            this.updateURL();
+        },
+
+        updateGroupVisibility() {
+            // Show/hide groups based on toggle state without server request
+            const unstagedGroup = document.querySelector('[data-group="unstaged"]');
+            const untrackedGroup = document.querySelector('[data-group="untracked"]');
+
+            if (unstagedGroup) {
+                unstagedGroup.style.display = this.unstaged ? '' : 'none';
+            }
+
+            if (untrackedGroup) {
+                untrackedGroup.style.display = this.untracked ? '' : 'none';
+            }
+        },
+
+        updateURL() {
+            // Update URL without page reload for bookmarking/sharing
+            const url = new URL(window.location);
+            url.searchParams.set('unstaged', this.unstaged.toString());
+            url.searchParams.set('untracked', this.untracked.toString());
+            window.history.replaceState({}, '', url);
+        }
+    };
+
     function updateCheckboxAndSubmit(checkbox) {
+        // This function is called for non-toggle checkboxes only
+        // Toggles are handled in the event listener directly
+
+        // For other form elements (branch select, search), submit normally
         const form = checkbox.form;
         const formData = new FormData(form);
         const params = new URLSearchParams();
@@ -119,6 +158,10 @@
                 params.set(key, value);
             }
         }
+
+        // Include current toggle states in URL
+        params.set('unstaged', ToggleState.unstaged.toString());
+        params.set('untracked', ToggleState.untracked.toString());
 
         // Explicitly set checkbox states based on their current checked state
         const unstagedCheckbox = form.querySelector('input[name="unstaged"]');
@@ -150,18 +193,36 @@
     }
 
     // Set up event listeners when DOM is ready
+    // Use capture phase to ensure our handler runs before other listeners
     document.addEventListener('DOMContentLoaded', function () {
-        const checkboxes = document.querySelectorAll('.checkbox-control');
+        // Initialize toggle state based on initial visibility
+        ToggleState.updateGroupVisibility();
+
+        const form = document.getElementById('diff-toolbar-form');
+        const checkboxes = document.querySelectorAll('input[name="unstaged"], input[name="untracked"]');
+
+        // Prevent form submission when unstaged/untracked toggles change
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                const target = event.target || event.submitter;
+                // Check if submit was triggered by unstaged/untracked checkbox change
+                if (target && (target.name === 'unstaged' || target.name === 'untracked')) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return false;
+                }
+            }, true);
+        }
 
         checkboxes.forEach(function (checkbox) {
+            // Use capture phase and stopImmediatePropagation to ensure our handler runs first
             checkbox.addEventListener('change', function (event) {
-                // Prevent the default form submission behavior
+                // For unstaged/untracked toggles, use client-side filtering
                 event.preventDefault();
                 event.stopPropagation();
                 event.stopImmediatePropagation();
-
-                updateCheckboxAndSubmit(this);
-            });
+                ToggleState.updateToggle(checkbox.name, checkbox.checked);
+            }, true); // Use capture phase
         });
     });
 </script>
