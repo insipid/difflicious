@@ -973,3 +973,12 @@ body {
         flex: 1;
     }
 }
+
+/* Disable transitions during theme switching to prevent flicker */
+.theme-transitioning,
+.theme-transitioning *,
+.theme-transitioning *::before,
+.theme-transitioning *::after {
+    transition: none !important;
+    animation: none !important;
+}

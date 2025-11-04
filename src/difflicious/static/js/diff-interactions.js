@@ -1556,24 +1556,41 @@ function toggleTheme() {
     const isDark = htmlElement.getAttribute('data-theme') === 'dark';
     const newTheme = isDark ? 'light' : 'dark';
 
+    // Disable transitions to prevent flicker during theme switch
+    htmlElement.classList.add('theme-transitioning');
+
+    // Force a synchronous reflow to ensure the class is applied
+    void htmlElement.offsetHeight;
+
+    // Apply theme change
     if (isDark) {
         htmlElement.removeAttribute('data-theme');
     } else {
         htmlElement.setAttribute('data-theme', 'dark');
     }
 
+    // Force another reflow to ensure the theme change is applied
+    void htmlElement.offsetHeight;
+
     DiffState.theme = newTheme;
 
     // Update theme icon
     const themeIcon = document.getElementById('theme-icon');
     if (themeIcon) {
-        themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        themeIcon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
     }
 
     // Save theme preference
     localStorage.setItem('difflicious-theme', newTheme);
 
     if (DEBUG) console.log(`Theme switched to ${newTheme}`);
+
+    // Re-enable transitions after a brief delay to allow the browser to process the change
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            htmlElement.classList.remove('theme-transitioning');
+        });
+    });
 
     // Prevent any form submission or navigation
     return false;
@@ -1596,22 +1613,38 @@ function initializeTheme() {
     // Update theme icon
     const themeIcon = document.getElementById('theme-icon');
     if (themeIcon) {
-        themeIcon.textContent = defaultTheme === 'dark' ? '☀️' : '🌙';
+        themeIcon.textContent = defaultTheme === 'dark' ? '🌙' : '☀️';
     }
 
     // Listen for system theme changes
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
         if (!localStorage.getItem('difflicious-theme')) {
+            const htmlElement = document.documentElement;
             const newTheme = e.matches ? 'dark' : 'light';
+            
+            // Disable transitions to prevent flicker during theme switch
+            htmlElement.classList.add('theme-transitioning');
+            void htmlElement.offsetHeight;
+            
             if (newTheme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
+                htmlElement.setAttribute('data-theme', 'dark');
             } else {
-                document.documentElement.removeAttribute('data-theme');
+                htmlElement.removeAttribute('data-theme');
             }
+            
+            void htmlElement.offsetHeight;
             DiffState.theme = newTheme;
+            
             if (themeIcon) {
-                themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+                themeIcon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
             }
+            
+            // Re-enable transitions after a brief delay
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    htmlElement.classList.remove('theme-transitioning');
+                });
+            });
         }
     });
 }
