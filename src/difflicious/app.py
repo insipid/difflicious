@@ -3,6 +3,7 @@
 import base64
 import logging
 import os
+from pathlib import Path
 from typing import Union
 
 from flask import Flask, Response, jsonify, render_template, request
@@ -502,6 +503,42 @@ def create_app() -> Flask:
 
 
 def run_server(host: str = "127.0.0.1", port: int = 5000, debug: bool = False) -> None:
-    """Run the Flask development server."""
+    """Run the Flask development server.
+
+    When debug mode is enabled, automatically watches all HTML templates,
+    JavaScript, and CSS files for changes to trigger server reloads.
+
+    Args:
+        host: Host to bind the server to
+        port: Port to run the server on
+        debug: Enable debug mode with auto-reload
+    """
     app = create_app()
-    app.run(host=host, port=port, debug=debug)
+
+    # When debug mode is enabled, automatically watch all frontend files
+    extra_files = None
+    if debug:
+        template_dir = os.path.join(os.path.dirname(__file__), "templates")
+        static_dir = os.path.join(os.path.dirname(__file__), "static")
+
+        extra_files = []
+
+        # Collect all HTML templates
+        template_path = Path(template_dir)
+        if template_path.exists():
+            for html_file in template_path.rglob("*.html"):
+                extra_files.append(str(html_file.resolve()))
+
+        # Collect all JavaScript and CSS files from static directory
+        static_path = Path(static_dir)
+        if static_path.exists():
+            for js_file in static_path.rglob("*.js"):
+                extra_files.append(str(js_file.resolve()))
+            for css_file in static_path.rglob("*.css"):
+                extra_files.append(str(css_file.resolve()))
+
+    # Flask's app.run() accepts extra_files parameter for watching additional files in debug mode
+    kwargs = {"host": host, "port": port, "debug": debug}
+    if extra_files:
+        kwargs["extra_files"] = extra_files
+    app.run(**kwargs)
