@@ -7,6 +7,9 @@ import subprocess
 from pathlib import Path
 from typing import Any, Optional, cast
 
+from git import InvalidGitRepositoryError, Repo
+from git.exc import GitCommandError, NoSuchPathError
+
 logger = logging.getLogger(__name__)
 
 
@@ -54,7 +57,7 @@ class GitOperationError(Exception):
 
 
 class GitRepository:
-    """Secure wrapper for git operations with subprocess sanitization."""
+    """GitPython-based wrapper for git operations."""
 
     def __init__(self, repo_path: Optional[str] = None):
         """Initialize git repository wrapper.
@@ -63,16 +66,20 @@ class GitRepository:
             repo_path: Path to git repository. Defaults to current working directory.
         """
         self.repo_path = Path(repo_path) if repo_path else Path.cwd()
-        self._validate_repository()
-
-    def _validate_repository(self) -> None:
-        """Validate that the path contains a git repository."""
-        if not self.repo_path.exists():
+        try:
+            self.repo = Repo(str(self.repo_path))
+        except InvalidGitRepositoryError:
+            raise GitOperationError(f"Not a git repository: {self.repo_path}")
+        except NoSuchPathError:
             raise GitOperationError(f"Repository path does not exist: {self.repo_path}")
 
-        git_dir = self.repo_path / ".git"
-        if not (git_dir.exists() or (self.repo_path / ".git").is_file()):
-            raise GitOperationError(f"Not a git repository: {self.repo_path}")
+    def _validate_repository(self) -> None:
+        """Validate that the path contains a git repository.
+
+        This method is kept for backward compatibility but is no longer used
+        since GitPython validates the repository during initialization.
+        """
+        pass
 
     def _execute_git_command(
         self, args: list[str], timeout: int = 30
@@ -179,20 +186,26 @@ class GitRepository:
             # Get basic repository info
             current_branch = self.get_current_branch()
 
-            # Get repository status
-            status_stdout, _, status_code = self._execute_git_command(
-                ["status", "--porcelain"]
-            )
-
-            # Parse status output
+            # Count changed files (staged + unstaged + untracked)
             files_changed = 0
-            if status_code == 0:
-                files_changed = len(
-                    [line for line in status_stdout.strip().split("\n") if line.strip()]
-                )
+
+            # Count unstaged changes
+            unstaged_diffs = self.repo.index.diff(None)
+            files_changed += len(unstaged_diffs)
+
+            # Count staged changes
+            try:
+                staged_diffs = self.repo.index.diff("HEAD")
+                files_changed += len(staged_diffs)
+            except GitCommandError:
+                # No HEAD yet (empty repo)
+                pass
+
+            # Count untracked files
+            files_changed += len(self.repo.untracked_files)
 
             # Check if git is available and working
-            git_available = current_branch != "error" or status_code == 0
+            git_available = current_branch != "error"
 
             return {
                 "git_available": git_available,
@@ -202,7 +215,7 @@ class GitRepository:
                 "is_clean": files_changed == 0,
             }
 
-        except GitOperationError as e:
+        except Exception as e:
             logger.error(f"Failed to get git status: {e}")
             return {
                 "git_available": False,
@@ -251,30 +264,22 @@ class GitRepository:
         try:
             # Untracked files
             if include_untracked:
-                stdout, _, rc = self._execute_git_command(["status", "--porcelain"])
-                if rc == 0 and stdout:
-                    summary["untracked"]["count"] = sum(
-                        1 for line in stdout.split("\n") if line.startswith("??")
-                    )
+                summary["untracked"]["count"] = len(self.repo.untracked_files)
 
             # Unstaged changes (working tree vs index)
             if include_unstaged:
-                stdout, _, rc = self._execute_git_command(["diff", "--name-only"])
-                if rc == 0 and stdout:
-                    summary["unstaged"]["count"] = sum(
-                        1 for line in stdout.split("\n") if line.strip()
-                    )
+                unstaged_diffs = self.repo.index.diff(None)
+                summary["unstaged"]["count"] = len(unstaged_diffs)
 
             # Staged changes (index vs HEAD)
-            stdout, _, rc = self._execute_git_command(
-                ["diff", "--cached", "--name-only", "HEAD"]
-            )
-            if rc == 0 and stdout:
-                summary["staged"]["count"] = sum(
-                    1 for line in stdout.split("\n") if line.strip()
-                )
+            try:
+                staged_diffs = self.repo.index.diff("HEAD")
+                summary["staged"]["count"] = len(staged_diffs)
+            except GitCommandError:
+                # No HEAD yet (empty repo)
+                pass
 
-        except GitOperationError as e:
+        except Exception as e:
             logger.warning(f"summarize_changes failed: {e}")
 
         return summary
@@ -282,13 +287,11 @@ class GitRepository:
     def get_current_branch(self) -> str:
         """Get the currently checked-out branch."""
         try:
-            stdout, _, return_code = self._execute_git_command(
-                ["branch", "--show-current"]
-            )
-            if return_code == 0:
-                return stdout.strip()
-            return "unknown"
-        except GitOperationError as e:
+            # Check if HEAD is detached
+            if self.repo.head.is_detached:
+                return "detached"
+            return self.repo.active_branch.name
+        except Exception as e:
             logger.error(f"Failed to get current branch: {e}")
             return "error"
 
@@ -300,11 +303,8 @@ class GitRepository:
         """
         try:
             # First try to get from remote origin URL
-            stdout, stderr, return_code = self._execute_git_command(
-                ["remote", "get-url", "origin"]
-            )
-            if return_code == 0 and stdout.strip():
-                remote_url = stdout.strip()
+            if 'origin' in self.repo.remotes:
+                remote_url = self.repo.remotes.origin.url
                 # Extract repo name from various URL formats:
                 # https://github.com/user/repo.git -> repo
                 # git@github.com:user/repo.git -> repo
@@ -318,7 +318,7 @@ class GitRepository:
             # Fallback to directory name
             return os.path.basename(self.repo_path)
 
-        except GitOperationError as e:
+        except Exception as e:
             logger.warning(f"Failed to get repository name from remote: {e}")
             # Final fallback to directory name
             return os.path.basename(self.repo_path)
@@ -326,35 +326,26 @@ class GitRepository:
     def get_branches(self) -> dict[str, Any]:
         """Get a list of all local and remote branches."""
         try:
-            stdout, _, return_code = self._execute_git_command(["branch", "-a"])
-            if return_code != 0:
-                return {"branches": [], "default_branch": None}
-
             branches: list[str] = []
-            for raw_line in stdout.strip().split("\n"):
-                line = raw_line.strip()
-                if not line:
-                    continue
-                # Skip symbolic-refs like "origin/HEAD -> origin/main"
-                if "->" in line:
-                    continue
 
-                # Remove common leading decorations from some git configs (e.g., '*', '+', '!')
-                # and normalize by taking the first whitespace-delimited token (drops verbose/commit parts)
-                cleaned = re.sub(r"^[*+!\s]+", "", line)
-                if not cleaned:
-                    continue
-                token = cleaned.split()[0]
+            # Get local branches
+            for branch in self.repo.branches:
+                branches.append(branch.name)
 
-                # Clean up remote branch names
-                if token.startswith("remotes/origin/"):
-                    token = token[len("remotes/origin/") :]
+            # Get remote branches (from origin)
+            if 'origin' in self.repo.remotes:
+                for ref in self.repo.remotes.origin.refs:
+                    # Skip HEAD symbolic ref
+                    if ref.name == 'origin/HEAD':
+                        continue
+                    # Remove 'origin/' prefix
+                    branch_name = ref.name.replace('origin/', '')
+                    if branch_name and branch_name not in branches:
+                        branches.append(branch_name)
 
-                if token and token not in branches:
-                    branches.append(token)
             default_branch = self.get_main_branch(branches)
             return {"branches": sorted(set(branches)), "default_branch": default_branch}
-        except GitOperationError as e:
+        except Exception as e:
             logger.error(f"Failed to get branches: {e}")
             return {"branches": [], "default_branch": None}
 
@@ -368,50 +359,20 @@ class GitRepository:
         cached = cast(Optional[str], getattr(self, "_cached_default_branch", None))
         if cached and cached in branches:
             return cached
-        # First, try to get the actual default branch from remote
-        try:
-            # Method 1: git remote show origin
-            stdout, stderr, return_code = self._execute_git_command(
-                ["remote", "show", "origin"]
-            )
-            if return_code == 0 and stdout:
-                for line in stdout.split("\n"):
-                    if "HEAD branch:" in line:
-                        default_branch = line.split("HEAD branch:")[1].strip()
-                        if default_branch in branches:
-                            self._cached_default_branch = default_branch
-                            return str(default_branch)
-        except GitOperationError:
-            pass
 
-        # Method 2: git symbolic-ref for remote HEAD
+        # Try to get HEAD symbolic ref from origin
         try:
-            stdout, stderr, return_code = self._execute_git_command(
-                ["symbolic-ref", "refs/remotes/origin/HEAD"]
-            )
-            if return_code == 0 and stdout:
-                # Output format: refs/remotes/origin/main
-                default_branch = stdout.strip().split("/")[-1]
-                if default_branch in branches:
-                    self._cached_default_branch = default_branch
-                    return str(default_branch)
-        except GitOperationError:
-            pass
-
-        # Method 3: Check for origin/HEAD in remote branches
-        try:
-            stdout, stderr, return_code = self._execute_git_command(["branch", "-r"])
-            if return_code == 0 and stdout:
-                for line in stdout.split("\n"):
-                    if "origin/HEAD" in line:
-                        # Extract the branch it points to
-                        parts = line.strip().split(" -> ")
-                        if len(parts) == 2:
-                            default_branch = parts[1].replace("origin/", "")
+            if 'origin' in self.repo.remotes:
+                # Check if origin/HEAD exists and where it points
+                for ref in self.repo.remotes.origin.refs:
+                    if ref.name == 'origin/HEAD':
+                        # Get the branch it points to
+                        if hasattr(ref, 'ref') and ref.ref:
+                            default_branch = ref.ref.name.replace('origin/', '')
                             if default_branch in branches:
                                 self._cached_default_branch = default_branch
                                 return str(default_branch)
-        except GitOperationError:
+        except Exception:
             pass
 
         # Fallback to common naming conventions
@@ -421,10 +382,9 @@ class GitRepository:
                 self._cached_default_branch = default_branch
                 return str(default_branch)
 
-        # Final fallback: look for a branch with a remote counterpart
-        for branch in branches:
-            if f"remotes/origin/{branch}" in branches:
-                return str(branch)
+        # Final fallback: return first branch if any exist
+        if branches:
+            return str(branches[0])
 
         return None
 
