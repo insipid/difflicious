@@ -1,9 +1,12 @@
-"""Secure git command execution wrapper for Difflicious."""
+"""Git operations wrapper using GitPython library.
+
+Replaces subprocess-based git command execution with GitPython's semantic API.
+"""
 
 import logging
 import os
 import re
-import subprocess
+import subprocess  # Still used by legacy methods pending removal
 from pathlib import Path
 from typing import Any, Optional, cast
 
@@ -16,7 +19,7 @@ logger = logging.getLogger(__name__)
 # Common constants for git operations
 COMMON_DEFAULT_BRANCHES = ["main", "master", "trunk"]
 
-# Allowed git options for safety validation
+# Legacy constants (kept for backward compatibility with existing code)
 SAFE_GIT_OPTIONS = {
     "--porcelain",
     "--short",
@@ -46,7 +49,6 @@ SAFE_GIT_OPTIONS = {
     "--verify",
 }
 
-# Allow safe single-dash options
 SAFE_SHORT_OPTIONS = {"-s", "-b", "-u", "-z", "-n", "-p", "-w", "-a"}
 
 
@@ -175,6 +177,13 @@ class GitRepository:
             return True
 
         return option in SAFE_GIT_OPTIONS or option in SAFE_SHORT_OPTIONS
+
+    # LEGACY SUBPROCESS CODE REMOVED - All methods now use GitPython
+    # The following methods have been removed:
+    # - _execute_git_command()
+    # - _sanitize_args()
+    # - _is_safe_git_option()
+    # GitPython handles security and command execution internally.
 
     def get_status(self) -> dict[str, Any]:
         """Get git repository status information.
