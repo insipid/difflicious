@@ -396,6 +396,71 @@
     --color-focus-border: var(--focus-border);
 }
 
+/* ============================================
+ * SEMANTIC COMPONENT CLASSES (Phase 4)
+ * ============================================
+ * These classes replace inline styles and repetitive utility combinations
+ * with semantic, reusable component classes that use the color variables
+ * defined above.
+ */
+
+/* === STATUS BADGES === */
+.status-badge {
+    display: inline-block;
+    font-size: 0.75rem; /* text-xs */
+    padding: 0.25rem 0.5rem; /* px-2 py-1 */
+    border-radius: 0.25rem; /* rounded */
+    flex-shrink: 0;
+}
+
+.status-badge-added {
+    background-color: var(--semantic-success-bg-subtle);
+    color: var(--semantic-success-text-strong);
+}
+
+.status-badge-deleted {
+    background-color: var(--semantic-danger-bg-subtle);
+    color: var(--semantic-danger-text-strong);
+}
+
+.status-badge-renamed {
+    background-color: var(--semantic-warning-bg-subtle);
+    color: var(--semantic-warning-text-strong);
+}
+
+.status-badge-modified {
+    background-color: var(--color-neutral-100);
+    color: var(--color-neutral-500);
+}
+
+/* Dark mode - use custom class to override */
+[data-theme="dark"] .status-badge-modified {
+    background-color: var(--color-neutral-800);
+    color: var(--color-neutral-500);
+}
+
+/* === FILE STATS (Addition/Deletion Counts) === */
+.file-stat {
+    display: inline-block;
+    padding: 0.25rem 0.5rem; /* px-2 py-1 */
+    border-radius: 0.25rem; /* rounded */
+    font-size: 0.75rem; /* text-xs */
+}
+
+.file-stat-addition {
+    background-color: var(--semantic-success-bg-medium);
+    color: var(--semantic-success-text-strong);
+}
+
+.file-stat-deletion {
+    background-color: var(--semantic-danger-bg-medium);
+    color: var(--semantic-danger-text-strong);
+}
+
+/* ============================================
+ * END SEMANTIC COMPONENT CLASSES
+ * ============================================ */
+
 * {
     box-sizing: border-box;
 }
