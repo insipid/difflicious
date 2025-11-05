@@ -538,7 +538,7 @@ def run_server(host: str = "127.0.0.1", port: int = 5000, debug: bool = False) -
                 extra_files.append(str(css_file.resolve()))
 
     # Flask's app.run() accepts extra_files parameter for watching additional files in debug mode
-    kwargs = {"host": host, "port": port, "debug": debug}
     if extra_files:
-        kwargs["extra_files"] = extra_files
-    app.run(**kwargs)
+        app.run(host=host, port=port, debug=debug, extra_files=extra_files)
+    else:
+        app.run(host=host, port=port, debug=debug)
