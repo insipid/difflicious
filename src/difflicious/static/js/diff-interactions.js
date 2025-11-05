@@ -1564,7 +1564,8 @@ function toggleTheme() {
     htmlElement.classList.add('theme-transitioning');
 
     // Force a synchronous reflow to ensure the class is applied
-    void htmlElement.offsetHeight;
+    // eslint-disable-next-line no-unused-expressions
+    htmlElement.offsetHeight;
 
     // Apply theme change
     if (isDark) {
@@ -1574,7 +1575,8 @@ function toggleTheme() {
     }
 
     // Force another reflow to ensure the theme change is applied
-    void htmlElement.offsetHeight;
+    // eslint-disable-next-line no-unused-expressions
+    htmlElement.offsetHeight;
 
     DiffState.theme = newTheme;
 
@@ -1625,24 +1627,26 @@ function initializeTheme() {
         if (!localStorage.getItem('difflicious-theme')) {
             const htmlElement = document.documentElement;
             const newTheme = e.matches ? 'dark' : 'light';
-            
+
             // Disable transitions to prevent flicker during theme switch
             htmlElement.classList.add('theme-transitioning');
-            void htmlElement.offsetHeight;
-            
+            // eslint-disable-next-line no-unused-expressions
+            htmlElement.offsetHeight;
+
             if (newTheme === 'dark') {
                 htmlElement.setAttribute('data-theme', 'dark');
             } else {
                 htmlElement.removeAttribute('data-theme');
             }
-            
-            void htmlElement.offsetHeight;
+
+            // eslint-disable-next-line no-unused-expressions
+            htmlElement.offsetHeight;
             DiffState.theme = newTheme;
-            
+
             if (themeIcon) {
                 themeIcon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
             }
-            
+
             // Re-enable transitions after a brief delay
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {

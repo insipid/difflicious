@@ -1,10 +1,28 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Difflicious - Git Diff Visualization{% endblock %}</title>
+
+    <!-- Inline theme initialization to prevent FOUC (Flash of Unstyled Content) -->
+    <!-- This script runs BEFORE CSS is loaded to set the correct theme from the start -->
+    <script>
+        (function() {
+            // Check for saved theme preference in localStorage
+            const savedTheme = localStorage.getItem('difflicious-theme');
+
+            // Check system preference (respects OS dark mode setting)
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            // Use saved preference, or fall back to system preference
+            const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+
+            // Set theme attribute immediately (before CSS is parsed)
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
 
     <!-- Tailwind CSS (local build) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}">
