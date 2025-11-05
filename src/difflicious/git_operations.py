@@ -235,17 +235,19 @@ class GitRepository:
                 for ref in self.repo.remotes.origin.refs:
                     if ref.name == "origin/HEAD":
                         # Get the branch it points to
-                        if hasattr(ref, "ref") and callable(ref.ref):
-                            symbolic_ref = ref.ref()
-                            if hasattr(symbolic_ref, "name"):
-                                default_branch = symbolic_ref.name.replace(
-                                    "origin/", ""
-                                )
+                        try:
+                            symbolic_ref = ref.reference
+                            default_branch = symbolic_ref.name.replace(
+                                "origin/", ""
+                            )
+                        except Exception:
+                            continue
                                 if default_branch in branches:
                                     self._cached_default_branch = default_branch
                                     return str(default_branch)
-        except Exception:
-            pass
+        except Exception as e:
+            # Could not determine default branch from remote; will fall back to naming conventions.
+            logger.debug(f"Failed to get default branch from remote: {e}")
 
         # Fallback to common naming conventions
         common_defaults = COMMON_DEFAULT_BRANCHES
@@ -497,7 +499,10 @@ class GitRepository:
                 diffs = self.repo.index.diff(None)
             elif "--cached" in base_args:
                 # Staged: index vs commit
-                commit_ref = "HEAD" if len(base_args) == 1 else base_args[1]
+                if len(base_args) == 1 or (len(base_args) > 1 and str(base_args[1]).startswith("-")):
+                    commit_ref = "HEAD"
+                else:
+                    commit_ref = base_args[1]
                 diffs = self.repo.index.diff(commit_ref)
             else:
                 # Working tree vs specific commit
@@ -565,7 +570,7 @@ class GitRepository:
                 }
 
                 # Handle renames
-                if diff.renamed_file:
+                if diff.renamed_file and diff.a_path:
                     file_data["old_path"] = diff.a_path
                     old_paths_from_renames.add(diff.a_path)
 
