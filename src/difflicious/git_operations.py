@@ -421,22 +421,18 @@ class GitRepository:
 
             # Untracked files
             if include_untracked:
-                stdout, _, rc = self._execute_git_command(["status", "--porcelain"])
-                if rc == 0 and stdout:
-                    for line in stdout.strip().split("\n"):
-                        if line.startswith("??"):
-                            fname = line[3:].strip()
-                            if not file_path or file_path in fname:
-                                groups["untracked"]["files"].append(
-                                    {
-                                        "path": fname,
-                                        "additions": 0,
-                                        "deletions": 0,
-                                        "changes": 0,
-                                        "status": "added",
-                                        "content": f"New untracked file: {fname}",
-                                    }
-                                )
+                for fname in self.repo.untracked_files:
+                    if not file_path or file_path in fname:
+                        groups["untracked"]["files"].append(
+                            {
+                                "path": fname,
+                                "additions": 0,
+                                "deletions": 0,
+                                "changes": 0,
+                                "status": "added",
+                                "content": f"New untracked file: {fname}",
+                            }
+                        )
                 groups["untracked"]["count"] = len(groups["untracked"]["files"])
 
             # Unstaged (working tree) vs base
@@ -507,13 +503,11 @@ class GitRepository:
         if len(sha) < 1 or len(sha) > 100:
             return False
 
-        # Check if it's a valid git reference
+        # Check if it's a valid git reference using GitPython
         try:
-            _, _, return_code = self._execute_git_command(
-                ["rev-parse", "--verify", sha]
-            )
-            return return_code == 0
-        except GitOperationError:
+            self.repo.commit(sha)
+            return True
+        except Exception:
             return False
 
     def _is_safe_file_path(self, file_path: str) -> bool:
