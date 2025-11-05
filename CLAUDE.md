@@ -117,6 +117,91 @@ uv build
 - **Documentation Sync**: Any changes to architecture/infrastructure must update PLAN.md, README.md, and CLAUDE.md to keep them in sync
 - **Package Management**: Use `uv` for all Python dependency management and virtual environments
 - **Security**: All git command execution must use proper subprocess sanitization
+- **CSS Guidelines**: Follow the CSS Style Guide for all styling changes (see below)
+
+## CSS Architecture & Guidelines
+
+**IMPORTANT:** Difflicious uses a semantic CSS variable system. Always follow these guidelines:
+
+### Core Principles
+
+1. **CSS Variables for Colors** - ALWAYS use CSS variables, NEVER hardcode hex values
+2. **Tailwind for Utilities Only** - Layout, spacing, typography (NOT colors)
+3. **Semantic Class Names** - Describe purpose, not appearance
+4. **Both Themes** - Always test light AND dark themes
+
+### Quick Reference
+
+**✅ DO:**
+```css
+.component {
+    background: var(--surface-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-default);
+}
+```
+
+```html
+<span class="status-badge status-badge-added">added</span>
+```
+
+**❌ DON'T:**
+```css
+.component {
+    background: #f8fafc;  /* Hardcoded! */
+    color: green;         /* Won't respect theme! */
+}
+```
+
+```html
+<span class="bg-green-100 text-green-800">  <!-- Don't use Tailwind colors! -->
+```
+
+### Common Color Variables
+
+- `--surface-primary` - Page background
+- `--surface-secondary` - Cards, panels
+- `--text-primary` - Main text
+- `--text-secondary` - Secondary text
+- `--border-default` - Standard borders
+- `--semantic-success-bg-subtle` - Success badges/states
+- `--semantic-danger-bg-subtle` - Error badges/states
+
+### Component Classes Available
+
+- `.status-badge .status-badge-{added|deleted|renamed|modified}` - Status indicators
+- `.file-stat .file-stat-{addition|deletion}` - File change counts
+
+### Tailwind Usage
+
+**Use Tailwind for:**
+- Layout: `flex`, `grid`, `space-x-4`
+- Spacing: `p-4`, `m-2`, `px-3`
+- Typography: `text-sm`, `font-mono`
+- Display: `block`, `hidden`
+
+**DON'T use Tailwind for:**
+- Colors (use CSS variables)
+- Dark mode (use `[data-theme="dark"]`)
+- Complex components (use semantic classes)
+
+### CSS File Rebuilding
+
+When modifying Tailwind config or input CSS:
+```bash
+npm run tailwind:build
+```
+
+### Complete Documentation
+
+For comprehensive CSS guidelines, see: `docs/CSS-STYLE-GUIDE.md`
+
+This includes:
+- Complete list of CSS variables by category
+- How to create new component classes
+- Dark mode implementation details
+- Common patterns and examples
+- Best practices and migration guide
 
 ## Deployment Targets
 
