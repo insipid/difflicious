@@ -31,9 +31,12 @@
             <!-- Status label positioned on the right when filename wraps -->
             <div class="flex items-center ml-4">
                 <span class="text-xs px-2 py-1 rounded flex-shrink-0
-                    {%- if file.status == 'added' %} bg-success-bg-100 text-success-text-800
-                    {%- elif file.status == 'deleted' %} bg-danger-bg-100 text-danger-text-800
-                    {%- elif file.status == 'renamed' %} bg-warning-bg-100 text-warning-text-800
+                    {%- if file.status == 'added' %}"
+                    style="background-color: var(--color-success-bg-100); color: var(--color-success-text-800)
+                    {%- elif file.status == 'deleted' %}"
+                    style="background-color: var(--color-danger-bg-100); color: var(--color-danger-text-800)
+                    {%- elif file.status == 'renamed' %}"
+                    style="background-color: var(--color-warning-bg-100); color: var(--color-warning-text-800)
                     {%- else %} bg-neutral-100 dark-modified-pill text-neutral-500 dark:text-neutral-500
                     {%- endif %}">
                     {%- if file.status == 'renamed' %}moved{%- else %}{{ file.status }}{%- endif %}
@@ -45,12 +48,14 @@
         <div class="flex items-center space-x-2 text-xs flex-shrink-0 ml-6">
             <!-- File Stats -->
             {% if file.additions > 0 %}
-            <span class="bg-success-bg-100 text-success-text-800 px-2 py-1 rounded">
+            <span class="px-2 py-1 rounded"
+                style="background-color: var(--color-success-bg-100); color: var(--color-success-text-800)">
                 +{{ file.additions }}
             </span>
             {% endif %}
             {% if file.deletions > 0 %}
-            <span class="bg-danger-bg-100 text-danger-text-800 px-2 py-1 rounded">
+            <span class="px-2 py-1 rounded"
+                style="background-color: var(--color-danger-bg-100); color: var(--color-danger-text-800)">
                 -{{ file.deletions }}
             </span>
             {% endif %}

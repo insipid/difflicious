@@ -85,11 +85,53 @@ This analysis provides a comprehensive rationalization plan to improve maintaina
 
 ---
 
-### 🔄 Phase 3: Decouple Tailwind (PENDING)
+### ✅ Phase 3: Decouple Tailwind (COMPLETED - 2025-11-05)
 
-**Status:** Not yet started
+**Status:** Implemented and tested
 
-See implementation plan below for details.
+**Changes Made:**
+- ✅ Removed all custom color mappings from Tailwind config (90+ lines deleted)
+- ✅ Removed dark mode configuration (handled by CSS now)
+- ✅ Removed safelist with 16 dark mode class entries
+- ✅ Rebuilt Tailwind CSS - now 14KB (much smaller!)
+- ✅ Fixed templates to use inline CSS variables instead of removed Tailwind classes
+- ✅ Kept only essential Tailwind extensions (font-family, min/max-width)
+
+**What Tailwind Does Now:**
+- Layout utilities (flex, grid, space-*, gap-*)
+- Spacing (p-*, m-*, px-*, py-*)
+- Typography (text-sm, text-xs, font-semibold)
+- Display & positioning utilities
+- Standard Tailwind features only
+
+**What Tailwind NO LONGER Does:**
+- Color theming (now handled by CSS variables)
+- Dark mode management (now handled by [data-theme] attribute)
+- Custom color classes (bg-primary, text-secondary, etc. - removed)
+
+**Files Modified:**
+- `tailwind.config.cjs` (simplified from 140 lines to 23 lines)
+- `src/difflicious/static/css/tailwind.css` (rebuilt, now 14KB)
+- `src/difflicious/templates/diff_file.html` (replaced Tailwind classes with inline styles)
+
+**Template Example:**
+```html
+<!-- OLD (Tailwind custom class): -->
+<span class="bg-success-bg-100 text-success-text-800">+5</span>
+
+<!-- NEW (CSS variable): -->
+<span style="background-color: var(--color-success-bg-100); color: var(--color-success-text-800)">+5</span>
+```
+
+**Testing Verified:**
+- JavaScript tests: 10/10 passed
+- JavaScript linting: passed
+- Python tests: 160/160 passed
+- Python linting (ruff): passed
+- Python formatting (black): passed
+- Visual appearance: unchanged
+
+**Impact:** Clear separation of concerns. Tailwind provides utilities, CSS variables handle theming. Smaller build size, easier maintenance.
 
 ---
 
