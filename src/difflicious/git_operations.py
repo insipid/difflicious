@@ -237,14 +237,12 @@ class GitRepository:
                         # Get the branch it points to
                         try:
                             symbolic_ref = ref.reference
-                            default_branch = symbolic_ref.name.replace(
-                                "origin/", ""
-                            )
+                            default_branch = symbolic_ref.name.replace("origin/", "")
+                            if default_branch in branches:
+                                self._cached_default_branch = default_branch
+                                return str(default_branch)
                         except Exception:
                             continue
-                                if default_branch in branches:
-                                    self._cached_default_branch = default_branch
-                                    return str(default_branch)
         except Exception as e:
             # Could not determine default branch from remote; will fall back to naming conventions.
             logger.debug(f"Failed to get default branch from remote: {e}")
@@ -499,7 +497,9 @@ class GitRepository:
                 diffs = self.repo.index.diff(None)
             elif "--cached" in base_args:
                 # Staged: index vs commit
-                if len(base_args) == 1 or (len(base_args) > 1 and str(base_args[1]).startswith("-")):
+                if len(base_args) == 1 or (
+                    len(base_args) > 1 and str(base_args[1]).startswith("-")
+                ):
                     commit_ref = "HEAD"
                 else:
                     commit_ref = base_args[1]

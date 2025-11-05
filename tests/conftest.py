@@ -63,7 +63,9 @@ def git_repo_with_binary(tmp_path):
 
     # Create binary file
     binary_file = Path(tmp_path) / "image.png"
-    binary_file.write_bytes(b"\x89PNG\r\n\x1a\n")  # Partial/mock PNG header (not a valid PNG file)
+    binary_file.write_bytes(
+        b"\x89PNG\r\n\x1a\n"
+    )  # Partial/mock PNG header (not a valid PNG file)
     repo.index.add(["image.png"])
     repo.index.commit("Add binary file")
 
