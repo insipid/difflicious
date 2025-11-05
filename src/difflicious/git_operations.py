@@ -578,6 +578,8 @@ class GitRepository:
     ) -> dict[str, str]:
         """Get a mapping of file paths to their git status.
 
+        Uses GitPython Diff objects to build status map.
+
         Args:
             use_head: If True, get status for HEAD comparison, otherwise for branch comparison
             reference_point: The git reference to compare against (e.g. "HEAD", "main")
@@ -585,18 +587,14 @@ class GitRepository:
         Returns:
             Dictionary mapping file paths to status strings (added, modified, deleted, etc.)
         """
-        status_map = {}
-
-        # Convert git status codes to readable names
-        git_status_map = {
+        status_map: dict[str, str] = {}
+        change_type_map = {
             "M": "modified",
             "A": "added",
             "D": "deleted",
             "R": "renamed",
             "C": "copied",
             "T": "type changed",
-            "U": "unmerged",
-            "X": "unknown",
         }
 
         try:
@@ -604,50 +602,31 @@ class GitRepository:
                 # For HEAD comparison, we need both unstaged and staged status
 
                 # Get unstaged changes (working directory vs index)
-                unstaged_args = ["diff", "--name-status", "--find-renames"]
-                stdout, stderr, return_code = self._execute_git_command(unstaged_args)
-                if return_code == 0:
-                    for line in stdout.strip().split("\n"):
-                        if line.strip():
-                            parts = line.split("\t")
-                            if len(parts) >= 2:
-                                status_code = parts[0]
-                                filename = parts[1]
-                                status = git_status_map.get(status_code, "modified")
-                                status_map[filename] = status
+                unstaged_diffs = self.repo.index.diff(None)
+                for diff in unstaged_diffs:
+                    file_path = diff.b_path if diff.b_path else diff.a_path
+                    status = change_type_map.get(diff.change_type, "modified")
+                    status_map[file_path] = status
 
                 # Get staged changes (index vs HEAD)
-                staged_args = ["diff", "--cached", "--name-status", "--find-renames"]
-                stdout, stderr, return_code = self._execute_git_command(staged_args)
-                if return_code == 0:
-                    for line in stdout.strip().split("\n"):
-                        if line.strip():
-                            parts = line.split("\t")
-                            if len(parts) >= 2:
-                                status_code = parts[0]
-                                filename = parts[1]
-                                status = git_status_map.get(status_code, "modified")
-                                # For staged files, don't override unstaged status if it exists
-                                if filename not in status_map:
-                                    status_map[filename] = status
+                try:
+                    staged_diffs = self.repo.index.diff("HEAD")
+                    for diff in staged_diffs:
+                        file_path = diff.b_path if diff.b_path else diff.a_path
+                        # For staged files, don't override unstaged status if it exists
+                        if file_path not in status_map:
+                            status = change_type_map.get(diff.change_type, "modified")
+                            status_map[file_path] = status
+                except GitCommandError:
+                    # No HEAD yet (empty repo)
+                    pass
             else:
                 # For branch comparison, get status of working directory vs reference branch
-                branch_args = [
-                    "diff",
-                    "--name-status",
-                    "--find-renames",
-                    reference_point,
-                ]
-                stdout, stderr, return_code = self._execute_git_command(branch_args)
-                if return_code == 0:
-                    for line in stdout.strip().split("\n"):
-                        if line.strip():
-                            parts = line.split("\t")
-                            if len(parts) >= 2:
-                                status_code = parts[0]
-                                filename = parts[1]
-                                status = git_status_map.get(status_code, "modified")
-                                status_map[filename] = status
+                diffs = self.repo.commit(reference_point).diff(None)
+                for diff in diffs:
+                    file_path = diff.b_path if diff.b_path else diff.a_path
+                    status = change_type_map.get(diff.change_type, "modified")
+                    status_map[file_path] = status
 
         except Exception as e:
             logger.warning(f"Failed to get file status map: {e}")
@@ -659,102 +638,109 @@ class GitRepository:
     ) -> list[dict[str, Any]]:
         """Collect per-file additions/deletions and status for a diff invocation.
 
-        Runs git diff twice (numstat and name-status) with the same arguments
-        and merges the results.
+        Uses GitPython Diff objects instead of parsing git command output.
+
+        Args:
+            base_args: Arguments that determine what to compare
+                - [] or empty: unstaged (working tree vs index)
+                - ["--cached", "HEAD"]: staged (index vs HEAD)
+                - ["--cached", ref]: staged (index vs ref)
+                - [ref]: working tree vs ref
+            file_path: Optional specific file to diff
+
+        Returns:
+            List of file metadata dictionaries
         """
-        # Build args for numstat and name-status
-        # Note: Avoid --find-renames to maintain compatibility with tests and
-        # mocked expectations that rely on minimal arg lists.
-        numstat_args = ["diff", "--numstat", *base_args]
-        namestat_args = ["diff", "--name-status", *base_args]
+        if file_path and not self._is_safe_file_path(file_path):
+            raise GitOperationError(f"Unsafe file path: {file_path}")
 
-        if file_path:
-            if not self._is_safe_file_path(file_path):
-                raise GitOperationError(f"Unsafe file path: {file_path}")
-            numstat_args.append(file_path)
-            namestat_args.append(file_path)
+        try:
+            # Determine which diffs to get based on base_args
+            diffs = None
 
-        # Parse numstat output
-        numstat_stdout, _, rc_num = self._execute_git_command(numstat_args)
-        files = {}
-        if rc_num == 0 and numstat_stdout:
-            for line in numstat_stdout.strip().split("\n"):
-                if not line.strip():
-                    continue
-                parts = line.split("\t")
-                if len(parts) >= 3:
-                    add_str, del_str, path = parts[0], parts[1], parts[2]
-                    try:
-                        additions = int(add_str) if add_str != "-" else 0
-                        deletions = int(del_str) if del_str != "-" else 0
-                    except ValueError:
-                        additions, deletions = 0, 0
-                    files[path] = {
-                        "path": path,
-                        "additions": additions,
-                        "deletions": deletions,
-                        "changes": additions + deletions,
-                        "status": "modified",
-                        "content": "",
-                    }
+            if not base_args or base_args == []:
+                # Unstaged: working tree vs index
+                diffs = self.repo.index.diff(None)
+            elif "--cached" in base_args:
+                # Staged: index vs commit
+                commit_ref = "HEAD" if len(base_args) == 1 else base_args[1]
+                diffs = self.repo.index.diff(commit_ref)
+            else:
+                # Working tree vs specific commit
+                commit_ref = base_args[0]
+                diffs = self.repo.commit(commit_ref).diff(None)
 
-        # Parse name-status output
-        namestat_stdout, _, rc_ns = self._execute_git_command(namestat_args)
-        if rc_ns == 0 and namestat_stdout:
-            # Track old paths from renames to filter them out
+            if diffs is None:
+                return []
+
+            # Build file metadata from Diff objects
+            files_dict = {}
             old_paths_from_renames = set()
 
-            for line in namestat_stdout.strip().split("\n"):
-                if not line.strip():
+            for diff in diffs:
+                # Get file path (use b_path for new/modified, a_path for deleted)
+                file_path_str = diff.b_path if diff.b_path else diff.a_path
+
+                # Filter by file_path if specified
+                if file_path and file_path not in file_path_str:
                     continue
-                parts = line.split("\t")
-                if len(parts) >= 2:
-                    status_code = parts[0]
-                    # Handle renames/copies: last column is the new path
-                    path = parts[-1]
 
-                    # For renames, track the old path to filter it out later and store it
-                    old_path_for_file = None
-                    if status_code.startswith("R") and len(parts) >= 3:
-                        old_path_for_file = parts[1]  # Second column is the old path
-                        old_paths_from_renames.add(old_path_for_file)
+                # Map GitPython change types to our status strings
+                change_type_map = {
+                    'A': 'added',
+                    'D': 'deleted',
+                    'M': 'modified',
+                    'R': 'renamed',
+                    'T': 'type changed',
+                }
+                status = change_type_map.get(diff.change_type, 'modified')
 
-                    status_map = {
-                        "M": "modified",
-                        "A": "added",
-                        "D": "deleted",
-                        "R": "renamed",
-                        "C": "copied",
-                        "T": "type changed",
-                        "U": "unmerged",
-                        "X": "unknown",
-                    }
-                    status = status_map.get(status_code[0], "modified")
-                    if path in files:
-                        files[path]["status"] = status
-                        if old_path_for_file:
-                            files[path]["old_path"] = old_path_for_file
-                    else:
-                        file_data = {
-                            "path": path,
-                            "additions": 0,
-                            "deletions": 0,
-                            "changes": 0,
-                            "status": status,
-                            "content": "",
-                        }
-                        if old_path_for_file:
-                            file_data["old_path"] = old_path_for_file
-                        files[path] = file_data
+                # Get stats (additions/deletions)
+                additions = 0
+                deletions = 0
+                try:
+                    # Stats may not be available for all diff types
+                    if hasattr(diff, 'diff') and diff.diff:
+                        # Parse the diff to count lines
+                        diff_text = diff.diff.decode('utf-8') if isinstance(diff.diff, bytes) else diff.diff
+                        for line in diff_text.split('\n'):
+                            if line.startswith('+') and not line.startswith('+++'):
+                                additions += 1
+                            elif line.startswith('-') and not line.startswith('---'):
+                                deletions += 1
+                except Exception:
+                    # If we can't get stats, leave as 0
+                    pass
+
+                # Build file metadata
+                file_data = {
+                    "path": file_path_str,
+                    "additions": additions,
+                    "deletions": deletions,
+                    "changes": additions + deletions,
+                    "status": status,
+                    "content": "",
+                }
+
+                # Handle renames
+                if diff.renamed_file:
+                    file_data["old_path"] = diff.a_path
+                    old_paths_from_renames.add(diff.a_path)
+
+                files_dict[file_path_str] = file_data
 
             # Filter out old paths from renames (they would show as deleted)
-            files = {
+            files_dict = {
                 path: data
-                for path, data in files.items()
+                for path, data in files_dict.items()
                 if path not in old_paths_from_renames
             }
 
-        return list(files.values())
+            return list(files_dict.values())
+
+        except Exception as e:
+            logger.warning(f"Failed to collect diff metadata: {e}")
+            return []
 
     def _get_file_diff(
         self,
@@ -765,6 +751,8 @@ class GitRepository:
         context_lines: int = 3,
     ) -> str:
         """Get detailed diff content for a specific file.
+
+        Uses GitPython's git command interface to get diff text.
 
         Args:
             file_path: Path to the file
@@ -780,31 +768,24 @@ class GitRepository:
             if not self._is_safe_file_path(file_path):
                 return f"Error: Unsafe file path: {file_path}"
 
-            diff_args = ["diff"]
+            # Build arguments for git diff
+            diff_args = [f"-U{context_lines}", "--no-color"]
 
-            # Add context lines argument
-            diff_args.append(f"-U{context_lines}")
+            # Handle commit comparison
+            if base_commit and target_commit:
+                diff_args.extend([base_commit, target_commit])
+            elif base_commit:
+                diff_args.append(base_commit)
+            elif use_cached:
+                diff_args.append("--cached")
 
-            # Handle commit comparison (same logic as main get_diff method)
-            if base_commit or target_commit:
-                if base_commit and target_commit:
-                    diff_args.extend([base_commit, target_commit])
-                elif base_commit:
-                    diff_args.append(base_commit)
-            else:
-                if use_cached:
-                    diff_args.append("--cached")
+            # Add file path
+            diff_args.append(file_path)
 
-            diff_args.extend(["--no-color", file_path])
+            # Use GitPython's git command interface
+            return self.repo.git.diff(*diff_args)
 
-            stdout, stderr, return_code = self._execute_git_command(diff_args)
-
-            if return_code != 0 and stderr:
-                return f"Error getting diff: {stderr}"
-
-            return stdout
-
-        except GitOperationError as e:
+        except Exception as e:
             return f"Error: {e}"
 
     def get_full_file_diff(
@@ -857,15 +838,9 @@ class GitRepository:
 
             diff_args.extend(["--no-color", file_path])
 
-            stdout, stderr, return_code = self._execute_git_command(diff_args)
+            # Use GitPython's git command interface
+            return self.repo.git.diff(*diff_args)
 
-            if return_code != 0 and stderr:
-                raise GitOperationError(f"Git diff failed: {stderr}")
-
-            return stdout
-
-        except GitOperationError:
-            raise
         except Exception as e:
             raise GitOperationError(f"Failed to get full file diff: {e}") from e
 
