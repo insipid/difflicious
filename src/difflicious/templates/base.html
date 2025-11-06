@@ -13,22 +13,14 @@
             // Check for saved theme preference in localStorage
             const savedTheme = localStorage.getItem('difflicious-theme');
 
-            // Valid theme names
-            const validThemes = ['light', 'light-warm', 'dark', 'dark-github', 'dark-vscode', 'dark-nord'];
-
             // Check system preference (respects OS dark mode setting)
             const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-            // Determine theme: use saved if valid, otherwise use system preference
-            let theme = savedTheme && validThemes.includes(savedTheme)
-                ? savedTheme
-                : (systemPrefersDark ? 'dark' : 'light');
+            // Use saved preference, or fall back to system preference
+            const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
 
             // Set theme attribute immediately (before CSS is parsed)
-            // Light is the default, so only set attribute for non-light themes
-            if (theme !== 'light') {
-                document.documentElement.setAttribute('data-theme', theme);
-            }
+            document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
 
