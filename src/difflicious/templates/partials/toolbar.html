@@ -74,13 +74,18 @@
                     {% endif %}
                 </div>
 
-                <!-- Theme Toggle -->
+                <!-- Theme Picker -->
                 <div class="flex items-center">
-                    <button type="button" onclick="toggleTheme(); event.preventDefault(); event.stopPropagation();"
-                        class="p-2 rounded-md hover:bg-neutral-100 text-neutral-600 hover:text-neutral-900 transition-colors"
-                        title="Toggle dark/light theme">
-                        <span id="theme-icon">☀️</span>
-                    </button>
+                    <select id="theme-picker" onchange="changeTheme(this.value); event.stopPropagation();"
+                        class="bg-neutral-50 dark:bg-neutral-700 border border-neutral-300 dark:border-neutral-600 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-info-text-600 focus:border-info-text-600 text-neutral-700 dark:text-neutral-300 cursor-pointer"
+                        title="Change theme">
+                        <option value="light">☀️ Light</option>
+                        <option value="light-warm">🌾 Light Warm</option>
+                        <option value="dark">🌙 Dark</option>
+                        <option value="dark-github">🐙 GitHub Dark</option>
+                        <option value="dark-vscode">💻 VSCode Dark</option>
+                        <option value="dark-nord">❄️ Nord</option>
+                    </select>
                 </div>
 
                 <!-- Search Filter -->

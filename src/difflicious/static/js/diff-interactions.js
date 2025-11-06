@@ -1153,6 +1153,7 @@ window.collapseAllFiles = collapseAllFiles;
 window.navigateToPreviousFile = navigateToPreviousFile;
 window.navigateToNextFile = navigateToNextFile;
 window.expandContext = expandContext;
+window.changeTheme = changeTheme;
 window.toggleTheme = toggleTheme;
 // This is just to shut up eslint. It triggers the no-unused-vars
 // because it can't detect the usage because it's in the HTML in the
@@ -1555,10 +1556,8 @@ function renderSideBySideLine(line) {
 }
 
 // Theme switching functionality
-function toggleTheme() {
+function changeTheme(themeName) {
     const htmlElement = document.documentElement;
-    const isDark = htmlElement.getAttribute('data-theme') === 'dark';
-    const newTheme = isDark ? 'light' : 'dark';
 
     // Disable transitions to prevent flicker during theme switch
     htmlElement.classList.add('theme-transitioning');
@@ -1568,28 +1567,30 @@ function toggleTheme() {
     htmlElement.offsetHeight;
 
     // Apply theme change
-    if (isDark) {
+    if (themeName === 'light') {
+        // Light is the default, remove data-theme attribute
         htmlElement.removeAttribute('data-theme');
     } else {
-        htmlElement.setAttribute('data-theme', 'dark');
+        // All other themes use data-theme attribute
+        htmlElement.setAttribute('data-theme', themeName);
     }
 
     // Force another reflow to ensure the theme change is applied
     // eslint-disable-next-line no-unused-expressions
     htmlElement.offsetHeight;
 
-    DiffState.theme = newTheme;
+    DiffState.theme = themeName;
 
-    // Update theme icon
-    const themeIcon = document.getElementById('theme-icon');
-    if (themeIcon) {
-        themeIcon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+    // Update theme picker selection
+    const themePicker = document.getElementById('theme-picker');
+    if (themePicker) {
+        themePicker.value = themeName;
     }
 
     // Save theme preference
-    localStorage.setItem('difflicious-theme', newTheme);
+    localStorage.setItem('difflicious-theme', themeName);
 
-    if (DEBUG) console.log(`Theme switched to ${newTheme}`);
+    if (DEBUG) console.log(`Theme switched to ${themeName}`);
 
     // Re-enable transitions after a brief delay to allow the browser to process the change
     requestAnimationFrame(() => {
@@ -1602,57 +1603,51 @@ function toggleTheme() {
     return false;
 }
 
+// Legacy function for backwards compatibility
+function toggleTheme() {
+    const htmlElement = document.documentElement;
+    const currentTheme = htmlElement.getAttribute('data-theme') || 'light';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    changeTheme(newTheme);
+}
+
 // Initialize theme on load
 function initializeTheme() {
     const savedTheme = localStorage.getItem('difflicious-theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const defaultTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
 
-    if (defaultTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
+    // Valid theme names
+    const validThemes = ['light', 'light-warm', 'dark', 'dark-github', 'dark-vscode', 'dark-nord'];
+
+    // Determine the theme to use
+    let defaultTheme = savedTheme;
+
+    // If no saved theme or invalid saved theme, use system preference
+    if (!defaultTheme || !validThemes.includes(defaultTheme)) {
+        defaultTheme = systemPrefersDark ? 'dark' : 'light';
+    }
+
+    // Apply theme to document
+    if (defaultTheme === 'light') {
         document.documentElement.removeAttribute('data-theme');
+    } else {
+        document.documentElement.setAttribute('data-theme', defaultTheme);
     }
 
     DiffState.theme = defaultTheme;
 
-    // Update theme icon
-    const themeIcon = document.getElementById('theme-icon');
-    if (themeIcon) {
-        themeIcon.textContent = defaultTheme === 'dark' ? '🌙' : '☀️';
+    // Update theme picker selection
+    const themePicker = document.getElementById('theme-picker');
+    if (themePicker) {
+        themePicker.value = defaultTheme;
     }
 
-    // Listen for system theme changes
+    // Listen for system theme changes (only if no saved theme preference)
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
         if (!localStorage.getItem('difflicious-theme')) {
-            const htmlElement = document.documentElement;
             const newTheme = e.matches ? 'dark' : 'light';
-
-            // Disable transitions to prevent flicker during theme switch
-            htmlElement.classList.add('theme-transitioning');
-            // eslint-disable-next-line no-unused-expressions
-            htmlElement.offsetHeight;
-
-            if (newTheme === 'dark') {
-                htmlElement.setAttribute('data-theme', 'dark');
-            } else {
-                htmlElement.removeAttribute('data-theme');
-            }
-
-            // eslint-disable-next-line no-unused-expressions
-            htmlElement.offsetHeight;
-            DiffState.theme = newTheme;
-
-            if (themeIcon) {
-                themeIcon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
-            }
-
-            // Re-enable transitions after a brief delay
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    htmlElement.classList.remove('theme-transitioning');
-                });
-            });
+            // Use the changeTheme function to update theme consistently
+            changeTheme(newTheme);
         }
     });
 }
