@@ -1,5 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  // Configure dark mode to use our data-theme attribute
+  darkMode: ['selector', '[data-theme="dark"]'],
   content: [
     './src/difflicious/templates/**/*.html',
     './src/difflicious/static/js/**/*.js',
