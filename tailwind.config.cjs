@@ -19,6 +19,18 @@ module.exports = {
       maxWidth: {
         '0': '0px',
       },
+      // Info colors for hunk expansion areas (blue backgrounds)
+      colors: {
+        'info-bg': {
+          50: 'var(--color-info-bg-50)',
+          100: 'var(--color-info-bg-100)',
+          200: 'var(--color-info-bg-200)',
+          300: 'var(--color-info-bg-300)',
+        },
+        'info-text': {
+          800: 'var(--color-info-text-800)',
+        },
+      },
     }
   },
   plugins: []
