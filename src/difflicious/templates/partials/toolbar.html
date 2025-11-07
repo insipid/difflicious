@@ -74,15 +74,6 @@
                     {% endif %}
                 </div>
 
-                <!-- Theme Toggle -->
-                <div class="flex items-center">
-                    <button type="button" onclick="toggleTheme(); event.preventDefault(); event.stopPropagation();"
-                        class="p-2 rounded-md hover:bg-neutral-100 text-neutral-600 hover:text-neutral-900 transition-colors"
-                        title="Toggle dark/light theme">
-                        <span id="theme-icon">☀️</span>
-                    </button>
-                </div>
-
                 <!-- Search Filter -->
                 <div class="ml-auto relative flex items-center">
                     <svg width="22" height="22" viewBox="0 0 1024 1024" fill="currentColor"
@@ -100,6 +91,15 @@
                     </button>
                 </div>
             </form>
+        </div>
+
+        <!-- Theme Toggle (outside form to prevent reload) -->
+        <div class="flex items-center ml-3">
+            <button type="button" onclick="toggleTheme()"
+                class="p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                title="Toggle dark/light theme">
+                <span id="theme-icon">☀️</span>
+            </button>
         </div>
     </div>
 </header>

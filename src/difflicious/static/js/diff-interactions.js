@@ -1564,7 +1564,7 @@ function toggleTheme() {
     htmlElement.classList.add('theme-transitioning');
 
     // Force a synchronous reflow to ensure the class is applied
-    /* eslint-disable-next-line no-unused-expressions */
+    // eslint-disable-next-line no-unused-expressions
     htmlElement.offsetHeight;
 
     // Apply theme change
@@ -1575,7 +1575,7 @@ function toggleTheme() {
     }
 
     // Force another reflow to ensure the theme change is applied
-    /* eslint-disable-next-line no-unused-expressions */
+    // eslint-disable-next-line no-unused-expressions
     htmlElement.offsetHeight;
 
     DiffState.theme = newTheme;
@@ -1625,34 +1625,7 @@ function initializeTheme() {
     // Listen for system theme changes
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
         if (!localStorage.getItem('difflicious-theme')) {
-            const htmlElement = document.documentElement;
-            const newTheme = e.matches ? 'dark' : 'light';
-
-            // Disable transitions to prevent flicker during theme switch
-            htmlElement.classList.add('theme-transitioning');
-            /* eslint-disable-next-line no-unused-expressions */
-            htmlElement.offsetHeight;
-
-            if (newTheme === 'dark') {
-                htmlElement.setAttribute('data-theme', 'dark');
-            } else {
-                htmlElement.removeAttribute('data-theme');
-            }
-
-            /* eslint-disable-next-line no-unused-expressions */
-            htmlElement.offsetHeight;
-            DiffState.theme = newTheme;
-
-            if (themeIcon) {
-                themeIcon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
-            }
-
-            // Re-enable transitions after a brief delay
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    htmlElement.classList.remove('theme-transitioning');
-                });
-            });
+            toggleTheme();
         }
     });
 }
