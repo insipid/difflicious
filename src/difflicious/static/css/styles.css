@@ -610,7 +610,6 @@ body {
     border: 1px solid var(--color-border);
     border-radius: var(--border-radius);
     background-color: var(--color-bg);
-    overflow: hidden;
 }
 
 .loading-state,
@@ -1036,6 +1035,26 @@ body {
     */
     display: block !important;
     min-width: 0 !important;
+}
+
+.file-diff {
+    position: relative;
+    scroll-margin-top: calc(var(--file-header-sticky-offset) + var(--spacing-sm));
+}
+
+.file-diff .file-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: var(--color-neutral-50) !important;
+    scroll-margin-top: calc(var(--file-header-sticky-offset) + var(--spacing-sm));
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .file-diff .file-header {
+    background-color: var(--color-neutral-800) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Ensure navigation buttons stay visible */

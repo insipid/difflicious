@@ -12,7 +12,7 @@ total_files=total_files,
 is_head_comparison=is_head_comparison) }}
 
 <!-- Main Content -->
-<main class="flex-1 overflow-hidden">
+<main class="flex-1">
     {% if loading %}
     {{ render_partial('partials/loading_state.html') }}
     {% elif not groups or not total_files %}
@@ -23,7 +23,7 @@ is_head_comparison=is_head_comparison) }}
     current_base_ref=current_base_ref) }}
     {% else %}
     <!-- Diff Content -->
-    <div class="diff-container h-full overflow-y-auto">
+    <div class="diff-container">
         <div class="p-4 space-y-6">
             {{ render_partial('partials/global_controls.html') }}
 
