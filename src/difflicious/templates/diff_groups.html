@@ -1,25 +1,28 @@
 <!-- Diff Groups -->
 {% for group_key, group in groups.items() %}
 {% if group.count > 0 %}
-{% set should_show = (group_key == 'unstaged' and unstaged) or (group_key == 'untracked' and untracked) or (group_key == 'staged') or (group_key == 'changes') %}
-<div class="diff-group space-y-2" data-group="{{ group_key }}" {% if not should_show %}style="display: none;"{% endif %}>
+{% set should_show = (group_key == 'unstaged' and unstaged) or (group_key == 'untracked' and untracked) or (group_key ==
+'staged') or (group_key == 'changes') %}
+<div class="diff-group space-y-2" data-group="{{ group_key }}" {% if not should_show %}style="display: none;" {% endif
+    %}>
     <!-- Group Header (hidden for staged-only view or ungrouped 'changes' view) -->
-    {% set hide_header = (group_key == 'staged' and not unstaged and not untracked) or (group_key == 'changes' and not untracked) %}
+    {% set hide_header = (group_key == 'staged' and not unstaged and not untracked) or (group_key == 'changes' and not
+    untracked) %}
     {% if not hide_header %}
     <div class="group-header flex items-center space-x-3 px-2 py-2 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors rounded"
-         onclick="toggleGroup('{{ group_key }}')">
-        <span class="toggle-icon text-neutral-400 dark:text-neutral-500 transition-transform duration-200" 
-              data-expanded="true">▼</span>
+        onclick="toggleGroup('{{ group_key }}')">
+        <span class="toggle-icon text-neutral-400 dark:text-neutral-500 transition-transform duration-200"
+            data-expanded="true">▼</span>
         <h3 class="text-neutral-700 dark:text-neutral-300">{{ group_key|title }}</h3>
-        <span class="text-xs text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-700 px-2 py-1 rounded">
+        <span
+            class="text-xs text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-700 px-2 py-1 rounded">
             {{ group.count }} files
         </span>
     </div>
     {% endif %}
 
     <!-- Group Files -->
-    <div class="group-content space-y-4 {% if not hide_header %}ml-4{% endif %}" 
-         data-group-content="{{ group_key }}">
+    <div class="group-content {% if not hide_header %}ml-4{% endif %}" data-group-content="{{ group_key }}">
         {% for file in group.files %}
         {% set group_name = group_key %}
         {% include "diff_file.html" with context %}

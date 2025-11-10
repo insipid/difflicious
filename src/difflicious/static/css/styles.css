@@ -204,6 +204,7 @@
     --spacing-md: 1rem;
     --spacing-lg: 1.5rem;
     --spacing-xl: 2rem;
+    --file-header-sticky-offset: var(--spacing-md);
 
     --border-radius: 0.5rem;
     --border-radius-sm: 0.25rem;
@@ -1040,15 +1041,35 @@ body {
 .file-diff {
     position: relative;
     scroll-margin-top: calc(var(--file-header-sticky-offset) + var(--spacing-sm));
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    border-bottom: none;
 }
 
-.file-diff .file-header {
+.file-diff .file-header-wrapper {
     position: sticky;
     top: 0;
     z-index: 10;
-    background-color: var(--color-neutral-50) !important;
     scroll-margin-top: calc(var(--file-header-sticky-offset) + var(--spacing-sm));
+}
+
+.file-diff .file-header-spacer {
+    height: var(--file-header-sticky-offset);
+    background-color: var(--color-bg);
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    border-bottom: none;
+}
+
+.file-diff .file-header {
+    margin: 0;
+    background-color: var(--color-neutral-50) !important;
+    border-top: 1px solid var(--color-border);
     border-bottom: 1px solid var(--color-border);
+    border-left: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
@@ -1229,6 +1250,12 @@ body {
 [data-theme="dark"] .file-diff[class*="dark:bg"] {
     background-color: #1e293b !important; /* neutral-800 */
     border-color: #475569 !important; /* neutral-600 - softer border */
+}
+
+.file-diff .file-content {
+    border-left: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
 }
 
 [data-theme="dark"] .file-content {
