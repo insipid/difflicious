@@ -650,7 +650,7 @@ body {
 }
 
 .diff-file-header:hover {
-    background-color: var(--color-bg-tertiary);
+    background-color: var(--color-neutral-200);
 }
 
 .diff-file-name {
@@ -1073,6 +1073,12 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
+/* Light mode file header hover - more contrasting */
+.file-diff .file-header:hover {
+    background-color: var(--color-neutral-200) !important;
+    /* More contrasting than neutral-50 */
+}
+
 [data-theme="dark"] .file-diff .file-header {
     background-color: var(--color-neutral-800) !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -1284,8 +1290,40 @@ body {
     background-color: #0a0f1a !important; /* Darker than neutral-900 */
 }
 
+/* Expand/Collapse All buttons styling */
+#expandAll,
+#collapseAll {
+    border: 1px solid var(--color-border);
+}
+
+[data-theme="dark"] #expandAll,
+[data-theme="dark"] #collapseAll {
+    background-color: #1e293b !important;
+    /* neutral-800 - more contrasting */
+    border: 1px solid #475569 !important;
+    /* neutral-600 - slight border */
+}
+
+[data-theme="dark"] #expandAll:hover,
+[data-theme="dark"] #collapseAll:hover {
+    background-color: #334155 !important;
+    /* neutral-700 - hover state */
+}
+
+/* Theme change button hover - match file header hover */
+button[onclick="toggleTheme()"]:hover {
+    background-color: var(--color-neutral-200) !important;
+    /* Match file header hover in light mode */
+}
+
+[data-theme="dark"] button[onclick="toggleTheme()"]:hover {
+    background-color: #334155 !important;
+    /* neutral-700 - match file header hover in dark mode */
+}
+
 [data-theme="dark"] .dark-modified-pill {
-    background-color: #0a0f1a !important; /* Darker than neutral-900 for modified pills */
+    background-color: #0a0f1a !important;
+    /* Darker than neutral-900 for modified pills */
 }
 
 [data-theme="dark"] .group-header,
