@@ -63,11 +63,34 @@ const DiffState = {
     },
 
     restoreState() {
-        // First, sync with server-rendered state by checking which files are initially visible
-        const serverExpandedFiles = new Set();
-        $$('[data-file-content]').forEach(contentElement => {
+        // Cache all file elements upfront to avoid repeated DOM queries
+        const fileElementsMap = new Map();
+        const fileContentElements = Array.from($$('[data-file-content]'));
+
+        // Build a map of filePath -> { contentElement, fileElement, toggleIcon }
+        fileContentElements.forEach(contentElement => {
             const filePath = contentElement.dataset.fileContent;
-            const isVisible = contentElement.style.display !== 'none';
+            if (filePath) {
+                const fileElement = contentElement.closest('[data-file]') ||
+                    document.querySelector(`[data-file="${CSS.escape(filePath)}"]`);
+                const toggleIcon = fileElement?.querySelector('.toggle-icon');
+
+                if (fileElement && toggleIcon) {
+                    fileElementsMap.set(filePath, {
+                        contentElement,
+                        fileElement,
+                        toggleIcon
+                    });
+                }
+            }
+        });
+
+        // First, sync with server-rendered state by checking which files are initially visible
+        // Check computed style to handle both inline styles and CSS classes
+        const serverExpandedFiles = new Set();
+        fileElementsMap.forEach((elements, filePath) => {
+            const computedStyle = window.getComputedStyle(elements.contentElement);
+            const isVisible = computedStyle.display !== 'none';
             if (isVisible) {
                 serverExpandedFiles.add(filePath);
             }
@@ -75,6 +98,9 @@ const DiffState = {
 
         // Then try to restore from localStorage if available
         const saved = localStorage.getItem(this.storageKey);
+        let finalExpandedFiles;
+        let finalExpandedGroups;
+
         if (saved) {
             try {
                 const state = JSON.parse(saved);
@@ -84,70 +110,69 @@ const DiffState = {
                     // Merge server state with localStorage state
                     // Server state (visible files) takes priority and should always be included
                     const savedExpandedFiles = new Set(state.expandedFiles);
-                    this.expandedFiles = new Set([...serverExpandedFiles, ...savedExpandedFiles]);
-
-                    // Apply the merged state to all files
-                    $$('[data-file-content]').forEach(contentElement => {
-                        const filePath = contentElement.dataset.fileContent;
-                        const fileElement = $(`[data-file="${filePath}"]`);
-                        const toggleIcon = fileElement?.querySelector('.toggle-icon');
-
-                        if (contentElement && fileElement && toggleIcon) {
-                            // Prioritize server state (if file is visible, it should be expanded)
-                            // Otherwise use saved state
-                            const shouldBeExpanded = serverExpandedFiles.has(filePath) || savedExpandedFiles.has(filePath);
-
-                            // Apply visual state based on merged state
-                            contentElement.style.display = shouldBeExpanded ? 'block' : 'none';
-                            toggleIcon.textContent = shouldBeExpanded ? '▼' : '▶';
-                            toggleIcon.dataset.expanded = shouldBeExpanded ? 'true' : 'false';
-
-                            if (DEBUG) console.log(`Restored ${shouldBeExpanded ? 'expanded' : 'collapsed'} state for file: ${filePath}`);
-                        }
-                    });
+                    finalExpandedFiles = new Set([...serverExpandedFiles, ...savedExpandedFiles]);
                 } else {
                     // No saved files, just use server state
-                    this.expandedFiles = serverExpandedFiles;
+                    finalExpandedFiles = serverExpandedFiles;
                 }
 
                 // Restore group expansion states
                 if (state.expandedGroups) {
-                    this.expandedGroups = new Set(state.expandedGroups);
+                    finalExpandedGroups = new Set(state.expandedGroups);
                 } else {
                     // Default expanded groups if no saved state
-                    this.expandedGroups = new Set(['untracked', 'unstaged', 'staged']);
+                    finalExpandedGroups = new Set(['untracked', 'unstaged', 'staged']);
                 }
-
-                // Apply visual state to all groups based on expandedGroups set
-                const allPossibleGroups = ['untracked', 'unstaged', 'staged', 'changes'];
-                allPossibleGroups.forEach(groupKey => {
-                    const contentElement = $(`[data-group-content="${groupKey}"]`);
-                    const groupElement = $(`[data-group="${groupKey}"]`);
-                    const toggleIcon = groupElement?.querySelector('.toggle-icon');
-
-                    if (contentElement && toggleIcon) {
-                        const shouldBeExpanded = this.expandedGroups.has(groupKey);
-
-                        contentElement.style.display = shouldBeExpanded ? 'block' : 'none';
-                        toggleIcon.textContent = shouldBeExpanded ? '▼' : '▶';
-                        toggleIcon.dataset.expanded = shouldBeExpanded ? 'true' : 'false';
-
-                        if (DEBUG) console.log(`Restored ${shouldBeExpanded ? 'expanded' : 'collapsed'} state for group: ${groupKey}`);
-                    }
-                });
 
                 if (DEBUG) console.log(`Restored state for ${this.repositoryName}:`, state);
             } catch (e) {
                 if (DEBUG) console.warn('Failed to restore state:', e);
                 // Use defaults on error, but preserve server state
-                this.expandedFiles = serverExpandedFiles;
-                this.expandedGroups = new Set(['untracked', 'unstaged', 'staged']);
+                finalExpandedFiles = serverExpandedFiles;
+                finalExpandedGroups = new Set(['untracked', 'unstaged', 'staged']);
             }
         } else {
             // No saved state, use server state and defaults
-            this.expandedFiles = serverExpandedFiles;
-            this.expandedGroups = new Set(['untracked', 'unstaged', 'staged']);
+            finalExpandedFiles = serverExpandedFiles;
+            finalExpandedGroups = new Set(['untracked', 'unstaged', 'staged']);
         }
+
+        // Set the state
+        this.expandedFiles = finalExpandedFiles;
+        this.expandedGroups = finalExpandedGroups;
+
+        // Apply visual state synchronously for initial load (don't defer with requestAnimationFrame)
+        // Batch DOM updates for better performance, but apply immediately
+        const fileUpdates = [];
+        fileElementsMap.forEach((elements, filePath) => {
+            const shouldBeExpanded = finalExpandedFiles.has(filePath);
+            fileUpdates.push({
+                elements,
+                shouldBeExpanded
+            });
+        });
+
+        // Apply file updates synchronously
+        fileUpdates.forEach(({ elements, shouldBeExpanded }) => {
+            elements.contentElement.style.display = shouldBeExpanded ? 'block' : 'none';
+            elements.toggleIcon.textContent = shouldBeExpanded ? '▼' : '▶';
+            elements.toggleIcon.dataset.expanded = shouldBeExpanded ? 'true' : 'false';
+        });
+
+        // Cache group elements upfront and apply updates
+        const allPossibleGroups = ['untracked', 'unstaged', 'staged', 'changes'];
+        allPossibleGroups.forEach(groupKey => {
+            const contentElement = $(`[data-group-content="${groupKey}"]`);
+            const groupElement = $(`[data-group="${groupKey}"]`);
+            const toggleIcon = groupElement?.querySelector('.toggle-icon');
+
+            if (contentElement && toggleIcon) {
+                const shouldBeExpanded = finalExpandedGroups.has(groupKey);
+                contentElement.style.display = shouldBeExpanded ? 'block' : 'none';
+                toggleIcon.textContent = shouldBeExpanded ? '▼' : '▶';
+                toggleIcon.dataset.expanded = shouldBeExpanded ? 'true' : 'false';
+            }
+        });
     },
 
     saveState() {
@@ -1091,43 +1116,16 @@ function mergeHunks(firstHunk, secondHunk) {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', async() => {
+document.addEventListener('DOMContentLoaded', async () => {
     initializeTheme();
     await DiffState.init();
 
-    // Apply initial state - state has already been restored in restoreState()
-    setTimeout(() => {
-        // Just ensure files not in expanded state are properly collapsed
-        $$('[data-file]').forEach((fileElement) => {
-            const filePath = fileElement.dataset.file;
-            const contentElement = $(`[data-file-content="${filePath}"]`);
-            const toggleIcon = fileElement.querySelector('.toggle-icon');
-
-            if (contentElement && toggleIcon && !DiffState.expandedFiles.has(filePath)) {
-                // Ensure non-expanded files are properly collapsed
-                contentElement.style.display = 'none';
-                toggleIcon.textContent = '▶';
-                toggleIcon.dataset.expanded = 'false';
-            }
-        });
-
-        // Ensure non-expanded groups are properly collapsed
-        const allPossibleGroups = ['untracked', 'unstaged', 'staged', 'changes'];
-        allPossibleGroups.forEach(groupKey => {
-            if (!DiffState.expandedGroups.has(groupKey)) {
-                const contentElement = $(`[data-group-content="${groupKey}"]`);
-                const toggleIcon = $(`[data-group="${groupKey}"] .toggle-icon`);
-                if (contentElement && toggleIcon) {
-                    contentElement.style.display = 'none';
-                    toggleIcon.textContent = '▶';
-                    toggleIcon.dataset.expanded = 'false';
-                }
-            }
-        });
-
-        // Ensure all expansion buttons are enabled and functional
+    // Ensure all expansion buttons are enabled and functional
+    // This runs once after state restoration is complete
+    requestAnimationFrame(() => {
         if (DEBUG) console.log('Initializing expansion buttons...');
-        $$('.expansion-btn').forEach((button, index) => {
+        const buttons = $$('.expansion-btn');
+        buttons.forEach((button, index) => {
             const targetStart = parseInt(button.dataset.targetStart);
             const targetEnd = parseInt(button.dataset.targetEnd);
 
@@ -1142,7 +1140,7 @@ document.addEventListener('DOMContentLoaded', async() => {
 
             if (DEBUG) console.log(`Button ${index} enabled and ready`);
         });
-    }, 100);
+    });
 });
 
 // Global functions for HTML onclick handlers
@@ -1187,9 +1185,21 @@ function buildSearchRegex(query) {
 function applyFilenameFilter(query) {
     const regex = buildSearchRegex(query);
     const lower = (query || '').toLowerCase();
+    const fileElements = document.querySelectorAll('[data-file]');
+    const contentElementsMap = new Map();
+
+    // Pre-cache content elements to avoid repeated queries
+    document.querySelectorAll('[data-file-content]').forEach(contentEl => {
+        const fileId = contentEl.getAttribute('data-file-content');
+        if (fileId) {
+            contentElementsMap.set(fileId, contentEl);
+        }
+    });
+
     // Show/hide files
     let hiddenCount = 0;
-    document.querySelectorAll('[data-file]').forEach(fileEl => {
+    const fileUpdates = [];
+    fileElements.forEach(fileEl => {
         const headerNameEl = fileEl.querySelector('.file-header .font-mono');
         const name = headerNameEl ? (headerNameEl.textContent || '') : '';
         let matches;
@@ -1202,17 +1212,36 @@ function applyFilenameFilter(query) {
             matches = name.toLowerCase().includes(lower);
         }
         if (!matches) hiddenCount += 1;
-        fileEl.style.display = matches ? '' : 'none';
-        // Also hide associated content block to avoid large gaps
+
         const fileId = fileEl.getAttribute('data-file');
-        const contentEl = document.querySelector(`[data-file-content="${CSS.escape(fileId)}"]`);
-        if (contentEl) contentEl.style.display = matches ? contentEl.style.display : 'none';
+        const contentEl = contentElementsMap.get(fileId);
+        const currentContentDisplay = contentEl ? contentEl.style.display : '';
+
+        fileUpdates.push({
+            fileEl,
+            contentEl,
+            matches,
+            currentContentDisplay
+        });
+    });
+
+    // Batch DOM updates for better performance
+    requestAnimationFrame(() => {
+        fileUpdates.forEach(({ fileEl, contentEl, matches, currentContentDisplay }) => {
+            fileEl.style.display = matches ? '' : 'none';
+            // Also hide associated content block to avoid large gaps
+            if (contentEl) {
+                contentEl.style.display = matches ? currentContentDisplay : 'none';
+            }
+        });
     });
 
     // Hide groups with no visible files
-    document.querySelectorAll('.diff-group').forEach(groupEl => {
-        const anyVisible = groupEl.querySelector('[data-file]:not([style*="display: none"])');
-        groupEl.style.display = anyVisible ? '' : 'none';
+    requestAnimationFrame(() => {
+        document.querySelectorAll('.diff-group').forEach(groupEl => {
+            const anyVisible = groupEl.querySelector('[data-file]:not([style*="display: none"])');
+            groupEl.style.display = anyVisible ? '' : 'none';
+        });
     });
 
     // Show hidden-count banner
@@ -1531,8 +1560,8 @@ function renderSideBySideLine(line) {
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         ${leftContent
-        ? (leftBg.includes('danger') ? `<span class="text-danger-text-600">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`)
-        : ''}
+            ? (leftBg.includes('danger') ? `<span class="text-danger-text-600">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`)
+            : ''}
                     </div>
                 </div>
             </div>
@@ -1545,8 +1574,8 @@ function renderSideBySideLine(line) {
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
                         ${rightContent
-        ? (rightBg.includes('success') ? `<span class="text-success-text-600">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`)
-        : ''}
+            ? (rightBg.includes('success') ? `<span class="text-success-text-600">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`)
+            : ''}
                     </div>
                 </div>
             </div>
