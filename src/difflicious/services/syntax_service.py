@@ -1,5 +1,6 @@
 """Service for server-side syntax highlighting using Pygments."""
 
+import json
 import logging
 import re
 from pathlib import Path
@@ -11,6 +12,22 @@ from pygments.lexers import get_lexer_by_name, guess_lexer_for_filename
 from pygments.util import ClassNotFound
 
 logger = logging.getLogger(__name__)
+
+
+def _load_language_map() -> dict[str, str]:
+    """Load language map from shared JSON configuration file.
+
+    Returns:
+        Dictionary mapping file extensions to language names
+
+    Raises:
+        FileNotFoundError: If language_map.json is not found
+        json.JSONDecodeError: If language_map.json is invalid
+    """
+    config_path = Path(__file__).parent.parent / "static" / "data" / "language_map.json"
+    with open(config_path) as f:
+        data: dict[str, str] = json.load(f)
+        return data
 
 
 class SyntaxHighlightingService:
@@ -36,49 +53,8 @@ class SyntaxHighlightingService:
         # Cache lexers by file extension for performance
         self._lexer_cache: dict[str, Any] = {}
 
-        # Language detection mapping (same as current frontend)
-        self.language_map = {
-            "js": "javascript",
-            "jsx": "javascript",
-            "ts": "typescript",
-            "tsx": "typescript",
-            "py": "python",
-            "html": "html",
-            "htm": "html",
-            "css": "css",
-            "scss": "scss",
-            "sass": "sass",
-            "less": "less",
-            "json": "json",
-            "xml": "xml",
-            "yaml": "yaml",
-            "yml": "yaml",
-            "md": "markdown",
-            "sh": "bash",
-            "bash": "bash",
-            "zsh": "bash",
-            "php": "php",
-            "rb": "ruby",
-            "go": "go",
-            "rs": "rust",
-            "java": "java",
-            "c": "c",
-            "cpp": "cpp",
-            "cc": "cpp",
-            "cxx": "cpp",
-            "h": "c",
-            "hpp": "cpp",
-            "cs": "csharp",
-            "sql": "sql",
-            "r": "r",
-            "swift": "swift",
-            "kt": "kotlin",
-            "scala": "scala",
-            "clj": "clojure",
-            "ex": "elixir",
-            "exs": "elixir",
-            "dockerfile": "dockerfile",
-        }
+        # Load language detection mapping from shared JSON configuration
+        self.language_map = _load_language_map()
 
     def highlight_diff_line(
         self, content: str, file_path: str, theme: str = "light"
