@@ -211,18 +211,23 @@ class TestAPIDiffCommitComparison:
 class TestAPIExpandContext:
     """Test cases for the /api/expand-context endpoint."""
 
-    @patch("difflicious.app.GitService")
-    def test_expand_context_success(self, mock_git_service_class, client):
+    def test_expand_context_success(self):
         """Test successful context expansion with target range."""
-        # Mock GitService
+        # Create mock services
         mock_git_service = Mock()
-        mock_git_service_class.return_value = mock_git_service
         mock_git_service.get_file_lines.return_value = {
             "status": "ok",
             "lines": ["line 1", "line 2", "line 3"],
             "start_line": 10,
             "end_line": 12,
         }
+
+        mock_diff_service = Mock()
+
+        # Create app with mocked services
+        app = create_app(git_service=mock_git_service, diff_service=mock_diff_service)
+        app.config["TESTING"] = True
+        client = app.test_client()
 
         # Provide target_start and target_end to bypass hunk lookup
         response = client.get(

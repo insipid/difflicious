@@ -4,7 +4,7 @@ import base64
 import logging
 import os
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 from flask import Flask, Response, jsonify, render_template, request
 
@@ -19,7 +19,21 @@ from difflicious.services import (
 )
 
 
-def create_app() -> Flask:
+def create_app(
+    git_service: Optional[GitService] = None,
+    diff_service: Optional[DiffService] = None,
+    template_service: Optional[TemplateRenderingService] = None,
+) -> Flask:
+    """Create and configure the Flask application.
+
+    Args:
+        git_service: Optional GitService instance for dependency injection
+        diff_service: Optional DiffService instance for dependency injection
+        template_service: Optional TemplateRenderingService instance for dependency injection
+
+    Returns:
+        Configured Flask application instance
+    """
 
     # Configure template directory to be relative to package
     template_dir = os.path.join(os.path.dirname(__file__), "templates")
@@ -56,6 +70,19 @@ def create_app() -> Flask:
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
+    # Create services once at app scope for reuse across all requests
+    # Services operate on current directory and don't hold request-specific state
+    # Can be injected for testing via create_app parameters
+    if git_service is None:
+        git_service = GitService()
+    if diff_service is None:
+        diff_service = DiffService()
+    if template_service is None:
+        template_service = TemplateRenderingService(
+            diff_service=diff_service,
+            git_service=git_service,
+        )
+
     @app.context_processor
     def inject_font_config() -> dict[str, dict]:
         """Inject font configuration into all templates."""
@@ -77,7 +104,6 @@ def create_app() -> Flask:
             # If no base_ref specified, default to current checked-out branch to trigger HEAD comparison mode
             if not base_ref:
                 try:
-                    git_service = GitService()
                     repo_status = git_service.get_repository_status()
                     current_branch = repo_status.get("current_branch", None)
                     # Use current_branch if available so service treats it as HEAD comparison
@@ -87,8 +113,7 @@ def create_app() -> Flask:
                     # Fallback: leave base_ref as None
                     pass
 
-            # Prepare template data
-            template_service = TemplateRenderingService()
+            # Prepare template data using app-scoped service
             template_data = template_service.prepare_diff_data_for_template(
                 base_ref=base_ref if base_ref is not None else None,
                 unstaged=unstaged,
@@ -123,7 +148,6 @@ def create_app() -> Flask:
     def api_status() -> Response:
         """API endpoint for git status information (kept for compatibility)."""
         try:
-            git_service = GitService()
             return jsonify(git_service.get_repository_status())
         except Exception as e:
             logger.error(f"Failed to get git status: {e}")
@@ -154,7 +178,6 @@ def create_app() -> Flask:
     def api_branches() -> Union[Response, tuple[Response, int]]:
         """API endpoint for git branch information (kept for compatibility)."""
         try:
-            git_service = GitService()
             return jsonify(git_service.get_branch_information())
         except GitServiceError as e:
             logger.error(f"Failed to get branch info: {e}")
@@ -197,7 +220,6 @@ def create_app() -> Flask:
                 end_line = target_end
             else:
                 # Fallback: try to calculate from diff data
-                diff_service = DiffService()
                 grouped_diffs = diff_service.get_grouped_diffs(file_path=file_path)
 
                 # Find the specific file and hunk
@@ -239,7 +261,6 @@ def create_app() -> Flask:
                     end_line = start_line + context_lines - 1
 
             # Fetch the actual lines
-            git_service = GitService()
             result = git_service.get_file_lines(file_path or "", start_line, end_line)
 
             # If pygments format requested, enhance the result with syntax highlighting
@@ -296,8 +317,6 @@ def create_app() -> Flask:
 
         try:
             # Use template service logic for proper branch comparison handling
-            template_service = TemplateRenderingService()
-
             # Get basic repository information
             repo_status = template_service.git_service.get_repository_status()
             current_branch = repo_status.get("current_branch", "unknown")
@@ -310,7 +329,6 @@ def create_app() -> Flask:
             if is_head_comparison:
                 # Working directory vs HEAD comparison - use diff service directly
                 # Always fetch both unstaged and untracked (parameters kept for backward compatibility)
-                diff_service = DiffService()
                 grouped_data = diff_service.get_grouped_diffs(
                     base_ref="HEAD",
                     unstaged=unstaged,  # Parameter kept for backward compatibility
@@ -410,7 +428,6 @@ def create_app() -> Flask:
             )
 
         try:
-            git_service = GitService()
             return jsonify(
                 git_service.get_file_lines(file_path, start_line_int, end_line_int)
             )
@@ -436,7 +453,6 @@ def create_app() -> Flask:
         use_cached = request.args.get("use_cached", "false").lower() == "true"
 
         try:
-            diff_service = DiffService()
             result = diff_service.get_full_diff_data(
                 file_path=file_path,
                 base_ref=base_ref,
