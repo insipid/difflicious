@@ -1,6 +1,10 @@
 /**
  * Difflicious Alpine.js Application
  * Main application logic for git diff visualization
+ *
+ * NOTE: This file is NOT currently used in the application.
+ * The active implementation is in diff-interactions.js
+ * This file is kept for potential future migration to Alpine.js
  */
 
 function diffliciousApp() { // eslint-disable-line no-unused-vars
@@ -258,50 +262,13 @@ function diffliciousApp() { // eslint-disable-line no-unused-vars
         },
 
         // Detect language from file extension
+        // NOTE: Language map should be loaded from /static/data/language_map.json
+        // This is the shared configuration file used by both frontend and backend
         detectLanguage(filePath) {
             const ext = filePath.split('.').pop()?.toLowerCase();
-            const languageMap = {
-                'js': 'javascript',
-                'jsx': 'javascript',
-                'ts': 'typescript',
-                'tsx': 'typescript',
-                'py': 'python',
-                'html': 'html',
-                'htm': 'html',
-                'css': 'css',
-                'scss': 'scss',
-                'sass': 'sass',
-                'less': 'less',
-                'json': 'json',
-                'xml': 'xml',
-                'yaml': 'yaml',
-                'yml': 'yaml',
-                'md': 'markdown',
-                'sh': 'bash',
-                'bash': 'bash',
-                'zsh': 'bash',
-                'php': 'php',
-                'rb': 'ruby',
-                'go': 'go',
-                'rs': 'rust',
-                'java': 'java',
-                'c': 'c',
-                'cpp': 'cpp',
-                'cc': 'cpp',
-                'cxx': 'cpp',
-                'h': 'c',
-                'hpp': 'cpp',
-                'cs': 'csharp',
-                'sql': 'sql',
-                'r': 'r',
-                'swift': 'swift',
-                'kt': 'kotlin',
-                'scala': 'scala',
-                'clj': 'clojure',
-                'ex': 'elixir',
-                'exs': 'elixir',
-                'dockerfile': 'dockerfile'
-            };
+            // TODO: Load from /static/data/language_map.json when this component is activated
+            // For now, using a note to indicate the canonical source
+            const languageMap = {}; // Load from language_map.json
             return languageMap[ext] || 'plaintext';
         },
 
