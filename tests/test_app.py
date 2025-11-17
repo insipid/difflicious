@@ -519,21 +519,23 @@ class TestAPIDiffFull:
 class TestErrorHandling:
     """Test error handling in various routes."""
 
-    @patch("difflicious.app.TemplateRenderingService")
-    @patch("difflicious.app.GitService")
-    def test_index_route_exception_handling(
-        self, mock_git_service_class, mock_template_service_class, client
-    ):
+    def test_index_route_exception_handling(self):
         """Test index route handles exceptions gracefully."""
         mock_git_service = Mock()
-        mock_git_service_class.return_value = mock_git_service
         mock_git_service.get_repository_status.side_effect = Exception("Test error")
 
         mock_template_service = Mock()
-        mock_template_service_class.return_value = mock_template_service
         mock_template_service.prepare_diff_data_for_template.side_effect = Exception(
             "Template error"
         )
+
+        # Create app with mocked services
+        app = create_app(
+            git_service=mock_git_service,
+            template_service=mock_template_service,
+        )
+        app.config["TESTING"] = True
+        client = app.test_client()
 
         response = client.get("/")
         # Should still return 200 with error state
