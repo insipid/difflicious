@@ -11,10 +11,20 @@ from flask import Flask, Response, jsonify, render_template, request
 # Import services and configuration
 from difflicious.config import AVAILABLE_FONTS
 from difflicious.services import (
+    BranchesResponse,
+    DiffRequest,
+    DiffResponse,
     DiffService,
     DiffServiceError,
+    ExpandContextRequest,
+    ExpandContextResponse,
+    FileLinesRequest,
+    FileLinesResponse,
+    FullDiffRequest,
+    FullDiffResponse,
     GitService,
     GitServiceError,
+    StatusResponse,
     TemplateRenderingService,
 )
 
@@ -148,18 +158,25 @@ def create_app(
     def api_v1_status() -> Response:
         """API endpoint for git status information."""
         try:
-            return jsonify(git_service.get_repository_status())
+            status_data = git_service.get_repository_status()
+            response = StatusResponse(
+                status=status_data.get("status", "ok"),
+                current_branch=status_data.get("current_branch", "unknown"),
+                repository_name=status_data.get("repository_name", "unknown"),
+                files_changed=status_data.get("files_changed", 0),
+                git_available=status_data.get("git_available", True),
+            )
+            return jsonify(response.to_dict())
         except Exception as e:
             logger.error(f"Failed to get git status: {e}")
-            return jsonify(
-                {
-                    "status": "error",
-                    "current_branch": "unknown",
-                    "repository_name": "unknown",
-                    "files_changed": 0,
-                    "git_available": False,
-                }
+            response = StatusResponse(
+                status="error",
+                current_branch="unknown",
+                repository_name="unknown",
+                files_changed=0,
+                git_available=False,
             )
+            return jsonify(response.to_dict())
 
     @app.route("/api/status")
     def api_status() -> Response:
@@ -183,10 +200,16 @@ def create_app(
     def api_v1_branches() -> Union[Response, tuple[Response, int]]:
         """API endpoint for git branch information."""
         try:
-            return jsonify(git_service.get_branch_information())
+            branch_data = git_service.get_branch_information()
+            response = BranchesResponse(
+                status=branch_data.get("status", "ok"),
+                branches=branch_data.get("branches", {}),
+            )
+            return jsonify(response.to_dict())
         except GitServiceError as e:
             logger.error(f"Failed to get branch info: {e}")
-            return jsonify({"status": "error", "message": str(e)}), 500
+            response = BranchesResponse(status="error", message=str(e))
+            return jsonify(response.to_dict()), 500
 
     @app.route("/api/branches")
     def api_branches() -> Union[Response, tuple[Response, int]]:
@@ -196,85 +219,81 @@ def create_app(
     @app.route("/api/v1/expand-context")
     def api_v1_expand_context() -> Union[Response, tuple[Response, int]]:
         """API endpoint for context expansion (AJAX for dynamic updates)."""
-        file_path = request.args.get("file_path")
-        hunk_index = request.args.get("hunk_index", type=int)
-        direction = request.args.get("direction")  # 'before' or 'after'
-        context_lines = request.args.get("context_lines", 10, type=int)
-        output_format = request.args.get("format", "plain")  # 'plain' or 'pygments'
+        # Parse request parameters into DTO
+        req = ExpandContextRequest(
+            file_path=request.args.get("file_path", ""),
+            hunk_index=request.args.get("hunk_index", type=int) or 0,
+            direction=request.args.get("direction", ""),
+            context_lines=request.args.get("context_lines", 10, type=int),
+            output_format=request.args.get("format", "plain"),
+            target_start=request.args.get("target_start", type=int),
+            target_end=request.args.get("target_end", type=int),
+        )
 
-        # Get the target line range from the frontend (passed from button data attributes)
-        target_start = request.args.get("target_start", type=int)
-        target_end = request.args.get("target_end", type=int)
-
-        if not all([file_path, hunk_index is not None, direction]):
-            return (
-                jsonify({"status": "error", "message": "Missing required parameters"}),
-                400,
-            )
-
-        if output_format not in ["plain", "pygments"]:
-            return (
-                jsonify(
-                    {
-                        "status": "error",
-                        "message": "Invalid format parameter. Must be 'plain' or 'pygments'",
-                    }
-                ),
-                400,
-            )
+        # Validate request
+        is_valid, error_message = req.validate()
+        if not is_valid:
+            response = ExpandContextResponse(status="error", message=error_message)
+            return jsonify(response.to_dict()), 400
 
         try:
             # Use the target range provided by the frontend if available
-            if target_start is not None and target_end is not None:
-                start_line = target_start
-                end_line = target_end
+            if req.target_start is not None and req.target_end is not None:
+                start_line = req.target_start
+                end_line = req.target_end
             else:
                 # Fallback: try to calculate from diff data
-                grouped_diffs = diff_service.get_grouped_diffs(file_path=file_path)
+                grouped_diffs = diff_service.get_grouped_diffs(file_path=req.file_path)
 
                 # Find the specific file and hunk
                 target_hunk = None
                 for group_data in grouped_diffs.values():
                     for file_data in group_data["files"]:
-                        if file_data["path"] == file_path and file_data.get("hunks"):
-                            if hunk_index is not None and hunk_index < len(
-                                file_data["hunks"]
-                            ):
-                                target_hunk = file_data["hunks"][hunk_index]
+                        if file_data["path"] == req.file_path and file_data.get(
+                            "hunks"
+                        ):
+                            if req.hunk_index < len(file_data["hunks"]):
+                                target_hunk = file_data["hunks"][req.hunk_index]
                                 break
                     if target_hunk:
                         break
 
                 if not target_hunk:
-                    return (
-                        jsonify(
-                            {
-                                "status": "error",
-                                "message": f"Hunk {hunk_index} not found in file {file_path}",
-                            }
-                        ),
-                        404,
+                    response = ExpandContextResponse(
+                        status="error",
+                        message=f"Hunk {req.hunk_index} not found in file {req.file_path}",
                     )
+                    return jsonify(response.to_dict()), 404
 
                 # Calculate the line range to fetch based on hunk and direction
                 new_start = target_hunk.get("new_start", 1)
                 new_count = target_hunk.get("new_count", 0)
                 new_end = new_start + max(new_count, 0) - 1
 
-                if direction == "before":
+                if req.direction == "before":
                     # Always anchor the fetch to the right side (new file)
                     end_line = new_start - 1
-                    start_line = max(1, end_line - context_lines + 1)
+                    start_line = max(1, end_line - req.context_lines + 1)
                 else:  # direction == "after"
                     # Always anchor the fetch to the right side (new file)
                     start_line = new_end + 1
-                    end_line = start_line + context_lines - 1
+                    end_line = start_line + req.context_lines - 1
 
             # Fetch the actual lines
-            result = git_service.get_file_lines(file_path or "", start_line, end_line)
+            result = git_service.get_file_lines(req.file_path, start_line, end_line)
+
+            # Create response DTO
+            response = ExpandContextResponse(
+                status=result.get("status", "ok"),
+                lines=result.get("lines", []),
+                start_line=result.get("start_line", start_line),
+                end_line=result.get("end_line", end_line),
+                file_path=result.get("file_path", req.file_path),
+                output_format=req.output_format,
+            )
 
             # If pygments format requested, enhance the result with syntax highlighting
-            if output_format == "pygments" and result.get("status") == "ok":
+            if req.output_format == "pygments" and response.status == "ok":
                 from difflicious.services.syntax_service import (
                     SyntaxHighlightingService,
                 )
@@ -282,10 +301,10 @@ def create_app(
                 syntax_service = SyntaxHighlightingService()
 
                 enhanced_lines = []
-                for line_content in result.get("lines", []):
+                for line_content in response.lines:
                     if line_content:
                         highlighted_content = syntax_service.highlight_diff_line(
-                            line_content, file_path or ""
+                            line_content, req.file_path
                         )
                         enhanced_lines.append(
                             {
@@ -301,17 +320,15 @@ def create_app(
                             }
                         )
 
-                result["lines"] = enhanced_lines
-                result["format"] = "pygments"
-                result["css_styles"] = syntax_service.get_css_styles()
-            else:
-                result["format"] = "plain"
+                response.lines = enhanced_lines
+                response.css_styles = syntax_service.get_css_styles()
 
-            return jsonify(result)
+            return jsonify(response.to_dict())
 
         except GitServiceError as e:
             logger.error(f"Context expansion error: {e}")
-            return jsonify({"status": "error", "message": str(e)}), 500
+            response = ExpandContextResponse(status="error", message=str(e))
+            return jsonify(response.to_dict()), 500
 
     @app.route("/api/expand-context")
     def api_expand_context() -> Union[Response, tuple[Response, int]]:
@@ -321,14 +338,14 @@ def create_app(
     @app.route("/api/v1/diff")
     def api_v1_diff() -> Union[Response, tuple[Response, int]]:
         """API endpoint for git diff information."""
-        # Get optional query parameters
-        unstaged = request.args.get("unstaged", "true").lower() == "true"
-        untracked = request.args.get("untracked", "false").lower() == "true"
-        file_path = request.args.get("file")
-        base_ref = request.args.get("base_ref")
-
-        # New single-source parameters
-        use_head = request.args.get("use_head", "false").lower() == "true"
+        # Parse request parameters into DTO
+        req = DiffRequest(
+            base_ref=request.args.get("base_ref"),
+            unstaged=request.args.get("unstaged", "true").lower() == "true",
+            untracked=request.args.get("untracked", "false").lower() == "true",
+            file_path=request.args.get("file"),
+            use_head=request.args.get("use_head", "false").lower() == "true",
+        )
 
         try:
             # Use template service logic for proper branch comparison handling
@@ -338,7 +355,7 @@ def create_app(
 
             # Determine if this is a HEAD comparison
             is_head_comparison = (
-                base_ref in ["HEAD", current_branch] if base_ref else False
+                req.base_ref in ["HEAD", current_branch] if req.base_ref else False
             )
 
             if is_head_comparison:
@@ -346,20 +363,20 @@ def create_app(
                 # Always fetch both unstaged and untracked (parameters kept for backward compatibility)
                 grouped_data = diff_service.get_grouped_diffs(
                     base_ref="HEAD",
-                    unstaged=unstaged,  # Parameter kept for backward compatibility
-                    untracked=untracked,  # Parameter kept for backward compatibility
-                    file_path=file_path,
+                    unstaged=req.unstaged,  # Parameter kept for backward compatibility
+                    untracked=req.untracked,  # Parameter kept for backward compatibility
+                    file_path=req.file_path,
                 )
             else:
                 # Working directory vs branch comparison - use template service logic
                 # This ensures proper combining of staged/unstaged into "changes" group
                 # Always fetch both unstaged and untracked (parameters kept for backward compatibility)
                 template_data = template_service.prepare_diff_data_for_template(
-                    base_ref=base_ref,
-                    unstaged=unstaged,  # Parameter kept for backward compatibility
+                    base_ref=req.base_ref,
+                    unstaged=req.unstaged,  # Parameter kept for backward compatibility
                     staged=True,  # Always include staged for branch comparisons
-                    untracked=untracked,  # Parameter kept for backward compatibility
-                    file_path=file_path,
+                    untracked=req.untracked,  # Parameter kept for backward compatibility
+                    file_path=req.file_path,
                 )
                 grouped_data = template_data["groups"]
                 # Ensure API always exposes an 'unstaged' key for compatibility
@@ -372,35 +389,31 @@ def create_app(
             # Calculate total files across all groups
             total_files = sum(group["count"] for group in grouped_data.values())
 
-            return jsonify(
-                {
-                    "status": "ok",
-                    "groups": grouped_data,
-                    "unstaged": unstaged,
-                    "untracked": untracked,
-                    "file_filter": file_path,
-                    "use_head": use_head,
-                    "base_ref": base_ref,
-                    "total_files": total_files,
-                }
+            # Create response DTO
+            response = DiffResponse(
+                status="ok",
+                groups=grouped_data,
+                total_files=total_files,
+                unstaged=req.unstaged,
+                untracked=req.untracked,
+                file_filter=req.file_path,
+                use_head=req.use_head,
+                base_ref=req.base_ref,
             )
+            return jsonify(response.to_dict())
 
         except DiffServiceError as e:
             logger.error(f"Diff service error: {e}")
-            return (
-                jsonify(
-                    {
-                        "status": "error",
-                        "message": str(e),
-                        "groups": {
-                            "untracked": {"files": [], "count": 0},
-                            "unstaged": {"files": [], "count": 0},
-                            "staged": {"files": [], "count": 0},
-                        },
-                    }
-                ),
-                500,
+            response = DiffResponse(
+                status="error",
+                message=str(e),
+                groups={
+                    "untracked": {"files": [], "count": 0},
+                    "unstaged": {"files": [], "count": 0},
+                    "staged": {"files": [], "count": 0},
+                },
             )
+            return jsonify(response.to_dict()), 500
 
     @app.route("/api/diff")
     def api_diff() -> Union[Response, tuple[Response, int]]:
@@ -410,51 +423,54 @@ def create_app(
     @app.route("/api/v1/file/lines")
     def api_v1_file_lines() -> Union[Response, tuple[Response, int]]:
         """API endpoint for fetching specific lines from a file."""
-        file_path = request.args.get("file_path")
-        if not file_path:
-            return (
-                jsonify(
-                    {"status": "error", "message": "file_path parameter is required"}
-                ),
-                400,
-            )
+        # Parse request parameters
+        start_line_str = request.args.get("start_line")
+        end_line_str = request.args.get("end_line")
 
-        start_line = request.args.get("start_line")
-        end_line = request.args.get("end_line")
-
-        if not start_line or not end_line:
-            return (
-                jsonify(
-                    {
-                        "status": "error",
-                        "message": "start_line and end_line parameters are required",
-                    }
-                ),
-                400,
+        # Check for missing parameters first
+        if not start_line_str or not end_line_str:
+            response = FileLinesResponse(
+                status="error",
+                message="start_line and end_line parameters are required",
             )
+            return jsonify(response.to_dict()), 400
 
         try:
-            start_line_int = int(start_line)
-            end_line_int = int(end_line)
-        except ValueError:
-            return (
-                jsonify(
-                    {
-                        "status": "error",
-                        "message": "start_line and end_line must be valid numbers",
-                    }
-                ),
-                400,
+            req = FileLinesRequest(
+                file_path=request.args.get("file_path", ""),
+                start_line=int(start_line_str),
+                end_line=int(end_line_str),
             )
+        except (ValueError, TypeError):
+            response = FileLinesResponse(
+                status="error",
+                message="start_line and end_line must be valid numbers",
+            )
+            return jsonify(response.to_dict()), 400
+
+        # Validate request
+        is_valid, error_message = req.validate()
+        if not is_valid:
+            response = FileLinesResponse(status="error", message=error_message)
+            return jsonify(response.to_dict()), 400
 
         try:
-            return jsonify(
-                git_service.get_file_lines(file_path, start_line_int, end_line_int)
+            result = git_service.get_file_lines(
+                req.file_path, req.start_line, req.end_line
             )
+            response = FileLinesResponse(
+                status=result.get("status", "ok"),
+                lines=result.get("lines", []),
+                start_line=result.get("start_line", req.start_line),
+                end_line=result.get("end_line", req.end_line),
+                file_path=result.get("file_path", req.file_path),
+            )
+            return jsonify(response.to_dict())
 
         except GitServiceError as e:
             logger.error(f"Git service error: {e}")
-            return jsonify({"status": "error", "message": str(e)}), 500
+            response = FileLinesResponse(status="error", message=str(e))
+            return jsonify(response.to_dict()), 500
 
     @app.route("/api/file/lines")
     def api_file_lines() -> Union[Response, tuple[Response, int]]:
@@ -464,40 +480,42 @@ def create_app(
     @app.route("/api/v1/diff/full")
     def api_v1_diff_full() -> Union[Response, tuple[Response, int]]:
         """API endpoint for complete file diff with unlimited context."""
-        file_path = request.args.get("file_path")
-        if not file_path:
-            return (
-                jsonify(
-                    {"status": "error", "message": "file_path parameter is required"}
-                ),
-                400,
-            )
+        # Parse request parameters into DTO
+        req = FullDiffRequest(
+            file_path=request.args.get("file_path", ""),
+            base_ref=request.args.get("base_ref"),
+            use_head=request.args.get("use_head", "false").lower() == "true",
+            use_cached=request.args.get("use_cached", "false").lower() == "true",
+        )
 
-        base_ref = request.args.get("base_ref")
-        use_head = request.args.get("use_head", "false").lower() == "true"
-        use_cached = request.args.get("use_cached", "false").lower() == "true"
+        # Validate request
+        is_valid, error_message = req.validate()
+        if not is_valid:
+            response = FullDiffResponse(status="error", message=error_message)
+            return jsonify(response.to_dict()), 400
 
         try:
             result = diff_service.get_full_diff_data(
-                file_path=file_path,
-                base_ref=base_ref,
-                use_head=use_head,
-                use_cached=use_cached,
+                file_path=req.file_path,
+                base_ref=req.base_ref,
+                use_head=req.use_head,
+                use_cached=req.use_cached,
             )
-            return jsonify(result)
+            response = FullDiffResponse(
+                status=result.get("status", "ok"),
+                file_path=result.get("file_path", req.file_path),
+                diff_data=result.get("diff_data"),
+            )
+            return jsonify(response.to_dict())
 
         except DiffServiceError as e:
             logger.error(f"Full diff service error: {e}")
-            return (
-                jsonify(
-                    {
-                        "status": "error",
-                        "message": str(e),
-                        "file_path": file_path,
-                    }
-                ),
-                500,
+            response = FullDiffResponse(
+                status="error",
+                file_path=req.file_path,
+                message=str(e),
             )
+            return jsonify(response.to_dict()), 500
 
     @app.route("/api/diff/full")
     def api_diff_full() -> Union[Response, tuple[Response, int]]:
