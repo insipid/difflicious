@@ -5,7 +5,8 @@ from typing import Union
 
 from flask import Blueprint, Response, jsonify, request
 
-from difflicious.config import DEFAULT_EXPANSION_CONTEXT_LINES
+from difflicious.blueprints.helpers import error_response
+from difflicious.config import DEFAULT_EXPANSION_CONTEXT_LINES, MAX_BRANCH_PREVIEW_LINES
 from difflicious.services.diff_service import DiffService
 from difflicious.services.exceptions import GitServiceError
 from difflicious.services.git_service import GitService
@@ -32,21 +33,42 @@ def api_expand_context() -> Union[Response, tuple[Response, int]]:
     target_end = request.args.get("target_end", type=int)
 
     if not all([file_path, hunk_index is not None, direction]):
-        return (
-            jsonify({"status": "error", "message": "Missing required parameters"}),
-            400,
+        return error_response(
+            "Missing required parameters: file_path, hunk_index, and direction are required",
+            context={
+                "file_path": file_path,
+                "hunk_index": hunk_index,
+                "direction": direction,
+            },
         )
 
     if output_format not in ["plain", "pygments"]:
-        return (
-            jsonify(
-                {
-                    "status": "error",
-                    "message": "Invalid format parameter. Must be 'plain' or 'pygments'",
-                }
-            ),
-            400,
+        return error_response(
+            "Invalid format parameter. Must be 'plain' or 'pygments'",
+            context={"format": output_format},
         )
+
+    # Validate target line range if provided
+    if target_start is not None and target_end is not None:
+        if target_start < 0 or target_end < 0:
+            return error_response(
+                "Line numbers must be non-negative",
+                context={"start_line": target_start, "end_line": target_end},
+            )
+        if target_end < target_start:
+            return error_response(
+                "End line must be greater than or equal to start line",
+                context={"start_line": target_start, "end_line": target_end},
+            )
+        if target_end - target_start > MAX_BRANCH_PREVIEW_LINES:
+            return error_response(
+                f"Cannot expand more than {MAX_BRANCH_PREVIEW_LINES} lines at once",
+                context={
+                    "start_line": target_start,
+                    "end_line": target_end,
+                    "max_lines": MAX_BRANCH_PREVIEW_LINES,
+                },
+            )
 
     try:
         # Use the target range provided by the frontend if available
@@ -72,14 +94,10 @@ def api_expand_context() -> Union[Response, tuple[Response, int]]:
                     break
 
             if not target_hunk:
-                return (
-                    jsonify(
-                        {
-                            "status": "error",
-                            "message": f"Hunk {hunk_index} not found in file {file_path}",
-                        }
-                    ),
-                    404,
+                return error_response(
+                    f"Hunk {hunk_index} not found in file {file_path}",
+                    code=404,
+                    context={"file_path": file_path, "hunk_index": hunk_index},
                 )
 
             # Calculate the line range to fetch based on hunk and direction
@@ -133,8 +151,16 @@ def api_expand_context() -> Union[Response, tuple[Response, int]]:
         return jsonify(result)
 
     except GitServiceError as e:
-        logger.error(f"Context expansion error: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
+        logger.error(f"Context expansion error for {file_path} hunk {hunk_index}: {e}")
+        return error_response(
+            str(e),
+            code=500,
+            context={
+                "file_path": file_path,
+                "hunk_index": hunk_index,
+                "direction": direction,
+            },
+        )
 
 
 @context_api.route("/file/lines")
@@ -142,37 +168,24 @@ def api_file_lines() -> Union[Response, tuple[Response, int]]:
     """API endpoint for fetching specific lines from a file (kept for compatibility)."""
     file_path = request.args.get("file_path")
     if not file_path:
-        return (
-            jsonify({"status": "error", "message": "file_path parameter is required"}),
-            400,
-        )
+        return error_response("file_path parameter is required")
 
     start_line = request.args.get("start_line")
     end_line = request.args.get("end_line")
 
     if not start_line or not end_line:
-        return (
-            jsonify(
-                {
-                    "status": "error",
-                    "message": "start_line and end_line parameters are required",
-                }
-            ),
-            400,
+        return error_response(
+            "start_line and end_line parameters are required",
+            context={"start_line": start_line, "end_line": end_line},
         )
 
     try:
         start_line_int = int(start_line)
         end_line_int = int(end_line)
     except ValueError:
-        return (
-            jsonify(
-                {
-                    "status": "error",
-                    "message": "start_line and end_line must be valid numbers",
-                }
-            ),
-            400,
+        return error_response(
+            "start_line and end_line must be valid numbers",
+            context={"start_line": start_line, "end_line": end_line},
         )
 
     try:
@@ -182,5 +195,15 @@ def api_file_lines() -> Union[Response, tuple[Response, int]]:
         )
 
     except GitServiceError as e:
-        logger.error(f"Git service error: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
+        logger.error(
+            f"Git service error fetching lines from {file_path}[{start_line_int}:{end_line_int}]: {e}"
+        )
+        return error_response(
+            str(e),
+            code=500,
+            context={
+                "file_path": file_path,
+                "start_line": start_line_int,
+                "end_line": end_line_int,
+            },
+        )
