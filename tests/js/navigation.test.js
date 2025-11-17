@@ -2,13 +2,6 @@
  * Tests for navigation functionality
  */
 
-import { JSDOM } from 'jsdom';
-
-// Set up DOM environment
-const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
-global.document = dom.window.document;
-global.window = dom.window;
-
 // Import the module under test
 import { navigateToPreviousFile, navigateToNextFile } from '../../src/difflicious/static/js/modules/navigation.js';
 

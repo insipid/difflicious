@@ -25,6 +25,7 @@
     "postcss-cli": "^11.0.1",
     "tailwindcss": "^3.4.17"
   },
+  "type": "module",
   "jest": {
     "testEnvironment": "jsdom",
     "testMatch": [
@@ -33,7 +34,9 @@
     ],
     "collectCoverageFrom": [
       "src/difflicious/static/js/**/*.js"
-    ]
+    ],
+    "transform": {},
+    "setupFiles": ["<rootDir>/tests/js/setup.js"]
   },
   "eslintConfig": {
     "extends": "standard",

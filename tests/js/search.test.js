@@ -2,16 +2,6 @@
  * Tests for search and filtering functionality
  */
 
-import { JSDOM } from 'jsdom';
-
-// Set up DOM environment
-const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
-global.document = dom.window.document;
-global.window = dom.window;
-
-// Mock requestAnimationFrame
-global.requestAnimationFrame = (cb) => setTimeout(cb, 0);
-
 // Import the module under test
 import { buildSearchRegex, applyFilenameFilter, upsertHiddenBanner } from '../../src/difflicious/static/js/modules/search.js';
 

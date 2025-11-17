@@ -46,7 +46,8 @@ export function escapeRegExp(text) {
  */
 export function isHighlightedContent(content) {
     // Check for HTML tags or entities that indicate syntax highlighting
-    return content && (
+    if (!content) return false;
+    return (
         content.includes('<span') ||
         content.includes('</span>') ||
         content.includes('&nbsp;') ||
