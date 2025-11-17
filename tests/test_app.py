@@ -255,17 +255,20 @@ class TestAPIExpandContext:
         assert data["status"] == "error"
         assert "Invalid format parameter" in data["message"]
 
-    @patch("difflicious.app.GitService")
-    def test_expand_context_with_target_range(self, mock_git_service_class, client):
+    def test_expand_context_with_target_range(self):
         """Test context expansion with target_start/target_end parameters."""
         mock_git_service = Mock()
-        mock_git_service_class.return_value = mock_git_service
         mock_git_service.get_file_lines.return_value = {
             "status": "ok",
             "lines": ["line 1", "line 2"],
             "start_line": 5,
             "end_line": 6,
         }
+
+        # Create app with mocked service
+        app = create_app(git_service=mock_git_service)
+        app.config["TESTING"] = True
+        client = app.test_client()
 
         response = client.get(
             "/api/expand-context?file_path=test.py&hunk_index=0&direction=before&target_start=5&target_end=6"
@@ -311,13 +314,9 @@ class TestAPIExpandContext:
         assert response.status_code in [200, 404]
 
     @patch("difflicious.services.syntax_service.SyntaxHighlightingService")
-    @patch("difflicious.app.GitService")
-    def test_expand_context_pygments_format(
-        self, mock_git_service_class, mock_syntax_class, client
-    ):
+    def test_expand_context_pygments_format(self, mock_syntax_class):
         """Test context expansion with pygments format."""
         mock_git_service = Mock()
-        mock_git_service_class.return_value = mock_git_service
         mock_git_service.get_file_lines.return_value = {
             "status": "ok",
             "lines": ["def test():", "    pass"],
@@ -331,6 +330,11 @@ class TestAPIExpandContext:
             "<span>highlighted</span>"
         )
         mock_syntax_service.get_css_styles.return_value = ".highlight { color: red; }"
+
+        # Create app with mocked service
+        app = create_app(git_service=mock_git_service)
+        app.config["TESTING"] = True
+        client = app.test_client()
 
         # Provide target range to bypass hunk lookup
         response = client.get(
@@ -362,17 +366,20 @@ class TestAPIExpandContext:
 class TestAPIFileLines:
     """Test cases for the /api/file/lines endpoint."""
 
-    @patch("difflicious.app.GitService")
-    def test_file_lines_success(self, mock_git_service_class, client):
+    def test_file_lines_success(self):
         """Test successful file lines retrieval."""
         mock_git_service = Mock()
-        mock_git_service_class.return_value = mock_git_service
         mock_git_service.get_file_lines.return_value = {
             "status": "ok",
             "lines": ["line 1", "line 2", "line 3"],
             "start_line": 10,
             "end_line": 12,
         }
+
+        # Create app with mocked service
+        app = create_app(git_service=mock_git_service)
+        app.config["TESTING"] = True
+        client = app.test_client()
 
         response = client.get(
             "/api/file/lines?file_path=test.py&start_line=10&end_line=12"
@@ -446,16 +453,19 @@ class TestAPIDiffFull:
         data = response.get_json()
         assert data["status"] == "error"
 
-    @patch("difflicious.app.DiffService")
-    def test_diff_full_with_base_ref(self, mock_diff_service_class, client):
+    def test_diff_full_with_base_ref(self):
         """Test full diff with base_ref parameter."""
         mock_diff_service = Mock()
-        mock_diff_service_class.return_value = mock_diff_service
         mock_diff_service.get_full_diff_data.return_value = {
             "status": "ok",
             "file_path": "test.py",
             "has_changes": True,
         }
+
+        # Create app with mocked service
+        app = create_app(diff_service=mock_diff_service)
+        app.config["TESTING"] = True
+        client = app.test_client()
 
         response = client.get("/api/diff/full?file_path=test.py&base_ref=feature-x")
         assert response.status_code == 200
@@ -488,14 +498,17 @@ class TestAPIDiffFull:
         response = client.get("/api/diff/full?file_path=test.py&use_cached=true")
         assert response.status_code == 200
 
-    @patch("difflicious.app.DiffService")
-    def test_diff_full_parse_error(self, mock_diff_service_class, client):
+    def test_diff_full_parse_error(self):
         """Test full diff with DiffServiceError."""
         mock_diff_service = Mock()
-        mock_diff_service_class.return_value = mock_diff_service
         mock_diff_service.get_full_diff_data.side_effect = DiffServiceError(
             "Parse failed"
         )
+
+        # Create app with mocked service
+        app = create_app(diff_service=mock_diff_service)
+        app.config["TESTING"] = True
+        client = app.test_client()
 
         response = client.get("/api/diff/full?file_path=test.py")
         assert response.status_code == 500
@@ -527,43 +540,53 @@ class TestErrorHandling:
         assert response.status_code == 200
         assert b"error" in response.data.lower()
 
-    @patch("difflicious.app.GitService")
-    def test_api_status_error_handling(self, mock_git_service_class, client):
+    def test_api_status_error_handling(self):
         """Test API status handles errors gracefully."""
         mock_git_service = Mock()
-        mock_git_service_class.return_value = mock_git_service
         mock_git_service.get_repository_status.side_effect = Exception("Test error")
+
+        # Create app with mocked service
+        app = create_app(git_service=mock_git_service)
+        app.config["TESTING"] = True
+        client = app.test_client()
 
         response = client.get("/api/status")
         assert response.status_code == 200
         data = response.get_json()
         assert data["git_available"] is False
 
-    @patch("difflicious.app.GitService")
-    def test_api_branches_error_handling(self, mock_git_service_class, client):
+    def test_api_branches_error_handling(self):
         """Test API branches handles GitServiceError."""
         mock_git_service = Mock()
-        mock_git_service_class.return_value = mock_git_service
         mock_git_service.get_branch_information.side_effect = GitServiceError(
             "Branch error"
         )
+
+        # Create app with mocked service
+        app = create_app(git_service=mock_git_service)
+        app.config["TESTING"] = True
+        client = app.test_client()
 
         response = client.get("/api/branches")
         assert response.status_code == 500
         data = response.get_json()
         assert data["status"] == "error"
 
-    @patch("difflicious.app.TemplateRenderingService")
-    def test_api_diff_error_handling(self, mock_template_service_class, client):
+    def test_api_diff_error_handling(self):
         """Test API diff handles DiffServiceError."""
+        mock_git_service = Mock()
+        mock_git_service.get_repository_status.return_value = {"current_branch": "main"}
+
         mock_template_service = Mock()
-        mock_template_service_class.return_value = mock_template_service
-        mock_template_service.git_service.get_repository_status.return_value = {
-            "current_branch": "main"
-        }
+        mock_template_service.git_service = mock_git_service
         mock_template_service.prepare_diff_data_for_template.side_effect = (
             DiffServiceError("Diff error")
         )
+
+        # Create app with mocked service
+        app = create_app(template_service=mock_template_service)
+        app.config["TESTING"] = True
+        client = app.test_client()
 
         response = client.get("/api/diff")
         assert response.status_code == 500
