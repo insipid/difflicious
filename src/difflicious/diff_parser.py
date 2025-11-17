@@ -6,6 +6,7 @@ import subprocess
 from typing import Any, Optional
 
 from unidiff import Hunk, PatchedFile, PatchSet
+from unidiff.patch import Line
 
 logger = logging.getLogger(__name__)
 
@@ -191,7 +192,7 @@ def _parse_hunk(hunk: Hunk) -> dict[str, Any]:
 
 
 def _parse_line(
-    line: Any, old_line_num: int, new_line_num: int, missing_newline: bool = False
+    line: Line, old_line_num: int, new_line_num: int, missing_newline: bool = False
 ) -> dict[str, Any]:
     """Parse a single diff line.
 
