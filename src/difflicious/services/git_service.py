@@ -2,6 +2,7 @@
 
 from typing import Any
 
+from difflicious.config import MAX_BRANCH_PREVIEW_LINES
 from difflicious.git_operations import GitOperationError
 
 from .base_service import BaseService
@@ -117,8 +118,10 @@ class GitService(BaseService):
         if start_line < 1 or end_line < start_line:
             raise GitServiceError("Invalid line range")
 
-        if end_line - start_line > 100:
-            raise GitServiceError("Line range too large (max 100 lines)")
+        if end_line - start_line > MAX_BRANCH_PREVIEW_LINES:
+            raise GitServiceError(
+                f"Line range too large (max {MAX_BRANCH_PREVIEW_LINES} lines)"
+            )
 
         try:
             lines = self.repo.get_file_lines(file_path, start_line, end_line)

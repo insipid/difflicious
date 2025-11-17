@@ -5,6 +5,7 @@ from typing import Union
 
 from flask import Blueprint, Response, jsonify, request
 
+from difflicious.config import DEFAULT_EXPANSION_CONTEXT_LINES
 from difflicious.services.diff_service import DiffService
 from difflicious.services.exceptions import GitServiceError
 from difflicious.services.git_service import GitService
@@ -21,7 +22,9 @@ def api_expand_context() -> Union[Response, tuple[Response, int]]:
     file_path = request.args.get("file_path")
     hunk_index = request.args.get("hunk_index", type=int)
     direction = request.args.get("direction")  # 'before' or 'after'
-    context_lines = request.args.get("context_lines", 10, type=int)
+    context_lines = request.args.get(
+        "context_lines", DEFAULT_EXPANSION_CONTEXT_LINES, type=int
+    )
     output_format = request.args.get("format", "plain")  # 'plain' or 'pygments'
 
     # Get the target line range from the frontend (passed from button data attributes)
