@@ -178,11 +178,6 @@ def create_app(
             )
             return jsonify(response.to_dict())
 
-    @app.route("/api/status")
-    def api_status() -> Response:
-        """API endpoint for git status information (deprecated, use /api/v1/status)."""
-        return api_v1_status()
-
     # DevTools extensions occasionally request a source map named installHook.js.map
     # from the app origin, which causes 404 warnings. Serve a minimal, valid map.
     @app.route("/installHook.js.map")
@@ -210,11 +205,6 @@ def create_app(
             logger.error(f"Failed to get branch info: {e}")
             response = BranchesResponse(status="error", message=str(e))
             return jsonify(response.to_dict()), 500
-
-    @app.route("/api/branches")
-    def api_branches() -> Union[Response, tuple[Response, int]]:
-        """API endpoint for git branch information (deprecated, use /api/v1/branches)."""
-        return api_v1_branches()
 
     @app.route("/api/v1/expand-context")
     def api_v1_expand_context() -> Union[Response, tuple[Response, int]]:
@@ -330,11 +320,6 @@ def create_app(
             response = ExpandContextResponse(status="error", message=str(e))
             return jsonify(response.to_dict()), 500
 
-    @app.route("/api/expand-context")
-    def api_expand_context() -> Union[Response, tuple[Response, int]]:
-        """API endpoint for context expansion (deprecated, use /api/v1/expand-context)."""
-        return api_v1_expand_context()
-
     @app.route("/api/v1/diff")
     def api_v1_diff() -> Union[Response, tuple[Response, int]]:
         """API endpoint for git diff information."""
@@ -415,11 +400,6 @@ def create_app(
             )
             return jsonify(response.to_dict()), 500
 
-    @app.route("/api/diff")
-    def api_diff() -> Union[Response, tuple[Response, int]]:
-        """API endpoint for git diff information (deprecated, use /api/v1/diff)."""
-        return api_v1_diff()
-
     @app.route("/api/v1/file/lines")
     def api_v1_file_lines() -> Union[Response, tuple[Response, int]]:
         """API endpoint for fetching specific lines from a file."""
@@ -472,11 +452,6 @@ def create_app(
             response = FileLinesResponse(status="error", message=str(e))
             return jsonify(response.to_dict()), 500
 
-    @app.route("/api/file/lines")
-    def api_file_lines() -> Union[Response, tuple[Response, int]]:
-        """API endpoint for fetching specific lines from a file (deprecated, use /api/v1/file/lines)."""
-        return api_v1_file_lines()
-
     @app.route("/api/v1/diff/full")
     def api_v1_diff_full() -> Union[Response, tuple[Response, int]]:
         """API endpoint for complete file diff with unlimited context."""
@@ -516,11 +491,6 @@ def create_app(
                 message=str(e),
             )
             return jsonify(response.to_dict()), 500
-
-    @app.route("/api/diff/full")
-    def api_diff_full() -> Union[Response, tuple[Response, int]]:
-        """API endpoint for complete file diff with unlimited context (deprecated, use /api/v1/diff/full)."""
-        return api_v1_diff_full()
 
     # Serve a tiny placeholder favicon to avoid 404s in the console.
     @app.route("/favicon.ico")

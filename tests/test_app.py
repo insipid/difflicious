@@ -32,7 +32,7 @@ def test_index_route(client):
 
 def test_api_status_route(client):
     """Test that the API status endpoint returns JSON."""
-    response = client.get("/api/status")
+    response = client.get("/api/v1/status")
     assert response.status_code == 200
     assert response.is_json
 
@@ -46,7 +46,7 @@ def test_api_status_route(client):
 
 def test_api_branches_route(client):
     """Test that the API branches endpoint returns JSON."""
-    response = client.get("/api/branches")
+    response = client.get("/api/v1/branches")
     assert response.status_code == 200
     assert response.is_json
 
@@ -67,7 +67,7 @@ def test_api_branches_route(client):
 
 def test_api_diff_route(client):
     """Test that the API diff endpoint returns JSON."""
-    response = client.get("/api/diff")
+    response = client.get("/api/v1/diff")
     assert response.status_code == 200
     assert response.is_json
 
@@ -83,7 +83,7 @@ def test_api_diff_route(client):
 
 def test_api_diff_route_with_base_ref(client):
     """Test that the API diff endpoint accepts base_ref and forwards it."""
-    response = client.get("/api/diff?base_ref=feature-x")
+    response = client.get("/api/v1/diff?base_ref=feature-x")
     assert response.status_code == 200
     assert response.is_json
 
@@ -97,7 +97,7 @@ class TestAPIDiffCommitComparison:
 
     def test_api_diff_with_base_ref_parameter(self, client):
         """Test API diff endpoint with base_ref parameter."""
-        response = client.get("/api/diff?base_ref=abc123")
+        response = client.get("/api/v1/diff?base_ref=abc123")
         assert response.status_code == 200
         assert response.is_json
 
@@ -109,7 +109,7 @@ class TestAPIDiffCommitComparison:
 
     def test_api_diff_ignores_target_commit_parameter(self, client):
         """Target commit is ignored; API still returns ok and includes base_ref when set."""
-        response = client.get("/api/diff?target_commit=def456")
+        response = client.get("/api/v1/diff?target_commit=def456")
         assert response.status_code == 200
         assert response.is_json
 
@@ -122,7 +122,7 @@ class TestAPIDiffCommitComparison:
     def test_api_diff_with_base_ref_and_other_params(self, client):
         """Test API diff endpoint with base_ref and other parameters."""
         response = client.get(
-            "/api/diff?base_ref=abc123&unstaged=true&untracked=false&file=test.txt"
+            "/api/v1/diff?base_ref=abc123&unstaged=true&untracked=false&file=test.txt"
         )
         assert response.status_code == 200
         assert response.is_json
@@ -139,7 +139,9 @@ class TestAPIDiffCommitComparison:
     def test_api_diff_backward_compatibility(self, client):
         """Test API diff endpoint maintains backward compatibility."""
         # Test traditional parameters still work
-        response = client.get("/api/diff?unstaged=true&untracked=false&file=test.txt")
+        response = client.get(
+            "/api/v1/diff?unstaged=true&untracked=false&file=test.txt"
+        )
         assert response.status_code == 200
         assert response.is_json
 
@@ -154,7 +156,7 @@ class TestAPIDiffCommitComparison:
 
     def test_api_diff_empty_base_ref_parameter(self, client):
         """Test API diff endpoint with empty base_ref parameter."""
-        response = client.get("/api/diff?base_ref=")
+        response = client.get("/api/v1/diff?base_ref=")
         assert response.status_code == 200
         assert response.is_json
 
@@ -167,14 +169,14 @@ class TestAPIDiffCommitComparison:
     def test_api_diff_commit_parameters_with_special_characters(self, client):
         """Test API diff endpoint handles base_ref with various characters."""
         # Test with branch name containing slashes
-        response = client.get("/api/diff?base_ref=feature/new-ui")
+        response = client.get("/api/v1/diff?base_ref=feature/new-ui")
         assert response.status_code == 200
 
         data = response.get_json()
         assert data["base_ref"] == "feature/new-ui"
 
         # Test with HEAD references
-        response = client.get("/api/diff?base_ref=HEAD~1")
+        response = client.get("/api/v1/diff?base_ref=HEAD~1")
         assert response.status_code == 200
 
         data = response.get_json()
@@ -183,11 +185,11 @@ class TestAPIDiffCommitComparison:
     def test_api_diff_response_format_consistency(self, client):
         """Test API diff endpoint response format is consistent."""
         # Test without commit parameters
-        response1 = client.get("/api/diff")
+        response1 = client.get("/api/v1/diff")
         data1 = response1.get_json()
 
         # Test with commit parameters
-        response2 = client.get("/api/diff?base_commit=abc123")
+        response2 = client.get("/api/v1/diff?base_commit=abc123")
         data2 = response2.get_json()
 
         # Both should have the same basic structure
@@ -231,7 +233,7 @@ class TestAPIExpandContext:
 
         # Provide target_start and target_end to bypass hunk lookup
         response = client.get(
-            "/api/expand-context?file_path=test.py&hunk_index=0&direction=after&target_start=10&target_end=12"
+            "/api/v1/expand-context?file_path=test.py&hunk_index=0&direction=after&target_start=10&target_end=12"
         )
         assert response.status_code == 200
         data = response.get_json()
@@ -240,7 +242,7 @@ class TestAPIExpandContext:
 
     def test_expand_context_missing_parameters(self, client):
         """Test context expansion with missing parameters."""
-        response = client.get("/api/expand-context?file_path=test.py")
+        response = client.get("/api/v1/expand-context?file_path=test.py")
         assert response.status_code == 400
         data = response.get_json()
         assert data["status"] == "error"
@@ -248,7 +250,7 @@ class TestAPIExpandContext:
     def test_expand_context_invalid_format(self, client):
         """Test context expansion with invalid format parameter."""
         response = client.get(
-            "/api/expand-context?file_path=test.py&hunk_index=0&direction=after&format=invalid"
+            "/api/v1/expand-context?file_path=test.py&hunk_index=0&direction=after&format=invalid"
         )
         assert response.status_code == 400
         data = response.get_json()
@@ -271,7 +273,7 @@ class TestAPIExpandContext:
         client = app.test_client()
 
         response = client.get(
-            "/api/expand-context?file_path=test.py&hunk_index=0&direction=before&target_start=5&target_end=6"
+            "/api/v1/expand-context?file_path=test.py&hunk_index=0&direction=before&target_start=5&target_end=6"
         )
         assert response.status_code == 200
         data = response.get_json()
@@ -308,7 +310,7 @@ class TestAPIExpandContext:
         }
 
         response = client.get(
-            "/api/expand-context?file_path=test.py&hunk_index=0&direction=after"
+            "/api/v1/expand-context?file_path=test.py&hunk_index=0&direction=after"
         )
         # Should succeed or fail depending on calculation - either is valid
         assert response.status_code in [200, 404]
@@ -338,7 +340,7 @@ class TestAPIExpandContext:
 
         # Provide target range to bypass hunk lookup
         response = client.get(
-            "/api/expand-context?file_path=test.py&hunk_index=0&direction=after&format=pygments&target_start=1&target_end=2"
+            "/api/v1/expand-context?file_path=test.py&hunk_index=0&direction=after&format=pygments&target_start=1&target_end=2"
         )
         assert response.status_code == 200
         data = response.get_json()
@@ -356,7 +358,7 @@ class TestAPIExpandContext:
         }
 
         response = client.get(
-            "/api/expand-context?file_path=test.py&hunk_index=0&direction=after"
+            "/api/v1/expand-context?file_path=test.py&hunk_index=0&direction=after"
         )
         assert response.status_code == 404
         data = response.get_json()
@@ -382,7 +384,7 @@ class TestAPIFileLines:
         client = app.test_client()
 
         response = client.get(
-            "/api/file/lines?file_path=test.py&start_line=10&end_line=12"
+            "/api/v1/file/lines?file_path=test.py&start_line=10&end_line=12"
         )
         assert response.status_code == 200
         data = response.get_json()
@@ -390,14 +392,14 @@ class TestAPIFileLines:
 
     def test_file_lines_missing_file_path(self, client):
         """Test file lines with missing file_path parameter."""
-        response = client.get("/api/file/lines?start_line=10&end_line=12")
+        response = client.get("/api/v1/file/lines?start_line=10&end_line=12")
         assert response.status_code == 400
         data = response.get_json()
         assert data["status"] == "error"
 
     def test_file_lines_missing_line_numbers(self, client):
         """Test file lines with missing line number parameters."""
-        response = client.get("/api/file/lines?file_path=test.py")
+        response = client.get("/api/v1/file/lines?file_path=test.py")
         assert response.status_code == 400
         data = response.get_json()
         assert "start_line and end_line parameters are required" in data["message"]
@@ -405,7 +407,7 @@ class TestAPIFileLines:
     def test_file_lines_invalid_line_numbers(self, client):
         """Test file lines with invalid line number parameters."""
         response = client.get(
-            "/api/file/lines?file_path=test.py&start_line=abc&end_line=def"
+            "/api/v1/file/lines?file_path=test.py&start_line=abc&end_line=def"
         )
         assert response.status_code == 400
         data = response.get_json()
@@ -419,7 +421,7 @@ class TestAPIFileLines:
         mock_git_service.get_file_lines.side_effect = GitServiceError("Git failed")
 
         response = client.get(
-            "/api/file/lines?file_path=test.py&start_line=10&end_line=12"
+            "/api/v1/file/lines?file_path=test.py&start_line=10&end_line=12"
         )
         assert response.status_code == 500
         data = response.get_json()
@@ -441,14 +443,14 @@ class TestAPIDiffFull:
             "diff_data": {"chunks": []},
         }
 
-        response = client.get("/api/diff/full?file_path=test.py")
+        response = client.get("/api/v1/diff/full?file_path=test.py")
         assert response.status_code == 200
         data = response.get_json()
         assert data["status"] == "ok"
 
     def test_diff_full_missing_file_path(self, client):
         """Test full diff with missing file_path parameter."""
-        response = client.get("/api/diff/full")
+        response = client.get("/api/v1/diff/full")
         assert response.status_code == 400
         data = response.get_json()
         assert data["status"] == "error"
@@ -467,7 +469,7 @@ class TestAPIDiffFull:
         app.config["TESTING"] = True
         client = app.test_client()
 
-        response = client.get("/api/diff/full?file_path=test.py&base_ref=feature-x")
+        response = client.get("/api/v1/diff/full?file_path=test.py&base_ref=feature-x")
         assert response.status_code == 200
 
     @patch("difflicious.app.DiffService")
@@ -481,7 +483,7 @@ class TestAPIDiffFull:
             "has_changes": True,
         }
 
-        response = client.get("/api/diff/full?file_path=test.py&use_head=true")
+        response = client.get("/api/v1/diff/full?file_path=test.py&use_head=true")
         assert response.status_code == 200
 
     @patch("difflicious.app.DiffService")
@@ -495,7 +497,7 @@ class TestAPIDiffFull:
             "has_changes": True,
         }
 
-        response = client.get("/api/diff/full?file_path=test.py&use_cached=true")
+        response = client.get("/api/v1/diff/full?file_path=test.py&use_cached=true")
         assert response.status_code == 200
 
     def test_diff_full_parse_error(self):
@@ -510,7 +512,7 @@ class TestAPIDiffFull:
         app.config["TESTING"] = True
         client = app.test_client()
 
-        response = client.get("/api/diff/full?file_path=test.py")
+        response = client.get("/api/v1/diff/full?file_path=test.py")
         assert response.status_code == 500
         data = response.get_json()
         assert data["status"] == "error"
@@ -552,7 +554,7 @@ class TestErrorHandling:
         app.config["TESTING"] = True
         client = app.test_client()
 
-        response = client.get("/api/status")
+        response = client.get("/api/v1/status")
         assert response.status_code == 200
         data = response.get_json()
         assert data["git_available"] is False
@@ -569,7 +571,7 @@ class TestErrorHandling:
         app.config["TESTING"] = True
         client = app.test_client()
 
-        response = client.get("/api/branches")
+        response = client.get("/api/v1/branches")
         assert response.status_code == 500
         data = response.get_json()
         assert data["status"] == "error"
@@ -590,7 +592,7 @@ class TestErrorHandling:
         app.config["TESTING"] = True
         client = app.test_client()
 
-        response = client.get("/api/diff")
+        response = client.get("/api/v1/diff")
         assert response.status_code == 500
         data = response.get_json()
         assert data["status"] == "error"
