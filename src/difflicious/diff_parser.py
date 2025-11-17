@@ -73,7 +73,7 @@ def parse_git_diff(diff_text: str) -> list[dict[str, Any]]:
 
         return files
 
-    except Exception as e:
+    except (ValueError, KeyError, IndexError, AttributeError) as e:
         logger.error(f"Failed to parse diff: {e}")
         raise DiffParseError(f"Diff parsing failed: {e}") from e
 
@@ -443,7 +443,7 @@ def parse_git_diff_for_rendering(diff_text: str) -> list[dict[str, Any]]:
 
         return rendered_files
 
-    except Exception as e:
+    except (ValueError, KeyError, IndexError, AttributeError, DiffParseError) as e:
         logger.error(f"Failed to parse diff for rendering: {e}")
         raise DiffParseError(f"Diff parsing for rendering failed: {e}") from e
 

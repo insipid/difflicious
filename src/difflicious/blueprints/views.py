@@ -5,6 +5,7 @@ import logging
 
 from flask import Blueprint, Response, render_template, request
 
+from difflicious.services.exceptions import DiffServiceError, GitServiceError
 from difflicious.services.git_service import GitService
 from difflicious.services.template_service import TemplateRenderingService
 
@@ -35,8 +36,9 @@ def index() -> str:
                 # Use current_branch if available so service treats it as HEAD comparison
                 if current_branch and current_branch not in ("unknown", "error"):
                     base_ref = current_branch
-            except Exception:
+            except Exception as e:
                 # Fallback: leave base_ref as None
+                logger.warning(f"Could not determine current branch: {e}")
                 pass
 
         # Prepare template data
@@ -53,7 +55,15 @@ def index() -> str:
 
         return render_template("index.html", **template_data)
 
-    except Exception as e:
+    except (
+        ValueError,
+        KeyError,
+        OSError,
+        RuntimeError,
+        DiffServiceError,
+        GitServiceError,
+        Exception,
+    ) as e:
         logger.error(f"Failed to render index page: {e}")
         # Render error page
         error_data = {
