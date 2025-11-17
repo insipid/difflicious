@@ -661,7 +661,7 @@ class GitRepository:
             if not self._is_safe_file_path(file_path):
                 raise GitOperationError(f"Unsafe file path: {file_path}")
 
-            diff_args = ["diff"]
+            diff_args = []
 
             # Use million lines of context for full diff view
             diff_args.append("-U1000000")
@@ -684,7 +684,8 @@ class GitRepository:
                 if default_branch and self._is_safe_commit_sha(default_branch):
                     diff_args.append(default_branch)
 
-            diff_args.extend(["--no-color", file_path])
+            # Add -- to separate revisions from paths, then add file path
+            diff_args.extend(["--no-color", "--", file_path])
 
             # Use GitPython's git command interface
             result: str = self.repo.git.diff(*diff_args)

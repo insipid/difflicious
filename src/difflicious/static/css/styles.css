@@ -701,6 +701,7 @@ body {
     /* 30px at text-xs with padding */
     align-items: stretch;
     /* Ensure both flex children are same height */
+    border: none;
 }
 
 .diff-line .line-left,
@@ -768,6 +769,7 @@ body {
 /* Dark theme: Make diff line backgrounds darker for better contrast */
 [data-theme="dark"] .diff-line {
     background-color: var(--color-diff-context-bg);
+    border: none;
 }
 
 /* Don't set background on line-content - let parent elements handle it */
