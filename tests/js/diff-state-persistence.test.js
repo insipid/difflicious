@@ -36,6 +36,19 @@ document.body.innerHTML = '';
 global.$ = (selector) => document.querySelector(selector);
 global.$$ = (selector) => document.querySelectorAll(selector);
 
+// Polyfill CSS.escape for jsdom (not available by default)
+if (typeof CSS === 'undefined') {
+    global.CSS = {
+        escape: (value) => {
+            if (typeof value !== 'string') {
+                throw new TypeError('CSS.escape requires a string argument');
+            }
+            // Simple escape implementation for testing purposes
+            return value.replace(/["#;&,.+*~':"!^$[\]()=>|/@]/g, '\\$&');
+        }
+    };
+}
+
 // Load the diff-interactions.js file
 const fs = require('fs');
 const path = require('path');
@@ -176,6 +189,9 @@ describe('DiffState persistence', () => {
                     <span class="toggle-icon" data-expanded="false">▶</span>
                 </div>
                 <div data-file-content="restored-file2.html" style="display: none;"></div>
+                <div data-file="other-file.txt">
+                    <span class="toggle-icon" data-expanded="false">▶</span>
+                </div>
                 <div data-file-content="other-file.txt" style="display: block;"></div>
                 <div data-group="untracked">
                     <span class="toggle-icon" data-expanded="false">▶</span>
@@ -219,12 +235,15 @@ describe('DiffState persistence', () => {
             localStorage.setItem('difflicious-test-repo', JSON.stringify(savedState));
 
             // Mock DOM where server shows file2 as visible, not file1
-            // Include complete DOM structure for file1 so it can be restored from localStorage
+            // Include complete DOM structure for both files
             document.body.innerHTML = `
                 <div data-file="file1.txt">
                     <span class="toggle-icon" data-expanded="false">▶</span>
                 </div>
                 <div data-file-content="file1.txt" style="display: none;"></div>
+                <div data-file="file2.txt">
+                    <span class="toggle-icon" data-expanded="false">▶</span>
+                </div>
                 <div data-file-content="file2.txt" style="display: block;"></div>
             `;
 
