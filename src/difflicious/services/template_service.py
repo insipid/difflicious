@@ -14,12 +14,25 @@ logger = logging.getLogger(__name__)
 class TemplateRenderingService(BaseService):
     """Service for preparing diff data for template rendering."""
 
-    def __init__(self, repo_path: Optional[str] = None):
-        """Initialize template rendering service."""
+    def __init__(
+        self,
+        repo_path: Optional[str] = None,
+        diff_service: Optional[DiffService] = None,
+        git_service: Optional[GitService] = None,
+        syntax_service: Optional[SyntaxHighlightingService] = None,
+    ):
+        """Initialize template rendering service with optional dependency injection.
+
+        Args:
+            repo_path: Path to git repository
+            diff_service: Optional DiffService instance (created if not provided)
+            git_service: Optional GitService instance (created if not provided)
+            syntax_service: Optional SyntaxHighlightingService instance (created if not provided)
+        """
         super().__init__(repo_path)
-        self.diff_service = DiffService(repo_path)
-        self.git_service = GitService(repo_path)
-        self.syntax_service = SyntaxHighlightingService()
+        self.diff_service = diff_service or DiffService(repo_path)
+        self.git_service = git_service or GitService(repo_path)
+        self.syntax_service = syntax_service or SyntaxHighlightingService()
 
     def prepare_diff_data_for_template(
         self,
