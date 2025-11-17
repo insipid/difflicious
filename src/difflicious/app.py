@@ -345,29 +345,26 @@ def create_app(
 
             if is_head_comparison:
                 # Working directory vs HEAD comparison - use diff service directly
-                # Always fetch both unstaged and untracked (parameters kept for backward compatibility)
                 grouped_data = diff_service.get_grouped_diffs(
                     base_ref="HEAD",
-                    unstaged=req.unstaged,  # Parameter kept for backward compatibility
-                    untracked=req.untracked,  # Parameter kept for backward compatibility
+                    unstaged=req.unstaged,
+                    untracked=req.untracked,
                     file_path=req.file_path,
                 )
             else:
                 # Working directory vs branch comparison - use template service logic
                 # This ensures proper combining of staged/unstaged into "changes" group
-                # Always fetch both unstaged and untracked (parameters kept for backward compatibility)
                 template_data = template_service.prepare_diff_data_for_template(
                     base_ref=req.base_ref,
-                    unstaged=req.unstaged,  # Parameter kept for backward compatibility
+                    unstaged=req.unstaged,
                     staged=True,  # Always include staged for branch comparisons
-                    untracked=req.untracked,  # Parameter kept for backward compatibility
+                    untracked=req.untracked,
                     file_path=req.file_path,
                 )
                 grouped_data = template_data["groups"]
-                # Ensure API always exposes an 'unstaged' key for compatibility
+                # Normalize group structure for consistent API response
                 if "unstaged" not in grouped_data and "changes" in grouped_data:
                     grouped_data["unstaged"] = grouped_data["changes"]
-                # Ensure API always exposes a 'staged' key for compatibility
                 if "staged" not in grouped_data:
                     grouped_data["staged"] = {"files": [], "count": 0}
 

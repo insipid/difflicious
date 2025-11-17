@@ -84,10 +84,10 @@ class ExpandContextResponse:
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization.
 
-        Maps field names to maintain backward compatibility with existing API contract.
+        Maps field names to align with API contract (output_format → format).
         """
         result = asdict(self)
-        # Map 'output_format' to 'format' for backward compatibility
+        # Map 'output_format' to 'format' to match API response structure
         if "output_format" in result:
             result["format"] = result.pop("output_format")
         # Remove None values for cleaner JSON
@@ -122,8 +122,8 @@ class DiffResponse:
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         result = asdict(self)
-        # Keep base_ref and file_filter even if None for backward compatibility
-        # Only remove 'message' if None (used for error responses)
+        # Keep base_ref and file_filter even if None (tests expect these fields)
+        # Only remove 'message' if None (used for error responses only)
         if "message" in result and result["message"] is None:
             del result["message"]
         return result
@@ -145,10 +145,6 @@ class FileLinesRequest:
         """
         if not self.file_path:
             return False, "file_path parameter is required"
-        if self.start_line is None or self.end_line is None:
-            return False, "start_line and end_line parameters are required"
-        if not isinstance(self.start_line, int) or not isinstance(self.end_line, int):
-            return False, "start_line and end_line must be valid numbers"
         return True, None
 
 
