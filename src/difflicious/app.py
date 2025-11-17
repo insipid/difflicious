@@ -8,12 +8,15 @@ from typing import Union
 
 from flask import Flask, Response, jsonify, render_template, request
 
-# Import services
+# Import services and configuration
 from difflicious.config import AVAILABLE_FONTS
-from difflicious.services.diff_service import DiffService
-from difflicious.services.exceptions import DiffServiceError, GitServiceError
-from difflicious.services.git_service import GitService
-from difflicious.services.template_service import TemplateRenderingService
+from difflicious.services import (
+    DiffService,
+    DiffServiceError,
+    GitService,
+    GitServiceError,
+    TemplateRenderingService,
+)
 
 
 def create_app() -> Flask:
