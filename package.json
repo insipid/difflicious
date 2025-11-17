@@ -5,9 +5,9 @@
   "scripts": {
     "lint:js": "eslint src/difflicious/static/js/**/*.js",
     "lint:js:fix": "eslint src/difflicious/static/js/**/*.js --fix",
-    "test:js": "jest",
-    "test:js:watch": "jest --watch",
-    "test:js:coverage": "jest --coverage",
+    "test:js": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test:js:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
+    "test:js:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
     "tailwind:build": "NODE_ENV=production postcss ./src/difflicious/static/css/tailwind.input.css -o ./src/difflicious/static/css/tailwind.css",
     "tailwind:watch": "postcss ./src/difflicious/static/css/tailwind.input.css -o ./src/difflicious/static/css/tailwind.css --watch"
   },

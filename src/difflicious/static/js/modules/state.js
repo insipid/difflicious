@@ -61,14 +61,18 @@ export const DiffState = {
         const expandAllBtn = $('#expandAll');
         const collapseAllBtn = $('#collapseAll');
 
-        if (expandAllBtn) expandAllBtn.addEventListener('click', () => {
+        if (expandAllBtn) {
+            expandAllBtn.addEventListener('click', () => {
             // Import dynamically to avoid circular dependency
-            import('./file-operations.js').then(module => module.expandAllFiles());
-        });
-        if (collapseAllBtn) collapseAllBtn.addEventListener('click', () => {
+                import('./file-operations.js').then(module => module.expandAllFiles());
+            });
+        }
+        if (collapseAllBtn) {
+            collapseAllBtn.addEventListener('click', () => {
             // Import dynamically to avoid circular dependency
-            import('./file-operations.js').then(module => module.collapseAllFiles());
-        });
+                import('./file-operations.js').then(module => module.collapseAllFiles());
+            });
+        }
 
         // Form auto-submit on changes (but exclude unstaged/untracked toggles for client-side filtering)
         $$('input[type="checkbox"], select').forEach(input => {
