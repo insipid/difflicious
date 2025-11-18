@@ -105,6 +105,41 @@ describe('diffStore', () => {
 
             expect(diffStore.expandedFiles.size).toBe(0);
         });
+
+        it('should get all file paths from DOM', () => {
+            // Create mock DOM elements
+            document.body.innerHTML = `
+                <div data-file="src/test1.js"></div>
+                <div data-file="src/test2.js"></div>
+                <div data-file="src/test3.js"></div>
+            `;
+
+            const filePaths = diffStore.getAllFilePaths();
+
+            expect(filePaths).toEqual(['src/test1.js', 'src/test2.js', 'src/test3.js']);
+        });
+
+        it('should expand all files from DOM', () => {
+            // Create mock DOM elements
+            document.body.innerHTML = `
+                <div data-file="src/test1.js"></div>
+                <div data-file="src/test2.js"></div>
+            `;
+
+            diffStore.expandAllFiles();
+
+            expect(diffStore.expandedFiles.has('src/test1.js')).toBe(true);
+            expect(diffStore.expandedFiles.has('src/test2.js')).toBe(true);
+        });
+
+        it('should collapse all files using collapseAllFiles method', () => {
+            diffStore.expandedFiles.add('src/test1.js');
+            diffStore.expandedFiles.add('src/test2.js');
+
+            diffStore.collapseAllFiles();
+
+            expect(diffStore.expandedFiles.size).toBe(0);
+        });
     });
 
     describe('persistence', () => {

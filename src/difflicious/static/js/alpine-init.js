@@ -10,6 +10,9 @@ import diffStore from './stores/diffStore.js';
 import searchStore from './stores/searchStore.js';
 import themeStore from './stores/themeStore.js';
 
+// Import components
+import { fileComponent } from './components/fileComponent.js';
+
 // Initialize Alpine stores
 document.addEventListener('alpine:init', () => {
     // Register stores
@@ -28,5 +31,8 @@ Alpine.start();
 
 // Export Alpine for use in components
 window.Alpine = Alpine;
+
+// Register component factories globally
+window.fileComponent = fileComponent;
 
 export default Alpine;

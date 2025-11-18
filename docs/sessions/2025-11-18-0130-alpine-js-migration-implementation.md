@@ -83,3 +83,47 @@ All three stores were created in Task 1.1:
 - Defined interfaces for 5 component types
 - Documented component hierarchy and patterns
 - Ready to proceed with Phase 2 component implementation
+
+---
+
+### Phase 2: Core Components Migration (Days 3-5)
+
+#### Task 2.1: File Component ✅
+- [x] Create fileComponent() factory
+- [x] Update diff_file.html template with Alpine directives
+- [x] Implement toggle functionality
+- [x] Add transition animations
+- [x] Test file expansion/collapse
+- [x] Migrate expand/collapse all functionality
+
+**Status:** ✅ Complete
+
+**Files Created:**
+- `src/difflicious/static/js/components/fileComponent.js` - File component factory
+- `tests/js/components/fileComponent.test.js` - Component tests (7 tests)
+
+**Files Modified:**
+- `src/difflicious/static/js/alpine-init.js` - Import and register fileComponent
+- `src/difflicious/static/js/stores/diffStore.js` - Added expandAllFiles(), collapseAllFiles(), getAllFilePaths()
+- `src/difflicious/templates/diff_file.html` - Alpine directives (x-data, @click, x-show, x-text, x-transition)
+- `src/difflicious/templates/partials/global_controls.html` - Updated expand/collapse all buttons to use Alpine store
+- `tests/js/stores/diffStore.test.js` - Added tests for new store methods (3 additional tests)
+
+**Implementation Details:**
+- File component uses reactive state from diffStore
+- Toggle icon automatically updates based on expansion state (▼/▶)
+- Smooth transitions with Alpine x-transition directives
+- Expand/collapse all buttons directly call store methods
+- Component properly integrated with existing template structure
+- Maintains backward compatibility with data-file attributes
+
+**Test Results:** ✅ All 84 tests passing (+9 new tests)
+**Lint Results:** ✅ All checks passed
+
+### Task 2.1 Notes
+- Successfully migrated file toggle functionality from vanilla JS to Alpine.js
+- Removed onclick handlers in favor of @click directives
+- Added smooth transitions for better UX
+- Store methods work seamlessly with DOM-based file discovery
+- Template now uses declarative Alpine directives instead of imperative DOM manipulation
+- All tests passing with comprehensive coverage of component and store integration
