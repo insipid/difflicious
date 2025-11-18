@@ -80,7 +80,26 @@ export default {
     },
 
     /**
-     * Expand all files
+     * Get all file paths from the DOM
+     */
+    getAllFilePaths() {
+        const fileElements = document.querySelectorAll('[data-file]');
+        return Array.from(fileElements).map(el => el.getAttribute('data-file'));
+    },
+
+    /**
+     * Expand all files (reads from DOM)
+     */
+    expandAllFiles() {
+        const filePaths = this.getAllFilePaths();
+        filePaths.forEach(filePath => this.expandedFiles.add(filePath));
+        // Trigger reactivity by reassigning
+        this.expandedFiles = new Set(this.expandedFiles);
+        this.saveState();
+    },
+
+    /**
+     * Expand all files (with provided file paths)
      */
     expandAll(filePaths) {
         filePaths.forEach(filePath => this.expandedFiles.add(filePath));
@@ -92,11 +111,18 @@ export default {
     /**
      * Collapse all files
      */
-    collapseAll() {
+    collapseAllFiles() {
         this.expandedFiles.clear();
         // Trigger reactivity by reassigning
         this.expandedFiles = new Set(this.expandedFiles);
         this.saveState();
+    },
+
+    /**
+     * Collapse all files (legacy alias)
+     */
+    collapseAll() {
+        this.collapseAllFiles();
     },
 
     /**
