@@ -6,6 +6,7 @@ import subprocess
 from typing import Any, Optional
 
 from unidiff import Hunk, PatchedFile, PatchSet
+from unidiff.patch import Line
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +73,7 @@ def parse_git_diff(diff_text: str) -> list[dict[str, Any]]:
 
         return files
 
-    except Exception as e:
+    except (ValueError, KeyError, IndexError, AttributeError) as e:
         logger.error(f"Failed to parse diff: {e}")
         raise DiffParseError(f"Diff parsing failed: {e}") from e
 
@@ -140,11 +141,23 @@ def _parse_file(patched_file: PatchedFile) -> dict[str, Any]:
 def _parse_hunk(hunk: Hunk) -> dict[str, Any]:
     """Parse a single hunk into side-by-side structure.
 
+    Converts a linear sequence of diff lines from a hunk into structured data
+    with proper line numbering for both old and new files. Handles context lines,
+    additions, deletions, and "no newline at end of file" markers.
+
     Args:
-        hunk: Hunk object from unidiff
+        hunk: Hunk object from unidiff containing diff lines
 
     Returns:
-        Dictionary containing hunk metadata and side-by-side lines
+        Dictionary containing hunk metadata and parsed lines:
+        - old_start/old_count: Line range in the old file
+        - new_start/new_count: Line range in the new file
+        - section_header: Function/section name if available
+        - lines: List of parsed line dictionaries
+
+    Note:
+        Line numbers are tracked separately for old and new files, incrementing
+        based on line type (context increments both, deletion only old, addition only new).
     """
     hunk_data: dict[str, Any] = {
         "old_start": hunk.source_start,
@@ -191,7 +204,7 @@ def _parse_hunk(hunk: Hunk) -> dict[str, Any]:
 
 
 def _parse_line(
-    line: Any, old_line_num: int, new_line_num: int, missing_newline: bool = False
+    line: Line, old_line_num: int, new_line_num: int, missing_newline: bool = False
 ) -> dict[str, Any]:
     """Parse a single diff line.
 
@@ -430,7 +443,7 @@ def parse_git_diff_for_rendering(diff_text: str) -> list[dict[str, Any]]:
 
         return rendered_files
 
-    except Exception as e:
+    except (ValueError, KeyError, IndexError, AttributeError, DiffParseError) as e:
         logger.error(f"Failed to parse diff for rendering: {e}")
         raise DiffParseError(f"Diff parsing for rendering failed: {e}") from e
 
@@ -440,12 +453,26 @@ def _group_lines_into_hunks(
 ) -> list[dict[str, Any]]:
     """Group side-by-side lines back into hunks for structured rendering.
 
+    Takes flattened side-by-side line pairs and reorganizes them into logical
+    hunks based on hunk_header markers. Preserves original hunk metadata while
+    grouping the transformed line pairs.
+
     Args:
-        side_by_side_lines: List of side-by-side line pairs
-        original_hunks: Original hunk metadata for reference
+        side_by_side_lines: List of side-by-side line pair dictionaries, including
+            hunk_header markers that indicate hunk boundaries
+        original_hunks: Original hunk metadata from parsing, used to populate
+            old_count/new_count fields
 
     Returns:
-        List of hunks with side-by-side lines grouped appropriately
+        List of hunk dictionaries, each containing:
+        - old_start, old_count: Line range in old file
+        - new_start, new_count: Line range in new file
+        - section_header: Function/section context
+        - lines: Side-by-side line pairs for this hunk
+
+    Note:
+        If no hunk_header is found at the start, creates a default hunk using
+        the first original hunk's metadata to prevent data loss.
     """
     if not side_by_side_lines:
         return []

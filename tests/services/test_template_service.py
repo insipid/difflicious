@@ -304,7 +304,7 @@ class TestTemplateRenderingService:
         assert "lines" in result[0]
         assert len(result[0]["lines"]) == 1
 
-    def test_enhance_diff_data_for_templates(self):
+    def test_enhance_diff_data_for_template(self):
         """Test enhancing diff data for templates."""
         grouped_diffs = {
             "unstaged": {
@@ -320,7 +320,7 @@ class TestTemplateRenderingService:
             }
         }
 
-        result = self.service._enhance_diff_data_for_templates(
+        result = self.service._enhance_diff_data_for_template(
             grouped_diffs, expand_files=True
         )
 
@@ -340,7 +340,7 @@ class TestTemplateRenderingService:
             }
         }
 
-        result = self.service._enhance_diff_data_for_templates(
+        result = self.service._enhance_diff_data_for_template(
             grouped_diffs, search_filter="test"
         )
 

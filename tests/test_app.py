@@ -1,9 +1,15 @@
 """Tests for the Flask application."""
 
+import sys
 from unittest.mock import Mock, patch
 
 import pytest
 
+# Import blueprint modules to ensure they're in sys.modules
+import difflicious.blueprints.context_routes  # noqa: F401
+import difflicious.blueprints.diff_routes  # noqa: F401
+import difflicious.blueprints.git_routes  # noqa: F401
+import difflicious.blueprints.views  # noqa: F401
 from difflicious.app import create_app
 from difflicious.services.exceptions import DiffServiceError, GitServiceError
 
@@ -32,7 +38,7 @@ def test_index_route(client):
 
 def test_api_status_route(client):
     """Test that the API status endpoint returns JSON."""
-    response = client.get("/api/v1/status")
+    response = client.get("/api/status")
     assert response.status_code == 200
     assert response.is_json
 
@@ -46,7 +52,7 @@ def test_api_status_route(client):
 
 def test_api_branches_route(client):
     """Test that the API branches endpoint returns JSON."""
-    response = client.get("/api/v1/branches")
+    response = client.get("/api/branches")
     assert response.status_code == 200
     assert response.is_json
 
@@ -67,7 +73,7 @@ def test_api_branches_route(client):
 
 def test_api_diff_route(client):
     """Test that the API diff endpoint returns JSON."""
-    response = client.get("/api/v1/diff")
+    response = client.get("/api/diff")
     assert response.status_code == 200
     assert response.is_json
 
@@ -83,7 +89,7 @@ def test_api_diff_route(client):
 
 def test_api_diff_route_with_base_ref(client):
     """Test that the API diff endpoint accepts base_ref and forwards it."""
-    response = client.get("/api/v1/diff?base_ref=feature-x")
+    response = client.get("/api/diff?base_ref=feature-x")
     assert response.status_code == 200
     assert response.is_json
 
@@ -97,7 +103,7 @@ class TestAPIDiffCommitComparison:
 
     def test_api_diff_with_base_ref_parameter(self, client):
         """Test API diff endpoint with base_ref parameter."""
-        response = client.get("/api/v1/diff?base_ref=abc123")
+        response = client.get("/api/diff?base_ref=abc123")
         assert response.status_code == 200
         assert response.is_json
 
@@ -109,7 +115,7 @@ class TestAPIDiffCommitComparison:
 
     def test_api_diff_ignores_target_commit_parameter(self, client):
         """Target commit is ignored; API still returns ok and includes base_ref when set."""
-        response = client.get("/api/v1/diff?target_commit=def456")
+        response = client.get("/api/diff?target_commit=def456")
         assert response.status_code == 200
         assert response.is_json
 
@@ -122,7 +128,7 @@ class TestAPIDiffCommitComparison:
     def test_api_diff_with_base_ref_and_other_params(self, client):
         """Test API diff endpoint with base_ref and other parameters."""
         response = client.get(
-            "/api/v1/diff?base_ref=abc123&unstaged=true&untracked=false&file=test.txt"
+            "/api/diff?base_ref=abc123&unstaged=true&untracked=false&file=test.txt"
         )
         assert response.status_code == 200
         assert response.is_json
@@ -139,9 +145,7 @@ class TestAPIDiffCommitComparison:
     def test_api_diff_backward_compatibility(self, client):
         """Test API diff endpoint maintains backward compatibility."""
         # Test traditional parameters still work
-        response = client.get(
-            "/api/v1/diff?unstaged=true&untracked=false&file=test.txt"
-        )
+        response = client.get("/api/diff?unstaged=true&untracked=false&file=test.txt")
         assert response.status_code == 200
         assert response.is_json
 
@@ -156,7 +160,7 @@ class TestAPIDiffCommitComparison:
 
     def test_api_diff_empty_base_ref_parameter(self, client):
         """Test API diff endpoint with empty base_ref parameter."""
-        response = client.get("/api/v1/diff?base_ref=")
+        response = client.get("/api/diff?base_ref=")
         assert response.status_code == 200
         assert response.is_json
 
@@ -169,14 +173,14 @@ class TestAPIDiffCommitComparison:
     def test_api_diff_commit_parameters_with_special_characters(self, client):
         """Test API diff endpoint handles base_ref with various characters."""
         # Test with branch name containing slashes
-        response = client.get("/api/v1/diff?base_ref=feature/new-ui")
+        response = client.get("/api/diff?base_ref=feature/new-ui")
         assert response.status_code == 200
 
         data = response.get_json()
         assert data["base_ref"] == "feature/new-ui"
 
         # Test with HEAD references
-        response = client.get("/api/v1/diff?base_ref=HEAD~1")
+        response = client.get("/api/diff?base_ref=HEAD~1")
         assert response.status_code == 200
 
         data = response.get_json()
@@ -185,11 +189,11 @@ class TestAPIDiffCommitComparison:
     def test_api_diff_response_format_consistency(self, client):
         """Test API diff endpoint response format is consistent."""
         # Test without commit parameters
-        response1 = client.get("/api/v1/diff")
+        response1 = client.get("/api/diff")
         data1 = response1.get_json()
 
         # Test with commit parameters
-        response2 = client.get("/api/v1/diff?base_commit=abc123")
+        response2 = client.get("/api/diff?base_commit=abc123")
         data2 = response2.get_json()
 
         # Both should have the same basic structure
@@ -213,10 +217,12 @@ class TestAPIDiffCommitComparison:
 class TestAPIExpandContext:
     """Test cases for the /api/expand-context endpoint."""
 
-    def test_expand_context_success(self):
+    @patch("difflicious.blueprints.context_routes.GitService")
+    def test_expand_context_success(self, mock_git_service_class, client):
         """Test successful context expansion with target range."""
-        # Create mock services
+        # Mock GitService
         mock_git_service = Mock()
+        mock_git_service_class.return_value = mock_git_service
         mock_git_service.get_file_lines.return_value = {
             "status": "ok",
             "lines": ["line 1", "line 2", "line 3"],
@@ -224,16 +230,9 @@ class TestAPIExpandContext:
             "end_line": 12,
         }
 
-        mock_diff_service = Mock()
-
-        # Create app with mocked services
-        app = create_app(git_service=mock_git_service, diff_service=mock_diff_service)
-        app.config["TESTING"] = True
-        client = app.test_client()
-
         # Provide target_start and target_end to bypass hunk lookup
         response = client.get(
-            "/api/v1/expand-context?file_path=test.py&hunk_index=0&direction=after&target_start=10&target_end=12"
+            "/api/expand-context?file_path=test.py&hunk_index=0&direction=after&target_start=10&target_end=12"
         )
         assert response.status_code == 200
         data = response.get_json()
@@ -242,7 +241,7 @@ class TestAPIExpandContext:
 
     def test_expand_context_missing_parameters(self, client):
         """Test context expansion with missing parameters."""
-        response = client.get("/api/v1/expand-context?file_path=test.py")
+        response = client.get("/api/expand-context?file_path=test.py")
         assert response.status_code == 400
         data = response.get_json()
         assert data["status"] == "error"
@@ -250,16 +249,18 @@ class TestAPIExpandContext:
     def test_expand_context_invalid_format(self, client):
         """Test context expansion with invalid format parameter."""
         response = client.get(
-            "/api/v1/expand-context?file_path=test.py&hunk_index=0&direction=after&format=invalid"
+            "/api/expand-context?file_path=test.py&hunk_index=0&direction=after&format=invalid"
         )
         assert response.status_code == 400
         data = response.get_json()
         assert data["status"] == "error"
         assert "Invalid format parameter" in data["message"]
 
-    def test_expand_context_with_target_range(self):
+    @patch("difflicious.blueprints.context_routes.GitService")
+    def test_expand_context_with_target_range(self, mock_git_service_class, client):
         """Test context expansion with target_start/target_end parameters."""
         mock_git_service = Mock()
+        mock_git_service_class.return_value = mock_git_service
         mock_git_service.get_file_lines.return_value = {
             "status": "ok",
             "lines": ["line 1", "line 2"],
@@ -267,20 +268,15 @@ class TestAPIExpandContext:
             "end_line": 6,
         }
 
-        # Create app with mocked service
-        app = create_app(git_service=mock_git_service)
-        app.config["TESTING"] = True
-        client = app.test_client()
-
         response = client.get(
-            "/api/v1/expand-context?file_path=test.py&hunk_index=0&direction=before&target_start=5&target_end=6"
+            "/api/expand-context?file_path=test.py&hunk_index=0&direction=before&target_start=5&target_end=6"
         )
         assert response.status_code == 200
         data = response.get_json()
         assert data["status"] == "ok"
 
-    @patch("difflicious.app.DiffService")
-    @patch("difflicious.app.GitService")
+    @patch("difflicious.blueprints.context_routes.DiffService")
+    @patch("difflicious.blueprints.context_routes.GitService")
     def test_expand_context_fallback_calculation(
         self, mock_git_service_class, mock_diff_service_class, client
     ):
@@ -310,15 +306,19 @@ class TestAPIExpandContext:
         }
 
         response = client.get(
-            "/api/v1/expand-context?file_path=test.py&hunk_index=0&direction=after"
+            "/api/expand-context?file_path=test.py&hunk_index=0&direction=after"
         )
         # Should succeed or fail depending on calculation - either is valid
         assert response.status_code in [200, 404]
 
-    @patch("difflicious.services.syntax_service.SyntaxHighlightingService")
-    def test_expand_context_pygments_format(self, mock_syntax_class):
+    @patch("difflicious.blueprints.context_routes.SyntaxHighlightingService")
+    @patch("difflicious.blueprints.context_routes.GitService")
+    def test_expand_context_pygments_format(
+        self, mock_git_service_class, mock_syntax_class, client
+    ):
         """Test context expansion with pygments format."""
         mock_git_service = Mock()
+        mock_git_service_class.return_value = mock_git_service
         mock_git_service.get_file_lines.return_value = {
             "status": "ok",
             "lines": ["def test():", "    pass"],
@@ -333,14 +333,9 @@ class TestAPIExpandContext:
         )
         mock_syntax_service.get_css_styles.return_value = ".highlight { color: red; }"
 
-        # Create app with mocked service
-        app = create_app(git_service=mock_git_service)
-        app.config["TESTING"] = True
-        client = app.test_client()
-
         # Provide target range to bypass hunk lookup
         response = client.get(
-            "/api/v1/expand-context?file_path=test.py&hunk_index=0&direction=after&format=pygments&target_start=1&target_end=2"
+            "/api/expand-context?file_path=test.py&hunk_index=0&direction=after&format=pygments&target_start=1&target_end=2"
         )
         assert response.status_code == 200
         data = response.get_json()
@@ -348,7 +343,7 @@ class TestAPIExpandContext:
         assert data["format"] == "pygments"
         assert "css_styles" in data
 
-    @patch("difflicious.app.DiffService")
+    @patch("difflicious.blueprints.context_routes.DiffService")
     def test_expand_context_hunk_not_found(self, mock_diff_service_class, client):
         """Test context expansion when hunk is not found."""
         mock_diff_service = Mock()
@@ -358,7 +353,7 @@ class TestAPIExpandContext:
         }
 
         response = client.get(
-            "/api/v1/expand-context?file_path=test.py&hunk_index=0&direction=after"
+            "/api/expand-context?file_path=test.py&hunk_index=0&direction=after"
         )
         assert response.status_code == 404
         data = response.get_json()
@@ -368,9 +363,11 @@ class TestAPIExpandContext:
 class TestAPIFileLines:
     """Test cases for the /api/file/lines endpoint."""
 
-    def test_file_lines_success(self):
+    @patch("difflicious.blueprints.context_routes.GitService")
+    def test_file_lines_success(self, mock_git_service_class, client):
         """Test successful file lines retrieval."""
         mock_git_service = Mock()
+        mock_git_service_class.return_value = mock_git_service
         mock_git_service.get_file_lines.return_value = {
             "status": "ok",
             "lines": ["line 1", "line 2", "line 3"],
@@ -378,13 +375,8 @@ class TestAPIFileLines:
             "end_line": 12,
         }
 
-        # Create app with mocked service
-        app = create_app(git_service=mock_git_service)
-        app.config["TESTING"] = True
-        client = app.test_client()
-
         response = client.get(
-            "/api/v1/file/lines?file_path=test.py&start_line=10&end_line=12"
+            "/api/file/lines?file_path=test.py&start_line=10&end_line=12"
         )
         assert response.status_code == 200
         data = response.get_json()
@@ -392,14 +384,14 @@ class TestAPIFileLines:
 
     def test_file_lines_missing_file_path(self, client):
         """Test file lines with missing file_path parameter."""
-        response = client.get("/api/v1/file/lines?start_line=10&end_line=12")
+        response = client.get("/api/file/lines?start_line=10&end_line=12")
         assert response.status_code == 400
         data = response.get_json()
         assert data["status"] == "error"
 
     def test_file_lines_missing_line_numbers(self, client):
         """Test file lines with missing line number parameters."""
-        response = client.get("/api/v1/file/lines?file_path=test.py")
+        response = client.get("/api/file/lines?file_path=test.py")
         assert response.status_code == 400
         data = response.get_json()
         assert "start_line and end_line parameters are required" in data["message"]
@@ -407,13 +399,13 @@ class TestAPIFileLines:
     def test_file_lines_invalid_line_numbers(self, client):
         """Test file lines with invalid line number parameters."""
         response = client.get(
-            "/api/v1/file/lines?file_path=test.py&start_line=abc&end_line=def"
+            "/api/file/lines?file_path=test.py&start_line=abc&end_line=def"
         )
         assert response.status_code == 400
         data = response.get_json()
         assert "must be valid numbers" in data["message"]
 
-    @patch("difflicious.app.GitService")
+    @patch("difflicious.blueprints.context_routes.GitService")
     def test_file_lines_git_error(self, mock_git_service_class, client):
         """Test file lines with GitServiceError."""
         mock_git_service = Mock()
@@ -421,7 +413,7 @@ class TestAPIFileLines:
         mock_git_service.get_file_lines.side_effect = GitServiceError("Git failed")
 
         response = client.get(
-            "/api/v1/file/lines?file_path=test.py&start_line=10&end_line=12"
+            "/api/file/lines?file_path=test.py&start_line=10&end_line=12"
         )
         assert response.status_code == 500
         data = response.get_json()
@@ -431,7 +423,7 @@ class TestAPIFileLines:
 class TestAPIDiffFull:
     """Test cases for the /api/diff/full endpoint."""
 
-    @patch("difflicious.app.DiffService")
+    @patch("difflicious.blueprints.diff_routes.DiffService")
     def test_diff_full_success(self, mock_diff_service_class, client):
         """Test successful full diff retrieval."""
         mock_diff_service = Mock()
@@ -443,36 +435,33 @@ class TestAPIDiffFull:
             "diff_data": {"chunks": []},
         }
 
-        response = client.get("/api/v1/diff/full?file_path=test.py")
+        response = client.get("/api/diff/full?file_path=test.py")
         assert response.status_code == 200
         data = response.get_json()
         assert data["status"] == "ok"
 
     def test_diff_full_missing_file_path(self, client):
         """Test full diff with missing file_path parameter."""
-        response = client.get("/api/v1/diff/full")
+        response = client.get("/api/diff/full")
         assert response.status_code == 400
         data = response.get_json()
         assert data["status"] == "error"
 
-    def test_diff_full_with_base_ref(self):
+    @patch("difflicious.blueprints.diff_routes.DiffService")
+    def test_diff_full_with_base_ref(self, mock_diff_service_class, client):
         """Test full diff with base_ref parameter."""
         mock_diff_service = Mock()
+        mock_diff_service_class.return_value = mock_diff_service
         mock_diff_service.get_full_diff_data.return_value = {
             "status": "ok",
             "file_path": "test.py",
             "has_changes": True,
         }
 
-        # Create app with mocked service
-        app = create_app(diff_service=mock_diff_service)
-        app.config["TESTING"] = True
-        client = app.test_client()
-
-        response = client.get("/api/v1/diff/full?file_path=test.py&base_ref=feature-x")
+        response = client.get("/api/diff/full?file_path=test.py&base_ref=feature-x")
         assert response.status_code == 200
 
-    @patch("difflicious.app.DiffService")
+    @patch("difflicious.blueprints.diff_routes.DiffService")
     def test_diff_full_with_use_head(self, mock_diff_service_class, client):
         """Test full diff with use_head parameter."""
         mock_diff_service = Mock()
@@ -483,10 +472,10 @@ class TestAPIDiffFull:
             "has_changes": True,
         }
 
-        response = client.get("/api/v1/diff/full?file_path=test.py&use_head=true")
+        response = client.get("/api/diff/full?file_path=test.py&use_head=true")
         assert response.status_code == 200
 
-    @patch("difflicious.app.DiffService")
+    @patch("difflicious.blueprints.diff_routes.DiffService")
     def test_diff_full_with_use_cached(self, mock_diff_service_class, client):
         """Test full diff with use_cached parameter."""
         mock_diff_service = Mock()
@@ -497,22 +486,19 @@ class TestAPIDiffFull:
             "has_changes": True,
         }
 
-        response = client.get("/api/v1/diff/full?file_path=test.py&use_cached=true")
+        response = client.get("/api/diff/full?file_path=test.py&use_cached=true")
         assert response.status_code == 200
 
-    def test_diff_full_parse_error(self):
+    @patch("difflicious.blueprints.diff_routes.DiffService")
+    def test_diff_full_parse_error(self, mock_diff_service_class, client):
         """Test full diff with DiffServiceError."""
         mock_diff_service = Mock()
+        mock_diff_service_class.return_value = mock_diff_service
         mock_diff_service.get_full_diff_data.side_effect = DiffServiceError(
             "Parse failed"
         )
 
-        # Create app with mocked service
-        app = create_app(diff_service=mock_diff_service)
-        app.config["TESTING"] = True
-        client = app.test_client()
-
-        response = client.get("/api/v1/diff/full?file_path=test.py")
+        response = client.get("/api/diff/full?file_path=test.py")
         assert response.status_code == 500
         data = response.get_json()
         assert data["status"] == "error"
@@ -521,78 +507,71 @@ class TestAPIDiffFull:
 class TestErrorHandling:
     """Test error handling in various routes."""
 
-    def test_index_route_exception_handling(self):
+    def test_index_route_exception_handling(self, client):
         """Test index route handles exceptions gracefully."""
-        mock_git_service = Mock()
-        mock_git_service.get_repository_status.side_effect = Exception("Test error")
+        # Get the actual views module from sys.modules (not the Blueprint object)
+        views_mod = sys.modules["difflicious.blueprints.views"]
 
-        mock_template_service = Mock()
-        mock_template_service.prepare_diff_data_for_template.side_effect = Exception(
-            "Template error"
-        )
+        with patch.object(views_mod, "GitService") as mock_git_service_class:
+            with patch.object(
+                views_mod, "TemplateRenderingService"
+            ) as mock_template_service_class:
+                mock_git_service = Mock()
+                mock_git_service_class.return_value = mock_git_service
+                mock_git_service.get_repository_status.side_effect = Exception(
+                    "Test error"
+                )
 
-        # Create app with mocked services
-        app = create_app(
-            git_service=mock_git_service,
-            template_service=mock_template_service,
-        )
-        app.config["TESTING"] = True
-        client = app.test_client()
+                mock_template_service = Mock()
+                mock_template_service_class.return_value = mock_template_service
+                mock_template_service.prepare_diff_data_for_template.side_effect = (
+                    Exception("Template error")
+                )
 
-        response = client.get("/")
-        # Should still return 200 with error state
-        assert response.status_code == 200
-        assert b"error" in response.data.lower()
+                response = client.get("/")
+                # Should still return 200 with error state
+                assert response.status_code == 200
+                assert b"error" in response.data.lower()
 
-    def test_api_status_error_handling(self):
+    @patch("difflicious.blueprints.git_routes.GitService")
+    def test_api_status_error_handling(self, mock_git_service_class, client):
         """Test API status handles errors gracefully."""
         mock_git_service = Mock()
+        mock_git_service_class.return_value = mock_git_service
         mock_git_service.get_repository_status.side_effect = Exception("Test error")
 
-        # Create app with mocked service
-        app = create_app(git_service=mock_git_service)
-        app.config["TESTING"] = True
-        client = app.test_client()
-
-        response = client.get("/api/v1/status")
+        response = client.get("/api/status")
         assert response.status_code == 200
         data = response.get_json()
         assert data["git_available"] is False
 
-    def test_api_branches_error_handling(self):
+    @patch("difflicious.blueprints.git_routes.GitService")
+    def test_api_branches_error_handling(self, mock_git_service_class, client):
         """Test API branches handles GitServiceError."""
         mock_git_service = Mock()
+        mock_git_service_class.return_value = mock_git_service
         mock_git_service.get_branch_information.side_effect = GitServiceError(
             "Branch error"
         )
 
-        # Create app with mocked service
-        app = create_app(git_service=mock_git_service)
-        app.config["TESTING"] = True
-        client = app.test_client()
-
-        response = client.get("/api/v1/branches")
+        response = client.get("/api/branches")
         assert response.status_code == 500
         data = response.get_json()
         assert data["status"] == "error"
 
-    def test_api_diff_error_handling(self):
+    @patch("difflicious.blueprints.diff_routes.TemplateRenderingService")
+    def test_api_diff_error_handling(self, mock_template_service_class, client):
         """Test API diff handles DiffServiceError."""
-        mock_git_service = Mock()
-        mock_git_service.get_repository_status.return_value = {"current_branch": "main"}
-
         mock_template_service = Mock()
-        mock_template_service.git_service = mock_git_service
+        mock_template_service_class.return_value = mock_template_service
+        mock_template_service.git_service.get_repository_status.return_value = {
+            "current_branch": "main"
+        }
         mock_template_service.prepare_diff_data_for_template.side_effect = (
             DiffServiceError("Diff error")
         )
 
-        # Create app with mocked service
-        app = create_app(template_service=mock_template_service)
-        app.config["TESTING"] = True
-        client = app.test_client()
-
-        response = client.get("/api/v1/diff")
+        response = client.get("/api/diff")
         assert response.status_code == 500
         data = response.get_json()
         assert data["status"] == "error"

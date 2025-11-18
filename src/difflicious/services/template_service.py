@@ -120,7 +120,7 @@ class TemplateRenderingService(BaseService):
                 )
 
             # Process and enhance diff data for template rendering
-            enhanced_groups = self._enhance_diff_data_for_templates(
+            enhanced_groups = self._enhance_diff_data_for_template(
                 grouped_diffs, search_filter, expand_files
             )
 
@@ -161,7 +161,7 @@ class TemplateRenderingService(BaseService):
             logger.error(f"Failed to prepare template data: {e}")
             return self._get_error_template_data(str(e))
 
-    def _enhance_diff_data_for_templates(
+    def _enhance_diff_data_for_template(
         self,
         grouped_diffs: dict[str, Any],
         search_filter: Optional[str] = None,

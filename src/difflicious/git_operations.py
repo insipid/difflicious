@@ -12,6 +12,8 @@ from typing import Any, Optional, cast
 from git import InvalidGitRepositoryError, Repo
 from git.exc import GitCommandError, NoSuchPathError
 
+from difflicious.config import DEFAULT_CONTEXT_LINES
+
 logger = logging.getLogger(__name__)
 
 
@@ -595,7 +597,7 @@ class GitRepository:
         base_commit: Optional[str] = None,
         target_commit: Optional[str] = None,
         use_cached: bool = False,
-        context_lines: int = 3,
+        context_lines: int = DEFAULT_CONTEXT_LINES,
     ) -> str:
         """Get detailed diff content for a specific file.
 

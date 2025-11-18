@@ -109,4 +109,5 @@ Cargo.lock
 vendor/
 
 .coverage
+coverage.xml
 vendor/
