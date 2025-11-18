@@ -77,7 +77,7 @@ export async function loadFullDiff(filePath, fileId) {
                 <p class="font-medium">Failed to load full diff</p>
                 <p class="text-sm mt-2">${escapeHtml(error.message)}</p>
                 <p class="text-xs mt-4 text-neutral-400">Check the browser console for more details</p>
-                <button onclick="loadFullDiff('${filePath}', '${fileId}')"
+                <button onclick="loadFullDiff('${escapeJsString(filePath)}', '${escapeJsString(fileId)}')"
                         class="mt-4 px-3 py-1 text-sm bg-danger-bg-100 text-danger-text-700 rounded hover:bg-danger-bg-200 transition-colors">
                     Retry
                 </button>
@@ -252,7 +252,7 @@ export function renderSideBySideLine(line) {
         // Deletion only
         leftContent = line.left.content || '';
         leftLineNum = line.left.line_num || '';
-        leftBg = 'bg-red-50';
+        leftBg = 'bg-danger-bg-50';
     } else if (line.right) {
         // Addition only
         rightContent = line.right.content || '';
