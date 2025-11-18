@@ -74,10 +74,10 @@
     </div>
 
     <!-- Alpine.js -->
-    <script type="module" src="{{ url_for('static', filename='js/alpine-init.js') }}"></script>
+    <script type="module" defer src="{{ url_for('static', filename='js/alpine-init.js') }}"></script>
 
     <!-- Minimal JavaScript for interactions (ES Modules) -->
-    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script type="module" defer src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block extra_scripts %}{% endblock %}
 </body>
 

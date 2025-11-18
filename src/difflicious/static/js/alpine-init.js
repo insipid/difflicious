@@ -38,7 +38,14 @@ document.addEventListener('alpine:init', () => {
     Alpine.store('theme').init();
 });
 
-// Start Alpine
-Alpine.start();
+// Start Alpine after DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        Alpine.start();
+    });
+} else {
+    // DOM is already ready
+    Alpine.start();
+}
 
 export default Alpine;
