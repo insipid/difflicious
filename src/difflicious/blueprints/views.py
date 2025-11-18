@@ -5,7 +5,6 @@ import logging
 
 from flask import Blueprint, Response, render_template, request
 
-from difflicious.services.exceptions import DiffServiceError, GitServiceError
 from difflicious.services.git_service import GitService
 from difflicious.services.template_service import TemplateRenderingService
 
