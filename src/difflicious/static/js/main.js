@@ -6,7 +6,7 @@
 import { DiffState, setDebug as setStateDebug } from './modules/state.js';
 import { toggleFile, toggleGroup, expandAllFiles, collapseAllFiles } from './modules/file-operations.js';
 import { navigateToPreviousFile, navigateToNextFile } from './modules/navigation.js';
-import { toggleTheme, initializeTheme, setDebug as setThemeDebug } from './modules/theme.js';
+import { toggleTheme, setDebug as setThemeDebug } from './modules/theme.js';
 import { expandContext } from './modules/context-expansion.js';
 import { loadFullDiff } from './modules/full-diff.js';
 import { setDebug as setHunkDebug } from './modules/hunk-operations.js';
@@ -28,8 +28,8 @@ setExpansionDebug(DEBUG);
  * Initialize the application when DOM is ready
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    // Initialize theme first for better UX
-    initializeTheme();
+    // Note: Theme is now handled by Alpine.js theme store (alpine-init.js)
+    // initializeTheme() call removed to avoid conflict with Alpine.js
 
     // Initialize state (which binds event listeners and restores state)
     await DiffState.init();
