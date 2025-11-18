@@ -104,10 +104,12 @@
 
         <!-- Theme Toggle (outside form to prevent reload) -->
         <div class="flex items-center ml-3">
-            <button type="button" onclick="toggleTheme()"
+            <button
+                type="button"
+                @click="$store.theme.toggle()"
                 class="p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
                 title="Toggle dark/light theme">
-                <span id="theme-icon">☀️</span>
+                <span x-text="$store.theme.icon"></span>
             </button>
         </div>
     </div>
