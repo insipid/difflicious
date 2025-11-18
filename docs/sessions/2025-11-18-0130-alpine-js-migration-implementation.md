@@ -127,3 +127,38 @@ All three stores were created in Task 1.1:
 - Store methods work seamlessly with DOM-based file discovery
 - Template now uses declarative Alpine directives instead of imperative DOM manipulation
 - All tests passing with comprehensive coverage of component and store integration
+
+#### Task 2.2: Group Component ✅
+- [x] Create groupComponent() factory
+- [x] Update diff_groups.html template
+- [x] Implement group toggle
+- [x] Add group-level transitions
+- [x] Test staged/unstaged/untracked groups
+
+**Status:** ✅ Complete
+
+**Files Created:**
+- `src/difflicious/static/js/components/groupComponent.js` - Group component factory
+- `tests/js/components/groupComponent.test.js` - Component tests (6 tests)
+
+**Files Modified:**
+- `src/difflicious/static/js/alpine-init.js` - Import and register groupComponent
+- `src/difflicious/templates/diff_groups.html` - Alpine directives (x-data, @click, x-show, x-text, x-transition)
+
+**Implementation Details:**
+- Group component follows same pattern as file component
+- Reactive state from diffStore for group expansion
+- Toggle icon automatically updates (▼/▶)
+- Smooth fade transitions for group content
+- Works with all group types: staged, unstaged, untracked, changes
+- Maintains backward compatibility with data-group attributes
+
+**Test Results:** ✅ All 90 tests passing (+6 new tests)
+**Lint Results:** ✅ All checks passed
+
+### Task 2.2 Notes
+- Group component implementation was straightforward following file component pattern
+- Same reactive state management approach
+- Template migration removed onclick in favor of @click
+- Fade transitions for group expansion (different from file scale transition)
+- All group types (staged/unstaged/untracked) work correctly

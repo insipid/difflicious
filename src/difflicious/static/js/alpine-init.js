@@ -12,6 +12,7 @@ import themeStore from './stores/themeStore.js';
 
 // Import components
 import { fileComponent } from './components/fileComponent.js';
+import { groupComponent } from './components/groupComponent.js';
 
 // Initialize Alpine stores
 document.addEventListener('alpine:init', () => {
@@ -34,5 +35,6 @@ window.Alpine = Alpine;
 
 // Register component factories globally
 window.fileComponent = fileComponent;
+window.groupComponent = groupComponent;
 
 export default Alpine;
