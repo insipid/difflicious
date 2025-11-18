@@ -126,7 +126,7 @@ The repository includes `cilicious.sh`, a comprehensive quality check script tha
 ./cilicious.sh
 ```
 
-**IMPORTANT:** This script must run clean before committing any changes. It executes:
+**IMPORTANT:** This script must run clean before pushing any changes to remote. It executes:
 1. JavaScript tests (`pnpm run test:js`)
 2. JavaScript linting (`pnpm run lint:js`)
 3. Python tests (`uv run pytest`)
@@ -222,7 +222,7 @@ All API endpoints return JSON responses with consistent error handling via the b
 **Running All Tests:**
 - **Always use `./cilicious.sh`** to run all tests and quality checks
 - This runs both Python and JavaScript tests, plus linting and type checking
-- Must pass cleanly before committing
+- Must pass cleanly before pushing to remote
 
 **Python Tests (pytest):**
 - Test files use `test_*.py` naming convention
@@ -241,7 +241,7 @@ All API endpoints return JSON responses with consistent error handling via the b
 - Target: Maintain >70% coverage for service layer
 - Critical paths (git operations, security) require 100% coverage
 
-**Note:** While individual test commands are provided above, always use `./cilicious.sh` for pre-commit validation.
+**Note:** While individual test commands are provided above, always use `./cilicious.sh` before pushing to remote.
 
 ## Common Development Tasks
 
@@ -275,7 +275,7 @@ All API endpoints return JSON responses with consistent error handling via the b
 
 ## Code Quality Requirements
 
-- **cilicious.sh Script**: **MUST** run `./cilicious.sh` and pass all checks before committing - this is non-negotiable
+- **cilicious.sh Script**: **MUST** run `./cilicious.sh` and pass all checks before pushing to remote - this is non-negotiable
 - **File Formatting**: ALL TEXT FILES SHOULD END WITH A CARRIAGE RETURN
 - **Documentation Sync**: Any changes to architecture/infrastructure must update PLAN.md, README.md, and CLAUDE.md to keep them in sync
 - **Package Management**: Use `uv` for all Python dependency management and virtual environments
@@ -490,7 +490,7 @@ The application is designed for multiple distribution channels:
 
 **When Working on This Codebase:**
 
-1. **Run cilicious.sh before committing** - `./cilicious.sh` must pass cleanly - this is the #1 rule
+1. **Run cilicious.sh before pushing** - `./cilicious.sh` must pass cleanly before `git push` - this is the #1 rule
 2. **Always use the service layer** - Don't bypass services to call git_operations.py directly
 3. **Never hardcode colors** - Always use CSS variables from the semantic system
 4. **Test both themes** - All UI changes must work in light AND dark modes
@@ -504,7 +504,7 @@ The application is designed for multiple distribution channels:
 
 **Common Pitfalls to Avoid:**
 
-- ❌ Don't commit without running `./cilicious.sh` cleanly - this is the most critical rule
+- ❌ Don't push without running `./cilicious.sh` cleanly - this is the most critical rule
 - ❌ Don't run individual test/lint commands instead of using cilicious.sh
 - ❌ Don't use Tailwind color classes (bg-green-500, text-blue-600, etc.)
 - ❌ Don't bypass service layer to call git commands directly
@@ -522,11 +522,12 @@ The application is designed for multiple distribution channels:
 5. Add/update blueprint routes (HTTP concerns)
 6. Update templates/frontend if needed
 7. Test manually in browser (light and dark themes)
-8. **Run `./cilicious.sh` - must pass all checks cleanly**
+8. Commit with descriptive message (commit early and often)
 9. Update documentation if needed
-10. Commit with descriptive message (only after cilicious.sh passes)
+10. **Run `./cilicious.sh` - must pass all checks cleanly before pushing**
+11. Push to remote (only after cilicious.sh passes)
 
-**CRITICAL:** Never commit without `./cilicious.sh` running clean. This ensures all tests pass, code is properly formatted, type-checked, and linted.
+**CRITICAL:** Never push without `./cilicious.sh` running clean. This ensures all tests pass, code is properly formatted, type-checked, and linted.
 
 **File References:**
 
