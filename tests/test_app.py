@@ -503,11 +503,12 @@ class TestErrorHandling:
 
     def test_index_route_exception_handling(self, client):
         """Test index route handles exceptions gracefully."""
-        # Use context managers to avoid Python 3.9 mock resolution issues
-        # with stacked decorators on blueprints
-        with patch("difflicious.blueprints.views.GitService") as mock_git_service_class:
+        # Patch services at their definition level to avoid blueprint import resolution issues
+        with patch(
+            "difflicious.services.git_service.GitService"
+        ) as mock_git_service_class:
             with patch(
-                "difflicious.blueprints.views.TemplateRenderingService"
+                "difflicious.services.template_service.TemplateRenderingService"
             ) as mock_template_service_class:
                 mock_git_service = Mock()
                 mock_git_service_class.return_value = mock_git_service
