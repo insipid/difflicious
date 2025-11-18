@@ -187,13 +187,7 @@ export function createPlainContextHtml(result, expansionId, triggerButton, direc
         startLineNumLeft = result.left_start_line || startLineNumRight;
     }
 
-    // Helper function to escape HTML
-    const escapeHtml = (text) => {
-        const div = document.createElement('div');
-        div.textContent = text || '';
-        return div.innerHTML;
-    };
-
+    // Use imported escapeHtml from dom-utils.js
     let html = `<div id="${expansionId}" class="expanded-context bg-neutral-25">`;
 
     lines.forEach((line, index) => {
