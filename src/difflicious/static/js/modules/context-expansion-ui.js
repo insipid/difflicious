@@ -3,7 +3,7 @@
  * Handles HTML generation and DOM manipulation for expanded context
  */
 
-import { $ } from './dom-utils.js';
+import { $, escapeHtml } from './dom-utils.js';
 import { hunkContext } from './hunk-operations.js';
 
 // Debug toggle - can be overridden by main.js

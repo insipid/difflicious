@@ -3,7 +3,7 @@
  * Handles loading complete file diffs with unlimited context
  */
 
-import { escapeHtml, isHighlightedContent } from './dom-utils.js';
+import { escapeHtml, escapeJsString, isHighlightedContent } from './dom-utils.js';
 
 /**
  * Load and display the complete diff for a file with unlimited context

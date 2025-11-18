@@ -40,6 +40,22 @@ export function escapeRegExp(text) {
 }
 
 /**
+ * Escape string for use in JavaScript string contexts (inline handlers)
+ * @param {string} text - Text to escape
+ * @returns {string} JavaScript-safe text
+ */
+export function escapeJsString(text) {
+    if (!text) return '';
+    return text
+        .replace(/\\/g, '\\\\') // Escape backslashes first
+        .replace(/'/g, "\\'") // Escape single quotes
+        .replace(/"/g, '\\"') // Escape double quotes
+        .replace(/\n/g, '\\n') // Escape newlines
+        .replace(/\r/g, '\\r') // Escape carriage returns
+        .replace(/\t/g, '\\t'); // Escape tabs
+}
+
+/**
  * Check if content appears to be syntax-highlighted HTML
  * @param {string} content - Content to check
  * @returns {boolean} True if content appears to be HTML
