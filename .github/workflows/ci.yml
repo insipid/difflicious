@@ -56,17 +56,22 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'npm'
+        cache: 'pnpm'
 
     - name: Install JavaScript dependencies
-      run: npm install
+      run: pnpm install
 
     - name: Run JavaScript linting with ESLint
-      run: npm run lint:js
+      run: pnpm run lint:js
 
     - name: Run JavaScript tests with Jest
-      run: npm run test:js
+      run: pnpm run test:js

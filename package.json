@@ -5,9 +5,9 @@
   "scripts": {
     "lint:js": "eslint src/difflicious/static/js/**/*.js",
     "lint:js:fix": "eslint src/difflicious/static/js/**/*.js --fix",
-    "test:js": "jest",
-    "test:js:watch": "jest --watch",
-    "test:js:coverage": "jest --coverage",
+    "test:js": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test:js:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
+    "test:js:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
     "tailwind:build": "NODE_ENV=production postcss ./src/difflicious/static/css/tailwind.input.css -o ./src/difflicious/static/css/tailwind.css",
     "tailwind:watch": "postcss ./src/difflicious/static/css/tailwind.input.css -o ./src/difflicious/static/css/tailwind.css --watch"
   },
@@ -25,6 +25,7 @@
     "postcss-cli": "^11.0.1",
     "tailwindcss": "^3.4.17"
   },
+  "type": "module",
   "jest": {
     "testEnvironment": "jsdom",
     "testMatch": [
@@ -33,7 +34,9 @@
     ],
     "collectCoverageFrom": [
       "src/difflicious/static/js/**/*.js"
-    ]
+    ],
+    "transform": {},
+    "setupFiles": ["<rootDir>/tests/js/setup.js"]
   },
   "eslintConfig": {
     "extends": "standard",

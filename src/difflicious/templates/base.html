@@ -64,8 +64,8 @@
         {% block content %}{% endblock %}
     </div>
 
-    <!-- Minimal JavaScript for interactions -->
-    <script src="{{ url_for('static', filename='js/diff-interactions.js') }}"></script>
+    <!-- Minimal JavaScript for interactions (ES Modules) -->
+    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block extra_scripts %}{% endblock %}
 </body>
 
