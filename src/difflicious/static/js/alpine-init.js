@@ -16,6 +16,15 @@ import { groupComponent } from './components/groupComponent.js';
 import { searchComponent } from './components/searchComponent.js';
 import { hunkComponent } from './components/hunkComponent.js';
 
+// Register component factories globally BEFORE Alpine starts
+window.fileComponent = fileComponent;
+window.groupComponent = groupComponent;
+window.searchComponent = searchComponent;
+window.hunkComponent = hunkComponent;
+
+// Export Alpine for use in components
+window.Alpine = Alpine;
+
 // Initialize Alpine stores
 document.addEventListener('alpine:init', () => {
     // Register stores
@@ -31,14 +40,5 @@ document.addEventListener('alpine:init', () => {
 
 // Start Alpine
 Alpine.start();
-
-// Export Alpine for use in components
-window.Alpine = Alpine;
-
-// Register component factories globally
-window.fileComponent = fileComponent;
-window.groupComponent = groupComponent;
-window.searchComponent = searchComponent;
-window.hunkComponent = hunkComponent;
 
 export default Alpine;
