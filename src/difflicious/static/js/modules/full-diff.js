@@ -252,7 +252,7 @@ export function renderSideBySideLine(line) {
         // Deletion only
         leftContent = line.left.content || '';
         leftLineNum = line.left.line_num || '';
-        leftBg = 'bg-red-50';
+        leftBg = 'bg-danger-bg-50';
     } else if (line.right) {
         // Addition only
         rightContent = line.right.content || '';
