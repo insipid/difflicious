@@ -501,26 +501,30 @@ class TestAPIDiffFull:
 class TestErrorHandling:
     """Test error handling in various routes."""
 
-    @patch("difflicious.blueprints.views.TemplateRenderingService")
-    @patch("difflicious.blueprints.views.GitService")
-    def test_index_route_exception_handling(
-        self, mock_git_service_class, mock_template_service_class, client
-    ):
+    def test_index_route_exception_handling(self, client):
         """Test index route handles exceptions gracefully."""
-        mock_git_service = Mock()
-        mock_git_service_class.return_value = mock_git_service
-        mock_git_service.get_repository_status.side_effect = Exception("Test error")
+        # Use context managers to avoid Python 3.9 mock resolution issues
+        # with stacked decorators on blueprints
+        with patch("difflicious.blueprints.views.GitService") as mock_git_service_class:
+            with patch(
+                "difflicious.blueprints.views.TemplateRenderingService"
+            ) as mock_template_service_class:
+                mock_git_service = Mock()
+                mock_git_service_class.return_value = mock_git_service
+                mock_git_service.get_repository_status.side_effect = Exception(
+                    "Test error"
+                )
 
-        mock_template_service = Mock()
-        mock_template_service_class.return_value = mock_template_service
-        mock_template_service.prepare_diff_data_for_template.side_effect = Exception(
-            "Template error"
-        )
+                mock_template_service = Mock()
+                mock_template_service_class.return_value = mock_template_service
+                mock_template_service.prepare_diff_data_for_template.side_effect = (
+                    Exception("Template error")
+                )
 
-        response = client.get("/")
-        # Should still return 200 with error state
-        assert response.status_code == 200
-        assert b"error" in response.data.lower()
+                response = client.get("/")
+                # Should still return 200 with error state
+                assert response.status_code == 200
+                assert b"error" in response.data.lower()
 
     @patch("difflicious.blueprints.git_routes.GitService")
     def test_api_status_error_handling(self, mock_git_service_class, client):
