@@ -1,0 +1,98 @@
+/**
+ * Alpine.js Store for Theme Management
+ * Handles light/dark theme switching and persistence
+ */
+
+export default {
+    // State
+    current: 'light',
+
+    /**
+     * Initialize the theme store
+     */
+    init() {
+        const savedTheme = localStorage.getItem('difflicious-theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        this.current = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+
+        // Apply theme to document
+        this.applyTheme();
+
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('difflicious-theme')) {
+                this.current = e.matches ? 'dark' : 'light';
+                this.applyTheme();
+            }
+        });
+    },
+
+    /**
+     * Toggle between light and dark theme
+     */
+    toggle() {
+        const htmlElement = document.documentElement;
+
+        // Disable transitions to prevent flicker during theme switch
+        htmlElement.classList.add('theme-transitioning');
+
+        // Force a synchronous reflow to ensure the class is applied
+        // eslint-disable-next-line no-unused-expressions
+        htmlElement.offsetHeight;
+
+        // Toggle theme
+        this.current = this.current === 'dark' ? 'light' : 'dark';
+
+        // Apply theme change
+        this.applyTheme();
+
+        // Force another reflow to ensure the theme change is applied
+        // eslint-disable-next-line no-unused-expressions
+        htmlElement.offsetHeight;
+
+        // Save theme preference
+        localStorage.setItem('difflicious-theme', this.current);
+
+        // Re-enable transitions after a brief delay
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                htmlElement.classList.remove('theme-transitioning');
+            });
+        });
+
+        return false; // Prevent any form submission
+    },
+
+    /**
+     * Apply the current theme to the document
+     */
+    applyTheme() {
+        const htmlElement = document.documentElement;
+        if (this.current === 'dark') {
+            htmlElement.setAttribute('data-theme', 'dark');
+        } else {
+            htmlElement.removeAttribute('data-theme');
+        }
+    },
+
+    /**
+     * Get the theme icon
+     */
+    get icon() {
+        return this.current === 'dark' ? '🌙' : '☀️';
+    },
+
+    /**
+     * Check if dark theme is active
+     */
+    get isDark() {
+        return this.current === 'dark';
+    },
+
+    /**
+     * Check if light theme is active
+     */
+    get isLight() {
+        return this.current === 'light';
+    }
+};
