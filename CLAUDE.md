@@ -94,20 +94,20 @@ uv build
 **Frontend Development Commands:**
 ```bash
 # Install Node.js dependencies
-npm install  # or: pnpm install
+pnpm install
 
 # Build Tailwind CSS (production)
-npm run tailwind:build
+pnpm run tailwind:build
 
 # Watch Tailwind CSS (development)
-npm run tailwind:watch
+pnpm run tailwind:watch
 
 # Run JavaScript tests
-npm run test:js
+pnpm run test:js
 
 # Run JavaScript linting
-npm run lint:js
-npm run lint:js:fix  # Auto-fix issues
+pnpm run lint:js
+pnpm run lint:js:fix  # Auto-fix issues
 ```
 
 **Docker Development:**
@@ -234,7 +234,7 @@ All API endpoints return JSON responses with consistent error handling via the b
 **JavaScript Tests (Jest):**
 - Test files in `tests/js/` with `.test.js` or `.spec.js` extensions
 - Uses jsdom environment for DOM testing
-- Individual run (for debugging only): `npm run test:js`
+- Individual run (for debugging only): `pnpm run test:js`
 
 **Test Coverage:**
 - Current coverage: 73%+ for Python code
@@ -270,7 +270,7 @@ All API endpoints return JSON responses with consistent error handling via the b
 1. Add Tailwind utilities in templates for layout/spacing
 2. Add custom styles in `static/css/styles.css` for components
 3. Use CSS variables for all colors (see CSS Style Guide)
-4. Rebuild Tailwind: `npm run tailwind:build`
+4. Rebuild Tailwind: `pnpm run tailwind:build`
 5. Test both light and dark themes
 
 ## Code Quality Requirements
@@ -356,7 +356,7 @@ All API endpoints return JSON responses with consistent error handling via the b
 
 When modifying Tailwind config or input CSS:
 ```bash
-npm run tailwind:build
+pnpm run tailwind:build
 ```
 
 ### Complete Documentation
