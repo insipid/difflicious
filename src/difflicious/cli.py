@@ -38,27 +38,18 @@ def main(port: int, host: str, debug: bool, list_fonts: bool) -> None:
     Set DIFFLICIOUS_DISABLE_GOOGLE_FONTS=true to disable Google Fonts CDN loading.
     """
     if list_fonts:
-        from difflicious.app import create_app
+        import os
 
-        app = create_app()
-        with app.app_context():
-            click.echo("Available fonts:")
-            # Access the font config from the app context
-            import os
+        from difflicious.config import AVAILABLE_FONTS
 
-            AVAILABLE_FONTS = {
-                "fira-code": "Fira Code",
-                "jetbrains-mono": "JetBrains Mono (default)",
-                "source-code-pro": "Source Code Pro",
-                "ibm-plex-mono": "IBM Plex Mono",
-                "roboto-mono": "Roboto Mono",
-                "inconsolata": "Inconsolata",
-            }
-            current_font = os.getenv("DIFFLICIOUS_FONT", "jetbrains-mono")
-            for key, name in AVAILABLE_FONTS.items():
-                marker = " ← currently selected" if key == current_font else ""
-                click.echo(f"  {key}: {name}{marker}")
-            click.echo(f"\nUsage: export DIFFLICIOUS_FONT={current_font}")
+        click.echo("Available fonts:")
+        current_font = os.getenv("DIFFLICIOUS_FONT", "jetbrains-mono")
+        for key, font_config in AVAILABLE_FONTS.items():
+            name = font_config["name"]
+            default_marker = " (default)" if key == "jetbrains-mono" else ""
+            selection_marker = " ← currently selected" if key == current_font else ""
+            click.echo(f"  {key}: {name}{default_marker}{selection_marker}")
+        click.echo(f"\nUsage: export DIFFLICIOUS_FONT={current_font}")
         return
 
     click.echo(f"Starting Difflicious v{__version__}")
