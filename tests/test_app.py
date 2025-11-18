@@ -1,9 +1,15 @@
 """Tests for the Flask application."""
 
+import sys
 from unittest.mock import Mock, patch
 
 import pytest
 
+# Import blueprint modules to ensure they're in sys.modules
+import difflicious.blueprints.context_routes  # noqa: F401
+import difflicious.blueprints.diff_routes  # noqa: F401
+import difflicious.blueprints.git_routes  # noqa: F401
+import difflicious.blueprints.views  # noqa: F401
 from difflicious.app import create_app
 from difflicious.services.exceptions import DiffServiceError, GitServiceError
 
@@ -503,12 +509,12 @@ class TestErrorHandling:
 
     def test_index_route_exception_handling(self, client):
         """Test index route handles exceptions gracefully."""
-        # Patch services at their definition level to avoid blueprint import resolution issues
-        with patch(
-            "difflicious.services.git_service.GitService"
-        ) as mock_git_service_class:
-            with patch(
-                "difflicious.services.template_service.TemplateRenderingService"
+        # Get the actual views module from sys.modules (not the Blueprint object)
+        views_mod = sys.modules["difflicious.blueprints.views"]
+
+        with patch.object(views_mod, "GitService") as mock_git_service_class:
+            with patch.object(
+                views_mod, "TemplateRenderingService"
             ) as mock_template_service_class:
                 mock_git_service = Mock()
                 mock_git_service_class.return_value = mock_git_service
