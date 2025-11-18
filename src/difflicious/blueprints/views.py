@@ -39,7 +39,6 @@ def index() -> str:
             except Exception as e:
                 # Fallback: leave base_ref as None
                 logger.warning(f"Could not determine current branch: {e}")
-                pass
 
         # Prepare template data
         template_service = TemplateRenderingService()
