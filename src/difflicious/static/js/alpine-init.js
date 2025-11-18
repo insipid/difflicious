@@ -14,6 +14,7 @@ import themeStore from './stores/themeStore.js';
 import { fileComponent } from './components/fileComponent.js';
 import { groupComponent } from './components/groupComponent.js';
 import { searchComponent } from './components/searchComponent.js';
+import { hunkComponent } from './components/hunkComponent.js';
 
 // Initialize Alpine stores
 document.addEventListener('alpine:init', () => {
@@ -38,5 +39,6 @@ window.Alpine = Alpine;
 window.fileComponent = fileComponent;
 window.groupComponent = groupComponent;
 window.searchComponent = searchComponent;
+window.hunkComponent = hunkComponent;
 
 export default Alpine;
