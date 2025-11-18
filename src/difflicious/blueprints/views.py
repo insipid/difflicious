@@ -43,7 +43,7 @@ def index() -> str:
         # Prepare template data
         template_service = TemplateRenderingService()
         template_data = template_service.prepare_diff_data_for_template(
-            base_ref=base_ref if base_ref is not None else None,
+            base_ref=base_ref,
             unstaged=unstaged,
             staged=staged,
             untracked=untracked,
@@ -54,15 +54,7 @@ def index() -> str:
 
         return render_template("index.html", **template_data)
 
-    except (
-        ValueError,
-        KeyError,
-        OSError,
-        RuntimeError,
-        DiffServiceError,
-        GitServiceError,
-        Exception,
-    ) as e:
+    except Exception as e:
         logger.error(f"Failed to render index page: {e}")
         # Render error page
         error_data = {

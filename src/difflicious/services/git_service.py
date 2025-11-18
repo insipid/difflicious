@@ -118,7 +118,7 @@ class GitService(BaseService):
         if start_line < 1 or end_line < start_line:
             raise GitServiceError("Invalid line range")
 
-        if end_line - start_line > MAX_BRANCH_PREVIEW_LINES:
+        if end_line - start_line + 1 > MAX_BRANCH_PREVIEW_LINES:
             raise GitServiceError(
                 f"Line range too large (max {MAX_BRANCH_PREVIEW_LINES} lines)"
             )

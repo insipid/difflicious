@@ -60,7 +60,7 @@ def api_expand_context() -> Union[Response, tuple[Response, int]]:
                 "End line must be greater than or equal to start line",
                 context={"start_line": target_start, "end_line": target_end},
             )
-        if target_end - target_start > MAX_BRANCH_PREVIEW_LINES:
+        if target_end - target_start + 1 > MAX_BRANCH_PREVIEW_LINES:
             return error_response(
                 f"Cannot expand more than {MAX_BRANCH_PREVIEW_LINES} lines at once",
                 context={
