@@ -50,9 +50,9 @@ def create_app(
 
     # Store service instances on app for blueprints to use
     # These can be injected for testing or created fresh
-    app.git_service = git_service
-    app.diff_service = diff_service
-    app.template_service = template_service
+    app.git_service = git_service  # type: ignore[attr-defined]
+    app.diff_service = diff_service  # type: ignore[attr-defined]
+    app.template_service = template_service  # type: ignore[attr-defined]
 
     # Register blueprints
     from difflicious.blueprints import context_api, diff_api, git_api, views
