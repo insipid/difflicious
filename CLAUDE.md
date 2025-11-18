@@ -117,6 +117,25 @@ npm run lint:js:fix  # Auto-fix issues
 - Health checks included
 - Git included for repository operations
 
+**Quality Assurance - cilicious.sh:**
+
+The repository includes `cilicious.sh`, a comprehensive quality check script that runs all tests and linters:
+
+```bash
+# Run all quality checks (JavaScript tests, linting, Python tests, mypy, ruff, black)
+./cilicious.sh
+```
+
+**IMPORTANT:** This script must run clean before committing any changes. It executes:
+1. JavaScript tests (`pnpm run test:js`)
+2. JavaScript linting (`pnpm run lint:js`)
+3. Python tests (`uv run pytest`)
+4. Type checking (`uv run mypy src/`)
+5. Python linting (`uv run ruff check .`)
+6. Code formatting (`uv run black .`)
+
+Always use `./cilicious.sh` instead of running individual test/lint commands.
+
 ## Current Development Status
 
 **Phase 1 - Project Setup & Core Backend (COMPLETED ✅):**
@@ -200,22 +219,29 @@ All API endpoints return JSON responses with consistent error handling via the b
 
 ## Testing Conventions
 
+**Running All Tests:**
+- **Always use `./cilicious.sh`** to run all tests and quality checks
+- This runs both Python and JavaScript tests, plus linting and type checking
+- Must pass cleanly before committing
+
 **Python Tests (pytest):**
 - Test files use `test_*.py` naming convention
 - Service layer has dedicated test directory: `tests/services/`
 - Fixtures defined in `tests/conftest.py`
 - Mock git repositories used for integration tests
-- Run with: `uv run pytest` or `uv run pytest --cov`
+- Individual run (for debugging only): `uv run pytest` or `uv run pytest --cov`
 
 **JavaScript Tests (Jest):**
 - Test files in `tests/js/` with `.test.js` or `.spec.js` extensions
 - Uses jsdom environment for DOM testing
-- Run with: `npm run test:js`
+- Individual run (for debugging only): `npm run test:js`
 
 **Test Coverage:**
 - Current coverage: 73%+ for Python code
 - Target: Maintain >70% coverage for service layer
 - Critical paths (git operations, security) require 100% coverage
+
+**Note:** While individual test commands are provided above, always use `./cilicious.sh` for pre-commit validation.
 
 ## Common Development Tasks
 
@@ -249,14 +275,16 @@ All API endpoints return JSON responses with consistent error handling via the b
 
 ## Code Quality Requirements
 
+- **cilicious.sh Script**: **MUST** run `./cilicious.sh` and pass all checks before committing - this is non-negotiable
 - **File Formatting**: ALL TEXT FILES SHOULD END WITH A CARRIAGE RETURN
 - **Documentation Sync**: Any changes to architecture/infrastructure must update PLAN.md, README.md, and CLAUDE.md to keep them in sync
 - **Package Management**: Use `uv` for all Python dependency management and virtual environments
 - **Security**: All git command execution must use proper subprocess sanitization
-- **Type Hints**: All new Python code should include type hints (enforced by mypy)
+- **Type Hints**: All new Python code should include type hints (enforced by mypy via cilicious.sh)
 - **Docstrings**: All public functions/classes should have docstrings
 - **CSS Guidelines**: Follow the CSS Style Guide for all styling changes (see below)
-- **Linting**: Code must pass `ruff check` and `eslint` checks before commit
+- **Testing**: All tests must pass via cilicious.sh (both Python pytest and JavaScript Jest)
+- **Linting**: Code must pass all linters via cilicious.sh (ruff, black, eslint)
 
 ## CSS Architecture & Guidelines
 
@@ -462,26 +490,28 @@ The application is designed for multiple distribution channels:
 
 **When Working on This Codebase:**
 
-1. **Always use the service layer** - Don't bypass services to call git_operations.py directly
-2. **Never hardcode colors** - Always use CSS variables from the semantic system
-3. **Test both themes** - All UI changes must work in light AND dark modes
-4. **Type hints required** - All new Python code must include proper type hints
-5. **Update documentation** - Keep CLAUDE.md, README.md, and PLAN.md in sync
-6. **Security first** - All git commands must use proper subprocess sanitization
-7. **Blueprint organization** - Keep routes organized by concern (git, diff, context, views)
-8. **Service exceptions** - Use custom exceptions (DiffServiceError, GitServiceError) for error handling
-9. **DTOs for APIs** - Use data transfer objects for type-safe API contracts
-10. **Test coverage** - Maintain >70% coverage, especially for service layer
+1. **Run cilicious.sh before committing** - `./cilicious.sh` must pass cleanly - this is the #1 rule
+2. **Always use the service layer** - Don't bypass services to call git_operations.py directly
+3. **Never hardcode colors** - Always use CSS variables from the semantic system
+4. **Test both themes** - All UI changes must work in light AND dark modes
+5. **Type hints required** - All new Python code must include proper type hints
+6. **Update documentation** - Keep CLAUDE.md, README.md, and PLAN.md in sync
+7. **Security first** - All git commands must use proper subprocess sanitization
+8. **Blueprint organization** - Keep routes organized by concern (git, diff, context, views)
+9. **Service exceptions** - Use custom exceptions (DiffServiceError, GitServiceError) for error handling
+10. **DTOs for APIs** - Use data transfer objects for type-safe API contracts
+11. **Test coverage** - Maintain >70% coverage, especially for service layer
 
 **Common Pitfalls to Avoid:**
 
+- ❌ Don't commit without running `./cilicious.sh` cleanly - this is the most critical rule
+- ❌ Don't run individual test/lint commands instead of using cilicious.sh
 - ❌ Don't use Tailwind color classes (bg-green-500, text-blue-600, etc.)
 - ❌ Don't bypass service layer to call git commands directly
 - ❌ Don't add business logic to blueprint routes (use services)
 - ❌ Don't use inline styles or hardcoded hex colors
 - ❌ Don't skip type hints on new functions
 - ❌ Don't forget to rebuild Tailwind after CSS changes
-- ❌ Don't commit without running tests and linters
 
 **Recommended Workflow:**
 
@@ -491,11 +521,12 @@ The application is designed for multiple distribution channels:
 4. Implement in service layer (business logic)
 5. Add/update blueprint routes (HTTP concerns)
 6. Update templates/frontend if needed
-7. Run tests: `uv run pytest`
-8. Run linters: `uv run ruff check` and `npm run lint:js`
-9. Test manually in browser (light and dark themes)
-10. Update documentation if needed
-11. Commit with descriptive message
+7. Test manually in browser (light and dark themes)
+8. **Run `./cilicious.sh` - must pass all checks cleanly**
+9. Update documentation if needed
+10. Commit with descriptive message (only after cilicious.sh passes)
+
+**CRITICAL:** Never commit without `./cilicious.sh` running clean. This ensures all tests pass, code is properly formatted, type-checked, and linted.
 
 **File References:**
 
