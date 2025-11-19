@@ -31,8 +31,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Note: Theme is now handled by Alpine.js theme store (alpine-init.js)
     // initializeTheme() call removed to avoid conflict with Alpine.js
 
-    // Initialize state (which binds event listeners and restores state)
-    await DiffState.init();
+    // NOTE: DiffState.init() temporarily disabled during Alpine.js migration
+    // Alpine.js stores (diffStore, searchStore, themeStore) now handle:
+    // - File/group expansion state
+    // - API calls to /api/status
+    // - Button event bindings (via @click directives)
+    // - Search functionality
+    // - Theme management
+    // TODO: Migrate remaining DiffState functionality to Alpine.js components
+    // await DiffState.init();
 
     // Ensure all expansion buttons are enabled and functional
     // This runs once after state restoration is complete
