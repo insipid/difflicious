@@ -11,9 +11,23 @@ export default {
      * Initialize the theme store
      */
     init() {
+        console.log('[ThemeStore] Initializing theme store...');
+
         const savedTheme = localStorage.getItem('difflicious-theme');
         const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        this.current = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+
+        // Also check current DOM state (set by inline script)
+        const currentDomTheme = document.documentElement.getAttribute('data-theme');
+
+        this.current = savedTheme || currentDomTheme || (systemPrefersDark ? 'dark' : 'light');
+
+        console.log('[ThemeStore] Theme initialized:', {
+            savedTheme,
+            systemPrefersDark,
+            currentDomTheme,
+            current: this.current,
+            icon: this.icon
+        });
 
         // Apply theme to document
         this.applyTheme();
@@ -31,6 +45,8 @@ export default {
      * Toggle between light and dark theme
      */
     toggle() {
+        console.log('[ThemeStore] Toggle called, current theme:', this.current);
+
         const htmlElement = document.documentElement;
 
         // Disable transitions to prevent flicker during theme switch

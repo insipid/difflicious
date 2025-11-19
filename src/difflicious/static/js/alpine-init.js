@@ -3,7 +3,11 @@
  * Sets up Alpine stores and registers global component factories
  */
 
+console.log('[Alpine] alpine-init.js loading...');
+
 import Alpine from 'alpinejs';
+
+console.log('[Alpine] Alpine module imported:', Alpine);
 
 // Import stores
 import diffStore from './stores/diffStore.js';
@@ -41,11 +45,15 @@ document.addEventListener('alpine:init', () => {
 // Start Alpine after DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
+        console.log('[Alpine] Starting Alpine.js (after DOMContentLoaded)');
         Alpine.start();
+        console.log('[Alpine] Alpine.js started');
     });
 } else {
     // DOM is already ready
+    console.log('[Alpine] Starting Alpine.js (DOM already ready)');
     Alpine.start();
+    console.log('[Alpine] Alpine.js started');
 }
 
 export default Alpine;
