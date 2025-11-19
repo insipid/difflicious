@@ -64,19 +64,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-// Export functions to window for HTML onclick handlers
-window.toggleFile = toggleFile;
-window.toggleGroup = toggleGroup;
-window.expandAllFiles = expandAllFiles;
-window.collapseAllFiles = collapseAllFiles;
+// NOTE: During Alpine.js migration, most window exports are no longer needed
+// as Alpine handles click events via @click directives and $store access.
+// Keeping only functions that are still called directly from onclick handlers:
+
+// Context expansion (still used by expansion buttons in diff hunks)
+window.expandContext = expandContext;
+
+// Full diff loading (still used by "Load Full Diff" buttons in diff_file.html)
+window.loadFullDiff = loadFullDiff;
+window.__loadFullDiff = loadFullDiff; // eslint alias
+
+// File navigation (still used by navigation buttons in diff_file.html)
 window.navigateToPreviousFile = navigateToPreviousFile;
 window.navigateToNextFile = navigateToNextFile;
-window.expandContext = expandContext;
-window.toggleTheme = toggleTheme;
-window.loadFullDiff = loadFullDiff;
 
-// Expose __loadFullDiff to satisfy eslint (as in original code)
-window.__loadFullDiff = loadFullDiff;
+// TODO: Migrate these remaining functions to Alpine components
+// - expandContext -> hunkComponent methods
+// - loadFullDiff -> fileComponent methods
+// - navigateToPreviousFile/navigateToNextFile -> fileComponent methods
 
 // Export DiffState for testing
 if (typeof module !== 'undefined' && module.exports) {

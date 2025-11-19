@@ -31,15 +31,20 @@ window.Alpine = Alpine;
 
 // Initialize Alpine stores
 document.addEventListener('alpine:init', () => {
+    console.log('[Alpine] alpine:init event fired, registering stores...');
+
     // Register stores
+    // NOTE: Alpine.js automatically calls init() on stores when registered
+    // Do NOT manually call .init() as it causes double initialization
     Alpine.store('diff', diffStore);
     Alpine.store('search', searchStore);
     Alpine.store('theme', themeStore);
 
-    // Initialize stores
-    Alpine.store('diff').init();
-    Alpine.store('search').init();
-    Alpine.store('theme').init();
+    console.log('[Alpine] Stores registered:', {
+        diff: Alpine.store('diff'),
+        search: Alpine.store('search'),
+        theme: Alpine.store('theme')
+    });
 });
 
 // Start Alpine after DOM is ready
