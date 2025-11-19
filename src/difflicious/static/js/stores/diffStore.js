@@ -1,13 +1,14 @@
 /**
  * Alpine.js Store for Diff State Management
  * Manages file and group expansion state with localStorage persistence
+ * Using objects instead of Sets for better Alpine.js reactivity
  */
 
 export default {
-    // State
+    // State - using objects for better Alpine.js reactivity
     repositoryName: '',
-    expandedFiles: new Set(),
-    expandedGroups: new Set(['untracked', 'unstaged', 'staged']),
+    expandedFiles: {}, // { filePath: true }
+    expandedGroups: { untracked: true, unstaged: true, staged: true },
 
     // Computed
     get storageKey() {
@@ -18,8 +19,14 @@ export default {
      * Initialize the store
      */
     async init() {
+        console.log('[DiffStore] Initializing diff store...');
         await this.initializeRepository();
         this.restoreState();
+        console.log('[DiffStore] Diff store initialized:', {
+            repositoryName: this.repositoryName,
+            expandedFiles: Object.keys(this.expandedFiles).length,
+            expandedGroups: this.expandedGroups
+        });
     },
 
     /**
@@ -27,7 +34,7 @@ export default {
      */
     async initializeRepository() {
         try {
-            const response = await fetch('/api/status');
+            const response = await fetch('/api/git/status');
             const data = await response.json();
             if (data.status === 'ok' && data.repository_name) {
                 this.repositoryName = data.repository_name;
@@ -41,41 +48,39 @@ export default {
      * Check if a file is expanded
      */
     isFileExpanded(filePath) {
-        return this.expandedFiles.has(filePath);
+        return !!this.expandedFiles[filePath];
     },
 
     /**
      * Check if a group is expanded
      */
     isGroupExpanded(groupKey) {
-        return this.expandedGroups.has(groupKey);
+        return !!this.expandedGroups[groupKey];
     },
 
     /**
      * Toggle file expansion state
      */
     toggleFile(filePath) {
-        if (this.expandedFiles.has(filePath)) {
-            this.expandedFiles.delete(filePath);
+        console.log('[DiffStore] Toggle file:', filePath, 'current:', this.expandedFiles[filePath]);
+        if (this.expandedFiles[filePath]) {
+            delete this.expandedFiles[filePath];
         } else {
-            this.expandedFiles.add(filePath);
+            this.expandedFiles[filePath] = true;
         }
-        // Trigger reactivity by reassigning
-        this.expandedFiles = new Set(this.expandedFiles);
+        // Trigger Alpine.js reactivity
+        this.expandedFiles = { ...this.expandedFiles };
         this.saveState();
+        console.log('[DiffStore] After toggle:', filePath, 'new:', this.expandedFiles[filePath]);
     },
 
     /**
      * Toggle group expansion state
      */
     toggleGroup(groupKey) {
-        if (this.expandedGroups.has(groupKey)) {
-            this.expandedGroups.delete(groupKey);
-        } else {
-            this.expandedGroups.add(groupKey);
-        }
-        // Trigger reactivity by reassigning
-        this.expandedGroups = new Set(this.expandedGroups);
+        this.expandedGroups[groupKey] = !this.expandedGroups[groupKey];
+        // Trigger Alpine.js reactivity
+        this.expandedGroups = { ...this.expandedGroups };
         this.saveState();
     },
 
@@ -91,20 +96,26 @@ export default {
      * Expand all files (reads from DOM)
      */
     expandAllFiles() {
+        console.log('[DiffStore] Expand all files');
         const filePaths = this.getAllFilePaths();
-        filePaths.forEach(filePath => this.expandedFiles.add(filePath));
-        // Trigger reactivity by reassigning
-        this.expandedFiles = new Set(this.expandedFiles);
+        filePaths.forEach(filePath => {
+            this.expandedFiles[filePath] = true;
+        });
+        // Trigger Alpine.js reactivity
+        this.expandedFiles = { ...this.expandedFiles };
         this.saveState();
+        console.log('[DiffStore] Expanded files:', Object.keys(this.expandedFiles).length);
     },
 
     /**
      * Expand all files (with provided file paths)
      */
     expandAll(filePaths) {
-        filePaths.forEach(filePath => this.expandedFiles.add(filePath));
-        // Trigger reactivity by reassigning
-        this.expandedFiles = new Set(this.expandedFiles);
+        filePaths.forEach(filePath => {
+            this.expandedFiles[filePath] = true;
+        });
+        // Trigger Alpine.js reactivity
+        this.expandedFiles = { ...this.expandedFiles };
         this.saveState();
     },
 
@@ -112,10 +123,10 @@ export default {
      * Collapse all files
      */
     collapseAllFiles() {
-        this.expandedFiles.clear();
-        // Trigger reactivity by reassigning
-        this.expandedFiles = new Set(this.expandedFiles);
+        console.log('[DiffStore] Collapse all files');
+        this.expandedFiles = {};
         this.saveState();
+        console.log('[DiffStore] All files collapsed');
     },
 
     /**
@@ -130,12 +141,12 @@ export default {
      */
     setFileExpanded(filePath, isExpanded) {
         if (isExpanded) {
-            this.expandedFiles.add(filePath);
+            this.expandedFiles[filePath] = true;
         } else {
-            this.expandedFiles.delete(filePath);
+            delete this.expandedFiles[filePath];
         }
-        // Trigger reactivity by reassigning
-        this.expandedFiles = new Set(this.expandedFiles);
+        // Trigger Alpine.js reactivity
+        this.expandedFiles = { ...this.expandedFiles };
         this.saveState();
     },
 
@@ -144,8 +155,8 @@ export default {
      */
     saveState() {
         const state = {
-            expandedFiles: Array.from(this.expandedFiles),
-            expandedGroups: Array.from(this.expandedGroups),
+            expandedFiles: Object.keys(this.expandedFiles).filter(k => this.expandedFiles[k]),
+            expandedGroups: Object.keys(this.expandedGroups).filter(k => this.expandedGroups[k]),
             repositoryName: this.repositoryName,
             lastUpdated: new Date().toISOString()
         };
@@ -163,12 +174,18 @@ export default {
 
                 // Restore file expansion states
                 if (state.expandedFiles && Array.isArray(state.expandedFiles)) {
-                    this.expandedFiles = new Set(state.expandedFiles);
+                    this.expandedFiles = {};
+                    state.expandedFiles.forEach(filePath => {
+                        this.expandedFiles[filePath] = true;
+                    });
                 }
 
                 // Restore group expansion states
                 if (state.expandedGroups && Array.isArray(state.expandedGroups)) {
-                    this.expandedGroups = new Set(state.expandedGroups);
+                    this.expandedGroups = { untracked: false, unstaged: false, staged: false };
+                    state.expandedGroups.forEach(groupKey => {
+                        this.expandedGroups[groupKey] = true;
+                    });
                 }
             } catch (e) {
                 console.warn('Failed to restore diff state:', e);

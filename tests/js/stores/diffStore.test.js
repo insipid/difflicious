@@ -8,8 +8,8 @@ describe('diffStore', () => {
     beforeEach(() => {
         // Reset store state
         diffStore.repositoryName = '';
-        diffStore.expandedFiles = new Set();
-        diffStore.expandedGroups = new Set(['untracked', 'unstaged', 'staged']);
+        diffStore.expandedFiles = {};
+        diffStore.expandedGroups = { untracked: true, unstaged: true, staged: true };
         // Clear localStorage
         localStorage.clear();
         // Clear fetch mocks
@@ -19,11 +19,11 @@ describe('diffStore', () => {
     describe('initialization', () => {
         it('should have correct initial state', () => {
             expect(diffStore.repositoryName).toBe('');
-            expect(diffStore.expandedFiles).toBeInstanceOf(Set);
-            expect(diffStore.expandedGroups).toBeInstanceOf(Set);
-            expect(diffStore.expandedGroups.has('untracked')).toBe(true);
-            expect(diffStore.expandedGroups.has('unstaged')).toBe(true);
-            expect(diffStore.expandedGroups.has('staged')).toBe(true);
+            expect(typeof diffStore.expandedFiles).toBe('object');
+            expect(typeof diffStore.expandedGroups).toBe('object');
+            expect(diffStore.expandedGroups.untracked).toBe(true);
+            expect(diffStore.expandedGroups.unstaged).toBe(true);
+            expect(diffStore.expandedGroups.staged).toBe(true);
         });
 
         it('should compute storage key correctly', () => {
@@ -39,7 +39,7 @@ describe('diffStore', () => {
 
     describe('file expansion', () => {
         it('should check if file is expanded', () => {
-            diffStore.expandedFiles.add('src/test.js');
+            diffStore.expandedFiles['src/test.js'] = true;
             expect(diffStore.isFileExpanded('src/test.js')).toBe(true);
             expect(diffStore.isFileExpanded('src/other.js')).toBe(false);
         });
@@ -49,21 +49,21 @@ describe('diffStore', () => {
 
             // Toggle on
             diffStore.toggleFile(filePath);
-            expect(diffStore.expandedFiles.has(filePath)).toBe(true);
+            expect(diffStore.expandedFiles[filePath]).toBe(true);
 
             // Toggle off
             diffStore.toggleFile(filePath);
-            expect(diffStore.expandedFiles.has(filePath)).toBe(false);
+            expect(diffStore.expandedFiles[filePath]).toBeUndefined();
         });
 
         it('should set file expanded state', () => {
             const filePath = 'src/test.js';
 
             diffStore.setFileExpanded(filePath, true);
-            expect(diffStore.expandedFiles.has(filePath)).toBe(true);
+            expect(diffStore.expandedFiles[filePath]).toBe(true);
 
             diffStore.setFileExpanded(filePath, false);
-            expect(diffStore.expandedFiles.has(filePath)).toBe(false);
+            expect(diffStore.expandedFiles[filePath]).toBeUndefined();
         });
     });
 
@@ -78,11 +78,11 @@ describe('diffStore', () => {
 
             // Toggle off
             diffStore.toggleGroup(groupKey);
-            expect(diffStore.expandedGroups.has(groupKey)).toBe(false);
+            expect(diffStore.expandedGroups[groupKey]).toBe(false);
 
             // Toggle on
             diffStore.toggleGroup(groupKey);
-            expect(diffStore.expandedGroups.has(groupKey)).toBe(true);
+            expect(diffStore.expandedGroups[groupKey]).toBe(true);
         });
     });
 
@@ -93,17 +93,17 @@ describe('diffStore', () => {
             diffStore.expandAll(files);
 
             files.forEach(file => {
-                expect(diffStore.expandedFiles.has(file)).toBe(true);
+                expect(diffStore.expandedFiles[file]).toBe(true);
             });
         });
 
         it('should collapse all files', () => {
-            diffStore.expandedFiles.add('src/test1.js');
-            diffStore.expandedFiles.add('src/test2.js');
+            diffStore.expandedFiles['src/test1.js'] = true;
+            diffStore.expandedFiles['src/test2.js'] = true;
 
             diffStore.collapseAll();
 
-            expect(diffStore.expandedFiles.size).toBe(0);
+            expect(Object.keys(diffStore.expandedFiles).length).toBe(0);
         });
 
         it('should get all file paths from DOM', () => {
@@ -128,25 +128,25 @@ describe('diffStore', () => {
 
             diffStore.expandAllFiles();
 
-            expect(diffStore.expandedFiles.has('src/test1.js')).toBe(true);
-            expect(diffStore.expandedFiles.has('src/test2.js')).toBe(true);
+            expect(diffStore.expandedFiles['src/test1.js']).toBe(true);
+            expect(diffStore.expandedFiles['src/test2.js']).toBe(true);
         });
 
         it('should collapse all files using collapseAllFiles method', () => {
-            diffStore.expandedFiles.add('src/test1.js');
-            diffStore.expandedFiles.add('src/test2.js');
+            diffStore.expandedFiles['src/test1.js'] = true;
+            diffStore.expandedFiles['src/test2.js'] = true;
 
             diffStore.collapseAllFiles();
 
-            expect(diffStore.expandedFiles.size).toBe(0);
+            expect(Object.keys(diffStore.expandedFiles).length).toBe(0);
         });
     });
 
     describe('persistence', () => {
         it('should save state to localStorage', () => {
             diffStore.repositoryName = 'test-repo';
-            diffStore.expandedFiles.add('src/test.js');
-            diffStore.expandedGroups.delete('untracked');
+            diffStore.expandedFiles['src/test.js'] = true;
+            delete diffStore.expandedGroups.untracked;
 
             diffStore.saveState();
 
@@ -170,10 +170,10 @@ describe('diffStore', () => {
 
             diffStore.restoreState();
 
-            expect(diffStore.expandedFiles.has('src/test1.js')).toBe(true);
-            expect(diffStore.expandedFiles.has('src/test2.js')).toBe(true);
-            expect(diffStore.expandedGroups.has('staged')).toBe(true);
-            expect(diffStore.expandedGroups.has('unstaged')).toBe(false);
+            expect(diffStore.expandedFiles['src/test1.js']).toBe(true);
+            expect(diffStore.expandedFiles['src/test2.js']).toBe(true);
+            expect(diffStore.expandedGroups.staged).toBe(true);
+            expect(diffStore.expandedGroups.unstaged).toBe(false);
         });
 
         it('should handle corrupt localStorage data gracefully', () => {
@@ -183,7 +183,7 @@ describe('diffStore', () => {
             expect(() => diffStore.restoreState()).not.toThrow();
 
             // Should maintain default state
-            expect(diffStore.expandedFiles.size).toBe(0);
+            expect(Object.keys(diffStore.expandedFiles).length).toBe(0);
         });
     });
 
@@ -201,7 +201,7 @@ describe('diffStore', () => {
             await diffStore.initializeRepository();
 
             expect(diffStore.repositoryName).toBe('my-repo');
-            expect(fetch).toHaveBeenCalledWith('/api/status');
+            expect(fetch).toHaveBeenCalledWith('/api/git/status');
         });
 
         it('should handle API errors gracefully', async () => {
