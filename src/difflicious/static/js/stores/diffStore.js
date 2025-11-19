@@ -34,7 +34,7 @@ export default {
      */
     async initializeRepository() {
         try {
-            const response = await fetch('/api/git/status');
+            const response = await fetch('/api/status');
             const data = await response.json();
             if (data.status === 'ok' && data.repository_name) {
                 this.repositoryName = data.repository_name;

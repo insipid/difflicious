@@ -201,7 +201,7 @@ describe('diffStore', () => {
             await diffStore.initializeRepository();
 
             expect(diffStore.repositoryName).toBe('my-repo');
-            expect(fetch).toHaveBeenCalledWith('/api/git/status');
+            expect(fetch).toHaveBeenCalledWith('/api/status');
         });
 
         it('should handle API errors gracefully', async () => {
