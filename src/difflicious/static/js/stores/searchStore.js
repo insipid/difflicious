@@ -56,10 +56,22 @@ export default {
         if (!newQuery || newQuery.trim() === '') {
             console.log('[SearchStore] Empty query detected, will restore visibility');
             setTimeout(() => {
+                console.log('[SearchStore] setTimeout callback executing (from setQuery)');
+
+                // Debug: Try multiple selectors to see what works
+                const byDataGroup = document.querySelectorAll('[data-group]');
+                const byClass = document.querySelectorAll('.diff-group');
+
+                console.log(`[SearchStore] DEBUG - Elements found:`);
+                console.log(`  - [data-group]: ${byDataGroup.length}`);
+                console.log(`  - .diff-group: ${byClass.length}`);
+
                 let groupCount = 0;
                 let fileCount = 0;
 
-                document.querySelectorAll('[data-group]').forEach(groupEl => {
+                // Use whichever selector works
+                const groupSelector = byDataGroup.length > 0 ? '[data-group]' : '.diff-group';
+                document.querySelectorAll(groupSelector).forEach(groupEl => {
                     groupEl.style.display = '';
                     groupCount++;
                 });
@@ -106,10 +118,33 @@ export default {
         // Explicitly ensure all groups and files are visible after a delay
         // The delay ensures applyFilenameFilter's RAF callback has completed
         setTimeout(() => {
+            console.log('[SearchStore] setTimeout callback executing');
+
+            // Debug: Try multiple selectors to see what works
+            const byDataGroup = document.querySelectorAll('[data-group]');
+            const byClass = document.querySelectorAll('.diff-group');
+            const bySpaceY = document.querySelectorAll('.space-y-2');
+            const allDivs = document.querySelectorAll('div');
+
+            console.log(`[SearchStore] DEBUG - Elements found:`);
+            console.log(`  - [data-group]: ${byDataGroup.length}`);
+            console.log(`  - .diff-group: ${byClass.length}`);
+            console.log(`  - .space-y-2: ${bySpaceY.length}`);
+            console.log(`  - all divs: ${allDivs.length}`);
+
+            // If we found any by class, log one to see its structure
+            if (byClass.length > 0) {
+                console.log(`  - First .diff-group element:`, byClass[0]);
+                console.log(`  - Has data-group attr?`, byClass[0].hasAttribute('data-group'));
+                console.log(`  - data-group value:`, byClass[0].getAttribute('data-group'));
+            }
+
             let groupCount = 0;
             let fileCount = 0;
 
-            document.querySelectorAll('[data-group]').forEach(groupEl => {
+            // Use whichever selector works
+            const groupSelector = byDataGroup.length > 0 ? '[data-group]' : '.diff-group';
+            document.querySelectorAll(groupSelector).forEach(groupEl => {
                 groupEl.style.display = '';
                 groupCount++;
             });
