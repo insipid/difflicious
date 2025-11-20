@@ -45,9 +45,26 @@ export default {
      * Set search query and apply filter
      */
     setQuery(newQuery) {
+        console.log('[SearchStore] setQuery called with:', newQuery);
         this.query = newQuery;
-        // Apply the filter using vanilla JS function
-        this.applyFilter();
+
+        // If clearing the query, explicitly show all groups
+        if (!newQuery || newQuery.trim() === '') {
+            console.log('[SearchStore] Empty query detected, showing all files');
+            // Apply the filter using vanilla JS function
+            this.applyFilter();
+            // Explicitly ensure all groups are visible
+            requestAnimationFrame(() => {
+                document.querySelectorAll('.diff-group').forEach(groupEl => {
+                    groupEl.style.display = '';
+                });
+                console.log('[SearchStore] All groups made visible');
+            });
+        } else {
+            // Apply the filter using vanilla JS function
+            this.applyFilter();
+        }
+
         // Update URL with search parameter
         this.updateUrl();
     },
@@ -72,10 +89,21 @@ export default {
      * Clear search query and reset filter
      */
     clear() {
+        console.log('[SearchStore] Clearing search filter');
         this.query = '';
         this.hiddenFilesCount = 0;
+
         // Apply empty filter to show all files
         applyFilenameFilter('');
+
+        // Explicitly ensure all groups are visible after clearing
+        requestAnimationFrame(() => {
+            document.querySelectorAll('.diff-group').forEach(groupEl => {
+                groupEl.style.display = '';
+            });
+            console.log('[SearchStore] All files and groups restored');
+        });
+
         // Update URL to remove search parameter
         this.updateUrl();
     },
