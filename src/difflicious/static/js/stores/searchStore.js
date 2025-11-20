@@ -48,21 +48,28 @@ export default {
         console.log('[SearchStore] setQuery called with:', newQuery);
         this.query = newQuery;
 
-        // If clearing the query, explicitly show all groups
+        // Apply the filter using vanilla JS function
+        this.applyFilter();
+
+        // If clearing the query, explicitly show all groups and files after a delay
+        // The delay ensures applyFilenameFilter's RAF callback has completed
         if (!newQuery || newQuery.trim() === '') {
-            console.log('[SearchStore] Empty query detected, showing all files');
-            // Apply the filter using vanilla JS function
-            this.applyFilter();
-            // Explicitly ensure all groups are visible
-            requestAnimationFrame(() => {
+            console.log('[SearchStore] Empty query detected, will restore visibility');
+            setTimeout(() => {
+                let groupCount = 0;
+                let fileCount = 0;
+
                 document.querySelectorAll('.diff-group').forEach(groupEl => {
                     groupEl.style.display = '';
+                    groupCount++;
                 });
-                console.log('[SearchStore] All groups made visible');
-            });
-        } else {
-            // Apply the filter using vanilla JS function
-            this.applyFilter();
+                document.querySelectorAll('[data-file]').forEach(fileEl => {
+                    fileEl.style.display = '';
+                    fileCount++;
+                });
+
+                console.log(`[SearchStore] Restored ${groupCount} groups and ${fileCount} files`);
+            }, 50); // 50ms delay to run after applyFilenameFilter's RAF
         }
 
         // Update URL with search parameter
@@ -96,13 +103,23 @@ export default {
         // Apply empty filter to show all files
         applyFilenameFilter('');
 
-        // Explicitly ensure all groups are visible after clearing
-        requestAnimationFrame(() => {
+        // Explicitly ensure all groups and files are visible after a delay
+        // The delay ensures applyFilenameFilter's RAF callback has completed
+        setTimeout(() => {
+            let groupCount = 0;
+            let fileCount = 0;
+
             document.querySelectorAll('.diff-group').forEach(groupEl => {
                 groupEl.style.display = '';
+                groupCount++;
             });
-            console.log('[SearchStore] All files and groups restored');
-        });
+            document.querySelectorAll('[data-file]').forEach(fileEl => {
+                fileEl.style.display = '';
+                fileCount++;
+            });
+
+            console.log(`[SearchStore] Restored ${groupCount} groups and ${fileCount} files`);
+        }, 50); // 50ms delay to run after applyFilenameFilter's RAF
 
         // Update URL to remove search parameter
         this.updateUrl();
