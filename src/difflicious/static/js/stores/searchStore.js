@@ -59,7 +59,7 @@ export default {
                 let groupCount = 0;
                 let fileCount = 0;
 
-                document.querySelectorAll('.diff-group').forEach(groupEl => {
+                document.querySelectorAll('[data-group]').forEach(groupEl => {
                     groupEl.style.display = '';
                     groupCount++;
                 });
@@ -109,7 +109,7 @@ export default {
             let groupCount = 0;
             let fileCount = 0;
 
-            document.querySelectorAll('.diff-group').forEach(groupEl => {
+            document.querySelectorAll('[data-group]').forEach(groupEl => {
                 groupEl.style.display = '';
                 groupCount++;
             });
