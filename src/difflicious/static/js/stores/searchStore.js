@@ -28,8 +28,14 @@ export default {
         if (initialQuery) {
             console.log('[SearchStore] Initial search query:', initialQuery);
             this.query = initialQuery;
-            // Apply the filter for the initial search
-            this.applyFilter();
+            // Defer filter application until after DOM is fully ready
+            // This ensures all file elements are in the DOM before filtering
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    console.log('[SearchStore] Applying initial filter after DOM ready');
+                    this.applyFilter();
+                });
+            });
         } else {
             this.query = '';
         }
