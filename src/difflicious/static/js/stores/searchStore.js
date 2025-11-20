@@ -14,8 +14,25 @@ export default {
      * Initialize the store
      */
     init() {
-        // Restore search query from URL or localStorage if needed
-        this.query = '';
+        // Read initial search query from URL parameter or input field
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlSearch = urlParams.get('search') || '';
+
+        // Also check if the input has a server-rendered value
+        const searchInput = document.querySelector('input[name="search"]');
+        const inputValue = searchInput ? searchInput.value : '';
+
+        // Use URL param or input value, whichever is present
+        const initialQuery = urlSearch || inputValue || '';
+
+        if (initialQuery) {
+            console.log('[SearchStore] Initial search query:', initialQuery);
+            this.query = initialQuery;
+            // Apply the filter for the initial search
+            this.applyFilter();
+        } else {
+            this.query = '';
+        }
     },
 
     /**
@@ -25,6 +42,8 @@ export default {
         this.query = newQuery;
         // Apply the filter using vanilla JS function
         this.applyFilter();
+        // Update URL with search parameter
+        this.updateUrl();
     },
 
     /**
@@ -51,6 +70,22 @@ export default {
         this.hiddenFilesCount = 0;
         // Apply empty filter to show all files
         applyFilenameFilter('');
+        // Update URL to remove search parameter
+        this.updateUrl();
+    },
+
+    /**
+     * Update URL with current search query
+     */
+    updateUrl() {
+        const url = new URL(window.location);
+        if (this.query && this.query.trim()) {
+            url.searchParams.set('search', this.query);
+        } else {
+            url.searchParams.delete('search');
+        }
+        // Use replaceState to update URL without reloading or adding to history
+        window.history.replaceState({}, '', url);
     },
 
     /**
