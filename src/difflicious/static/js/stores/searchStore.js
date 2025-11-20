@@ -139,6 +139,27 @@ export default {
                 console.log(`  - data-group value:`, byClass[0].getAttribute('data-group'));
             }
 
+            // Try to find a group by walking up from a file element
+            const fileElements = document.querySelectorAll('[data-file]');
+            if (fileElements.length > 0) {
+                const firstFile = fileElements[0];
+                console.log(`  - First file element:`, firstFile);
+                console.log(`  - File's data-file:`, firstFile.getAttribute('data-file'));
+
+                // Walk up to find parent group
+                let parent = firstFile.parentElement;
+                let depth = 0;
+                while (parent && depth < 10) {
+                    console.log(`  - Parent ${depth}:`, parent.tagName, parent.className, parent.getAttribute('data-group'));
+                    if (parent.hasAttribute('data-group') || parent.classList.contains('diff-group')) {
+                        console.log(`  - FOUND parent group at depth ${depth}!`);
+                        break;
+                    }
+                    parent = parent.parentElement;
+                    depth++;
+                }
+            }
+
             let groupCount = 0;
             let fileCount = 0;
 
