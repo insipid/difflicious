@@ -3,6 +3,8 @@
  * Manages search query and filter state
  */
 
+import { applyFilenameFilter } from '../modules/search.js';
+
 export default {
     // State
     query: '',
@@ -17,18 +19,38 @@ export default {
     },
 
     /**
-     * Set search query
+     * Set search query and apply filter
      */
     setQuery(newQuery) {
         this.query = newQuery;
+        // Apply the filter using vanilla JS function
+        this.applyFilter();
     },
 
     /**
-     * Clear search query
+     * Apply the current search filter to files
+     */
+    applyFilter() {
+        applyFilenameFilter(this.query);
+        // Count hidden files
+        const fileElements = document.querySelectorAll('[data-file]');
+        let hiddenCount = 0;
+        fileElements.forEach(fileEl => {
+            if (fileEl.style.display === 'none') {
+                hiddenCount++;
+            }
+        });
+        this.hiddenFilesCount = hiddenCount;
+    },
+
+    /**
+     * Clear search query and reset filter
      */
     clear() {
         this.query = '';
         this.hiddenFilesCount = 0;
+        // Apply empty filter to show all files
+        applyFilenameFilter('');
     },
 
     /**

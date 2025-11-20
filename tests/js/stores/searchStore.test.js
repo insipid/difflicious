@@ -1,5 +1,9 @@
 /**
  * Tests for searchStore
+ *
+ * Note: These tests focus on state management. The applyFilenameFilter
+ * function calls are tested in search.test.js. We avoid testing
+ * implementation details here to keep tests maintainable.
  */
 
 import searchStore from '../../../src/difflicious/static/js/stores/searchStore.js';
@@ -9,6 +13,9 @@ describe('searchStore', () => {
         // Reset store state
         searchStore.query = '';
         searchStore.hiddenFilesCount = 0;
+
+        // Mock DOM for hidden files counting
+        document.querySelectorAll = jest.fn().mockReturnValue([]);
     });
 
     describe('initialization', () => {
@@ -24,13 +31,20 @@ describe('searchStore', () => {
 
     describe('query management', () => {
         it('should set query', () => {
+            // Mock applyFilter to avoid DOM operations
+            searchStore.applyFilter = jest.fn();
+
             searchStore.setQuery('test');
             expect(searchStore.query).toBe('test');
+            expect(searchStore.applyFilter).toHaveBeenCalled();
         });
 
-        it('should clear query and hidden count', () => {
+        it('should clear query and reset hidden count', () => {
             searchStore.query = 'test';
             searchStore.hiddenFilesCount = 5;
+
+            // Mock DOM to prevent errors during clear
+            document.querySelectorAll = jest.fn().mockReturnValue([]);
 
             searchStore.clear();
 
