@@ -16,6 +16,24 @@ export default {
     },
 
     /**
+     * Check if all files are expanded
+     */
+    get allFilesExpanded() {
+        const allFiles = this.getAllFilePaths();
+        if (allFiles.length === 0) return false;
+        return allFiles.every(filePath => this.expandedFiles[filePath]);
+    },
+
+    /**
+     * Check if all files are collapsed
+     */
+    get allFilesCollapsed() {
+        const allFiles = this.getAllFilePaths();
+        if (allFiles.length === 0) return true;
+        return allFiles.every(filePath => !this.expandedFiles[filePath]);
+    },
+
+    /**
      * Initialize the store
      */
     async init() {
