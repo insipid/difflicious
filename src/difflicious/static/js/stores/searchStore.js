@@ -201,6 +201,22 @@ export default {
             });
 
             console.log(`[SearchStore] Restored ${groupCount} groups, ${groupContentCount} group-content divs, and ${fileCount} files`);
+
+            // Check again after a short delay to see if something is re-hiding them
+            setTimeout(() => {
+                const groupContentEl = document.querySelector('[data-group-content]');
+                const firstFileEl = document.querySelector('[data-file]');
+                console.log('[SearchStore] AFTER restoration check:');
+                console.log('  - group-content display:', groupContentEl ? groupContentEl.style.display : 'not found');
+                console.log('  - first file display:', firstFileEl ? firstFileEl.style.display : 'not found');
+
+                if (groupContentEl) {
+                    console.log('  - group-content computed display:', window.getComputedStyle(groupContentEl).display);
+                }
+                if (firstFileEl) {
+                    console.log('  - first file computed display:', window.getComputedStyle(firstFileEl).display);
+                }
+            }, 100);
         }, 50); // 50ms delay to run after applyFilenameFilter's RAF
 
         // Update URL to remove search parameter
