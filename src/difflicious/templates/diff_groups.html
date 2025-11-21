@@ -5,7 +5,7 @@
 'staged') or (group_key == 'changes') %}
 <div class="diff-group space-y-2" data-group="{{ group_key }}"
     x-data="groupComponent('{{ group_key }}')"
-    {% if not should_show %}style="display: none;" {% endif %}>
+    {% if not should_show or group.hidden_by_search %}style="display: none;" {% endif %}>
     <!-- Group Header (hidden for staged-only view or ungrouped 'changes' view) -->
     {% set hide_header = (group_key == 'staged' and not unstaged and not untracked) or (group_key == 'changes' and not
     untracked) %}
