@@ -48,57 +48,8 @@ export default {
         console.log('[SearchStore] setQuery called with:', newQuery);
         this.query = newQuery;
 
-        // Apply the filter using vanilla JS function
+        // Apply the filter using vanilla JS function - it handles everything
         this.applyFilter();
-
-        // If clearing the query, explicitly show all groups and files after a delay
-        // The delay ensures applyFilenameFilter's RAF callback has completed
-        if (!newQuery || newQuery.trim() === '') {
-            console.log('[SearchStore] Empty query detected, will restore visibility');
-            setTimeout(() => {
-                console.log('[SearchStore] setTimeout callback executing (from setQuery)');
-
-                // Debug: Try multiple selectors to see what works
-                const byDataGroup = document.querySelectorAll('[data-group]');
-                const byClass = document.querySelectorAll('.diff-group');
-
-                console.log(`[SearchStore] DEBUG - Elements found:`);
-                console.log(`  - [data-group]: ${byDataGroup.length}`);
-                console.log(`  - .diff-group: ${byClass.length}`);
-
-                let groupCount = 0;
-                let fileCount = 0;
-                let groupContentCount = 0;
-
-                // Restore groups (if they exist)
-                const groupSelector = byDataGroup.length > 0 ? '[data-group]' : '.diff-group';
-                document.querySelectorAll(groupSelector).forEach(groupEl => {
-                    groupEl.style.display = '';
-                    groupCount++;
-                });
-
-                // Also restore group-content divs (for ungrouped views)
-                document.querySelectorAll('[data-group-content]').forEach(contentEl => {
-                    contentEl.style.display = '';
-                    groupContentCount++;
-                });
-
-                // Restore files
-                document.querySelectorAll('[data-file]').forEach(fileEl => {
-                    fileEl.style.display = '';
-                    fileCount++;
-                });
-
-                // Also restore file content blocks (the actual diff content)
-                let fileContentCount = 0;
-                document.querySelectorAll('[data-file-content]').forEach(contentEl => {
-                    contentEl.style.display = '';
-                    fileContentCount++;
-                });
-
-                console.log(`[SearchStore] Restored ${groupCount} groups, ${groupContentCount} group-content divs, ${fileCount} files, and ${fileContentCount} file-content blocks`);
-            }, 50); // 50ms delay to run after applyFilenameFilter's RAF
-        }
 
         // Update URL with search parameter
         this.updateUrl();
@@ -128,110 +79,8 @@ export default {
         this.query = '';
         this.hiddenFilesCount = 0;
 
-        // Apply empty filter to show all files
+        // Apply empty filter to show all files - this should handle everything
         applyFilenameFilter('');
-
-        // Explicitly ensure all groups and files are visible after a delay
-        // The delay ensures applyFilenameFilter's RAF callback has completed
-        setTimeout(() => {
-            console.log('[SearchStore] setTimeout callback executing');
-
-            // Debug: Try multiple selectors to see what works
-            const byDataGroup = document.querySelectorAll('[data-group]');
-            const byClass = document.querySelectorAll('.diff-group');
-            const bySpaceY = document.querySelectorAll('.space-y-2');
-            const allDivs = document.querySelectorAll('div');
-
-            console.log(`[SearchStore] DEBUG - Elements found:`);
-            console.log(`  - [data-group]: ${byDataGroup.length}`);
-            console.log(`  - .diff-group: ${byClass.length}`);
-            console.log(`  - .space-y-2: ${bySpaceY.length}`);
-            console.log(`  - all divs: ${allDivs.length}`);
-
-            // If we found any by class, log one to see its structure
-            if (byClass.length > 0) {
-                console.log(`  - First .diff-group element:`, byClass[0]);
-                console.log(`  - Has data-group attr?`, byClass[0].hasAttribute('data-group'));
-                console.log(`  - data-group value:`, byClass[0].getAttribute('data-group'));
-            }
-
-            // Try to find a group by walking up from a file element
-            const fileElements = document.querySelectorAll('[data-file]');
-            if (fileElements.length > 0) {
-                const firstFile = fileElements[0];
-                console.log(`  - First file element:`, firstFile);
-                console.log(`  - File's data-file:`, firstFile.getAttribute('data-file'));
-                console.log(`  - File's display:`, firstFile.style.display);
-
-                // Walk up to find parent group or group-content
-                let parent = firstFile.parentElement;
-                let depth = 0;
-                while (parent && depth < 10) {
-                    console.log(`  - Parent ${depth}:`, parent.tagName, parent.className,
-                                parent.getAttribute('data-group'),
-                                parent.getAttribute('data-group-content'),
-                                `display: "${parent.style.display}"`);
-                    if (parent.hasAttribute('data-group') || parent.classList.contains('diff-group')) {
-                        console.log(`  - FOUND parent group at depth ${depth}!`);
-                        break;
-                    }
-                    if (parent.hasAttribute('data-group-content')) {
-                        console.log(`  - FOUND group-content at depth ${depth}! display: "${parent.style.display}"`);
-                        break;
-                    }
-                    parent = parent.parentElement;
-                    depth++;
-                }
-            }
-
-            let groupCount = 0;
-            let fileCount = 0;
-            let groupContentCount = 0;
-
-            // Restore groups (if they exist)
-            const groupSelector = byDataGroup.length > 0 ? '[data-group]' : '.diff-group';
-            document.querySelectorAll(groupSelector).forEach(groupEl => {
-                groupEl.style.display = '';
-                groupCount++;
-            });
-
-            // Also restore group-content divs (for ungrouped views)
-            document.querySelectorAll('[data-group-content]').forEach(contentEl => {
-                contentEl.style.display = '';
-                groupContentCount++;
-            });
-
-            // Restore files
-            document.querySelectorAll('[data-file]').forEach(fileEl => {
-                fileEl.style.display = '';
-                fileCount++;
-            });
-
-            // Also restore file content blocks (the actual diff content)
-            let fileContentCount = 0;
-            document.querySelectorAll('[data-file-content]').forEach(contentEl => {
-                contentEl.style.display = '';
-                fileContentCount++;
-            });
-
-            console.log(`[SearchStore] Restored ${groupCount} groups, ${groupContentCount} group-content divs, ${fileCount} files, and ${fileContentCount} file-content blocks`);
-
-            // Check again after a short delay to see if something is re-hiding them
-            setTimeout(() => {
-                const groupContentEl = document.querySelector('[data-group-content]');
-                const firstFileEl = document.querySelector('[data-file]');
-                console.log('[SearchStore] AFTER restoration check:');
-                console.log('  - group-content display:', groupContentEl ? groupContentEl.style.display : 'not found');
-                console.log('  - first file display:', firstFileEl ? firstFileEl.style.display : 'not found');
-
-                if (groupContentEl) {
-                    console.log('  - group-content computed display:', window.getComputedStyle(groupContentEl).display);
-                }
-                if (firstFileEl) {
-                    console.log('  - first file computed display:', window.getComputedStyle(firstFileEl).display);
-                }
-            }, 100);
-        }, 50); // 50ms delay to run after applyFilenameFilter's RAF
 
         // Update URL to remove search parameter
         this.updateUrl();

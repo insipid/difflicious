@@ -32,9 +32,11 @@ export function buildSearchRegex(query) {
  * @param {string} query - Search query
  */
 export function applyFilenameFilter(query) {
+    console.log('[applyFilenameFilter] Called with query:', JSON.stringify(query));
     const regex = buildSearchRegex(query);
     const lower = (query || '').toLowerCase();
     const fileElements = document.querySelectorAll('[data-file]');
+    console.log('[applyFilenameFilter] Found', fileElements.length, 'file elements');
     const contentElementsMap = new Map();
 
     // Pre-cache content elements to avoid repeated queries
@@ -76,27 +78,34 @@ export function applyFilenameFilter(query) {
 
     // Batch DOM updates for better performance
     requestAnimationFrame(() => {
+        console.log('[applyFilenameFilter] RAF 1: Setting file display values');
+        let shownCount = 0;
         fileUpdates.forEach(({ fileEl, contentEl, matches, currentContentDisplay }) => {
             fileEl.style.display = matches ? '' : 'none';
+            if (matches) shownCount++;
             // Also hide associated content block to avoid large gaps
             if (contentEl) {
                 contentEl.style.display = matches ? currentContentDisplay : 'none';
             }
         });
+        console.log('[applyFilenameFilter] RAF 1: Set', shownCount, 'files to visible,', hiddenCount, 'to hidden');
     });
 
     // Hide groups with no visible files
     requestAnimationFrame(() => {
+        console.log('[applyFilenameFilter] RAF 2: Checking group/group-content visibility');
         // Handle regular groups
         document.querySelectorAll('[data-group]').forEach(groupEl => {
             const anyVisible = groupEl.querySelector('[data-file]:not([style*="display: none"])');
             groupEl.style.display = anyVisible ? '' : 'none';
+            console.log('[applyFilenameFilter] RAF 2: group', groupEl.getAttribute('data-group'), 'anyVisible:', !!anyVisible);
         });
 
         // Also handle group-content divs (for ungrouped views)
         document.querySelectorAll('[data-group-content]').forEach(contentEl => {
             const anyVisible = contentEl.querySelector('[data-file]:not([style*="display: none"])');
             contentEl.style.display = anyVisible ? '' : 'none';
+            console.log('[applyFilenameFilter] RAF 2: group-content', contentEl.getAttribute('data-group-content'), 'anyVisible:', !!anyVisible, 'found', contentEl.querySelectorAll('[data-file]').length, 'total files');
         });
     });
 
