@@ -89,7 +89,14 @@ export default {
                     fileCount++;
                 });
 
-                console.log(`[SearchStore] Restored ${groupCount} groups, ${groupContentCount} group-content divs, and ${fileCount} files`);
+                // Also restore file content blocks (the actual diff content)
+                let fileContentCount = 0;
+                document.querySelectorAll('[data-file-content]').forEach(contentEl => {
+                    contentEl.style.display = '';
+                    fileContentCount++;
+                });
+
+                console.log(`[SearchStore] Restored ${groupCount} groups, ${groupContentCount} group-content divs, ${fileCount} files, and ${fileContentCount} file-content blocks`);
             }, 50); // 50ms delay to run after applyFilenameFilter's RAF
         }
 
@@ -200,7 +207,14 @@ export default {
                 fileCount++;
             });
 
-            console.log(`[SearchStore] Restored ${groupCount} groups, ${groupContentCount} group-content divs, and ${fileCount} files`);
+            // Also restore file content blocks (the actual diff content)
+            let fileContentCount = 0;
+            document.querySelectorAll('[data-file-content]').forEach(contentEl => {
+                contentEl.style.display = '';
+                fileContentCount++;
+            });
+
+            console.log(`[SearchStore] Restored ${groupCount} groups, ${groupContentCount} group-content divs, ${fileCount} files, and ${fileContentCount} file-content blocks`);
 
             // Check again after a short delay to see if something is re-hiding them
             setTimeout(() => {
