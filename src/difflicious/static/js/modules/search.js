@@ -87,9 +87,16 @@ export function applyFilenameFilter(query) {
 
     // Hide groups with no visible files
     requestAnimationFrame(() => {
+        // Handle regular groups
         document.querySelectorAll('[data-group]').forEach(groupEl => {
             const anyVisible = groupEl.querySelector('[data-file]:not([style*="display: none"])');
             groupEl.style.display = anyVisible ? '' : 'none';
+        });
+
+        // Also handle group-content divs (for ungrouped views)
+        document.querySelectorAll('[data-group-content]').forEach(contentEl => {
+            const anyVisible = contentEl.querySelector('[data-file]:not([style*="display: none"])');
+            contentEl.style.display = anyVisible ? '' : 'none';
         });
     });
 
