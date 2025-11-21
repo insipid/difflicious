@@ -26,13 +26,11 @@ export default {
         const initialQuery = urlSearch || inputValue || '';
 
         if (initialQuery) {
-            console.log('[SearchStore] Initial search query:', initialQuery);
             this.query = initialQuery;
             // Defer filter application until after DOM is fully ready
             // This ensures all file elements are in the DOM before filtering
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
-                    console.log('[SearchStore] Applying initial filter after DOM ready');
                     this.applyFilter();
                 });
             });
@@ -45,7 +43,6 @@ export default {
      * Set search query and apply filter
      */
     setQuery(newQuery) {
-        console.log('[SearchStore] setQuery called with:', newQuery);
         this.query = newQuery;
 
         // Apply the filter using vanilla JS function - it handles everything
@@ -75,7 +72,6 @@ export default {
      * Clear search query and reset filter
      */
     clear() {
-        console.log('[SearchStore] Clearing search filter');
         this.query = '';
         this.hiddenFilesCount = 0;
 
