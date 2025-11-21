@@ -68,19 +68,28 @@ export default {
 
                 let groupCount = 0;
                 let fileCount = 0;
+                let groupContentCount = 0;
 
-                // Use whichever selector works
+                // Restore groups (if they exist)
                 const groupSelector = byDataGroup.length > 0 ? '[data-group]' : '.diff-group';
                 document.querySelectorAll(groupSelector).forEach(groupEl => {
                     groupEl.style.display = '';
                     groupCount++;
                 });
+
+                // Also restore group-content divs (for ungrouped views)
+                document.querySelectorAll('[data-group-content]').forEach(contentEl => {
+                    contentEl.style.display = '';
+                    groupContentCount++;
+                });
+
+                // Restore files
                 document.querySelectorAll('[data-file]').forEach(fileEl => {
                     fileEl.style.display = '';
                     fileCount++;
                 });
 
-                console.log(`[SearchStore] Restored ${groupCount} groups and ${fileCount} files`);
+                console.log(`[SearchStore] Restored ${groupCount} groups, ${groupContentCount} group-content divs, and ${fileCount} files`);
             }, 50); // 50ms delay to run after applyFilenameFilter's RAF
         }
 
@@ -145,14 +154,22 @@ export default {
                 const firstFile = fileElements[0];
                 console.log(`  - First file element:`, firstFile);
                 console.log(`  - File's data-file:`, firstFile.getAttribute('data-file'));
+                console.log(`  - File's display:`, firstFile.style.display);
 
-                // Walk up to find parent group
+                // Walk up to find parent group or group-content
                 let parent = firstFile.parentElement;
                 let depth = 0;
                 while (parent && depth < 10) {
-                    console.log(`  - Parent ${depth}:`, parent.tagName, parent.className, parent.getAttribute('data-group'));
+                    console.log(`  - Parent ${depth}:`, parent.tagName, parent.className,
+                                parent.getAttribute('data-group'),
+                                parent.getAttribute('data-group-content'),
+                                `display: "${parent.style.display}"`);
                     if (parent.hasAttribute('data-group') || parent.classList.contains('diff-group')) {
                         console.log(`  - FOUND parent group at depth ${depth}!`);
+                        break;
+                    }
+                    if (parent.hasAttribute('data-group-content')) {
+                        console.log(`  - FOUND group-content at depth ${depth}! display: "${parent.style.display}"`);
                         break;
                     }
                     parent = parent.parentElement;
@@ -162,19 +179,28 @@ export default {
 
             let groupCount = 0;
             let fileCount = 0;
+            let groupContentCount = 0;
 
-            // Use whichever selector works
+            // Restore groups (if they exist)
             const groupSelector = byDataGroup.length > 0 ? '[data-group]' : '.diff-group';
             document.querySelectorAll(groupSelector).forEach(groupEl => {
                 groupEl.style.display = '';
                 groupCount++;
             });
+
+            // Also restore group-content divs (for ungrouped views)
+            document.querySelectorAll('[data-group-content]').forEach(contentEl => {
+                contentEl.style.display = '';
+                groupContentCount++;
+            });
+
+            // Restore files
             document.querySelectorAll('[data-file]').forEach(fileEl => {
                 fileEl.style.display = '';
                 fileCount++;
             });
 
-            console.log(`[SearchStore] Restored ${groupCount} groups and ${fileCount} files`);
+            console.log(`[SearchStore] Restored ${groupCount} groups, ${groupContentCount} group-content divs, and ${fileCount} files`);
         }, 50); // 50ms delay to run after applyFilenameFilter's RAF
 
         // Update URL to remove search parameter
