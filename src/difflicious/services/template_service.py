@@ -175,12 +175,8 @@ class TemplateRenderingService(BaseService):
             enhanced_files: list[dict[str, Any]] = []
 
             for file_data in group_data.get("files", []):
-                # Apply search filter
-                if (
-                    search_filter is not None
-                    and search_filter.lower() not in file_data.get("path", "").lower()
-                ):
-                    continue
+                # NOTE: Search filtering is now done client-side only
+                # This ensures all files are in the DOM and can be shown/hidden dynamically
 
                 # Add template-specific properties
                 enhanced_file = {
