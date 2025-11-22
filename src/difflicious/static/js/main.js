@@ -12,6 +12,7 @@ import { loadFullDiff } from './modules/full-diff.js';
 import { setDebug as setHunkDebug } from './modules/hunk-operations.js';
 import { setDebug as setContextUIDebug } from './modules/context-expansion-ui.js';
 import { setDebug as setExpansionDebug } from './modules/context-expansion.js';
+import { AutoReload, setDebug as setAutoReloadDebug } from './modules/auto-reload.js';
 import { $$ } from './modules/dom-utils.js';
 
 // Debug toggle - set to false for production
@@ -23,6 +24,7 @@ setThemeDebug(DEBUG);
 setHunkDebug(DEBUG);
 setContextUIDebug(DEBUG);
 setExpansionDebug(DEBUG);
+setAutoReloadDebug(DEBUG);
 
 /**
  * Initialize the application when DOM is ready
@@ -40,6 +42,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     // - Theme management
     // TODO: Migrate remaining DiffState functionality to Alpine.js components
     // await DiffState.init();
+
+    // Initialize auto-reload functionality
+    AutoReload.init();
+
+    // Restore scroll position after reload (auto-reload feature)
+    requestAnimationFrame(() => {
+        const savedScroll = sessionStorage.getItem('difflicious-scroll-position');
+        if (savedScroll) {
+            window.scrollTo(0, parseInt(savedScroll, 10));
+            sessionStorage.removeItem('difflicious-scroll-position');
+        }
+    });
 
     // Ensure all expansion buttons are enabled and functional
     // This runs once after state restoration is complete
