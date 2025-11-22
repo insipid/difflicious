@@ -6,7 +6,7 @@
 import { DiffState, setDebug as setStateDebug } from './modules/state.js';
 import { toggleFile, toggleGroup, expandAllFiles, collapseAllFiles } from './modules/file-operations.js';
 import { navigateToPreviousFile, navigateToNextFile } from './modules/navigation.js';
-import { toggleTheme, initializeTheme, setDebug as setThemeDebug } from './modules/theme.js';
+import { toggleTheme, setDebug as setThemeDebug } from './modules/theme.js';
 import { expandContext } from './modules/context-expansion.js';
 import { loadFullDiff } from './modules/full-diff.js';
 import { setDebug as setHunkDebug } from './modules/hunk-operations.js';
@@ -28,11 +28,18 @@ setExpansionDebug(DEBUG);
  * Initialize the application when DOM is ready
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    // Initialize theme first for better UX
-    initializeTheme();
+    // Note: Theme is now handled by Alpine.js theme store (alpine-init.js)
+    // initializeTheme() call removed to avoid conflict with Alpine.js
 
-    // Initialize state (which binds event listeners and restores state)
-    await DiffState.init();
+    // NOTE: DiffState.init() temporarily disabled during Alpine.js migration
+    // Alpine.js stores (diffStore, searchStore, themeStore) now handle:
+    // - File/group expansion state
+    // - API calls to /api/status
+    // - Button event bindings (via @click directives)
+    // - Search functionality
+    // - Theme management
+    // TODO: Migrate remaining DiffState functionality to Alpine.js components
+    // await DiffState.init();
 
     // Ensure all expansion buttons are enabled and functional
     // This runs once after state restoration is complete
@@ -57,19 +64,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-// Export functions to window for HTML onclick handlers
-window.toggleFile = toggleFile;
-window.toggleGroup = toggleGroup;
-window.expandAllFiles = expandAllFiles;
-window.collapseAllFiles = collapseAllFiles;
+// NOTE: During Alpine.js migration, most window exports are no longer needed
+// as Alpine handles click events via @click directives and $store access.
+// Keeping only functions that are still called directly from onclick handlers:
+
+// Context expansion (still used by expansion buttons in diff hunks)
+window.expandContext = expandContext;
+
+// Full diff loading (still used by "Load Full Diff" buttons in diff_file.html)
+window.loadFullDiff = loadFullDiff;
+window.__loadFullDiff = loadFullDiff; // eslint alias
+
+// File navigation (still used by navigation buttons in diff_file.html)
 window.navigateToPreviousFile = navigateToPreviousFile;
 window.navigateToNextFile = navigateToNextFile;
-window.expandContext = expandContext;
-window.toggleTheme = toggleTheme;
-window.loadFullDiff = loadFullDiff;
 
-// Expose __loadFullDiff to satisfy eslint (as in original code)
-window.__loadFullDiff = loadFullDiff;
+// TODO: Migrate these remaining functions to Alpine components
+// - expandContext -> hunkComponent methods
+// - loadFullDiff -> fileComponent methods
+// - navigateToPreviousFile/navigateToNextFile -> fileComponent methods
 
 // Export DiffState for testing
 if (typeof module !== 'undefined' && module.exports) {

@@ -175,17 +175,19 @@ class TemplateRenderingService(BaseService):
             enhanced_files: list[dict[str, Any]] = []
 
             for file_data in group_data.get("files", []):
-                # Apply search filter
-                if (
-                    search_filter is not None
-                    and search_filter.lower() not in file_data.get("path", "").lower()
-                ):
-                    continue
+                # Check if this file matches the search filter (for initial display state)
+                # All files are included in HTML, but non-matching ones start hidden
+                matches_search = True
+                if search_filter is not None:
+                    file_path_lower = file_data.get("path", "").lower()
+                    search_lower = search_filter.lower()
+                    matches_search = search_lower in file_path_lower
 
                 # Add template-specific properties
                 enhanced_file = {
                     **file_data,
                     "expanded": expand_files,  # Control initial expansion state
+                    "hidden_by_search": not matches_search,  # Initial visibility state
                 }
 
                 # Process hunks with syntax highlighting
@@ -200,9 +202,17 @@ class TemplateRenderingService(BaseService):
 
                 enhanced_files.append(enhanced_file)
 
+            # Check if all files in this group are hidden by search
+            all_files_hidden = (
+                search_filter is not None
+                and len(enhanced_files) > 0
+                and all(f.get("hidden_by_search", False) for f in enhanced_files)
+            )
+
             enhanced_groups[group_key] = {
                 "files": enhanced_files,
                 "count": len(enhanced_files),
+                "hidden_by_search": all_files_hidden,  # Hide group container if all files hidden
             }
 
         return enhanced_groups

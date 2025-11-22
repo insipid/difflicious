@@ -1,20 +1,21 @@
 <!-- Single File Diff -->
 {% set file_id = group_name + ":" + file.path %}
 <div class="file-diff bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-600 rounded-lg shadow-sm"
-    data-file="{{ file_id }}">
+    data-file="{{ file_id }}"
+    x-data="fileComponent('{{ file_id }}')"
+    {% if file.hidden_by_search %}style="display: none;"{% endif %}>
     <!-- File Header Wrapper -->
     <div class="file-header-wrapper">
         <!-- Spacer div to fill the gap -->
         <div class="file-header-spacer"></div>
         <!-- File Header -->
         <div class="file-header flex items-center justify-between p-4 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors space-x-2"
-            onclick="toggleFile('{{ file_id }}')">
+            @click="toggle()">
             <!-- Left side: toggle, expand, filename, status - all flush left -->
             <div class="flex items-center space-x-3 flex-shrink min-w-0">
                 <span
                     class="toggle-icon text-neutral-400 dark:text-neutral-600 transition-transform duration-200 flex-shrink-0"
-                    data-expanded="{{ 'true' if file.expanded else 'false' }}">
-                    {{ '▼' if file.expanded else '▶' }}
+                    x-text="toggleIcon">
                 </span>
                 <span
                     class="expand-icon text-neutral-400 dark:text-neutral-600 hover:text-neutral-600 dark:hover:text-neutral-500 cursor-pointer transition-colors flex-shrink-0"
@@ -78,7 +79,14 @@
 
     <!-- File Content -->
     <div class="file-content" data-file-content="{{ file_id }}"
-        style="display: {{ 'block' if file.expanded else 'none' }};">
+        x-show="isExpanded"
+        x-cloak
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 scale-95"
+        x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 scale-100"
+        x-transition:leave-end="opacity-0 scale-95">
         {% if not file.hunks or file.hunks|length == 0 %}
         <!-- No content available -->
         <div class="p-8 text-center text-neutral-500 dark:text-neutral-400">

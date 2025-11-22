@@ -30,7 +30,8 @@ is_head_comparison=is_head_comparison) }}
             <!-- Render Diff Groups -->
             {% if not is_head_comparison and not untracked and groups.get('changes') %}
             <!-- Branch comparison with no untracked files: show all changes at top level -->
-            <div class="group-content" data-group-content="ungrouped">
+            <div class="group-content" data-group-content="ungrouped"
+                {% if groups['changes'].hidden_by_search %}style="display: none;"{% endif %}>
                 {% for file in groups['changes'].files %}
                 {% set group_name = 'changes' %}
                 {% include 'diff_file.html' with context %}
@@ -38,7 +39,8 @@ is_head_comparison=is_head_comparison) }}
             </div>
             {% elif not untracked and groups.get('changes') %}
             <!-- HEAD comparison with no untracked files: show ungrouped -->
-            <div class="group-content" data-group-content="ungrouped">
+            <div class="group-content" data-group-content="ungrouped"
+                {% if groups['changes'].hidden_by_search %}style="display: none;"{% endif %}>
                 {% for file in groups['changes'].files %}
                 {% set group_name = 'changes' %}
                 {% include 'diff_file.html' with context %}

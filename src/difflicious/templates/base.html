@@ -57,15 +57,27 @@
     </style>
 
     {% block extra_head %}{% endblock %}
+
+    <!-- Import map for Alpine.js -->
+    <script type="importmap">
+        {
+            "imports": {
+                "alpinejs": "https://cdn.jsdelivr.net/npm/alpinejs@3.15.2/dist/module.esm.js"
+            }
+        }
+    </script>
 </head>
 
-<body class="min-h-screen">
+<body class="min-h-screen" x-data>
     <div class="flex flex-col min-h-screen">
         {% block content %}{% endblock %}
     </div>
 
+    <!-- Alpine.js -->
+    <script type="module" defer src="{{ url_for('static', filename='js/alpine-init.js') }}"></script>
+
     <!-- Minimal JavaScript for interactions (ES Modules) -->
-    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script type="module" defer src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block extra_scripts %}{% endblock %}
 </body>
 

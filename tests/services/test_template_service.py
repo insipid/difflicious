@@ -188,10 +188,19 @@ class TestTemplateRenderingService:
         # Test with search filter
         result = service.prepare_diff_data_for_template(search_filter="test")
 
-        # Should only include files matching "test"
+        # All files should be included, but non-matching ones should be marked as hidden
         # When no base_commit is provided, unstaged and staged are combined into "changes"
-        assert result["groups"]["changes"]["count"] == 1
-        assert result["groups"]["changes"]["files"][0]["path"] == "test.py"
+        assert result["groups"]["changes"]["count"] == 3
+        files = result["groups"]["changes"]["files"]
+        assert len(files) == 3
+        # test.py should match (not hidden)
+        test_py = next(f for f in files if f["path"] == "test.py")
+        assert test_py.get("hidden_by_search", False) is False
+        # example.js and other.txt should not match (hidden)
+        example_js = next(f for f in files if f["path"] == "example.js")
+        assert example_js.get("hidden_by_search", False) is True
+        other_txt = next(f for f in files if f["path"] == "other.txt")
+        assert other_txt.get("hidden_by_search", False) is True
 
     def test_process_line_side_with_content(self):
         """Test processing line side with content."""
@@ -344,8 +353,17 @@ class TestTemplateRenderingService:
             grouped_diffs, search_filter="test"
         )
 
-        assert result["unstaged"]["count"] == 1
-        assert result["unstaged"]["files"][0]["path"] == "test.py"
+        # All files should be included, but non-matching ones marked as hidden
+        assert result["unstaged"]["count"] == 2
+        assert len(result["unstaged"]["files"]) == 2
+        # test.py should not be hidden
+        test_py = next(f for f in result["unstaged"]["files"] if f["path"] == "test.py")
+        assert test_py.get("hidden_by_search", False) is False
+        # example.js should be hidden
+        example_js = next(
+            f for f in result["unstaged"]["files"] if f["path"] == "example.js"
+        )
+        assert example_js.get("hidden_by_search", False) is True
 
     @patch("difflicious.services.template_service.DiffService")
     @patch("difflicious.services.template_service.GitService")
