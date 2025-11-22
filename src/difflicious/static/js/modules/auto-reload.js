@@ -70,16 +70,54 @@ export const AutoReload = {
     async handleFileChange() {
         if (DEBUG) console.log('File change detected, refreshing...');
 
-        // Save current state before reload
+        // Save current state and scroll position
         DiffState.saveState();
-
-        // Save scroll position
         const scrollY = window.scrollY;
-        sessionStorage.setItem('difflicious-scroll-position', scrollY.toString());
 
-        // Simple approach: full page reload
-        // State will be restored via localStorage
-        window.location.reload();
+        try {
+            // Fetch the current page content
+            const currentUrl = window.location.href;
+            const response = await fetch(currentUrl, {
+                headers: { 'Accept': 'text/html' }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch: ${response.status}`);
+            }
+
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // Extract the main content area
+            const newMain = doc.querySelector('main');
+            const currentMain = document.querySelector('main');
+
+            if (newMain && currentMain) {
+                // Replace the content
+                currentMain.innerHTML = newMain.innerHTML;
+
+                // Re-initialize Alpine.js components for the new content
+                if (window.Alpine) {
+                    window.Alpine.initTree(currentMain);
+                }
+
+                // Restore scroll position
+                window.scrollTo(0, scrollY);
+
+                if (DEBUG) console.log('Content refreshed successfully');
+            } else {
+                // Fallback to full page reload if we can't find the content
+                if (DEBUG) console.warn('Could not find main content, falling back to full reload');
+                sessionStorage.setItem('difflicious-scroll-position', scrollY.toString());
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Error refreshing content:', error);
+            // Fallback to full page reload on error
+            sessionStorage.setItem('difflicious-scroll-position', scrollY.toString());
+            window.location.reload();
+        }
     },
 
     handleConnectionError() {
