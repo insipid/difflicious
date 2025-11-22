@@ -48,6 +48,14 @@ def create_app(
         """Inject font configuration into all templates."""
         return {"font_config": font_config}
 
+    @app.context_processor
+    def inject_auto_reload_config() -> dict[str, bool]:
+        """Inject auto-reload configuration into all templates."""
+        auto_reload_enabled = (
+            os.getenv("DIFFLICIOUS_AUTO_RELOAD", "true").lower() == "true"
+        )
+        return {"auto_reload_enabled": auto_reload_enabled}
+
     # Store service instances on app for blueprints to use
     # These can be injected for testing or created fresh
     app.git_service = git_service  # type: ignore[attr-defined]
@@ -55,12 +63,19 @@ def create_app(
     app.template_service = template_service  # type: ignore[attr-defined]
 
     # Register blueprints
-    from difflicious.blueprints import context_api, diff_api, git_api, views
+    from difflicious.blueprints import (
+        auto_reload_api,
+        context_api,
+        diff_api,
+        git_api,
+        views,
+    )
 
     app.register_blueprint(views)
     app.register_blueprint(git_api)
     app.register_blueprint(diff_api)
     app.register_blueprint(context_api)
+    app.register_blueprint(auto_reload_api)
 
     return app
 
