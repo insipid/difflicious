@@ -47,6 +47,11 @@ pids/
 coverage/
 .nyc_output/
 
+# Test artifacts and outputs
+*_output.json
+*_output_sample.json
+test_*.txt
+
 # Dependency directories
 jspm_packages/
 
