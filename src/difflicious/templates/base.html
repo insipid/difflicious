@@ -68,7 +68,7 @@
     </script>
 </head>
 
-<body class="min-h-screen" x-data>
+<body class="min-h-screen" x-data data-auto-reload="{{ 'true' if auto_reload_enabled else 'false' }}">
     <div class="flex flex-col min-h-screen">
         {% block content %}{% endblock %}
     </div>
