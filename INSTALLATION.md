@@ -99,11 +99,11 @@ For versioned builds:
 
 ```bash
 # Build with a specific version tag
-docker build -t insipid/difflicious:v0.9.0 .
+docker build -t insipid/difflicious:v1.0.0 .
 docker build -t insipid/difflicious:latest .
 
 # Tag an existing image
-docker tag insipid/difflicious:latest insipid/difflicious:v0.9.0
+docker tag insipid/difflicious:latest insipid/difflicious:v1.0.0
 ```
 
 ### Pushing to Docker Hub
@@ -118,9 +118,9 @@ docker login
 docker push insipid/difflicious:latest
 
 # Push versioned images
-docker push insipid/difflicious:v0.9.0
-docker push insipid/difflicious:0.9.0
-docker push insipid/difflicious:0.9
+docker push insipid/difflicious:v1.0.0
+docker push insipid/difflicious:1.0.0
+docker push insipid/difflicious:1.0
 ```
 
 #### Setting Up GitHub Actions for Automated Docker Publishing
@@ -149,13 +149,13 @@ The automated workflow triggers on git tags matching the pattern `v*.*.*`:
 
 ```bash
 # Create and push a version tag
-git tag v0.9.0
-git push origin v0.9.0
+git tag v1.0.0
+git push origin v1.0.0
 ```
 
 This will automatically:
 - Build the Docker image for both `linux/amd64` and `linux/arm64` platforms
-- Push to Docker Hub with multiple tags: `v0.9.0`, `0.9.0`, `0.9`, and `latest` (if on main branch)
+- Push to Docker Hub with multiple tags: `v1.0.0`, `1.0.0`, `1.0`, and `latest` (if on main branch)
 - Use GitHub Actions build cache for faster builds
 
 **3. Manual Trigger (Optional)**

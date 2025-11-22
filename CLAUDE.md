@@ -477,7 +477,7 @@ The application is designed for multiple distribution channels:
 - `PLAN.md` - Original project plan and technical decisions
 - `CONTRIBUTING.md` - Contribution guidelines
 - `CHANGELOG.md` - Version history and changes
-- `DEPLOYMENT.md` - Deployment and distribution guide
+- `INSTALLATION.md` - Installation and usage guide (PyPI, Docker, configuration)
 
 **Technical Guides:**
 - `docs/CSS-STYLE-GUIDE.md` - Comprehensive CSS architecture and conventions
