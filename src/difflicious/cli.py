@@ -54,21 +54,27 @@ def main(port: int, host: str, debug: bool, list_fonts: bool) -> None:
 
     # Check if we're in a git repository before starting server
     import os
+
     try:
-        from git import Repo, InvalidGitRepositoryError
+        from git import InvalidGitRepositoryError, Repo
+
         try:
             Repo(os.getcwd())
         except InvalidGitRepositoryError:
             click.echo("")
             click.echo("❌ Error: Not a git repository", err=True)
             click.echo("", err=True)
-            click.echo("Difflicious must be run from within a git repository.", err=True)
+            click.echo(
+                "Difflicious must be run from within a git repository.", err=True
+            )
             click.echo("", err=True)
             click.echo("To use difflicious:", err=True)
-            click.echo("  1. Navigate to a git repository: cd /path/to/your/repo", err=True)
+            click.echo(
+                "  1. Navigate to a git repository: cd /path/to/your/repo", err=True
+            )
             click.echo("  2. Run difflicious again", err=True)
             click.echo("", err=True)
-            raise click.exceptions.Exit(1)
+            raise click.exceptions.Exit(1) from None
     except ImportError:
         # GitPython not available, skip check (will fail later in app)
         pass
