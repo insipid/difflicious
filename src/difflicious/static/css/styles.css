@@ -223,7 +223,7 @@
     /* === SURFACES (Backgrounds) === */
     --surface-primary: #0f172a;           /* Main page background - darkest */
     --surface-secondary: #1e293b;         /* Cards, panels, file headers */
-    --surface-tertiary: #334155;          /* Hover states, wells */
+    --surface-tertiary: #475569;          /* Hover states, wells - LIGHTENED for better hierarchy */
     --surface-raised: #1e293b;            /* Elevated elements (modals, dropdowns) */
     --surface-sunken: #0a0f1a;            /* Depressed areas (inputs, wells) - darker than primary */
     --surface-overlay: #1e293b;           /* Overlay backgrounds */
@@ -236,10 +236,10 @@
     --text-inverted: #0f172a;             /* Text on light backgrounds */
 
     /* === BORDERS === */
-    --border-default: #334155;            /* Standard borders */
-    --border-strong: #475569;             /* Emphasized borders */
+    --border-default: #475569;            /* Standard borders - LIGHTENED for better visibility */
+    --border-strong: #64748b;             /* Emphasized borders - LIGHTENED */
     --border-subtle: #1e293b;             /* Subtle dividers */
-    --border-interactive: #475569;        /* Interactive element borders */
+    --border-interactive: #64748b;        /* Interactive element borders - LIGHTENED */
 
     /* === INTERACTIVE (Buttons, Links, Controls) === */
     --interactive-primary: #3b82f6;       /* Primary action buttons - brighter blue */
@@ -254,20 +254,20 @@
     --focus-border: #3b82f6;              /* Focus border color */
 
     /* === DIFF-SPECIFIC COLORS === */
-    /* Addition (Green) */
-    --diff-addition-bg: #2e5e44;          /* Added line background - dark green */
-    --diff-addition-text: #4ade80;        /* Added line text - bright green */
-    --diff-addition-linenum-bg: #3e6e54;  /* Added line number background */
+    /* Addition (Green) - Richer, more saturated for better visibility */
+    --diff-addition-bg: #1a3a2a;          /* Added line background - richer green, more saturation */
+    --diff-addition-text: #6ee7b7;        /* Added line text - softer green-300 */
+    --diff-addition-linenum-bg: #2e5e44;  /* Added line number background */
     --diff-addition-linenum-text: #86efac;/* Added line number text */
 
-    /* Deletion (Red) */
-    --diff-deletion-bg: #4e2f44;          /* Deleted line background - dark red */
-    --diff-deletion-text: #f87171;        /* Deleted line text - bright red */
+    /* Deletion (Red) - Richer, less purple for better visibility */
+    --diff-deletion-bg: #3a1a1a;          /* Deleted line background - richer red, less purple */
+    --diff-deletion-text: #fca5a5;        /* Deleted line text - keep red-300 */
     --diff-deletion-linenum-bg: #5e2f34;  /* Deleted line number background */
     --diff-deletion-linenum-text: #fca5a5;/* Deleted line number text */
 
-    /* Context (Unchanged lines) */
-    --diff-context-bg: #020408;           /* Context line background - very dark */
+    /* Context (Unchanged lines) - More visible */
+    --diff-context-bg: #0f172a;           /* Context line background - same as surface-primary for visibility */
     --diff-context-text: #94a3b8;         /* Context line text */
     --diff-context-linenum-bg: #1a2332;   /* Context line number background */
     --diff-context-linenum-text: #64748b; /* Context line number text */
