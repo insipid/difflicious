@@ -1031,11 +1031,6 @@ body {
 }
 
 .file-header .font-mono {
-    /* FIXME: Unsure where these came from, but they suck
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    */
     display: block !important;
     min-width: 0 !important;
 }
