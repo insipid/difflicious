@@ -159,7 +159,7 @@ sudo ufw status
 ping docker.io
 
 # Try pulling specific tag
-docker pull insipid/difflicious:0.9.0
+docker pull insipid/difflicious:1.0.0
 
 # Or build from source
 git clone https://github.com/insipid/difflicious.git
