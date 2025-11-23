@@ -159,7 +159,7 @@ sudo ufw status
 ping docker.io
 
 # Try pulling specific tag
-docker pull insipid/difflicious:0.9.0
+docker pull insipid/difflicious:0.10.0
 
 # Or build from source
 git clone https://github.com/insipid/difflicious.git
@@ -297,7 +297,7 @@ echo "*.zip filter=large binary" >> .gitattributes
 
 If none of these solutions work:
 
-1. Check the [DEPLOYMENT.md](DEPLOYMENT.md) guide
+1. Check the [INSTALLATION.md](../INSTALLATION.md) guide
 2. Review application logs:
    ```bash
    # Docker logs
@@ -352,6 +352,6 @@ If none of these solutions work:
 
 ## Next Steps
 
-- Review [DEPLOYMENT.md](DEPLOYMENT.md) for deployment options
-- See [CONTRIBUTING.md](CONTRIBUTING.md) for development help
+- Review [INSTALLATION.md](../INSTALLATION.md) for installation and usage options
+- See [CONTRIBUTING.md](../CONTRIBUTING.md) for development help
 - Check the main [README.md](../README.md) for features

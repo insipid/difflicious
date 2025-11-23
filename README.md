@@ -54,7 +54,6 @@ git clone https://github.com/insipid/difflicious.git
 cd difflicious
 
 # Install uv if not already installed
-xoxo
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Create virtual environment and install dependencies
@@ -129,21 +128,25 @@ This will fall back to system monospace fonts like SF Mono, Cascadia Code, Monac
 
 ### Completed ✅
 - Modern Python project structure with pyproject.toml and uv
-- Flask backend with comprehensive API endpoints
+- Flask backend with comprehensive API endpoints and blueprints
 - Advanced git diff parser with side-by-side structure
 - Professional side-by-side diff visualization interface
 - Secure git command execution wrapper with subprocess sanitization
-- Interactive Alpine.js frontend with Tailwind CSS styling
-- Comprehensive test suite (28 tests, 73% coverage)
+- Interactive Alpine.js frontend with modular architecture
+- Tailwind CSS styling with light/dark theme support
+- Syntax highlighting with Pygments for 100+ languages
+- Docker containerization with multi-platform support
+- PyPI package publishing with automated CI/CD
+- Comprehensive test suite (169 tests, 86% coverage)
 - Real git integration (status, diff, branch detection, parsing)
+- Context expansion for viewing more code around hunks
+- Font customization with 6 programming fonts
 
-### Coming Soon 🚧
-- Docker containerization with uv
-- PyPI package publishing
-- Enhanced syntax highlighting for code content
+### Future Enhancements 🚧
 - Advanced search and filtering capabilities
-- Keyboard shortcuts and accessibility features
-- Server-Sent Events for real-time updates
+- Keyboard shortcuts and accessibility improvements
+- Real-time updates with Server-Sent Events
+- Sticky file headers during scroll
 
 ## Contributing
 

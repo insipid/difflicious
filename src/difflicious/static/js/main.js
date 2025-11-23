@@ -38,7 +38,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // - Button event bindings (via @click directives)
     // - Search functionality
     // - Theme management
-    // TODO: Migrate remaining DiffState functionality to Alpine.js components
+    //
+    // Current hybrid approach (Alpine.js + vanilla JS) works well for 1.0
+    // Full migration to Alpine components can be completed in future releases
     // await DiffState.init();
 
     // Ensure all expansion buttons are enabled and functional
@@ -64,25 +66,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-// NOTE: During Alpine.js migration, most window exports are no longer needed
-// as Alpine handles click events via @click directives and $store access.
-// Keeping only functions that are still called directly from onclick handlers:
+// NOTE: Alpine.js integration is active and handles most UI state management
+// (diffStore, searchStore, themeStore) and components (fileComponent, groupComponent, hunkComponent).
+// The following functions are exported to window for use by inline event handlers and Alpine components:
 
-// Context expansion (still used by expansion buttons in diff hunks)
+// Context expansion - used by hunkComponent.expand() which wraps this function
 window.expandContext = expandContext;
 
-// Full diff loading (still used by "Load Full Diff" buttons in diff_file.html)
+// Full diff loading - used by "Load Full Diff" buttons in templates
 window.loadFullDiff = loadFullDiff;
 window.__loadFullDiff = loadFullDiff; // eslint alias
 
-// File navigation (still used by navigation buttons in diff_file.html)
+// File navigation - used by navigation buttons in templates
 window.navigateToPreviousFile = navigateToPreviousFile;
 window.navigateToNextFile = navigateToNextFile;
 
-// TODO: Migrate these remaining functions to Alpine components
-// - expandContext -> hunkComponent methods
-// - loadFullDiff -> fileComponent methods
-// - navigateToPreviousFile/navigateToNextFile -> fileComponent methods
+// NOTE: These functions integrate well with Alpine.js components.
+// Future enhancement: Move these entirely into Alpine component methods (v1.1+)
 
 // Export DiffState for testing
 if (typeof module !== 'undefined' && module.exports) {

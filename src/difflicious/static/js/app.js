@@ -1,10 +1,20 @@
 /**
- * Difflicious Alpine.js Application
+ * Difflicious Alpine.js Application (REFERENCE ONLY - NOT USED)
  * Main application logic for git diff visualization
  *
- * NOTE: This file is NOT currently used in the application.
- * The active implementation is in diff-interactions.js
- * This file is kept for potential future migration to Alpine.js
+ * STATUS: This file is NOT used in the 1.0 release.
+ *
+ * ACTIVE IMPLEMENTATION:
+ * - Alpine.js is actively used via alpine-init.js, stores/, and components/
+ * - Current approach: Hybrid Alpine.js (for state) + vanilla JS modules (for operations)
+ * - See: alpine-init.js, stores/*, components/*, modules/*
+ *
+ * PURPOSE:
+ * This file is kept as a reference implementation showing a fully Alpine.js-based
+ * approach. It may be useful for future refactoring (v1.1+) but is not part of
+ * the current architecture.
+ *
+ * DO NOT DELETE: Contains valuable patterns for potential future use.
  */
 
 function diffliciousApp() { // eslint-disable-line no-unused-vars

@@ -11,6 +11,10 @@ Thank you for your interest in contributing to difflicious! This document provid
 - [Code Style](#code-style)
 - [Making Changes](#making-changes)
 - [Submitting Changes](#submitting-changes)
+- [Releasing New Versions](#releasing-new-versions)
+- [Development Commands](#development-commands)
+- [Project Structure](#project-structure)
+- [Getting Help](#getting-help)
 
 ## Getting Started
 
@@ -294,6 +298,99 @@ Before submitting, ensure:
 - [x] Meaningful commit messages
 - [x] Branch is up to date with main
 - [x] PR description is clear and complete
+
+## Releasing New Versions
+
+**Note:** This section is for maintainers with push access to the main branch.
+
+Difflicious uses an automated release workflow. When a version bump is pushed to the `main` branch, it automatically:
+1. Creates a git tag
+2. Creates a GitHub release
+3. Publishes to PyPI
+4. Builds and publishes Docker images to Docker Hub
+
+### Release Process
+
+**1. Update the version number** in `src/difflicious/__init__.py`:
+```python
+__version__ = "0.11.0"  # Increment according to semver
+```
+
+**2. Update CHANGELOG.md** with the new version:
+```markdown
+## [0.11.0] - 2025-11-23
+
+### Added
+- New feature description
+
+### Changed
+- Changed behavior description
+
+### Fixed
+- Bug fix description
+```
+
+**Important:** The changelog entry MUST use the exact format `## [X.Y.Z]` or the automated workflow will fail.
+
+**3. Commit the changes**:
+```bash
+git add src/difflicious/__init__.py CHANGELOG.md
+git commit -m "Bump version to 0.11.0"
+```
+
+**4. Push to main**:
+```bash
+git push origin main
+```
+
+**5. Automated workflow triggers**:
+- The `Auto Release` workflow detects the version change
+- Validates the version format (must be `X.Y.Z`)
+- Validates the CHANGELOG.md entry exists
+- Creates a git tag (e.g., `v0.11.0`)
+- Creates a GitHub release with changelog notes
+- Triggers PyPI publishing workflow
+- Triggers Docker image build and publishing workflow
+
+**6. Verify the release**:
+- Check GitHub Actions for workflow status
+- Verify the GitHub release was created
+- Verify PyPI package: https://pypi.org/project/difflicious/
+- Verify Docker Hub images: https://hub.docker.com/r/insipid/difflicious
+
+### Manual Tagging (Alternative Method)
+
+If you prefer to create tags manually, you can also trigger releases by pushing a tag:
+
+```bash
+# Create and push a version tag
+git tag v0.11.0
+git push origin v0.11.0
+```
+
+This will trigger the Docker and PyPI publishing workflows directly.
+
+### Version Numbering
+
+We follow [Semantic Versioning](https://semver.org/):
+- **MAJOR** version (X.0.0): Incompatible API changes
+- **MINOR** version (0.X.0): New functionality, backwards compatible
+- **PATCH** version (0.0.X): Backwards compatible bug fixes
+
+### Troubleshooting Releases
+
+**Problem: Workflow failed during validation**
+- Ensure version format is exactly `X.Y.Z` (no `v` prefix in `__init__.py`)
+- Ensure CHANGELOG.md has entry with format `## [X.Y.Z]`
+- Check GitHub Actions logs for detailed error messages
+
+**Problem: PyPI publishing failed**
+- Verify `PYPI_API_TOKEN` secret is set in GitHub repository settings
+- Check if version already exists on PyPI (versions cannot be reused)
+
+**Problem: Docker publishing failed**
+- Verify `DOCKER_USERNAME` and `DOCKER_HUB_TOKEN` secrets are set
+- Check Docker Hub account permissions
 
 ## Development Commands
 

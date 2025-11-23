@@ -5,6 +5,42 @@ All notable changes to difflicious will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2025-11-23
+
+### Polish & Refinement Release
+
+Difflicious 0.10 focuses on polish, consistency, and user experience improvements. This release emphasizes theme refinement, documentation quality, and codebase cleanup.
+
+### Added
+- **Git repository validation** - Clear error message when running outside a git repository
+- **Improved first-run experience** - Helpful guidance for new users
+- **Better error messaging** - Professional error handling instead of stack traces
+
+### Improved
+- **Light mode theme refinement** - Softer, more pleasant diff colors (green-100/red-100 instead of green-200/red-200)
+- **Dark mode contrast** - Increased visibility with lighter borders and better diff backgrounds
+- **Dark mode diff colors** - Richer, more saturated colors for better distinguishability
+- **Context visibility** - Context lines now more visible in dark mode
+- **Border visibility** - Dark mode borders lightened for better UI definition
+- **Documentation synchronization** - README.md, PLAN.md, and CLAUDE.md now consistent and accurate
+- **Alpine.js clarity** - Clear documentation of hybrid Alpine.js + vanilla JS architecture
+
+### Fixed
+- **Removed FIXME comments** - Production code no longer contains development notes
+- **Removed TODO comments** - All TODOs replaced with clear architectural documentation
+- **Test file organization** - Moved test files from root to proper tests/ directory structure
+- **README accuracy** - Fixed placeholder text and "Coming Soon" features that were already implemented
+
+### Changed
+- **Package metadata** - Development status changed from Alpha to Beta
+- **Version** - Bumped to 0.10.0
+
+### Technical Improvements
+- **Theme color variables** - Consistent semantic color system across light and dark modes
+- **CSS organization** - Clean, maintainable color definitions
+- **JavaScript architecture** - Clear separation of concerns between Alpine.js and vanilla JS
+- **Code quality** - Removed dead code comments, improved documentation
+
 ## [0.9.2] - 2025-01-28
 
 ### Infrastructure & Deployment
