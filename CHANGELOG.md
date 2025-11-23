@@ -5,11 +5,11 @@ All notable changes to difflicious will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 2025-11-22
+## [0.10.0] - 2025-11-23
 
-### 🎉 First Stable Release
+### Polish & Refinement Release
 
-Difflicious 1.0 represents the first production-ready release, focusing on polish, consistency, and user experience. This release emphasizes theme refinement, documentation quality, and production readiness.
+Difflicious 0.10 focuses on polish, consistency, and user experience improvements. This release emphasizes theme refinement, documentation quality, and codebase cleanup.
 
 ### Added
 - **Git repository validation** - Clear error message when running outside a git repository
@@ -33,7 +33,7 @@ Difflicious 1.0 represents the first production-ready release, focusing on polis
 
 ### Changed
 - **Package metadata** - Development status changed from Alpha to Beta
-- **Version** - Bumped to 1.0.0 for stable release
+- **Version** - Bumped to 0.10.0
 
 ### Technical Improvements
 - **Theme color variables** - Consistent semantic color system across light and dark modes
