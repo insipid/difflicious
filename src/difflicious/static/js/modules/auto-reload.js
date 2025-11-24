@@ -152,7 +152,7 @@ export const AutoReload = {
         indicator.title = 'Click to disable auto-reload';
 
         // Toggle on click
-        indicator.addEventListener('click', () => {
+        indicator.addEventListener('click', async () => {
             if (this.enabled) {
                 this.disconnect();
                 this.enabled = false;
@@ -162,8 +162,10 @@ export const AutoReload = {
                 this.enabled = true;
                 indicator.style.opacity = '0.5';
                 indicator.title = 'Click to disable auto-reload';
-                // Refresh page to catch any changes made while paused, then reconnect
-                this.handleFileChange();
+                // Refresh page to catch any changes made while paused
+                await this.handleFileChange();
+                // Reconnect to SSE stream for future changes
+                this.init();
             }
         });
 
