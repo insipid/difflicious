@@ -24,15 +24,6 @@ const DiffState = {
         this.restoreState();
         this.installSearchHotkeys();
         this.installLiveSearchFilter();
-
-        // Restore scroll position after reload (auto-reload feature)
-        requestAnimationFrame(() => {
-            const savedScroll = sessionStorage.getItem('difflicious-scroll-position');
-            if (savedScroll) {
-                window.scrollTo(0, parseInt(savedScroll, 10));
-                sessionStorage.removeItem('difflicious-scroll-position');
-            }
-        });
     },
 
     async initializeRepository() {

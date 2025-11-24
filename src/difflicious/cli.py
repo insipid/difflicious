@@ -72,6 +72,13 @@ def main(
         click.echo(f"\nUsage: export DIFFLICIOUS_FONT={current_font}")
         return
 
+    # Validate watch-debounce parameter
+    if not 0.1 <= watch_debounce <= 60.0:
+        raise click.BadParameter(
+            "watch-debounce must be between 0.1 and 60 seconds",
+            param_hint="--watch-debounce",
+        )
+
     # Check if we're in a git repository before starting server
     try:
         from git import InvalidGitRepositoryError, Repo

@@ -162,8 +162,8 @@ export const AutoReload = {
                 this.enabled = true;
                 indicator.style.opacity = '0.5';
                 indicator.title = 'Click to disable auto-reload';
-                // Reload page to catch any changes made while disabled
-                this.handleFileChange();
+                // Reconnect to SSE stream to resume monitoring
+                this.init();
             }
         });
 

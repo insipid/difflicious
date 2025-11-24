@@ -96,6 +96,7 @@ class BroadcastQueue:
 
     def __init__(self, clients: dict[int, queue.Queue]) -> None:
         self.clients = clients
+        self.lock = threading.Lock()
 
     def put(self, item: dict) -> None:
         """Put an item into all client queues.
@@ -103,13 +104,15 @@ class BroadcastQueue:
         Args:
             item: Event dict to broadcast
         """
-        # Make a copy of clients dict to avoid modification during iteration
-        for client_queue in list(self.clients.values()):
-            try:
-                client_queue.put(item)
-            except Exception:
-                # Ignore errors for disconnected clients
-                pass
+        # Use lock to prevent race condition during concurrent add/remove operations
+        with self.lock:
+            # Make a copy of clients dict to avoid modification during iteration
+            for client_queue in list(self.clients.values()):
+                try:
+                    client_queue.put(item)
+                except Exception:
+                    # Ignore errors for disconnected clients
+                    pass
 
 
 # Create shared watch manager for SSE connections
