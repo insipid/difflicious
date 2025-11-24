@@ -1,5 +1,7 @@
 """Command-line interface for Difflicious."""
 
+import os
+
 import click
 
 from difflicious import __version__
@@ -28,7 +30,27 @@ from difflicious.app import run_server
     is_flag=True,
     help="List available fonts and exit",
 )
-def main(port: int, host: str, debug: bool, list_fonts: bool) -> None:
+@click.option(
+    "--auto-reload/--no-auto-reload",
+    default=True,
+    help="Enable/disable auto-reload on file changes (default: enabled)",
+    envvar="DIFFLICIOUS_AUTO_RELOAD",
+)
+@click.option(
+    "--watch-debounce",
+    default=1.0,
+    type=float,
+    help="Debounce delay in seconds for file watch events (default: 1.0)",
+    envvar="DIFFLICIOUS_WATCH_DEBOUNCE",
+)
+def main(
+    port: int,
+    host: str,
+    debug: bool,
+    list_fonts: bool,
+    auto_reload: bool,
+    watch_debounce: float,
+) -> None:
     """Start the Difflicious web application for git diff visualization.
 
     Font customization:
@@ -38,8 +60,6 @@ def main(port: int, host: str, debug: bool, list_fonts: bool) -> None:
     Set DIFFLICIOUS_DISABLE_GOOGLE_FONTS=true to disable Google Fonts CDN loading.
     """
     if list_fonts:
-        import os
-
         from difflicious.config import AVAILABLE_FONTS
 
         click.echo("Available fonts:")
@@ -52,9 +72,14 @@ def main(port: int, host: str, debug: bool, list_fonts: bool) -> None:
         click.echo(f"\nUsage: export DIFFLICIOUS_FONT={current_font}")
         return
 
-    # Check if we're in a git repository before starting server
-    import os
+    # Validate watch-debounce parameter
+    if not 0.1 <= watch_debounce <= 60.0:
+        raise click.BadParameter(
+            "watch-debounce must be between 0.1 and 60 seconds",
+            param_hint="--watch-debounce",
+        )
 
+    # Check if we're in a git repository before starting server
     try:
         from git import InvalidGitRepositoryError, Repo
 
@@ -79,11 +104,22 @@ def main(port: int, host: str, debug: bool, list_fonts: bool) -> None:
         # GitPython not available, skip check (will fail later in app)
         pass
 
+    # Store auto-reload configuration in environment for app to access
+    os.environ["DIFFLICIOUS_AUTO_RELOAD"] = str(auto_reload).lower()
+    os.environ["DIFFLICIOUS_WATCH_DEBOUNCE"] = str(watch_debounce)
+
     click.echo(f"Starting Difflicious v{__version__}")
     click.echo(f"Server will run at http://{host}:{port}")
 
     if debug:
         click.echo("🔧 Debug mode enabled - server will auto-reload on changes")
+
+    if auto_reload:
+        click.echo(
+            f"🔄 Auto-reload enabled (debounce: {watch_debounce}s) - page will refresh when files change"
+        )
+    else:
+        click.echo("⏸️  Auto-reload disabled")
 
     try:
         run_server(host=host, port=port, debug=debug)
