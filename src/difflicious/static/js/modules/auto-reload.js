@@ -152,7 +152,7 @@ export const AutoReload = {
         indicator.title = 'Click to disable auto-reload';
 
         // Toggle on click
-        indicator.addEventListener('click', async () => {
+        indicator.addEventListener('click', async() => {
             if (this.enabled) {
                 this.disconnect();
                 this.enabled = false;
