@@ -106,9 +106,19 @@ def _parse_file(patched_file: PatchedFile) -> dict[str, Any]:
         total_additions += hunk.added
         total_deletions += hunk.removed
 
-    # Clean up file paths by removing a/ and b/ prefixes
-    target_path = patched_file.target_file or patched_file.source_file
-    source_path = patched_file.source_file
+    # Determine file paths based on change type to avoid using /dev/null
+    if patched_file.is_removed_file:
+        # For deleted files, use the source (old) path
+        target_path = patched_file.source_file
+        source_path = patched_file.source_file
+    elif patched_file.is_added_file:
+        # For added files, use the target (new) path
+        target_path = patched_file.target_file
+        source_path = None
+    else:
+        # For modified/renamed files
+        target_path = patched_file.target_file or patched_file.source_file
+        source_path = patched_file.source_file
 
     # Remove a/ and b/ prefixes commonly found in git diffs
     if target_path and target_path.startswith(("a/", "b/")):

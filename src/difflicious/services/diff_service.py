@@ -128,6 +128,18 @@ class DiffService(BaseService):
         Returns:
             Processed diff data
         """
+        # Special handling for deleted files - show full file content
+        if diff.get("status") == "deleted":
+            try:
+                full_file_view = self._create_deleted_file_view(diff)
+                if full_file_view:
+                    return full_file_view
+            except Exception as e:
+                logger.warning(
+                    f"Failed to create deleted file view for {diff['path']}: {e}"
+                )
+                # Fall through to normal parsing
+
         # Parse the diff content if available (but not for untracked files)
         if diff.get("content") and diff.get("status") != "untracked":
             try:
@@ -153,6 +165,81 @@ class DiffService(BaseService):
 
         # For files without content or parsing failures, return as-is
         return diff
+
+    def _create_deleted_file_view(
+        self, diff: dict[str, Any]
+    ) -> Optional[dict[str, Any]]:
+        """Create a special view for deleted files showing full content.
+
+        For deleted files, we show the entire original file on the left side
+        (all lines styled as deletions) with an empty right side.
+
+        Args:
+            diff: Raw diff data for a deleted file
+
+        Returns:
+            Formatted diff data with full file content, or None if creation fails
+        """
+        try:
+            file_path = diff["path"]
+
+            # Get the full file content from HEAD (before deletion)
+            file_lines = self.repo.get_file_content_at_ref(file_path, "HEAD")
+
+            # Create a single hunk containing all lines as deletions
+            lines = []
+            for line_num, content in enumerate(file_lines, start=1):
+                # Apply syntax highlighting to the line
+                highlighted_content = self.syntax_service.highlight_diff_line(
+                    content, file_path
+                )
+
+                # Create side-by-side structure with all lines on left (deleted)
+                lines.append(
+                    {
+                        "type": "change",
+                        "left": {
+                            "line_num": line_num,
+                            "content": content,
+                            "highlighted_content": highlighted_content,
+                            "type": "deletion",
+                            "missing_newline": False,
+                        },
+                        "right": {
+                            "line_num": None,
+                            "content": "",
+                            "type": "empty",
+                            "missing_newline": False,
+                        },
+                    }
+                )
+
+            # Create a single hunk with all the lines
+            hunk = {
+                "old_start": 1,
+                "old_count": len(file_lines),
+                "new_start": 0,
+                "new_count": 0,
+                "section_header": "",
+                "lines": lines,
+                "is_full_file_deletion": True,  # Flag for template rendering
+            }
+
+            # Return formatted structure
+            return {
+                "path": file_path,
+                "status": "deleted",
+                "additions": 0,
+                "deletions": len(file_lines),
+                "changes": len(file_lines),
+                "line_count": len(file_lines),
+                "hunks": [hunk],
+                "is_full_file_deletion": True,  # Flag for template rendering
+            }
+
+        except Exception as e:
+            logger.debug(f"Could not create deleted file view: {e}")
+            return None
 
     def get_diff_summary(self, **kwargs: Any) -> dict[str, Any]:
         """Get summary statistics for diffs.
