@@ -791,10 +791,12 @@ body {
 .expanded-context {
     /* background-color: var(--color-expanded-context-bg); */
     /* opacity: 0.95; */
+    border: none;
 }
 
 .expanded-context .diff-line {
     /* background-color: var(--color-expanded-context-bg); */
+    border: none;
 }
 
 .expanded-context .line-num {
