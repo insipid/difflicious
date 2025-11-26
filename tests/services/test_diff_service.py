@@ -240,7 +240,11 @@ class TestDiffServiceFullDiff:
 
         # Verify base_ref was passed
         mock_repo.get_full_file_diff.assert_called_once_with(
-            file_path="test.py", base_ref="feature-x", use_head=False, use_cached=False
+            file_path="test.py",
+            base_ref="feature-x",
+            use_head=False,
+            use_cached=False,
+            old_path=None,
         )
 
     @patch("difflicious.services.base_service.get_git_repository")
@@ -256,7 +260,11 @@ class TestDiffServiceFullDiff:
         service.get_full_diff_data("test.py", use_head=True)
 
         mock_repo.get_full_file_diff.assert_called_once_with(
-            file_path="test.py", base_ref=None, use_head=True, use_cached=False
+            file_path="test.py",
+            base_ref=None,
+            use_head=True,
+            use_cached=False,
+            old_path=None,
         )
 
     @patch("difflicious.services.base_service.get_git_repository")
@@ -272,7 +280,11 @@ class TestDiffServiceFullDiff:
         service.get_full_diff_data("test.py", use_cached=True)
 
         mock_repo.get_full_file_diff.assert_called_once_with(
-            file_path="test.py", base_ref=None, use_head=False, use_cached=True
+            file_path="test.py",
+            base_ref=None,
+            use_head=False,
+            use_cached=True,
+            old_path=None,
         )
 
     @patch("difflicious.services.base_service.get_git_repository")

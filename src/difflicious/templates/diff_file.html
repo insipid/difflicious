@@ -2,6 +2,7 @@
 {% set file_id = group_name + ":" + file.path %}
 <div class="file-diff bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-600 rounded-lg shadow-sm"
     data-file="{{ file_id }}"
+    {% if file.old_path %}data-old-path="{{ file.old_path }}"{% endif %}
     x-data="fileComponent('{{ file_id }}')"
     {% if file.hidden_by_search %}style="display: none;"{% endif %}>
     <!-- File Header Wrapper -->

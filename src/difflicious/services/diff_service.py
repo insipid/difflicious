@@ -283,6 +283,7 @@ class DiffService(BaseService):
         base_ref: Optional[str] = None,
         use_head: bool = False,
         use_cached: bool = False,
+        old_path: Optional[str] = None,
     ) -> dict[str, Any]:
         """Get complete diff data for a specific file with unlimited context.
 
@@ -291,6 +292,7 @@ class DiffService(BaseService):
             base_ref: Base reference for comparison (defaults to main branch)
             use_head: Whether to compare against HEAD instead of branch
             use_cached: Whether to get staged diff
+            old_path: Original path if file was renamed (for proper rename handling)
 
         Returns:
             Dictionary containing full diff data with parsed content
@@ -305,6 +307,7 @@ class DiffService(BaseService):
                 base_ref=base_ref,
                 use_head=use_head,
                 use_cached=use_cached,
+                old_path=old_path,
             )
 
             if not full_diff_content.strip():
