@@ -90,9 +90,9 @@ export function createExpandedContextHtml(result, expansionId, triggerButton, di
         html += `
         <div class="diff-line grid grid-cols-2 hover:bg-neutral-25 line-context">
             <!-- Left Side (Before) -->
-            <div class="line-left border-r border-neutral-200">
+            <div class="line-left border-r border-neutral-200 dark:border-neutral-600">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 select-none">
+                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 dark:border-neutral-600 select-none">
                         <span>${lineNumLeft}</span>
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
@@ -105,7 +105,7 @@ export function createExpandedContextHtml(result, expansionId, triggerButton, di
             <!-- Right Side (After) -->
             <div class="line-right">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 select-none">
+                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 dark:border-neutral-600 select-none">
                         <span>${lineNumRight}</span>
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
@@ -198,9 +198,9 @@ export function createPlainContextHtml(result, expansionId, triggerButton, direc
         html += `
         <div class="diff-line grid grid-cols-2 hover:bg-neutral-25 line-context">
             <!-- Left Side (Before) -->
-            <div class="line-left border-r border-neutral-200">
+            <div class="line-left border-r border-neutral-200 dark:border-neutral-600">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 select-none">
+                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 dark:border-neutral-600 select-none">
                         <span>${lineNumLeft}</span>
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
@@ -213,7 +213,7 @@ export function createPlainContextHtml(result, expansionId, triggerButton, direc
             <!-- Right Side (After) -->
             <div class="line-right">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 select-none">
+                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 dark:border-neutral-600 select-none">
                         <span>${lineNumRight}</span>
                     </div>
                     <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
