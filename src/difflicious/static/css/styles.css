@@ -1307,15 +1307,36 @@ body {
     /* neutral-700 - hover state */
 }
 
-/* Theme change button hover - match file header hover */
-button[onclick="toggleTheme()"]:hover {
-    background-color: var(--color-neutral-200) !important;
-    /* Match file header hover in light mode */
+/* Theme toggle button hover - match file header hover */
+button[type="button"][title*="dark"],
+button[type="button"][title*="light"],
+button[type="button"][title*="theme"] {
+    transition: background-color 0.2s, color 0.2s;
 }
 
-[data-theme="dark"] button[onclick="toggleTheme()"]:hover {
+button[type="button"][title*="dark"]:hover,
+button[type="button"][title*="light"]:hover,
+button[type="button"][title*="theme"]:hover {
+    background-color: var(--surface-tertiary) !important;
+}
+
+[data-theme="dark"] button[type="button"][title*="dark"]:hover,
+[data-theme="dark"] button[type="button"][title*="light"]:hover,
+[data-theme="dark"] button[type="button"][title*="theme"]:hover {
     background-color: #334155 !important;
-    /* neutral-700 - match file header hover in dark mode */
+    /* Proper dark mode hover - matches file header hover */
+}
+
+/* Navigation arrow buttons (Previous/Next file) hover */
+button[onclick*="navigateToPreviousFile"]:hover,
+button[onclick*="navigateToNextFile"]:hover {
+    background-color: var(--surface-tertiary) !important;
+}
+
+[data-theme="dark"] button[onclick*="navigateToPreviousFile"]:hover,
+[data-theme="dark"] button[onclick*="navigateToNextFile"]:hover {
+    background-color: #334155 !important;
+    /* Proper dark mode hover - matches file header hover */
 }
 
 [data-theme="dark"] .dark-modified-pill {
