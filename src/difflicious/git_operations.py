@@ -297,14 +297,30 @@ class GitRepository:
             if include_untracked:
                 for fname in self.repo.untracked_files:
                     if not file_path or file_path in fname:
+                        # Generate actual diff content for untracked file
+                        content = self._generate_untracked_file_diff(fname)
+
+                        # Count additions (lines in the file)
+                        additions = 0
+                        if not content.startswith("Error:"):
+                            # Count lines that start with '+' (excluding the header line)
+                            additions = len(
+                                [
+                                    line
+                                    for line in content.split("\n")
+                                    if line.startswith("+")
+                                    and not line.startswith("+++")
+                                ]
+                            )
+
                         groups["untracked"]["files"].append(
                             {
                                 "path": fname,
-                                "additions": 0,
+                                "additions": additions,
                                 "deletions": 0,
-                                "changes": 0,
+                                "changes": additions,
                                 "status": "added",
-                                "content": f"New untracked file: {fname}",
+                                "content": content,
                             }
                         )
                 groups["untracked"]["count"] = len(groups["untracked"]["files"])
@@ -590,6 +606,68 @@ class GitRepository:
         except Exception as e:
             logger.warning(f"Failed to collect diff metadata: {e}")
             return []
+
+    def _generate_untracked_file_diff(self, file_path: str) -> str:
+        """Generate a unified diff format for an untracked file.
+
+        Creates a diff showing the entire file as new additions, formatted
+        as a standard unified diff that can be parsed by the diff parser.
+
+        Args:
+            file_path: Path to the untracked file (relative to repo root)
+
+        Returns:
+            Unified diff content as string, or error message if file can't be read
+        """
+        try:
+            if not self._is_safe_file_path(file_path):
+                return f"Error: Unsafe file path: {file_path}"
+
+            # Construct full path to file
+            full_path = self.repo_path / file_path
+
+            # Check if file exists and is readable
+            if not full_path.exists():
+                return f"Error: File not found: {file_path}"
+
+            if not full_path.is_file():
+                return f"Error: Not a file: {file_path}"
+
+            # Try to read file content (handle both text and binary)
+            try:
+                with open(full_path, encoding="utf-8") as f:
+                    content = f.read()
+            except UnicodeDecodeError:
+                # Binary file - return a simple message
+                return (
+                    f"--- /dev/null\n"
+                    f"+++ b/{file_path}\n"
+                    f"@@ -0,0 +1,1 @@\n"
+                    f"+Binary file (not shown)\n"
+                )
+
+            # Split into lines and count them
+            lines = content.splitlines()
+            line_count = len(lines)
+
+            # Generate unified diff format
+            diff_lines = [
+                "--- /dev/null",
+                f"+++ b/{file_path}",
+                f"@@ -0,0 +1,{line_count} @@",
+            ]
+
+            # Add all lines as additions
+            for line in lines:
+                diff_lines.append(f"+{line}")
+
+            return "\n".join(diff_lines)
+
+        except Exception as e:
+            logger.warning(
+                f"Failed to generate diff for untracked file {file_path}: {e}"
+            )
+            return f"Error: {e}"
 
     def _get_file_diff(
         self,
