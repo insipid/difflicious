@@ -1,15 +1,15 @@
 <!-- Single Hunk -->
-<div class="hunk border-b border-neutral-100 last:border-b-0" data-line-start="{{ hunk.line_start }}"
+<div class="hunk border-b border-neutral-200 dark:border-neutral-600 last:border-b-0" data-line-start="{{ hunk.line_start }}"
     data-line-end="{{ hunk.line_end }}" data-left-line-start="{{ hunk.left_start or 0 }}"
     data-left-line-end="{{ hunk.left_end or 0 }}">
 
     <!-- Up Expansion Controls (before hunk) -->
     {% if hunk.can_expand_before %}
-    <div class="hunk-expansion bg-info-bg-50 text-xs font-mono text-info-text-800 border-b border-info-bg-100 flex">
+    <div class="hunk-expansion bg-info-bg-50 text-xs font-mono text-info-text-800 border-b border-neutral-200 dark:border-neutral-600 flex">
         <!-- Left Side Controls -->
-        <div class="flex-1 border-r border-info-bg-200">
+        <div class="flex-1 border-r border-neutral-200 dark:border-neutral-600">
             <div class="flex">
-                <div class="w-12 bg-info-bg-100 border-r border-info-bg-200 select-none flex flex-col">
+                <div class="w-12 bg-info-bg-100 border-r border-neutral-200 dark:border-neutral-600 select-none flex flex-col">
                     <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'before', 10, 'pygments')"
                         class="expansion-btn w-full px-2 py-1 text-xs bg-info-bg-200 hover:bg-info-bg-300 text-info-text-800 transition-colors flex items-center justify-center h-full"
                         data-target-start="{{ hunk.expand_before_start }}"
@@ -33,7 +33,7 @@
         <!-- Right Side Controls -->
         <div class="flex-1">
             <div class="flex">
-                <div class="w-12 bg-info-bg-100 border-r border-info-bg-200 select-none flex flex-col">
+                <div class="w-12 bg-info-bg-100 border-r border-neutral-200 dark:border-neutral-600 select-none flex flex-col">
                     <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'before', 10, 'pygments')"
                         class="expansion-btn w-full px-2 py-1 text-xs bg-info-bg-200 hover:bg-info-bg-300 text-info-text-800 transition-colors flex items-center justify-center h-full"
                         data-target-start="{{ hunk.expand_before_start }}"
@@ -129,11 +129,11 @@
 
     <!-- Down Expansion Controls (after hunk) -->
     {% if hunk.can_expand_after %}
-    <div class="hunk-expansion bg-info-bg-50 text-xs font-mono text-info-text-800 border-t border-info-bg-100 flex">
+    <div class="hunk-expansion bg-info-bg-50 text-xs font-mono text-info-text-800 border-t border-neutral-200 dark:border-neutral-600 flex">
         <!-- Left Side Controls -->
-        <div class="flex-1 border-r border-info-bg-200">
+        <div class="flex-1 border-r border-neutral-200 dark:border-neutral-600">
             <div class="flex">
-                <div class="w-12 bg-info-bg-100 border-r border-info-bg-200 select-none flex flex-col">
+                <div class="w-12 bg-info-bg-100 border-r border-neutral-200 dark:border-neutral-600 select-none flex flex-col">
                     <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'after', 10, 'pygments')"
                         class="expansion-btn w-full px-2 py-1 text-xs bg-info-bg-200 hover:bg-info-bg-300 text-info-text-800 transition-colors flex items-center justify-center h-full"
                         data-target-start="{{ hunk.expand_after_start }}" data-target-end="{{ hunk.expand_after_end }}"
@@ -151,7 +151,7 @@
         <!-- Right Side Controls -->
         <div class="flex-1">
             <div class="flex">
-                <div class="w-12 bg-info-bg-100 border-r border-info-bg-200 select-none flex flex-col">
+                <div class="w-12 bg-info-bg-100 border-r border-neutral-200 dark:border-neutral-600 select-none flex flex-col">
                     <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'after', 10, 'pygments')"
                         class="expansion-btn w-full px-2 py-1 text-xs bg-info-bg-200 hover:bg-info-bg-300 text-info-text-800 transition-colors flex items-center justify-center h-full"
                         data-target-start="{{ hunk.expand_after_start }}" data-target-end="{{ hunk.expand_after_end }}"
