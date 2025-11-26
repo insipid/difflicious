@@ -80,7 +80,7 @@ export function createExpandedContextHtml(result, expansionId, triggerButton, di
         startLineNumLeft = 1;
     }
 
-    let html = `<div id="${expansionId}" class="expanded-context bg-neutral-25">`;
+    let html = `<div id="${expansionId}" class="expanded-context">`;
 
     lines.forEach((lineData, index) => {
         const lineNumRight = startLineNumRight + index;
@@ -188,7 +188,7 @@ export function createPlainContextHtml(result, expansionId, triggerButton, direc
     }
 
     // Use imported escapeHtml from dom-utils.js
-    let html = `<div id="${expansionId}" class="expanded-context bg-neutral-25">`;
+    let html = `<div id="${expansionId}" class="expanded-context">`;
 
     lines.forEach((line, index) => {
         const lineNumRight = startLineNumRight + index;

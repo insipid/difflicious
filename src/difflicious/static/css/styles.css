@@ -787,23 +787,24 @@ body {
 }
 
 /* Expanded Context Styles */
+/* Removed background colors to make expanded sections blend seamlessly */
 .expanded-context {
-    background-color: var(--color-expanded-context-bg);
-    opacity: 0.95;
+    /* background-color: var(--color-expanded-context-bg); */
+    /* opacity: 0.95; */
 }
 
 .expanded-context .diff-line {
-    background-color: var(--color-expanded-context-bg);
+    /* background-color: var(--color-expanded-context-bg); */
 }
 
 .expanded-context .line-num {
-    background-color: var(--color-neutral-100) !important;
-    color: var(--color-neutral-500);
+    /* background-color: var(--color-neutral-100) !important; */
+    /* color: var(--color-neutral-500); */
     font-style: normal;
 }
 
 .expanded-context .line-content {
-    color: var(--color-neutral-700);
+    /* color: var(--color-neutral-700); */
 }
 
 /* Expanded context animation - simple fade in */
