@@ -95,6 +95,10 @@ window.__loadFullDiff = loadFullDiff; // eslint alias
 window.navigateToPreviousFile = navigateToPreviousFile;
 window.navigateToNextFile = navigateToNextFile;
 
+// Bulk file operations - optimized for performance with many files
+window.expandAllFiles = expandAllFiles;
+window.collapseAllFiles = collapseAllFiles;
+
 // NOTE: These functions integrate well with Alpine.js components.
 // Future enhancement: Move these entirely into Alpine component methods (v1.1+)
 
