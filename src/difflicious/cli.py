@@ -112,17 +112,37 @@ def main(
     os.environ["DIFFLICIOUS_AUTO_RELOAD"] = str(auto_reload).lower()
     os.environ["DIFFLICIOUS_WATCH_DEBOUNCE"] = str(watch_debounce)
 
+    # Get configuration values for display
+    from difflicious.config import AVAILABLE_FONTS
+
+    current_font_key = os.getenv("DIFFLICIOUS_FONT", "jetbrains-mono")
+    if current_font_key not in AVAILABLE_FONTS:
+        current_font_key = "jetbrains-mono"
+    current_font_name = AVAILABLE_FONTS[current_font_key]["name"]
+
+    google_fonts_disabled = (
+        os.getenv("DIFFLICIOUS_DISABLE_GOOGLE_FONTS", "false").lower() == "true"
+    )
+    watch_ignore = os.getenv("DIFFLICIOUS_WATCH_IGNORE", ".git")
+
     # Print startup messages using click.echo for consistency with tests
     click.echo(f"Starting Difflicious v{__version__}")
     click.echo(f"Server running at http://{host}:{port}")
+    click.echo(f"Repository: {os.getcwd()}")
 
     if debug:
         click.echo("🔧 Debug mode enabled - verbose logging active")
+
+    # Font configuration
+    font_source = "system fonts" if google_fonts_disabled else "Google Fonts CDN"
+    click.echo(f"🔤 Font: {current_font_name} (from {font_source})")
 
     if auto_reload:
         click.echo(
             f"🔄 Auto-reload enabled (debounce: {watch_debounce}s) - page will refresh when files change"
         )
+        if watch_ignore != ".git":
+            click.echo(f"   Ignoring: {watch_ignore}")
     else:
         click.echo("⏸️  Auto-reload disabled")
 

@@ -32,6 +32,8 @@ def test_cli_default_run(mock_run_server):
     assert result.exit_code == 0
     assert "Starting Difflicious" in result.output
     assert "http://127.0.0.1:5000" in result.output
+    assert "Repository:" in result.output
+    assert "Font:" in result.output
     mock_run_server.assert_called_once_with(host="127.0.0.1", port=5000, debug=False)
 
 
@@ -80,6 +82,56 @@ class TestCLIFonts:
         assert (
             "JetBrains Mono" in result.output or "currently selected" in result.output
         )
+
+
+class TestCLIConfigurationDisplay:
+    """Test cases for configuration display in CLI output."""
+
+    @patch("difflicious.cli.run_server")
+    def test_cli_shows_repository_path(self, mock_run_server):
+        """Test that CLI displays repository path."""
+        runner = CliRunner()
+        result = runner.invoke(main)
+        assert result.exit_code == 0
+        assert "Repository:" in result.output
+
+    @patch("difflicious.cli.run_server")
+    def test_cli_shows_font_configuration(self, mock_run_server):
+        """Test that CLI displays font configuration."""
+        runner = CliRunner()
+        result = runner.invoke(main)
+        assert result.exit_code == 0
+        assert "Font:" in result.output
+        # Should show either "Google Fonts CDN" or "system fonts"
+        assert "Google Fonts CDN" in result.output or "system fonts" in result.output
+
+    @patch("difflicious.cli.run_server")
+    def test_cli_shows_google_fonts_disabled(self, mock_run_server, monkeypatch):
+        """Test that CLI shows when Google Fonts is disabled."""
+        monkeypatch.setenv("DIFFLICIOUS_DISABLE_GOOGLE_FONTS", "true")
+        runner = CliRunner()
+        result = runner.invoke(main)
+        assert result.exit_code == 0
+        assert "system fonts" in result.output
+
+    @patch("difflicious.cli.run_server")
+    def test_cli_shows_custom_font(self, mock_run_server, monkeypatch):
+        """Test that CLI shows custom font selection."""
+        monkeypatch.setenv("DIFFLICIOUS_FONT", "fira-code")
+        runner = CliRunner()
+        result = runner.invoke(main)
+        assert result.exit_code == 0
+        assert "Fira Code" in result.output
+
+    @patch("difflicious.cli.run_server")
+    def test_cli_shows_watch_ignore_patterns(self, mock_run_server, monkeypatch):
+        """Test that CLI shows custom watch ignore patterns."""
+        monkeypatch.setenv("DIFFLICIOUS_WATCH_IGNORE", ".git,node_modules,__pycache__")
+        runner = CliRunner()
+        result = runner.invoke(main)
+        assert result.exit_code == 0
+        assert "Ignoring:" in result.output
+        assert "node_modules" in result.output
 
 
 class TestCLIErrorHandling:
