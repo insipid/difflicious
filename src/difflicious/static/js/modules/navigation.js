@@ -26,13 +26,14 @@ function getStickyHeaderOffset() {
  * @param {HTMLElement} fileElement - The file element to scroll to
  */
 function scrollToFile(fileElement) {
-    const stickyOffset = getStickyHeaderOffset();
+    const spacerHeight = getStickyHeaderOffset();
     const elementTop = fileElement.getBoundingClientRect().top;
     const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
 
-    // Calculate target scroll position: element position minus sticky offset
-    // This positions the file header at its sticky point (top of viewport)
-    const targetScroll = currentScroll + elementTop - stickyOffset;
+    // Calculate target scroll position: element position plus spacer height
+    // This scrolls the spacer above the viewport, positioning the actual header
+    // content at the top (top: 0), which is its sticky position
+    const targetScroll = currentScroll + elementTop + spacerHeight;
 
     window.scrollTo({
         top: targetScroll,

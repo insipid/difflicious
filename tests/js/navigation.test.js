@@ -60,9 +60,9 @@ describe('Navigation', () => {
             navigateToPreviousFile('file3.js');
 
             // Should call window.scrollTo with calculated position
-            // Expected: currentScroll (2000) + elementTop (500) - stickyOffset (16)
+            // Expected: currentScroll (2000) + elementTop (500) + spacerHeight (16)
             expect(window.scrollTo).toHaveBeenCalledWith({
-                top: 2484, // 2000 + 500 - 16
+                top: 2516, // 2000 + 500 + 16
                 behavior: 'smooth'
             });
         });
@@ -115,9 +115,9 @@ describe('Navigation', () => {
             navigateToNextFile('file1.js');
 
             // Should call window.scrollTo with calculated position
-            // Expected: currentScroll (1000) + elementTop (500) - stickyOffset (16)
+            // Expected: currentScroll (1000) + elementTop (500) + spacerHeight (16)
             expect(window.scrollTo).toHaveBeenCalledWith({
-                top: 1484, // 1000 + 500 - 16
+                top: 1516, // 1000 + 500 + 16
                 behavior: 'smooth'
             });
         });
