@@ -1,9 +1,6 @@
 """Tests for logging configuration."""
 
 import logging
-import sys
-from io import StringIO
-from unittest.mock import patch
 
 from difflicious.logging_config import DiffliciousFormatter, configure_logging
 
@@ -111,7 +108,11 @@ class TestConfigureLogging:
         assert len(difflicious_logger.handlers) > 0
 
         # Should have a StreamHandler
-        handlers = [h for h in difflicious_logger.handlers if isinstance(h, logging.StreamHandler)]
+        handlers = [
+            h
+            for h in difflicious_logger.handlers
+            if isinstance(h, logging.StreamHandler)
+        ]
         assert len(handlers) > 0
 
         # Handler should use DiffliciousFormatter

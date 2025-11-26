@@ -1,6 +1,5 @@
 """Command-line interface for Difflicious."""
 
-import logging
 import os
 
 import click
@@ -83,7 +82,6 @@ def main(
 
     # Configure logging before any other output
     configure_logging(debug=debug)
-    logger = logging.getLogger("difflicious.cli")
 
     # Check if we're in a git repository before starting server
     try:
@@ -114,24 +112,24 @@ def main(
     os.environ["DIFFLICIOUS_AUTO_RELOAD"] = str(auto_reload).lower()
     os.environ["DIFFLICIOUS_WATCH_DEBOUNCE"] = str(watch_debounce)
 
-    # Print startup messages
-    logger.info(f"Starting Difflicious v{__version__}")
-    logger.info(f"Server running at http://{host}:{port}")
+    # Print startup messages using click.echo for consistency with tests
+    click.echo(f"Starting Difflicious v{__version__}")
+    click.echo(f"Server running at http://{host}:{port}")
 
     if debug:
-        logger.info("🔧 Debug mode enabled - verbose logging active")
+        click.echo("🔧 Debug mode enabled - verbose logging active")
 
     if auto_reload:
-        logger.info(
+        click.echo(
             f"🔄 Auto-reload enabled (debounce: {watch_debounce}s) - page will refresh when files change"
         )
     else:
-        logger.info("⏸️  Auto-reload disabled")
+        click.echo("⏸️  Auto-reload disabled")
 
     try:
         run_server(host=host, port=port, debug=debug)
     except KeyboardInterrupt:
-        logger.info("\n👋 Shutting down Difflicious server")
+        click.echo("\n👋 Shutting down Difflicious server")
 
 
 if __name__ == "__main__":
