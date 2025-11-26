@@ -68,6 +68,7 @@ export function toggleGroup(groupKey) {
 
 /**
  * Expand all files in the diff
+ * Optimized for bulk operations - bypasses Alpine transitions
  */
 export function expandAllFiles() {
     // Batch DOM operations to avoid layout thrashing
@@ -98,6 +99,7 @@ export function expandAllFiles() {
         // Use requestAnimationFrame for smoother performance
         requestAnimationFrame(() => {
             elementsToUpdate.forEach(({ contentElement, toggleIcon }) => {
+                // Directly set display to bypass Alpine transitions
                 contentElement.style.display = 'block';
                 if (toggleIcon) {
                     toggleIcon.textContent = '▼';
@@ -109,6 +111,11 @@ export function expandAllFiles() {
         // Update internal state in batch
         filesToAdd.forEach(filePath => DiffState.expandedFiles.add(filePath));
 
+        // Sync with Alpine store if available
+        if (window.Alpine && window.Alpine.store('diff')) {
+            window.Alpine.store('diff').expandAll(filesToAdd);
+        }
+
         // Save state once after all changes
         DiffState.saveState();
     }
@@ -116,6 +123,7 @@ export function expandAllFiles() {
 
 /**
  * Collapse all files in the diff
+ * Optimized for bulk operations - bypasses Alpine transitions
  */
 export function collapseAllFiles() {
     // Batch DOM operations to avoid layout thrashing
@@ -146,6 +154,7 @@ export function collapseAllFiles() {
         // Use requestAnimationFrame for smoother performance
         requestAnimationFrame(() => {
             elementsToUpdate.forEach(({ contentElement, toggleIcon }) => {
+                // Directly set display to bypass Alpine transitions
                 contentElement.style.display = 'none';
                 if (toggleIcon) {
                     toggleIcon.textContent = '▶';
@@ -156,6 +165,11 @@ export function collapseAllFiles() {
 
         // Update internal state in batch
         filesToRemove.forEach(filePath => DiffState.expandedFiles.delete(filePath));
+
+        // Sync with Alpine store if available
+        if (window.Alpine && window.Alpine.store('diff')) {
+            window.Alpine.store('diff').collapseAll();
+        }
 
         // Save state once after all changes
         DiffState.saveState();

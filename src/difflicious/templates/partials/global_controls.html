@@ -1,7 +1,7 @@
 <!-- Global Controls -->
 <div class="flex items-center justify-between mb-4">
     <div class="flex items-center space-x-2">
-        <button id="expandAll" @click="$store.diff.expandAllFiles()"
+        <button id="expandAll" @click="window.expandAllFiles()"
             :disabled="$store.diff.allFilesExpanded"
             class="bg-neutral-100 dark-button-bg text-neutral-700 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-900 px-3 py-1.5 rounded text-sm focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-500 transition-colors flex items-center space-x-2 disabled:bg-neutral-50 disabled:text-neutral-400 disabled:cursor-not-allowed dark:disabled:bg-neutral-900 dark:disabled:text-neutral-600"
             title="Expand All">
@@ -13,7 +13,7 @@
             </svg>
             <span>Expand All</span>
         </button>
-        <button id="collapseAll" @click="$store.diff.collapseAllFiles()"
+        <button id="collapseAll" @click="window.collapseAllFiles()"
             :disabled="$store.diff.allFilesCollapsed"
             class="bg-neutral-100 dark-button-bg text-neutral-700 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-900 px-3 py-1.5 rounded text-sm focus:outline-none focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-500 transition-colors flex items-center space-x-2 disabled:bg-neutral-50 disabled:text-neutral-400 disabled:cursor-not-allowed dark:disabled:bg-neutral-900 dark:disabled:text-neutral-600"
             title="Collapse All">
