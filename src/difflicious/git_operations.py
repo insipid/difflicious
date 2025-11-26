@@ -498,14 +498,15 @@ class GitRepository:
                 # Unstaged: working tree vs index
                 diffs = self.repo.index.diff(None)
             elif "--cached" in base_args:
-                # Staged: index vs commit
+                # Staged: compare commit to index (not index to commit)
+                # This ensures deletions show as "D" not "A"
                 if len(base_args) == 1 or (
                     len(base_args) > 1 and str(base_args[1]).startswith("-")
                 ):
                     commit_ref = "HEAD"
                 else:
                     commit_ref = base_args[1]
-                diffs = self.repo.index.diff(commit_ref)
+                diffs = self.repo.commit(commit_ref).diff()
             else:
                 # Working tree vs specific commit
                 commit_ref = base_args[0]
@@ -769,6 +770,60 @@ class GitRepository:
             raise GitOperationError(
                 f"Failed to get file lines {start_line}-{end_line}: {e}"
             ) from e
+
+    def get_file_content_at_ref(self, file_path: str, ref: str = "HEAD") -> list[str]:
+        """Get the complete content of a file at a specific git reference.
+
+        This is useful for showing the full content of deleted files or
+        viewing file content at a specific commit.
+
+        Args:
+            file_path: Path to the file relative to repository root
+            ref: Git reference (commit SHA, branch name, tag, or "HEAD")
+
+        Returns:
+            List of lines from the file (without trailing newlines)
+
+        Raises:
+            GitOperationError: If file doesn't exist at ref or operation fails
+        """
+        if not self._is_safe_file_path(file_path):
+            raise GitOperationError(f"Unsafe file path: {file_path}")
+
+        if not self._is_safe_commit_sha(ref):
+            raise GitOperationError(f"Unsafe git reference: {ref}")
+
+        try:
+            # Use GitPython to read file content from git object database
+            commit = self.repo.commit(ref)
+
+            # Get the file blob from the commit tree
+            try:
+                blob = commit.tree / file_path
+            except KeyError as e:
+                raise GitOperationError(
+                    f"File '{file_path}' does not exist at ref '{ref}'"
+                ) from e
+
+            # Read the blob content and split into lines
+            content = blob.data_stream.read()
+
+            # Decode with error handling
+            try:
+                text_content = content.decode("utf-8")
+            except UnicodeDecodeError:
+                # Try with fallback encoding
+                text_content = content.decode("utf-8", errors="replace")
+
+            # Split into lines and remove trailing newlines
+            lines: list[str] = text_content.splitlines()
+
+            return lines
+
+        except GitOperationError:
+            raise
+        except Exception as e:
+            raise GitOperationError(f"Failed to get file content at {ref}: {e}") from e
 
 
 def get_git_repository(repo_path: Optional[str] = None) -> GitRepository:

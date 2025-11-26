@@ -94,8 +94,58 @@
             <p>No diff content available</p>
             <p class="text-sm">(Binary file, untracked, or no changes)</p>
         </div>
+        {% elif file.is_full_file_deletion %}
+        <!-- Special rendering for deleted files: full file on left, empty on right -->
+        <div class="deleted-file-view font-mono text-xs">
+            <div class="flex border-b border-neutral-200 dark:border-neutral-600 bg-neutral-100 dark:bg-neutral-700">
+                <!-- Left header: Original file -->
+                <div class="flex-1 px-4 py-2 text-neutral-600 dark:text-neutral-400 font-semibold border-r border-neutral-200 dark:border-neutral-600">
+                    Original file ({{ file.deletions }} lines deleted)
+                </div>
+                <!-- Right header: Empty -->
+                <div class="flex-1 px-4 py-2 text-neutral-600 dark:text-neutral-400 font-semibold">
+                    File deleted
+                </div>
+            </div>
+            <!-- Render all lines from the single hunk -->
+            {% for hunk in file.hunks %}
+            <div class="hunk-lines">
+                {% for line in hunk.lines %}
+                <div class="diff-line flex line-{{ line.type }}">
+                    <!-- Left Side: All deleted lines -->
+                    <div class="line-left flex-1 border-r border-neutral-200 dark:border-neutral-600">
+                        <div class="flex">
+                            <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 dark:border-neutral-600 select-none bg-red-50 dark:bg-red-900/20">
+                                <span>{{ line.left.line_num }}</span>
+                            </div>
+                            <div class="line-content flex-1 px-2 py-1 overflow-x-auto bg-red-50 dark:bg-red-900/20">
+                                <span class="text-danger-text-600">-</span>
+                                {% if line.left.highlighted_content %}
+                                <span>{{ line.left.highlighted_content|safe }}</span>
+                                {% else %}
+                                <span>{{ line.left.content }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Right Side: Empty -->
+                    <div class="line-right flex-1 bg-neutral-50 dark:bg-neutral-800">
+                        <div class="flex">
+                            <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 dark:border-neutral-600 select-none">
+                                &nbsp;
+                            </div>
+                            <div class="line-content flex-1 px-2 py-1">
+                                <span>&nbsp;</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
         {% else %}
-        <!-- Render hunks -->
+        <!-- Normal hunk rendering -->
         {% for hunk in file.hunks %}
         {% include "diff_hunk.html" with context %}
         {% endfor %}
