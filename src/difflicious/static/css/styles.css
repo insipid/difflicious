@@ -1335,8 +1335,8 @@ button[onclick*="navigateToNextFile"]:hover {
 
 [data-theme="dark"] button[onclick*="navigateToPreviousFile"]:hover,
 [data-theme="dark"] button[onclick*="navigateToNextFile"]:hover {
-    background-color: #334155 !important;
-    /* Proper dark mode hover - matches file header hover */
+    background-color: #1e293b !important;
+    /* Darker than header hover (#334155) to provide contrast when header is also hovered */
 }
 
 [data-theme="dark"] .dark-modified-pill {
