@@ -775,19 +775,67 @@ class GitRepository:
 
             # Add -- to separate revisions from paths
             diff_args.append("--no-color")
-            diff_args.append("--")
 
-            # If old_path is provided (renamed file), include both paths for proper comparison
-            if old_path:
-                diff_args.append(old_path)
-            diff_args.append(file_path)
+            # For renamed files, don't use pathspecs - let git's rename detection work
+            # For normal files, filter by path for efficiency
+            if not old_path:
+                diff_args.append("--")
+                diff_args.append(file_path)
 
             # Use GitPython's git command interface
             result: str = self.repo.git.diff(*diff_args)
+
+            # If old_path is provided, we got the full diff - extract just the renamed file
+            if old_path and result:
+                # Parse the full diff to find the rename from old_path to file_path
+                result = self._extract_renamed_file_diff(result, old_path, file_path)
+
             return result
 
         except Exception as e:
             raise GitOperationError(f"Failed to get full file diff: {e}") from e
+
+    def _extract_renamed_file_diff(
+        self, full_diff: str, old_path: str, new_path: str
+    ) -> str:
+        """Extract the diff for a specific renamed file from a full diff output.
+
+        Args:
+            full_diff: Complete diff output from git
+            old_path: Original file path before rename
+            new_path: New file path after rename
+
+        Returns:
+            Diff content for just the renamed file, or empty string if not found
+        """
+        if not full_diff:
+            return ""
+
+        lines = full_diff.split("\n")
+        result_lines: list[str] = []
+        in_target_file = False
+        diff_start_patterns = [
+            f"diff --git a/{old_path} b/{new_path}",
+            f"diff --git a/{new_path} b/{new_path}",
+            f"diff --git a/{old_path} b/{old_path}",
+        ]
+
+        for line in lines:
+            # Check if this is the start of our target file's diff
+            if line.startswith("diff --git"):
+                # Check if this is our renamed file
+                in_target_file = any(
+                    pattern in line for pattern in diff_start_patterns
+                ) or (old_path in line and new_path in line)
+
+                # If we were in the target file and hit a new diff, we're done
+                if result_lines and not in_target_file:
+                    break
+
+            if in_target_file:
+                result_lines.append(line)
+
+        return "\n".join(result_lines)
 
     def get_file_line_count(self, file_path: str) -> int:
         """Get the total number of lines in a file.
