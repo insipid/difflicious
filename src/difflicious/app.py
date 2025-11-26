@@ -1,6 +1,5 @@
 """Flask web application for Difflicious git diff visualization."""
 
-import logging
 import os
 from pathlib import Path
 from typing import Optional
@@ -39,9 +38,6 @@ def create_app(
     import jinja_partials  # type: ignore[import-untyped]
 
     jinja_partials.register_extensions(app)
-
-    # Configure logging
-    logging.basicConfig(level=logging.INFO)
 
     @app.context_processor
     def inject_font_config() -> dict[str, dict]:

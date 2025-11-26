@@ -91,4 +91,5 @@ class DiffWatcher(FileSystemEventHandler):
 
     def _send_event(self) -> None:
         """Send a change event to the queue."""
+        logger.info("📝 File changes detected - page will refresh")
         self.event_queue.put({"type": "change", "timestamp": time.time()})
