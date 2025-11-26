@@ -113,6 +113,7 @@ def api_diff_full() -> Union[Response, tuple[Response, int]]:
     base_ref = request.args.get("base_ref")
     use_head = request.args.get("use_head", "false").lower() == "true"
     use_cached = request.args.get("use_cached", "false").lower() == "true"
+    old_path = request.args.get("old_path")  # For renamed files
 
     try:
         diff_service = DiffService()
@@ -121,6 +122,7 @@ def api_diff_full() -> Union[Response, tuple[Response, int]]:
             base_ref=base_ref,
             use_head=use_head,
             use_cached=use_cached,
+            old_path=old_path,
         )
         return jsonify(result)
 

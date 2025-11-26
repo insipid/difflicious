@@ -723,6 +723,7 @@ class GitRepository:
         base_ref: Optional[str] = None,
         use_head: bool = False,
         use_cached: bool = False,
+        old_path: Optional[str] = None,
     ) -> str:
         """Get complete diff content for a specific file with unlimited context.
 
@@ -731,6 +732,7 @@ class GitRepository:
             base_ref: Base reference for comparison (branch name or commit)
             use_head: Whether to compare against HEAD instead of branch
             use_cached: Whether to get staged diff
+            old_path: Original path if file was renamed (for proper rename handling)
 
         Returns:
             Complete diff content as string with unlimited context
@@ -742,10 +744,16 @@ class GitRepository:
             if not self._is_safe_file_path(file_path):
                 raise GitOperationError(f"Unsafe file path: {file_path}")
 
+            if old_path and not self._is_safe_file_path(old_path):
+                raise GitOperationError(f"Unsafe old file path: {old_path}")
+
             diff_args = []
 
             # Use million lines of context for full diff view
             diff_args.append("-U1000000")
+
+            # Enable rename detection for proper handling of moved files
+            diff_args.append("-M")
 
             # Determine comparison mode
             if use_cached:
@@ -765,8 +773,14 @@ class GitRepository:
                 if default_branch and self._is_safe_commit_sha(default_branch):
                     diff_args.append(default_branch)
 
-            # Add -- to separate revisions from paths, then add file path
-            diff_args.extend(["--no-color", "--", file_path])
+            # Add -- to separate revisions from paths
+            diff_args.append("--no-color")
+            diff_args.append("--")
+
+            # If old_path is provided (renamed file), include both paths for proper comparison
+            if old_path:
+                diff_args.append(old_path)
+            diff_args.append(file_path)
 
             # Use GitPython's git command interface
             result: str = self.repo.git.diff(*diff_args)

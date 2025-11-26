@@ -19,6 +19,10 @@ export async function loadFullDiff(filePath, fileId) {
         return;
     }
 
+    // Get the file container to check for old_path (for renamed files)
+    const fileContainer = document.querySelector(`[data-file="${fileId}"]`);
+    const oldPath = fileContainer?.dataset.oldPath;
+
     // Get current diff parameters from URL or app state
     const urlParams = new URLSearchParams(window.location.search);
     const baseRef = urlParams.get('base_ref');
@@ -46,6 +50,7 @@ export async function loadFullDiff(filePath, fileId) {
         if (baseRef) apiUrl.searchParams.set('base_ref', baseRef);
         if (useHead) apiUrl.searchParams.set('use_head', 'true');
         if (useCached) apiUrl.searchParams.set('use_cached', 'true');
+        if (oldPath) apiUrl.searchParams.set('old_path', oldPath);
 
         const response = await fetch(apiUrl.toString());
         const result = await response.json();
