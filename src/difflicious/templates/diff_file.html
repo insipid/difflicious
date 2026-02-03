@@ -2,6 +2,7 @@
 {% set file_id = group_name + ":" + file.path %}
 <div class="file-diff bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-600 rounded-lg shadow-sm"
     data-file="{{ file_id }}"
+    {% if file.old_path %}data-old-path="{{ file.old_path }}"{% endif %}
     x-data="fileComponent('{{ file_id }}')"
     {% if file.hidden_by_search %}style="display: none;"{% endif %}>
     <!-- File Header Wrapper -->
@@ -87,7 +88,44 @@
         x-transition:leave="transition ease-in duration-150"
         x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95">
-        {% if not file.hunks or file.hunks|length == 0 %}
+        {% if file.status == 'renamed' and file.deletions == 0 %}
+        <!-- Pure rename/move with no content changes - show expander bar -->
+        <!-- Condition: renamed file with no deletions means all lines show as "additions" but it's actually unchanged content -->
+        <div class="moved-file-content" data-file-path="{{ file.path }}" data-old-path="{{ file.old_path }}">
+            <div class="moved-file-expansion bg-info-bg-50 text-xs font-mono text-info-text-800 flex">
+                <!-- Left Side -->
+                <div class="flex-1 border-r border-neutral-200 dark:border-neutral-600">
+                    <div class="flex">
+                        <div class="w-12 bg-info-bg-100 border-r border-neutral-200 dark:border-neutral-600 select-none flex flex-col">
+                            <button onclick="loadMovedFileContent(this)"
+                                class="expansion-btn w-full px-2 py-1 text-xs bg-info-bg-200 hover:bg-info-bg-300 text-info-text-800 transition-colors flex items-center justify-center h-full"
+                                title="Show file content">
+                                ↕
+                            </button>
+                        </div>
+                        <div class="flex-1 px-2 py-2 overflow-hidden flex items-center min-h-[2rem] min-w-0">
+                            <span class="truncate block">File moved (no changes) — click to view content</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right Side -->
+                <div class="flex-1">
+                    <div class="flex">
+                        <div class="w-12 bg-info-bg-100 border-r border-neutral-200 dark:border-neutral-600 select-none flex flex-col">
+                            <button onclick="loadMovedFileContent(this)"
+                                class="expansion-btn w-full px-2 py-1 text-xs bg-info-bg-200 hover:bg-info-bg-300 text-info-text-800 transition-colors flex items-center justify-center h-full"
+                                title="Show file content">
+                                ↕
+                            </button>
+                        </div>
+                        <div class="flex-1 px-2 py-2 overflow-hidden flex items-center min-h-[2rem] min-w-0">
+                            <span class="text-transparent">&nbsp;</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% elif not file.hunks or file.hunks|length == 0 %}
         <!-- No content available -->
         <div class="p-8 text-center text-neutral-500 dark:text-neutral-400">
             <div class="text-4xl mb-2">📄</div>
