@@ -36,6 +36,17 @@ Difflicious uses a **hybrid CSS approach** combining:
 
 ## Color System
 
+### Theme Palette Tokens
+
+The design system is themeable via `--theme-*` palette variables. Light values
+live under `:root`, and dark values override the same `--theme-*` variables
+under `[data-theme="dark"]`. Semantic tokens like `--surface-primary` and
+`--text-primary` map to the theme palette.
+
+**When creating new themes:**
+- Override `--theme-*` variables only
+- Keep semantic tokens (`--surface-*`, `--text-*`, `--semantic-*`) unchanged
+
 ### Variable Categories
 
 All colors are defined as CSS variables in `styles.css`. They fall into 6 categories:
@@ -444,14 +455,14 @@ Dark mode is handled entirely through CSS variables.
 ```css
 /* Light theme (default) */
 :root {
-    --surface-primary: #ffffff;
-    --text-primary: #1e293b;
+    --theme-surface-primary: #ffffff;
+    --theme-text-primary: #1e293b;
 }
 
 /* Dark theme (override) */
 [data-theme="dark"] {
-    --surface-primary: #0f172a;
-    --text-primary: #f1f5f9;
+    --theme-surface-primary: #0f172a;
+    --theme-text-primary: #f1f5f9;
 }
 
 /* Component uses variables */
@@ -475,6 +486,19 @@ When creating new components, always test both themes:
 ---
 
 ## Quick Reference
+
+### Theme Palette Snapshot
+
+These `--theme-*` tokens are the palette you override to create new themes.
+
+| Token | Light | Dark | Usage |
+|-------|-------|------|-------|
+| `--theme-surface-primary` | `#ffffff` | `#0f172a` | Page background |
+| `--theme-text-primary` | `#1e293b` | `#f1f5f9` | Main text |
+| `--theme-border-default` | `#e2e8f0` | `#475569` | Default borders |
+| `--theme-interactive-primary` | `#2563eb` | `#3b82f6` | Primary action |
+| `--theme-focus-ring` | `#3b82f6` | `#60a5fa` | Focus ring |
+| `--theme-semantic-danger-text` | `#dc2626` | `#f87171` | Catastrophic text |
 
 ### Most Common Variables
 
@@ -558,6 +582,7 @@ When adding new styles:
 
 ## Resources
 
+- **Design System:** See `docs/tailwind-design-system.md`
 - **Color Variables:** See `src/difflicious/static/css/styles.css` (lines 19-397)
 - **Component Classes:** See `src/difflicious/static/css/styles.css` (lines 399-463)
 - **Tailwind Config:** See `tailwind.config.cjs`

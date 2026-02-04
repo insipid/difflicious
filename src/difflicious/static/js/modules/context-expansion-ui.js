@@ -5,6 +5,7 @@
 
 import { $, escapeHtml } from './dom-utils.js';
 import { hunkContext } from './hunk-operations.js';
+import { diffLine, diffSide, lineContent, lineNum } from './design-system.js';
 
 // Debug toggle - can be overridden by main.js
 let DEBUG = false;
@@ -88,14 +89,14 @@ export function createExpandedContextHtml(result, expansionId, triggerButton, di
         const content = lineData.highlighted_content || lineData.content || '';
 
         html += `
-        <div class="diff-line grid grid-cols-2 hover:bg-neutral-25 line-context">
+        <div class="${diffLine({ tone: 'context', border: 'none' })}">
             <!-- Left Side (Before) -->
-            <div class="line-left border-r border-neutral-200 dark:border-neutral-600">
+            <div class="${diffSide({ side: 'left', border: 'divider' })}">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 dark:border-neutral-600 select-none">
+                    <div class="${lineNum()}">
                         <span>${lineNumLeft}</span>
                     </div>
-                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
+                    <div class="${lineContent()}">
                         <span class="text-neutral-400">&nbsp;</span>
                         <span class="highlight break-words">${content}</span>
                         ${lineData.missing_newline ? '<span class="no-newline-indicator text-danger-text-500">↩</span>' : ''}
@@ -103,12 +104,12 @@ export function createExpandedContextHtml(result, expansionId, triggerButton, di
                 </div>
             </div>
             <!-- Right Side (After) -->
-            <div class="line-right">
+            <div class="${diffSide({ side: 'right' })}">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 dark:border-neutral-600 select-none">
+                    <div class="${lineNum()}">
                         <span>${lineNumRight}</span>
                     </div>
-                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
+                    <div class="${lineContent()}">
                         <span class="text-neutral-400">&nbsp;</span>
                         <span class="highlight break-words">${content}</span>
                         ${lineData.missing_newline ? '<span class="no-newline-indicator text-danger-text-500">↩</span>' : ''}
@@ -196,14 +197,14 @@ export function createPlainContextHtml(result, expansionId, triggerButton, direc
         const content = escapeHtml(line || '');
 
         html += `
-        <div class="diff-line grid grid-cols-2 hover:bg-neutral-25 line-context">
+        <div class="${diffLine({ tone: 'context', border: 'none' })}">
             <!-- Left Side (Before) -->
-            <div class="line-left border-r border-neutral-200 dark:border-neutral-600">
+            <div class="${diffSide({ side: 'left', border: 'divider' })}">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 dark:border-neutral-600 select-none">
+                    <div class="${lineNum()}">
                         <span>${lineNumLeft}</span>
                     </div>
-                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
+                    <div class="${lineContent()}">
                         <span class="text-neutral-400">&nbsp;</span>
                         <span class="break-words">${content}</span>
                         ${line.missing_newline ? '<span class="no-newline-indicator text-danger-text-500">↩</span>' : ''}
@@ -211,12 +212,12 @@ export function createPlainContextHtml(result, expansionId, triggerButton, direc
                 </div>
             </div>
             <!-- Right Side (After) -->
-            <div class="line-right">
+            <div class="${diffSide({ side: 'right' })}">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 dark:border-neutral-600 select-none">
+                    <div class="${lineNum()}">
                         <span>${lineNumRight}</span>
                     </div>
-                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
+                    <div class="${lineContent()}">
                         <span class="text-neutral-400">&nbsp;</span>
                         <span class="break-words">${content}</span>
                         ${line.missing_newline ? '<span class="no-newline-indicator text-danger-text-500">↩</span>' : ''}

@@ -30,6 +30,18 @@ module.exports = {
         'info-text': {
           800: 'var(--color-info-text-800)',
         },
+        // Danger colors for error states and destructive actions
+        'danger-bg': {
+          50: 'var(--color-danger-bg-50)',
+          100: 'var(--color-danger-bg-100)',
+          200: 'var(--color-danger-bg-200)',
+          300: 'var(--color-danger-bg-300)',
+        },
+        'danger-text': {
+          500: 'var(--color-danger-text-500)',
+          600: 'var(--color-danger-text-600)',
+          700: 'var(--color-danger-text-700)',
+        },
       },
     }
   },
