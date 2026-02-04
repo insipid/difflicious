@@ -6,6 +6,123 @@
 import { escapeHtml, escapeJsString, isHighlightedContent } from './dom-utils.js';
 
 /**
+ * Load and display content for a moved/renamed file with no changes.
+ * Shows the file content as unchanged (context lines) on both sides.
+ * @param {HTMLElement} button - The button that triggered the load
+ */
+export async function loadMovedFileContent(button) {
+    const container = button.closest('.moved-file-content');
+    if (!container) {
+        console.error('loadMovedFileContent: Could not find container');
+        return;
+    }
+
+    const filePath = container.dataset.filePath;
+    if (!filePath) {
+        console.error('loadMovedFileContent: No file path found');
+        return;
+    }
+
+    // Show loading state
+    container.innerHTML = `
+        <div class="p-4 text-center text-neutral-500">
+            <div class="text-2xl mb-2">⏳</div>
+            <p class="text-sm">Loading file content...</p>
+        </div>
+    `;
+
+    try {
+        // Fetch the file content in chunks (API has a 100-line limit per request)
+        const CHUNK_SIZE = 100;
+        let allLines = [];
+        let startLine = 1;
+        let hasMore = true;
+
+        while (hasMore) {
+            const apiUrl = new URL('/api/file/lines', window.location.origin);
+            apiUrl.searchParams.set('file_path', filePath);
+            apiUrl.searchParams.set('start_line', String(startLine));
+            apiUrl.searchParams.set('end_line', String(startLine + CHUNK_SIZE - 1));
+
+            const response = await fetch(apiUrl.toString());
+            const result = await response.json();
+
+            if (!response.ok || result.status !== 'ok') {
+                throw new Error(result.message || 'Failed to load file lines');
+            }
+
+            const chunk = result.lines || [];
+            allLines = allLines.concat(chunk);
+
+            if (chunk.length < CHUNK_SIZE) {
+                hasMore = false;
+            } else {
+                startLine += CHUNK_SIZE;
+            }
+        }
+
+        const lines = allLines;
+        if (lines.length === 0) {
+            container.innerHTML = `
+                <div class="p-4 text-center text-neutral-500">
+                    <div class="text-2xl mb-2">📄</div>
+                    <p class="text-sm">File is empty</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Render the content as unchanged lines on both sides
+        let html = '<div class="moved-file-lines font-mono text-xs">';
+
+        lines.forEach((line, index) => {
+            const lineNum = index + 1;
+            const content = escapeHtml(line);
+
+            html += `
+            <div class="diff-line grid grid-cols-2 hover:bg-neutral-25 line-context">
+                <!-- Left Side (Before) -->
+                <div class="line-left border-r border-neutral-200 dark:border-neutral-600">
+                    <div class="flex">
+                        <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 dark:border-neutral-600 select-none">
+                            <span>${lineNum}</span>
+                        </div>
+                        <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
+                            <span class="text-neutral-400">&nbsp;</span>
+                            <span class="highlight break-words">${content}</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Right Side (After) -->
+                <div class="line-right">
+                    <div class="flex">
+                        <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 dark:border-neutral-600 select-none">
+                            <span>${lineNum}</span>
+                        </div>
+                        <div class="line-content flex-1 px-2 py-1 overflow-x-auto min-w-0">
+                            <span class="text-neutral-400">&nbsp;</span>
+                            <span class="highlight break-words">${content}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        });
+
+        html += '</div>';
+        container.innerHTML = html;
+    } catch (error) {
+        console.error('loadMovedFileContent error:', error);
+        container.innerHTML = `
+            <div class="p-4 text-center text-danger-text-500">
+                <div class="text-2xl mb-2">⚠️</div>
+                <p class="text-sm">Failed to load file content</p>
+                <p class="text-xs mt-1">${escapeHtml(error.message)}</p>
+            </div>
+        `;
+    }
+}
+
+/**
  * Load and display the complete diff for a file with unlimited context
  * @param {string} filePath - Path to the file
  * @param {string} fileId - Unique identifier for the file element

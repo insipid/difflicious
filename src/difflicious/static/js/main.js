@@ -8,7 +8,7 @@ import { toggleFile, toggleGroup, expandAllFiles, collapseAllFiles } from './mod
 import { navigateToPreviousFile, navigateToNextFile } from './modules/navigation.js';
 import { toggleTheme, setDebug as setThemeDebug } from './modules/theme.js';
 import { expandContext } from './modules/context-expansion.js';
-import { loadFullDiff } from './modules/full-diff.js';
+import { loadFullDiff, loadMovedFileContent } from './modules/full-diff.js';
 import { setDebug as setHunkDebug } from './modules/hunk-operations.js';
 import { setDebug as setContextUIDebug } from './modules/context-expansion-ui.js';
 import { setDebug as setExpansionDebug } from './modules/context-expansion.js';
@@ -90,6 +90,7 @@ window.expandContext = expandContext;
 // Full diff loading - used by "Load Full Diff" buttons in templates
 window.loadFullDiff = loadFullDiff;
 window.__loadFullDiff = loadFullDiff; // eslint alias
+window.loadMovedFileContent = loadMovedFileContent;
 
 // File navigation - used by navigation buttons in templates
 window.navigateToPreviousFile = navigateToPreviousFile;
@@ -114,6 +115,7 @@ if (typeof module !== 'undefined' && module.exports) {
         navigateToNextFile,
         expandContext,
         toggleTheme,
-        loadFullDiff
+        loadFullDiff,
+        loadMovedFileContent
     };
 }

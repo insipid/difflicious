@@ -342,6 +342,11 @@ class GitRepository:
             groups["staged"]["files"].extend(staged_files)
             groups["staged"]["count"] = len(staged_files)
 
+            # Detect unstaged renames: a deleted tracked file + an untracked
+            # file with identical content is likely a move/rename.
+            if include_untracked and include_unstaged:
+                self._detect_unstaged_renames(groups, reference_point, use_head)
+
             # For each file, lazily fill content as before
             # Preserve previous behavior: include content strings in results
             for group_name in ("unstaged", "staged"):
@@ -608,6 +613,90 @@ class GitRepository:
             logger.warning(f"Failed to collect diff metadata: {e}")
             return []
 
+    def _detect_unstaged_renames(
+        self, groups: dict[str, dict[str, Any]], reference_point: str, use_head: bool
+    ) -> None:
+        """Detect renames between deleted unstaged files and untracked files.
+
+        Git cannot detect renames for unstaged changes because the new file
+        is untracked. This method compares blob hashes to pair up deleted
+        tracked files with untracked files that have identical content,
+        converting them into a single 'renamed' entry.
+
+        Modifies groups in place.
+
+        Args:
+            groups: The diff groups dict containing 'unstaged' and 'untracked'
+            reference_point: The git reference to compare against (e.g., 'HEAD', branch name)
+            use_head: True if comparing working tree vs HEAD/index, False for branch comparison
+        """
+        try:
+            deleted_files = [
+                f for f in groups["unstaged"]["files"] if f.get("status") == "deleted"
+            ]
+            untracked_files = groups["untracked"]["files"]
+
+            if not deleted_files or not untracked_files:
+                return
+
+            # Build a map of blob hash -> deleted file info for deleted files
+            deleted_by_hash: dict[str, dict[str, Any]] = {}
+            for dfile in deleted_files:
+                try:
+                    # Get the blob hash from the appropriate source
+                    blob_hash: str
+                    if use_head:
+                        # For working tree vs HEAD/index: use index
+                        blob_hash = self.repo.git.rev_parse(f":{dfile['path']}")
+                    else:
+                        # For branch comparison: use the reference point
+                        blob_hash = self.repo.git.rev_parse(
+                            f"{reference_point}:{dfile['path']}"
+                        )
+                    deleted_by_hash[blob_hash] = dfile
+                except Exception:
+                    continue
+
+            if not deleted_by_hash:
+                return
+
+            # Check each untracked file's hash against deleted files
+            matched_untracked: set[str] = set()
+            matched_deleted: set[str] = set()
+
+            for ufile in untracked_files:
+                try:
+                    full_path = self.repo_path / ufile["path"]
+                    if not full_path.exists() or not full_path.is_file():
+                        continue
+                    file_hash: str = self.repo.git.hash_object(str(full_path))
+                    if file_hash in deleted_by_hash:
+                        dfile = deleted_by_hash[file_hash]
+                        # Convert the deleted entry into a renamed entry
+                        dfile["old_path"] = dfile["path"]
+                        dfile["path"] = ufile["path"]
+                        dfile["status"] = "renamed"
+                        dfile["additions"] = 0
+                        dfile["deletions"] = 0
+                        dfile["changes"] = 0
+                        dfile["content"] = ""
+                        matched_untracked.add(ufile["path"])
+                        matched_deleted.add(dfile["old_path"])
+                except Exception:
+                    continue
+
+            # Remove matched untracked files
+            if matched_untracked:
+                groups["untracked"]["files"] = [
+                    f
+                    for f in groups["untracked"]["files"]
+                    if f["path"] not in matched_untracked
+                ]
+                groups["untracked"]["count"] = len(groups["untracked"]["files"])
+
+        except Exception as e:
+            logger.warning(f"Failed to detect unstaged renames: {e}")
+
     def _generate_untracked_file_diff(self, file_path: str) -> str:
         """Generate a unified diff format for an untracked file.
 
@@ -697,7 +786,8 @@ class GitRepository:
                 return f"Error: Unsafe file path: {file_path}"
 
             # Build arguments for git diff
-            diff_args = [f"-U{context_lines}", "--no-color"]
+            # -M enables rename detection so moved files produce proper diffs
+            diff_args = [f"-U{context_lines}", "--no-color", "-M"]
 
             # Handle commit comparison
             if base_commit and target_commit:
@@ -745,7 +835,9 @@ class GitRepository:
             diff_args = []
 
             # Use million lines of context for full diff view
+            # -M enables rename detection so moved files produce proper diffs
             diff_args.append("-U1000000")
+            diff_args.append("-M")
 
             # Determine comparison mode
             if use_cached:
