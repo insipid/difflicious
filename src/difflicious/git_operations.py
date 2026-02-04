@@ -345,7 +345,7 @@ class GitRepository:
             # Detect unstaged renames: a deleted tracked file + an untracked
             # file with identical content is likely a move/rename.
             if include_untracked and include_unstaged:
-                self._detect_unstaged_renames(groups)
+                self._detect_unstaged_renames(groups, reference_point, use_head)
 
             # For each file, lazily fill content as before
             # Preserve previous behavior: include content strings in results
@@ -613,7 +613,9 @@ class GitRepository:
             logger.warning(f"Failed to collect diff metadata: {e}")
             return []
 
-    def _detect_unstaged_renames(self, groups: dict[str, dict[str, Any]]) -> None:
+    def _detect_unstaged_renames(
+        self, groups: dict[str, dict[str, Any]], reference_point: str, use_head: bool
+    ) -> None:
         """Detect renames between deleted unstaged files and untracked files.
 
         Git cannot detect renames for unstaged changes because the new file
@@ -625,6 +627,8 @@ class GitRepository:
 
         Args:
             groups: The diff groups dict containing 'unstaged' and 'untracked'
+            reference_point: The git reference to compare against (e.g., 'HEAD', branch name)
+            use_head: True if comparing working tree vs HEAD/index, False for branch comparison
         """
         try:
             deleted_files = [
@@ -639,8 +643,16 @@ class GitRepository:
             deleted_by_hash: dict[str, dict[str, Any]] = {}
             for dfile in deleted_files:
                 try:
-                    # Get the blob hash from the index for the deleted file
-                    blob_hash: str = self.repo.git.rev_parse(f":{dfile['path']}")
+                    # Get the blob hash from the appropriate source
+                    blob_hash: str
+                    if use_head:
+                        # For working tree vs HEAD/index: use index
+                        blob_hash = self.repo.git.rev_parse(f":{dfile['path']}")
+                    else:
+                        # For branch comparison: use the reference point
+                        blob_hash = self.repo.git.rev_parse(
+                            f"{reference_point}:{dfile['path']}"
+                        )
                     deleted_by_hash[blob_hash] = dfile
                 except Exception:
                     continue
