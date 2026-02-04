@@ -512,7 +512,7 @@ class GitRepository:
 
             if not base_args or base_args == []:
                 # Unstaged: working tree vs index
-                diffs = self.repo.index.diff(None, R=True)
+                diffs = self.repo.index.diff(None)
             elif "--cached" in base_args:
                 # Staged: compare commit to index (not index to commit)
                 # This ensures deletions show as "D" not "A"
@@ -522,11 +522,11 @@ class GitRepository:
                     commit_ref = "HEAD"
                 else:
                     commit_ref = base_args[1]
-                diffs = self.repo.commit(commit_ref).diff(R=True)
+                diffs = self.repo.commit(commit_ref).diff()
             else:
                 # Working tree vs specific commit
                 commit_ref = base_args[0]
-                diffs = self.repo.commit(commit_ref).diff(None, R=True)
+                diffs = self.repo.commit(commit_ref).diff(None)
 
             if diffs is None:
                 return []
@@ -697,7 +697,8 @@ class GitRepository:
                 return f"Error: Unsafe file path: {file_path}"
 
             # Build arguments for git diff
-            diff_args = [f"-U{context_lines}", "--no-color"]
+            # -M enables rename detection so moved files produce proper diffs
+            diff_args = [f"-U{context_lines}", "--no-color", "-M"]
 
             # Handle commit comparison
             if base_commit and target_commit:
@@ -745,7 +746,9 @@ class GitRepository:
             diff_args = []
 
             # Use million lines of context for full diff view
+            # -M enables rename detection so moved files produce proper diffs
             diff_args.append("-U1000000")
+            diff_args.append("-M")
 
             # Determine comparison mode
             if use_cached:
