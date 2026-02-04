@@ -4,6 +4,15 @@
  */
 
 import { escapeHtml, escapeJsString, isHighlightedContent } from './dom-utils.js';
+import {
+    actionButton,
+    diffLine,
+    diffSide,
+    lineContent,
+    lineNum,
+    statusCaption,
+    statusPanel
+} from './design-system.js';
 
 /**
  * Load and display the complete diff for a file with unlimited context
@@ -32,10 +41,10 @@ export async function loadFullDiff(filePath, fileId) {
 
     // Show loading indicator in content area
     fileContentElement.innerHTML = `
-        <div class="p-8 text-center text-neutral-500">
+        <div class="${statusPanel()}">
             <div class="text-4xl mb-2">⏳</div>
             <p>Loading full diff...</p>
-            <p class="text-sm">Fetching complete file comparison with unlimited context</p>
+            <p class="${statusCaption()}">Fetching complete file comparison with unlimited context</p>
         </div>
     `;
 
@@ -59,10 +68,10 @@ export async function loadFullDiff(filePath, fileId) {
             } else {
                 // No changes to show
                 fileContentElement.innerHTML = `
-                    <div class="p-8 text-center text-neutral-500">
+                    <div class="${statusPanel()}">
                         <div class="text-4xl mb-2">✓</div>
                         <p>No changes in this file</p>
-                        <p class="text-sm">${result.comparison_mode}</p>
+                        <p class="${statusCaption()}">${result.comparison_mode}</p>
                     </div>
                 `;
             }
@@ -72,13 +81,13 @@ export async function loadFullDiff(filePath, fileId) {
     } catch (error) {
         console.error('Full diff error:', error);
         fileContentElement.innerHTML = `
-            <div class="p-8 text-center text-danger-text-500">
+            <div class="${statusPanel({ tone: 'danger' })}">
                 <div class="text-4xl mb-2">⚠️</div>
                 <p class="font-medium">Failed to load full diff</p>
                 <p class="text-sm mt-2">${escapeHtml(error.message)}</p>
                 <p class="text-xs mt-4 text-neutral-400">Check the browser console for more details</p>
                 <button onclick="loadFullDiff('${escapeJsString(filePath)}', '${escapeJsString(fileId)}')"
-                        class="mt-4 px-3 py-1 text-sm bg-danger-bg-100 text-danger-text-700 rounded hover:bg-danger-bg-200 transition-colors">
+                        class="${actionButton({ intent: 'danger' })}">
                     Retry
                 </button>
             </div>
@@ -167,10 +176,10 @@ export async function renderFullDiff(contentElement, diffData, fileId) {
         console.log('No diff content available');
         // No diff content available
         contentElement.innerHTML = `
-            <div class="p-8 text-center text-neutral-500">
+            <div class="${statusPanel()}">
                 <div class="text-4xl mb-2">📄</div>
                 <p>No diff content available</p>
-                <p class="text-sm">The full diff is empty or could not be processed.</p>
+                <p class="${statusCaption()}">The full diff is empty or could not be processed.</p>
                 <p class="text-xs mt-2 text-neutral-400">Comparison: ${escapeHtml(diffData.comparison_mode || 'unknown')}</p>
             </div>
         `;
@@ -229,8 +238,8 @@ export function renderSideBySideLine(line) {
     let rightContent = '';
     let leftLineNum = '';
     let rightLineNum = '';
-    let leftBg = 'bg-white';
-    let rightBg = 'bg-white';
+    let leftBg = 'default';
+    let rightBg = 'default';
 
     if (line.type === 'context') {
         // Context line appears on both sides
@@ -238,36 +247,36 @@ export function renderSideBySideLine(line) {
         rightContent = line.right?.content || '';
         leftLineNum = line.left?.line_num || '';
         rightLineNum = line.right?.line_num || '';
-        leftBg = 'bg-neutral-25';
-        rightBg = 'bg-neutral-25';
+        leftBg = 'context';
+        rightBg = 'context';
     } else if (line.left && line.right) {
         // Changed line - deletion on left, addition on right
         leftContent = line.left.content || '';
         rightContent = line.right.content || '';
         leftLineNum = line.left.line_num || '';
         rightLineNum = line.right.line_num || '';
-        leftBg = 'bg-danger-bg-50';
-        rightBg = 'bg-success-bg-50';
+        leftBg = 'deletion';
+        rightBg = 'addition';
     } else if (line.left) {
         // Deletion only
         leftContent = line.left.content || '';
         leftLineNum = line.left.line_num || '';
-        leftBg = 'bg-danger-bg-50';
+        leftBg = 'deletion';
     } else if (line.right) {
         // Addition only
         rightContent = line.right.content || '';
         rightLineNum = line.right.line_num || '';
-        rightBg = 'bg-success-bg-50';
+        rightBg = 'addition';
     } else {
         // Simple line structure
         if (line.type === 'addition') {
             rightContent = line.content || '';
             rightLineNum = line.new_line_number || '';
-            rightBg = 'bg-success-bg-50';
+            rightBg = 'addition';
         } else if (line.type === 'deletion') {
             leftContent = line.content || '';
             leftLineNum = line.old_line_number || '';
-            leftBg = 'bg-danger-bg-50';
+            leftBg = 'deletion';
         } else {
             leftContent = rightContent = line.content || '';
             leftLineNum = line.old_line_number || '';
@@ -276,30 +285,30 @@ export function renderSideBySideLine(line) {
     }
 
     return `
-        <div class="diff-line grid grid-cols-2 border-b border-gray-50 hover:bg-neutral-25 line-${line.type || 'context'}">
+        <div class="${diffLine({ tone: line.type || 'context', border: 'subtle', className: `line-${line.type || 'context'}` })}">
             <!-- Left Side (Before) -->
-            <div class="line-left border-r border-neutral-200 ${leftBg}">
+            <div class="${diffSide({ side: 'left', border: 'divider', background: leftBg })}">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right bg-neutral-50 border-r border-neutral-200 select-none">
+                    <div class="${lineNum({ background: 'neutral' })}">
                         ${leftLineNum ? `<span>${leftLineNum}</span>` : ''}
                     </div>
-                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
+                    <div class="${lineContent()}">
                         ${leftContent
-        ? (leftBg.includes('danger') ? `<span class="text-danger-text-600">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`)
+        ? (leftBg === 'deletion' ? `<span class="text-danger-text-600">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`)
         : ''}
                     </div>
                 </div>
             </div>
 
             <!-- Right Side (After) -->
-            <div class="line-right ${rightBg}">
+            <div class="${diffSide({ side: 'right', background: rightBg })}">
                 <div class="flex">
-                    <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right bg-neutral-50 border-r border-neutral-200 select-none">
+                    <div class="${lineNum({ background: 'neutral' })}">
                         ${rightLineNum ? `<span>${rightLineNum}</span>` : ''}
                     </div>
-                    <div class="line-content flex-1 px-2 py-1 overflow-x-auto">
+                    <div class="${lineContent()}">
                         ${rightContent
-        ? (rightBg.includes('success') ? `<span class="text-success-text-600">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`)
+        ? (rightBg === 'addition' ? `<span class="text-success-text-600">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`)
         : ''}
                     </div>
                 </div>

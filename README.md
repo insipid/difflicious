@@ -122,6 +122,13 @@ This will fall back to system monospace fonts like SF Mono, Cascadia Code, Monac
 - **Distribution**: Modern Python packaging (PyPI) and Docker containers
 - **Development**: uv for fast Python package management and virtual environments
 
+## Design System
+
+Difflicious uses a themeable Tailwind-driven design system with semantic tokens.
+
+- Design system overview: `docs/tailwind-design-system.md`
+- CSS style guide: `docs/CSS-STYLE-GUIDE.md`
+
 ## Development Status
 
 ✅ **Production-ready diff visualization** - Advanced side-by-side interface implemented!

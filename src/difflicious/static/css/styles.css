@@ -21,97 +21,184 @@
      * NEW SEMANTIC COLOR SYSTEM (Phase 2 - 2025-11-05)
      * ============================================ */
 
+    /* === THEME PALETTE TOKENS (Light) === */
+    /* Swap these for alternate light themes. */
+    --theme-surface-primary: #ffffff;           /* Main page background */
+    --theme-surface-secondary: #f8fafc;         /* Cards, panels, file headers */
+    --theme-surface-tertiary: #f1f5f9;          /* Hover states, wells */
+    --theme-surface-raised: #ffffff;            /* Elevated elements (modals, dropdowns) */
+    --theme-surface-sunken: #f9fafb;            /* Depressed areas (inputs, wells) */
+    --theme-surface-overlay: #f9fafb;           /* Overlay backgrounds */
+
+    --theme-text-primary: #1e293b;              /* Main body text */
+    --theme-text-secondary: #64748b;            /* Secondary text, labels */
+    --theme-text-tertiary: #94a3b8;             /* Deemphasized text, placeholders */
+    --theme-text-disabled: #cbd5e1;             /* Disabled state text */
+    --theme-text-inverted: #ffffff;             /* Text on dark backgrounds */
+
+    --theme-border-default: #e2e8f0;            /* Standard borders */
+    --theme-border-strong: #cbd5e1;             /* Emphasized borders */
+    --theme-border-subtle: #f1f5f9;             /* Subtle dividers */
+    --theme-border-interactive: #94a3af;        /* Interactive element borders */
+
+    --theme-interactive-primary: #2563eb;       /* Primary action buttons */
+    --theme-interactive-primary-hover: #1d4ed8; /* Primary hover state */
+    --theme-interactive-primary-active: #1e40af;/* Primary active/pressed state */
+    --theme-interactive-secondary: #64748b;     /* Secondary actions */
+    --theme-interactive-secondary-hover: #475569; /* Secondary hover */
+    --theme-interactive-disabled: #cbd5e1;      /* Disabled interactive elements */
+
+    --theme-focus-ring: #3b82f6;                /* Focus outline color */
+    --theme-focus-border: #2563eb;              /* Focus border color */
+
+    --theme-diff-addition-bg: #dcfce7;          /* Added line background */
+    --theme-diff-addition-text: #059669;        /* Added line text */
+    --theme-diff-addition-linenum-bg: #bbf7d0;  /* Added line number background */
+    --theme-diff-addition-linenum-text: #065f46;/* Added line number text */
+    --theme-diff-deletion-bg: #fee2e2;          /* Deleted line background */
+    --theme-diff-deletion-text: #dc2626;        /* Deleted line text */
+    --theme-diff-deletion-linenum-bg: #fecaca;  /* Deleted line number background */
+    --theme-diff-deletion-linenum-text: #b91c1c;/* Deleted line number text */
+    --theme-diff-context-bg: #ffffff;           /* Context line background */
+    --theme-diff-context-text: #64748b;         /* Context line text */
+    --theme-diff-context-linenum-bg: #f3f4f6;   /* Context line number background */
+    --theme-diff-context-linenum-text: #9ca3af; /* Context line number text */
+    --theme-diff-expanded-bg: #f9fafb;          /* Expanded context background */
+    --theme-diff-hunk-expansion-bg: #eff6ff;    /* Hunk expansion area background */
+    --theme-diff-hunk-expansion-border: #bfdbfe;/* Hunk expansion border */
+
+    --theme-semantic-success-bg-subtle: #dcfce7;
+    --theme-semantic-success-bg-medium: #bbf7d0;
+    --theme-semantic-success-bg-strong: #86efac;
+    --theme-semantic-success-text: #059669;
+    --theme-semantic-success-text-strong: #065f46;
+    --theme-semantic-success-border: #bbf7d0;
+
+    --theme-semantic-danger-bg-subtle: #fee2e2;
+    --theme-semantic-danger-bg-medium: #fecaca;
+    --theme-semantic-danger-bg-strong: #fca5a5;
+    --theme-semantic-danger-text: #dc2626;
+    --theme-semantic-danger-text-strong: #b91c1c;
+    --theme-semantic-danger-text-medium: #ef4444;
+    --theme-semantic-danger-border: #fecaca;
+
+    --theme-semantic-warning-bg-subtle: #fef3c7;
+    --theme-semantic-warning-bg-medium: #fde68a;
+    --theme-semantic-warning-text: #d97706;
+    --theme-semantic-warning-text-strong: #92400e;
+    --theme-semantic-warning-border: #fcd34d;
+
+    --theme-semantic-info-bg-subtle: #eff6ff;
+    --theme-semantic-info-bg-medium: #dbeafe;
+    --theme-semantic-info-bg-strong: #bfdbfe;
+    --theme-semantic-info-bg-stronger: #93c5fd;
+    --theme-semantic-info-text: #1e40af;
+    --theme-semantic-info-text-medium: #2563eb;
+    --theme-semantic-info-text-strong: #1e3a8a;
+    --theme-semantic-info-border: #93c5fd;
+
+    --theme-neutral-50: #f9fafb;
+    --theme-neutral-100: #f3f4f6;
+    --theme-neutral-200: #e5e7eb;
+    --theme-neutral-300: #d1d5db;
+    --theme-neutral-400: #9ca3af;
+    --theme-neutral-500: #6b7280;
+    --theme-neutral-600: #4b5563;
+    --theme-neutral-700: #374151;
+    --theme-neutral-800: #1f2937;
+    --theme-neutral-900: #111827;
+
     /* === SURFACES (Backgrounds) === */
-    --surface-primary: #ffffff;           /* Main page background */
-    --surface-secondary: #f8fafc;         /* Cards, panels, file headers */
-    --surface-tertiary: #f1f5f9;          /* Hover states, wells */
-    --surface-raised: #ffffff;            /* Elevated elements (modals, dropdowns) */
-    --surface-sunken: #f9fafb;            /* Depressed areas (inputs, wells) */
-    --surface-overlay: #f9fafb;           /* Overlay backgrounds */
+    --surface-primary: var(--theme-surface-primary);           /* Main page background */
+    --surface-secondary: var(--theme-surface-secondary);       /* Cards, panels, file headers */
+    --surface-tertiary: var(--theme-surface-tertiary);         /* Hover states, wells */
+    --surface-raised: var(--theme-surface-raised);             /* Elevated elements (modals, dropdowns) */
+    --surface-sunken: var(--theme-surface-sunken);             /* Depressed areas (inputs, wells) */
+    --surface-overlay: var(--theme-surface-overlay);           /* Overlay backgrounds */
 
     /* === TEXT === */
-    --text-primary: #1e293b;              /* Main body text */
-    --text-secondary: #64748b;            /* Secondary text, labels */
-    --text-tertiary: #94a3b8;             /* Deemphasized text, placeholders */
-    --text-disabled: #cbd5e1;             /* Disabled state text */
-    --text-inverted: #ffffff;             /* Text on dark backgrounds */
+    --text-primary: var(--theme-text-primary);              /* Main body text */
+    --text-secondary: var(--theme-text-secondary);          /* Secondary text, labels */
+    --text-tertiary: var(--theme-text-tertiary);            /* Deemphasized text, placeholders */
+    --text-disabled: var(--theme-text-disabled);            /* Disabled state text */
+    --text-inverted: var(--theme-text-inverted);            /* Text on dark backgrounds */
 
     /* === BORDERS === */
-    --border-default: #e2e8f0;            /* Standard borders */
-    --border-strong: #cbd5e1;             /* Emphasized borders */
-    --border-subtle: #f1f5f9;             /* Subtle dividers */
-    --border-interactive: #94a3af;        /* Interactive element borders */
+    --border-default: var(--theme-border-default);            /* Standard borders */
+    --border-strong: var(--theme-border-strong);              /* Emphasized borders */
+    --border-subtle: var(--theme-border-subtle);              /* Subtle dividers */
+    --border-interactive: var(--theme-border-interactive);    /* Interactive element borders */
 
     /* === INTERACTIVE (Buttons, Links, Controls) === */
-    --interactive-primary: #2563eb;       /* Primary action buttons */
-    --interactive-primary-hover: #1d4ed8; /* Primary hover state */
-    --interactive-primary-active: #1e40af;/* Primary active/pressed state */
-    --interactive-secondary: #64748b;     /* Secondary actions */
-    --interactive-secondary-hover: #475569; /* Secondary hover */
-    --interactive-disabled: #cbd5e1;      /* Disabled interactive elements */
+    --interactive-primary: var(--theme-interactive-primary);       /* Primary action buttons */
+    --interactive-primary-hover: var(--theme-interactive-primary-hover); /* Primary hover state */
+    --interactive-primary-active: var(--theme-interactive-primary-active);/* Primary active/pressed state */
+    --interactive-secondary: var(--theme-interactive-secondary);     /* Secondary actions */
+    --interactive-secondary-hover: var(--theme-interactive-secondary-hover); /* Secondary hover */
+    --interactive-disabled: var(--theme-interactive-disabled);      /* Disabled interactive elements */
 
     /* === FOCUS STATES === */
-    --focus-ring: #3b82f6;                /* Focus outline color */
-    --focus-border: #2563eb;              /* Focus border color */
+    --focus-ring: var(--theme-focus-ring);                /* Focus outline color */
+    --focus-border: var(--theme-focus-border);            /* Focus border color */
 
     /* === DIFF-SPECIFIC COLORS === */
     /* Addition (Green) - Softer, more pleasant green-100 instead of green-200 */
-    --diff-addition-bg: #dcfce7;          /* Added line background - softer green */
-    --diff-addition-text: #059669;        /* Added line text - keep for contrast */
-    --diff-addition-linenum-bg: #bbf7d0;  /* Added line number background - medium green */
-    --diff-addition-linenum-text: #065f46;/* Added line number text */
+    --diff-addition-bg: var(--theme-diff-addition-bg);          /* Added line background - softer green */
+    --diff-addition-text: var(--theme-diff-addition-text);      /* Added line text - keep for contrast */
+    --diff-addition-linenum-bg: var(--theme-diff-addition-linenum-bg);  /* Added line number background - medium green */
+    --diff-addition-linenum-text: var(--theme-diff-addition-linenum-text);/* Added line number text */
 
     /* Deletion (Red) - Softer, more pleasant red-100 instead of red-200 */
-    --diff-deletion-bg: #fee2e2;          /* Deleted line background - softer red */
-    --diff-deletion-text: #dc2626;        /* Deleted line text - keep for contrast */
-    --diff-deletion-linenum-bg: #fecaca;  /* Deleted line number background - medium red */
-    --diff-deletion-linenum-text: #b91c1c;/* Deleted line number text */
+    --diff-deletion-bg: var(--theme-diff-deletion-bg);          /* Deleted line background - softer red */
+    --diff-deletion-text: var(--theme-diff-deletion-text);      /* Deleted line text - keep for contrast */
+    --diff-deletion-linenum-bg: var(--theme-diff-deletion-linenum-bg);  /* Deleted line number background - medium red */
+    --diff-deletion-linenum-text: var(--theme-diff-deletion-linenum-text);/* Deleted line number text */
 
     /* Context (Unchanged lines) */
-    --diff-context-bg: #ffffff;           /* Context line background */
-    --diff-context-text: #64748b;         /* Context line text */
-    --diff-context-linenum-bg: #f3f4f6;   /* Context line number background */
-    --diff-context-linenum-text: #9ca3af; /* Context line number text */
+    --diff-context-bg: var(--theme-diff-context-bg);           /* Context line background */
+    --diff-context-text: var(--theme-diff-context-text);       /* Context line text */
+    --diff-context-linenum-bg: var(--theme-diff-context-linenum-bg);   /* Context line number background */
+    --diff-context-linenum-text: var(--theme-diff-context-linenum-text); /* Context line number text */
 
     /* Expanded context and hunk expansion */
-    --diff-expanded-bg: #f9fafb;          /* Expanded context background */
-    --diff-hunk-expansion-bg: #eff6ff;    /* Hunk expansion area background */
-    --diff-hunk-expansion-border: #bfdbfe;/* Hunk expansion border */
+    --diff-expanded-bg: var(--theme-diff-expanded-bg);          /* Expanded context background */
+    --diff-hunk-expansion-bg: var(--theme-diff-hunk-expansion-bg);    /* Hunk expansion area background */
+    --diff-hunk-expansion-border: var(--theme-diff-hunk-expansion-border);/* Hunk expansion border */
 
     /* === SEMANTIC COLORS === */
     /* Success (Green) - for success messages, additions - softer tones */
-    --semantic-success-bg-subtle: #dcfce7;
-    --semantic-success-bg-medium: #bbf7d0;
-    --semantic-success-bg-strong: #86efac;
-    --semantic-success-text: #059669;
-    --semantic-success-text-strong: #065f46;
-    --semantic-success-border: #bbf7d0;
+    --semantic-success-bg-subtle: var(--theme-semantic-success-bg-subtle);
+    --semantic-success-bg-medium: var(--theme-semantic-success-bg-medium);
+    --semantic-success-bg-strong: var(--theme-semantic-success-bg-strong);
+    --semantic-success-text: var(--theme-semantic-success-text);
+    --semantic-success-text-strong: var(--theme-semantic-success-text-strong);
+    --semantic-success-border: var(--theme-semantic-success-border);
 
     /* Danger (Red) - for errors, deletions - softer tones */
-    --semantic-danger-bg-subtle: #fee2e2;
-    --semantic-danger-bg-medium: #fecaca;
-    --semantic-danger-bg-strong: #fca5a5;
-    --semantic-danger-text: #dc2626;
-    --semantic-danger-text-strong: #b91c1c;
-    --semantic-danger-text-medium: #ef4444;
-    --semantic-danger-border: #fecaca;
+    --semantic-danger-bg-subtle: var(--theme-semantic-danger-bg-subtle);
+    --semantic-danger-bg-medium: var(--theme-semantic-danger-bg-medium);
+    --semantic-danger-bg-strong: var(--theme-semantic-danger-bg-strong);
+    --semantic-danger-text: var(--theme-semantic-danger-text);
+    --semantic-danger-text-strong: var(--theme-semantic-danger-text-strong);
+    --semantic-danger-text-medium: var(--theme-semantic-danger-text-medium);
+    --semantic-danger-border: var(--theme-semantic-danger-border);
 
     /* Warning (Yellow/Amber) - for warnings, renamed files */
-    --semantic-warning-bg-subtle: #fef3c7;
-    --semantic-warning-bg-medium: #fde68a;
-    --semantic-warning-text: #d97706;
-    --semantic-warning-text-strong: #92400e;
-    --semantic-warning-border: #fcd34d;
+    --semantic-warning-bg-subtle: var(--theme-semantic-warning-bg-subtle);
+    --semantic-warning-bg-medium: var(--theme-semantic-warning-bg-medium);
+    --semantic-warning-text: var(--theme-semantic-warning-text);
+    --semantic-warning-text-strong: var(--theme-semantic-warning-text-strong);
+    --semantic-warning-border: var(--theme-semantic-warning-border);
 
     /* Info (Blue) - for informational messages */
-    --semantic-info-bg-subtle: #eff6ff;
-    --semantic-info-bg-medium: #dbeafe;
-    --semantic-info-bg-strong: #bfdbfe;
-    --semantic-info-bg-stronger: #93c5fd;
-    --semantic-info-text: #1e40af;
-    --semantic-info-text-medium: #2563eb;
-    --semantic-info-text-strong: #1e3a8a;
-    --semantic-info-border: #93c5fd;
+    --semantic-info-bg-subtle: var(--theme-semantic-info-bg-subtle);
+    --semantic-info-bg-medium: var(--theme-semantic-info-bg-medium);
+    --semantic-info-bg-strong: var(--theme-semantic-info-bg-strong);
+    --semantic-info-bg-stronger: var(--theme-semantic-info-bg-stronger);
+    --semantic-info-text: var(--theme-semantic-info-text);
+    --semantic-info-text-medium: var(--theme-semantic-info-text-medium);
+    --semantic-info-text-strong: var(--theme-semantic-info-text-strong);
+    --semantic-info-border: var(--theme-semantic-info-border);
 
     /* ============================================
      * BACKWARDS COMPATIBILITY MAPPINGS
@@ -149,16 +236,16 @@
 
     /* Legacy neutral colors (kept for Tailwind compatibility) */
     /* Note: These values are used by Tailwind and will be removed in Phase 3 */
-    --color-neutral-50: #f9fafb;
-    --color-neutral-100: #f3f4f6;
-    --color-neutral-200: #e5e7eb;
-    --color-neutral-300: #d1d5db;
-    --color-neutral-400: #9ca3af;
-    --color-neutral-500: #6b7280;
-    --color-neutral-600: #4b5563;
-    --color-neutral-700: #374151;
-    --color-neutral-800: #1f2937;
-    --color-neutral-900: #111827;
+    --color-neutral-50: var(--theme-neutral-50);
+    --color-neutral-100: var(--theme-neutral-100);
+    --color-neutral-200: var(--theme-neutral-200);
+    --color-neutral-300: var(--theme-neutral-300);
+    --color-neutral-400: var(--theme-neutral-400);
+    --color-neutral-500: var(--theme-neutral-500);
+    --color-neutral-600: var(--theme-neutral-600);
+    --color-neutral-700: var(--theme-neutral-700);
+    --color-neutral-800: var(--theme-neutral-800);
+    --color-neutral-900: var(--theme-neutral-900);
 
     /* Legacy semantic color backgrounds - map to new system */
     --color-danger-bg: var(--semantic-danger-bg-subtle);
@@ -221,96 +308,96 @@
      * ============================================ */
 
     /* === SURFACES (Backgrounds) === */
-    --surface-primary: #0f172a;           /* Main page background - darkest */
-    --surface-secondary: #1e293b;         /* Cards, panels, file headers */
-    --surface-tertiary: #475569;          /* Hover states, wells - LIGHTENED for better hierarchy */
-    --surface-raised: #1e293b;            /* Elevated elements (modals, dropdowns) */
-    --surface-sunken: #0a0f1a;            /* Depressed areas (inputs, wells) - darker than primary */
-    --surface-overlay: #1e293b;           /* Overlay backgrounds */
+    --theme-surface-primary: #0f172a;           /* Main page background - darkest */
+    --theme-surface-secondary: #1e293b;         /* Cards, panels, file headers */
+    --theme-surface-tertiary: #475569;          /* Hover states, wells - LIGHTENED for better hierarchy */
+    --theme-surface-raised: #1e293b;            /* Elevated elements (modals, dropdowns) */
+    --theme-surface-sunken: #0a0f1a;            /* Depressed areas (inputs, wells) - darker than primary */
+    --theme-surface-overlay: #1e293b;           /* Overlay backgrounds */
 
     /* === TEXT === */
-    --text-primary: #f1f5f9;              /* Main body text - lightest */
-    --text-secondary: #cbd5e1;            /* Secondary text, labels */
-    --text-tertiary: #94a3b8;             /* Deemphasized text, placeholders */
-    --text-disabled: #64748b;             /* Disabled state text */
-    --text-inverted: #0f172a;             /* Text on light backgrounds */
+    --theme-text-primary: #f1f5f9;              /* Main body text - lightest */
+    --theme-text-secondary: #cbd5e1;            /* Secondary text, labels */
+    --theme-text-tertiary: #94a3b8;             /* Deemphasized text, placeholders */
+    --theme-text-disabled: #64748b;             /* Disabled state text */
+    --theme-text-inverted: #0f172a;             /* Text on light backgrounds */
 
     /* === BORDERS === */
-    --border-default: #475569;            /* Standard borders - LIGHTENED for better visibility */
-    --border-strong: #64748b;             /* Emphasized borders - LIGHTENED */
-    --border-subtle: #1e293b;             /* Subtle dividers */
-    --border-interactive: #64748b;        /* Interactive element borders - LIGHTENED */
+    --theme-border-default: #475569;            /* Standard borders - LIGHTENED for better visibility */
+    --theme-border-strong: #64748b;             /* Emphasized borders - LIGHTENED */
+    --theme-border-subtle: #1e293b;             /* Subtle dividers */
+    --theme-border-interactive: #64748b;        /* Interactive element borders - LIGHTENED */
 
     /* === INTERACTIVE (Buttons, Links, Controls) === */
-    --interactive-primary: #3b82f6;       /* Primary action buttons - brighter blue */
-    --interactive-primary-hover: #2563eb; /* Primary hover state */
-    --interactive-primary-active: #1d4ed8;/* Primary active/pressed state */
-    --interactive-secondary: #94a3b8;     /* Secondary actions */
-    --interactive-secondary-hover: #cbd5e1; /* Secondary hover */
-    --interactive-disabled: #475569;      /* Disabled interactive elements */
+    --theme-interactive-primary: #3b82f6;       /* Primary action buttons - brighter blue */
+    --theme-interactive-primary-hover: #2563eb; /* Primary hover state */
+    --theme-interactive-primary-active: #1d4ed8;/* Primary active/pressed state */
+    --theme-interactive-secondary: #94a3b8;     /* Secondary actions */
+    --theme-interactive-secondary-hover: #cbd5e1; /* Secondary hover */
+    --theme-interactive-disabled: #475569;      /* Disabled interactive elements */
 
     /* === FOCUS STATES === */
-    --focus-ring: #60a5fa;                /* Focus outline color - lighter blue */
-    --focus-border: #3b82f6;              /* Focus border color */
+    --theme-focus-ring: #60a5fa;                /* Focus outline color - lighter blue */
+    --theme-focus-border: #3b82f6;              /* Focus border color */
 
     /* === DIFF-SPECIFIC COLORS === */
     /* Addition (Green) - Richer, more saturated for better visibility */
-    --diff-addition-bg: #1a3a2a;          /* Added line background - richer green, more saturation */
-    --diff-addition-text: #6ee7b7;        /* Added line text - softer green-300 */
-    --diff-addition-linenum-bg: #2e5e44;  /* Added line number background */
-    --diff-addition-linenum-text: #86efac;/* Added line number text */
+    --theme-diff-addition-bg: #1a3a2a;          /* Added line background - richer green, more saturation */
+    --theme-diff-addition-text: #6ee7b7;        /* Added line text - softer green-300 */
+    --theme-diff-addition-linenum-bg: #2e5e44;  /* Added line number background */
+    --theme-diff-addition-linenum-text: #86efac;/* Added line number text */
 
     /* Deletion (Red) - Richer, less purple for better visibility */
-    --diff-deletion-bg: #3a1a1a;          /* Deleted line background - richer red, less purple */
-    --diff-deletion-text: #fca5a5;        /* Deleted line text - keep red-300 */
-    --diff-deletion-linenum-bg: #5e2f34;  /* Deleted line number background */
-    --diff-deletion-linenum-text: #fca5a5;/* Deleted line number text */
+    --theme-diff-deletion-bg: #3a1a1a;          /* Deleted line background - richer red, less purple */
+    --theme-diff-deletion-text: #fca5a5;        /* Deleted line text - keep red-300 */
+    --theme-diff-deletion-linenum-bg: #5e2f34;  /* Deleted line number background */
+    --theme-diff-deletion-linenum-text: #fca5a5;/* Deleted line number text */
 
     /* Context (Unchanged lines) - More visible */
-    --diff-context-bg: #0f172a;           /* Context line background - same as surface-primary for visibility */
-    --diff-context-text: #94a3b8;         /* Context line text */
-    --diff-context-linenum-bg: #1a2332;   /* Context line number background */
-    --diff-context-linenum-text: #64748b; /* Context line number text */
+    --theme-diff-context-bg: #0f172a;           /* Context line background - same as surface-primary for visibility */
+    --theme-diff-context-text: #94a3b8;         /* Context line text */
+    --theme-diff-context-linenum-bg: #1a2332;   /* Context line number background */
+    --theme-diff-context-linenum-text: #64748b; /* Context line number text */
 
     /* Expanded context and hunk expansion */
-    --diff-expanded-bg: #1e293b;          /* Expanded context background */
-    --diff-hunk-expansion-bg: #2d3748;    /* Hunk expansion area background */
-    --diff-hunk-expansion-border: #4a5568;/* Hunk expansion border */
+    --theme-diff-expanded-bg: #1e293b;          /* Expanded context background */
+    --theme-diff-hunk-expansion-bg: #2d3748;    /* Hunk expansion area background */
+    --theme-diff-hunk-expansion-border: #4a5568;/* Hunk expansion border */
 
     /* === SEMANTIC COLORS === */
     /* Success (Green) - for success messages, additions */
-    --semantic-success-bg-subtle: #2e5e44;
-    --semantic-success-bg-medium: #3e6e54;
-    --semantic-success-bg-strong: #4e7e64;
-    --semantic-success-text: #10b981;
-    --semantic-success-text-strong: #34d399;
-    --semantic-success-border: #3e6e54;
+    --theme-semantic-success-bg-subtle: #2e5e44;
+    --theme-semantic-success-bg-medium: #3e6e54;
+    --theme-semantic-success-bg-strong: #4e7e64;
+    --theme-semantic-success-text: #10b981;
+    --theme-semantic-success-text-strong: #34d399;
+    --theme-semantic-success-border: #3e6e54;
 
     /* Danger (Red) - for errors, deletions */
-    --semantic-danger-bg-subtle: #4e2f44;
-    --semantic-danger-bg-medium: #5e3f54;
-    --semantic-danger-bg-strong: #6e4f64;
-    --semantic-danger-text: #f87171;
-    --semantic-danger-text-strong: #fca5a5;
-    --semantic-danger-text-medium: #ef4444;
-    --semantic-danger-border: #7e5f74;
+    --theme-semantic-danger-bg-subtle: #4e2f44;
+    --theme-semantic-danger-bg-medium: #5e3f54;
+    --theme-semantic-danger-bg-strong: #6e4f64;
+    --theme-semantic-danger-text: #f87171;
+    --theme-semantic-danger-text-strong: #fca5a5;
+    --theme-semantic-danger-text-medium: #ef4444;
+    --theme-semantic-danger-border: #7e5f74;
 
     /* Warning (Yellow/Amber) - for warnings, renamed files */
-    --semantic-warning-bg-subtle: #4a3f2e;
-    --semantic-warning-bg-medium: #5a4f3e;
-    --semantic-warning-text: #f59e0b;
-    --semantic-warning-text-strong: #fbbf24;
-    --semantic-warning-border: #fbbf24;
+    --theme-semantic-warning-bg-subtle: #4a3f2e;
+    --theme-semantic-warning-bg-medium: #5a4f3e;
+    --theme-semantic-warning-text: #f59e0b;
+    --theme-semantic-warning-text-strong: #fbbf24;
+    --theme-semantic-warning-border: #fbbf24;
 
     /* Info (Blue) - for informational messages */
-    --semantic-info-bg-subtle: #1e293b;
-    --semantic-info-bg-medium: #334155;
-    --semantic-info-bg-strong: #475569;
-    --semantic-info-bg-stronger: #64748b;
-    --semantic-info-text: #60a5fa;
-    --semantic-info-text-medium: #3b82f6;
-    --semantic-info-text-strong: #93c5fd;
-    --semantic-info-border: #64748b;
+    --theme-semantic-info-bg-subtle: #1e293b;
+    --theme-semantic-info-bg-medium: #334155;
+    --theme-semantic-info-bg-strong: #475569;
+    --theme-semantic-info-bg-stronger: #64748b;
+    --theme-semantic-info-text: #60a5fa;
+    --theme-semantic-info-text-medium: #3b82f6;
+    --theme-semantic-info-text-strong: #93c5fd;
+    --theme-semantic-info-border: #64748b;
 
     /* ============================================
      * BACKWARDS COMPATIBILITY MAPPINGS - DARK THEME
@@ -348,16 +435,16 @@
     /* Legacy neutral colors (kept for Tailwind compatibility) */
     /* Note: In dark mode, these values are INVERTED from light mode */
     /* This inversion will be removed in Phase 3 */
-    --color-neutral-50: #1e293b;
-    --color-neutral-100: #334155;
-    --color-neutral-200: #475569;
-    --color-neutral-300: #64748b;
-    --color-neutral-400: #94a3b8;
-    --color-neutral-500: #64748b;
-    --color-neutral-600: #475569;
-    --color-neutral-700: #cbd5e1;
-    --color-neutral-800: #e2e8f0;
-    --color-neutral-900: #f1f5f9;
+    --theme-neutral-50: #1e293b;
+    --theme-neutral-100: #334155;
+    --theme-neutral-200: #475569;
+    --theme-neutral-300: #64748b;
+    --theme-neutral-400: #94a3b8;
+    --theme-neutral-500: #64748b;
+    --theme-neutral-600: #475569;
+    --theme-neutral-700: #cbd5e1;
+    --theme-neutral-800: #e2e8f0;
+    --theme-neutral-900: #f1f5f9;
 
     /* Legacy semantic color backgrounds - map to new system */
     --color-danger-bg: var(--semantic-danger-bg-subtle);
