@@ -487,6 +487,19 @@ When creating new components, always test both themes:
 
 ## Quick Reference
 
+### Theme Palette Snapshot
+
+These `--theme-*` tokens are the palette you override to create new themes.
+
+| Token | Light | Dark | Usage |
+|-------|-------|------|-------|
+| `--theme-surface-primary` | `#ffffff` | `#0f172a` | Page background |
+| `--theme-text-primary` | `#1e293b` | `#f1f5f9` | Main text |
+| `--theme-border-default` | `#e2e8f0` | `#475569` | Default borders |
+| `--theme-interactive-primary` | `#2563eb` | `#3b82f6` | Primary action |
+| `--theme-focus-ring` | `#3b82f6` | `#60a5fa` | Focus ring |
+| `--theme-semantic-danger-text` | `#dc2626` | `#f87171` | Catastrophic text |
+
 ### Most Common Variables
 
 | Purpose | Variable | Light | Dark |

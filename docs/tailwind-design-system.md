@@ -67,6 +67,25 @@ palette only (the semantic tokens below reference these).
   `--theme-neutral-600`, `--theme-neutral-700`, `--theme-neutral-800`,
   `--theme-neutral-900`
 
+#### Theme Palette Snapshot
+
+These values live in `styles.css` under `:root` (light) and
+`[data-theme="dark"]` (dark). Use them as the base palette when creating
+additional themes.
+
+| Token | Light | Dark | Usage |
+|-------|-------|------|-------|
+| `--theme-surface-primary` | `#ffffff` | `#0f172a` | Page background |
+| `--theme-surface-secondary` | `#f8fafc` | `#1e293b` | Cards/panels |
+| `--theme-text-primary` | `#1e293b` | `#f1f5f9` | Main text |
+| `--theme-text-secondary` | `#64748b` | `#cbd5e1` | Secondary text |
+| `--theme-border-default` | `#e2e8f0` | `#475569` | Default borders |
+| `--theme-interactive-primary` | `#2563eb` | `#3b82f6` | Primary action |
+| `--theme-interactive-primary-hover` | `#1d4ed8` | `#2563eb` | Primary hover |
+| `--theme-focus-ring` | `#3b82f6` | `#60a5fa` | Focus ring |
+| `--theme-semantic-danger-bg-subtle` | `#fee2e2` | `#4e2f44` | Catastrophic bg |
+| `--theme-semantic-danger-text` | `#dc2626` | `#f87171` | Catastrophic text |
+
 #### Color Tokens (Explicit List)
 
 - Surfaces: `--surface-primary`, `--surface-secondary`, `--surface-tertiary`,
