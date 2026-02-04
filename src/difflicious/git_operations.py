@@ -512,7 +512,7 @@ class GitRepository:
 
             if not base_args or base_args == []:
                 # Unstaged: working tree vs index
-                diffs = self.repo.index.diff(None)
+                diffs = self.repo.index.diff(None, R=True)
             elif "--cached" in base_args:
                 # Staged: compare commit to index (not index to commit)
                 # This ensures deletions show as "D" not "A"
@@ -522,11 +522,11 @@ class GitRepository:
                     commit_ref = "HEAD"
                 else:
                     commit_ref = base_args[1]
-                diffs = self.repo.commit(commit_ref).diff()
+                diffs = self.repo.commit(commit_ref).diff(R=True)
             else:
                 # Working tree vs specific commit
                 commit_ref = base_args[0]
-                diffs = self.repo.commit(commit_ref).diff(None)
+                diffs = self.repo.commit(commit_ref).diff(None, R=True)
 
             if diffs is None:
                 return []
