@@ -47,8 +47,8 @@ export async function loadMovedFileContent(button) {
             const response = await fetch(apiUrl.toString());
             const result = await response.json();
 
-            if (result.error) {
-                throw new Error(result.error);
+            if (!response.ok || result.status !== 'ok') {
+                throw new Error(result.message || 'Failed to load file lines');
             }
 
             const chunk = result.lines || [];
