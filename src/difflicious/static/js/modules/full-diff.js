@@ -3,9 +3,6 @@
  * Handles loading complete file diffs with unlimited context
  */
 
-// Debug flag - set to true for verbose logging
-const DEBUG = false;
-
 import { escapeHtml, escapeJsString, isHighlightedContent } from './dom-utils.js';
 import {
     actionButton,
@@ -16,6 +13,9 @@ import {
     statusCaption,
     statusPanel
 } from './design-system.js';
+
+// Debug flag - set to true for verbose logging
+const DEBUG = false;
 
 /**
  * Load and display content for a moved/renamed file with no changes.

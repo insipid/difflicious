@@ -24,13 +24,15 @@ export default {
 
         this.current = savedTheme || currentDomTheme || (systemPrefersDark ? 'dark' : 'light');
 
-        if (DEBUG) console.log('[ThemeStore] Theme initialized:', {
-            savedTheme,
-            systemPrefersDark,
-            currentDomTheme,
-            current: this.current,
-            icon: this.icon
-        });
+        if (DEBUG) {
+            console.log('[ThemeStore] Theme initialized:', {
+                savedTheme,
+                systemPrefersDark,
+                currentDomTheme,
+                current: this.current,
+                icon: this.icon
+            });
+        }
 
         // Apply theme to document
         this.applyTheme();

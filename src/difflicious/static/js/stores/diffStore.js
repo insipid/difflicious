@@ -40,14 +40,16 @@ export default {
      * Initialize the store
      */
     async init() {
-        if (DEBUG) console.log('[DiffStore] Initializing diff store...');
+        if (DEBUG) { console.log('[DiffStore] Initializing diff store...'); }
         await this.initializeRepository();
         this.restoreState();
-        if (DEBUG) console.log('[DiffStore] Diff store initialized:', {
-            repositoryName: this.repositoryName,
-            expandedFiles: Object.keys(this.expandedFiles).length,
-            expandedGroups: this.expandedGroups
-        });
+        if (DEBUG) {
+            console.log('[DiffStore] Diff store initialized:', {
+                repositoryName: this.repositoryName,
+                expandedFiles: Object.keys(this.expandedFiles).length,
+                expandedGroups: this.expandedGroups
+            });
+        }
     },
 
     /**
