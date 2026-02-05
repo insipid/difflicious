@@ -4,6 +4,9 @@
  * Using objects instead of Sets for better Alpine.js reactivity
  */
 
+// Debug flag - set to true for verbose logging
+const DEBUG = false;
+
 export default {
     // State - using objects for better Alpine.js reactivity
     repositoryName: '',
@@ -37,10 +40,10 @@ export default {
      * Initialize the store
      */
     async init() {
-        console.log('[DiffStore] Initializing diff store...');
+        if (DEBUG) console.log('[DiffStore] Initializing diff store...');
         await this.initializeRepository();
         this.restoreState();
-        console.log('[DiffStore] Diff store initialized:', {
+        if (DEBUG) console.log('[DiffStore] Diff store initialized:', {
             repositoryName: this.repositoryName,
             expandedFiles: Object.keys(this.expandedFiles).length,
             expandedGroups: this.expandedGroups
@@ -80,7 +83,7 @@ export default {
      * Toggle file expansion state
      */
     toggleFile(filePath) {
-        console.log('[DiffStore] Toggle file:', filePath, 'current:', this.expandedFiles[filePath]);
+        if (DEBUG) console.log('[DiffStore] Toggle file:', filePath, 'current:', this.expandedFiles[filePath]);
         if (this.expandedFiles[filePath]) {
             delete this.expandedFiles[filePath];
         } else {
@@ -89,7 +92,7 @@ export default {
         // Trigger Alpine.js reactivity
         this.expandedFiles = { ...this.expandedFiles };
         this.saveState();
-        console.log('[DiffStore] After toggle:', filePath, 'new:', this.expandedFiles[filePath]);
+        if (DEBUG) console.log('[DiffStore] After toggle:', filePath, 'new:', this.expandedFiles[filePath]);
     },
 
     /**
@@ -114,7 +117,7 @@ export default {
      * Expand all files (reads from DOM)
      */
     expandAllFiles() {
-        console.log('[DiffStore] Expand all files');
+        if (DEBUG) console.log('[DiffStore] Expand all files');
         const filePaths = this.getAllFilePaths();
         filePaths.forEach(filePath => {
             this.expandedFiles[filePath] = true;
@@ -122,7 +125,7 @@ export default {
         // Trigger Alpine.js reactivity
         this.expandedFiles = { ...this.expandedFiles };
         this.saveState();
-        console.log('[DiffStore] Expanded files:', Object.keys(this.expandedFiles).length);
+        if (DEBUG) console.log('[DiffStore] Expanded files:', Object.keys(this.expandedFiles).length);
     },
 
     /**
@@ -141,10 +144,10 @@ export default {
      * Collapse all files
      */
     collapseAllFiles() {
-        console.log('[DiffStore] Collapse all files');
+        if (DEBUG) console.log('[DiffStore] Collapse all files');
         this.expandedFiles = {};
         this.saveState();
-        console.log('[DiffStore] All files collapsed');
+        if (DEBUG) console.log('[DiffStore] All files collapsed');
     },
 
     /**

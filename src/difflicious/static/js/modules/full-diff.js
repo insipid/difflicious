@@ -3,6 +3,9 @@
  * Handles loading complete file diffs with unlimited context
  */
 
+// Debug flag - set to true for verbose logging
+const DEBUG = false;
+
 import { escapeHtml, escapeJsString, isHighlightedContent } from './dom-utils.js';
 import {
     actionButton,
@@ -229,20 +232,20 @@ export async function loadFullDiff(filePath, fileId) {
  */
 export async function renderFullDiff(contentElement, diffData, fileId) {
     // Add debug logging to understand what we receive
-    console.log('Rendering full diff for', diffData.file_path);
-    console.log('Diff data structure:', diffData);
+    if (DEBUG) console.log('Rendering full diff for', diffData.file_path);
+    if (DEBUG) console.log('Diff data structure:', diffData);
 
     if (diffData.diff_data && diffData.diff_data.hunks && diffData.diff_data.hunks.length > 0) {
-        console.log('Using parsed diff data with', diffData.diff_data.hunks.length, 'hunks');
-        console.log('First hunk sample:', diffData.diff_data.hunks[0]);
+        if (DEBUG) console.log('Using parsed diff data with', diffData.diff_data.hunks.length, 'hunks');
+        if (DEBUG) console.log('First hunk sample:', diffData.diff_data.hunks[0]);
 
         // Use parsed diff data to render side-by-side hunks
         let htmlContent = '';
 
         for (let i = 0; i < diffData.diff_data.hunks.length; i++) {
             const hunk = diffData.diff_data.hunks[i];
-            console.log(`Hunk ${i} has ${hunk.lines?.length || 0} lines`);
-            if (hunk.lines && hunk.lines.length > 0) {
+            if (DEBUG) console.log(`Hunk ${i} has ${hunk.lines?.length || 0} lines`);
+            if (DEBUG && hunk.lines && hunk.lines.length > 0) {
                 console.log(`First few lines of hunk ${i}:`, hunk.lines.slice(0, 3));
             }
             htmlContent += renderSideBySideHunk(hunk, diffData.file_path, i);
@@ -250,7 +253,7 @@ export async function renderFullDiff(contentElement, diffData, fileId) {
 
         contentElement.innerHTML = htmlContent;
     } else if (diffData.diff_content && diffData.diff_content.trim()) {
-        console.log('Using raw diff content fallback');
+        if (DEBUG) console.log('Using raw diff content fallback');
         // Render raw diff content with better formatting
         const lines = diffData.diff_content.split('\n');
         let htmlContent = `
@@ -290,7 +293,7 @@ export async function renderFullDiff(contentElement, diffData, fileId) {
 
         contentElement.innerHTML = htmlContent;
     } else {
-        console.log('No diff content available');
+        if (DEBUG) console.log('No diff content available');
         // No diff content available
         contentElement.innerHTML = `
             <div class="${statusPanel()}">
@@ -311,10 +314,10 @@ export async function renderFullDiff(contentElement, diffData, fileId) {
  * @returns {string} HTML string
  */
 export function renderSideBySideHunk(hunk, filePath, hunkIndex) {
-    console.log('Rendering hunk', hunkIndex, 'with', hunk.lines?.length || 0, 'lines');
+    if (DEBUG) console.log('Rendering hunk', hunkIndex, 'with', hunk.lines?.length || 0, 'lines');
 
     // Debug: show line types for first few lines
-    if (hunk.lines && hunk.lines.length > 0) {
+    if (DEBUG && hunk.lines && hunk.lines.length > 0) {
         const sampleLines = hunk.lines.slice(0, 5);
         console.log('Sample line types:', sampleLines.map(l => ({ type: l.type, hasLeft: !!l.left, hasRight: !!l.right, leftContent: l.left?.content?.substring(0, 20), rightContent: l.right?.content?.substring(0, 20) })));
     }
@@ -330,7 +333,7 @@ export function renderSideBySideHunk(hunk, filePath, hunkIndex) {
             html += renderSideBySideLine(line);
         }
     } else {
-        console.warn('Hunk has no lines array:', hunk);
+        if (DEBUG) console.warn('Hunk has no lines array:', hunk);
         html += '<div class="p-4 text-center text-neutral-500">No line data available for this hunk</div>';
     }
 
