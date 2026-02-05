@@ -30,20 +30,8 @@ setAutoReloadDebug(DEBUG);
  * Initialize the application when DOM is ready
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    // Note: Theme is now handled by Alpine.js theme store (alpine-init.js)
-    // initializeTheme() call removed to avoid conflict with Alpine.js
-
-    // NOTE: DiffState.init() temporarily disabled during Alpine.js migration
-    // Alpine.js stores (diffStore, searchStore, themeStore) now handle:
-    // - File/group expansion state
-    // - API calls to /api/status
-    // - Button event bindings (via @click directives)
-    // - Search functionality
-    // - Theme management
-    //
-    // Current hybrid approach (Alpine.js + vanilla JS) works well for 1.0
-    // Full migration to Alpine components can be completed in future releases
-    // await DiffState.init();
+    // NOTE: State management handled by Alpine.js stores (diffStore, searchStore, themeStore)
+    // via alpine-init.js. Theme, expansion state, and search are all Alpine-managed.
 
     // Initialize auto-reload functionality
     AutoReload.init();
