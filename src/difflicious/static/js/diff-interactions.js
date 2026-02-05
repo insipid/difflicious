@@ -698,6 +698,22 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+/**
+ * Escape string for use in JavaScript string contexts (inline handlers)
+ * @param {string} text - Text to escape
+ * @returns {string} JavaScript-safe text
+ */
+function escapeJsString(text) {
+    if (!text) return '';
+    return text
+        .replace(/\\/g, '\\\\') // Escape backslashes first
+        .replace(/'/g, "\\'") // Escape single quotes
+        .replace(/"/g, '\\"') // Escape double quotes
+        .replace(/\n/g, '\\n') // Escape newlines
+        .replace(/\r/g, '\\r') // Escape carriage returns
+        .replace(/\t/g, '\\t'); // Escape tabs
+}
+
 function injectPygmentsCss(cssStyles) {
     // Inject Pygments CSS styles into the document head if not already present
     if (!cssStyles) return;
@@ -1332,7 +1348,7 @@ async function loadFullDiff(filePath, fileId) {
                 <p class="font-medium">Failed to load full diff</p>
                 <p class="text-sm mt-2">${escapeHtml(error.message)}</p>
                 <p class="text-xs mt-4 text-neutral-400">Check the browser console for more details</p>
-                <button onclick="loadFullDiff('${filePath}', '${fileId}')"
+                <button onclick="loadFullDiff('${escapeJsString(filePath)}', '${escapeJsString(fileId)}')"
                         class="mt-4 px-3 py-1 text-sm bg-danger-bg-100 text-danger-text-700 rounded hover:bg-danger-bg-200 transition-colors">
                     Retry
                 </button>
