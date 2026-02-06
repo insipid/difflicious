@@ -157,7 +157,12 @@ Difflicious uses a themeable Tailwind-driven design system with semantic tokens.
 
 ## Contributing
 
-This project is in early development. More contribution guidelines will be available as the core functionality is completed.
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
+
+- Setting up the development environment
+- Running tests and quality checks
+- Code style and conventions
+- Submitting pull requests
 
 ## License
 
