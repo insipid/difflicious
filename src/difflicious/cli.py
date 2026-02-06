@@ -12,12 +12,16 @@ from difflicious.app import run_server
 @click.version_option(version=__version__)
 @click.option(
     "--port",
+    "-p",
     default=5000,
+    envvar="DIFFLICIOUS_PORT",
     help="Port to run the web server on (default: 5000)",
 )
 @click.option(
     "--host",
+    "-h",
     default="127.0.0.1",
+    envvar="DIFFLICIOUS_HOST",
     help="Host to bind the web server to (default: 127.0.0.1)",
 )
 @click.option(

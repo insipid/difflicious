@@ -255,6 +255,8 @@ difflicious
 
 | Variable | Default | Description |
 |----------|---------|-------------|
+| `DIFFLICIOUS_PORT` | `5000` | Port to run the web server on |
+| `DIFFLICIOUS_HOST` | `127.0.0.1` | Host to bind the web server to |
 | `DIFFLICIOUS_FONT` | `jetbrains-mono` | Programming font to use |
 | `DIFFLICIOUS_DISABLE_GOOGLE_FONTS` | `false` | Disable Google Fonts CDN |
 | `DIFFLICIOUS_AUTO_RELOAD` | `true` | Enable auto-reload on file changes |
@@ -266,8 +268,13 @@ difflicious
 ### Port Already in Use
 
 ```bash
-# Use a different port
+# Use a different port via command line
 difflicious --port 8080
+difflicious -p 8080  # Short form
+
+# Or via environment variable
+export DIFFLICIOUS_PORT=8080
+difflicious
 
 # Or find and kill the process using port 5000
 lsof -ti:5000 | xargs kill -9
