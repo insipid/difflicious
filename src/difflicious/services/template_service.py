@@ -37,10 +37,6 @@ class TemplateRenderingService(BaseService):
     def prepare_diff_data_for_template(
         self,
         base_commit: Optional[str] = None,
-        target_commit: Optional[str] = None,
-        unstaged: bool = True,
-        staged: bool = True,
-        untracked: bool = False,
         file_path: Optional[str] = None,
         search_filter: Optional[str] = None,
         expand_files: bool = False,
@@ -48,14 +44,15 @@ class TemplateRenderingService(BaseService):
     ) -> dict[str, Any]:
         """Prepare complete diff data optimized for Jinja2 template rendering.
 
+        Note: Both unstaged and untracked data are always fetched. Filtering
+        is handled client-side based on UI toggle state.
+
         Args:
             base_commit: Base commit for comparison
-            target_commit: Target commit for comparison
-            unstaged: Include unstaged changes
-            untracked: Include untracked files
             file_path: Filter to specific file
             search_filter: Search term for filtering files
             expand_files: Whether to expand files by default
+            base_ref: Base reference for comparison (e.g., branch name or HEAD)
 
         Returns:
             Dictionary containing all data needed for template rendering
@@ -79,11 +76,8 @@ class TemplateRenderingService(BaseService):
                 if is_head_comparison:
                     # Working directory vs HEAD comparison
                     # Always get both staged and unstaged files, keep them separate
-                    # Both unstaged and untracked are always fetched for client-side filtering
                     grouped_diffs = self.diff_service.get_grouped_diffs(
                         base_ref="HEAD",
-                        unstaged=unstaged,  # Parameter kept for backward compatibility
-                        untracked=untracked,  # Parameter kept for backward compatibility
                         file_path=file_path,
                     )
 
@@ -95,11 +89,8 @@ class TemplateRenderingService(BaseService):
                     # All groups are always returned, and the frontend filters visibility.
                 else:
                     # Working directory vs branch comparison - always show changes
-                    # Both unstaged and untracked are always fetched for client-side filtering
                     grouped_diffs = self.diff_service.get_grouped_diffs(
                         base_ref=base_ref,
-                        unstaged=unstaged,  # Parameter kept for backward compatibility
-                        untracked=untracked,  # Parameter kept for backward compatibility
                         file_path=file_path,
                     )
 
@@ -108,11 +99,8 @@ class TemplateRenderingService(BaseService):
                     )
             else:
                 # Default behavior: compare to default branch - always show changes
-                # Both unstaged and untracked are always fetched for client-side filtering
                 grouped_diffs = self.diff_service.get_grouped_diffs(
                     base_ref=base_ref,
-                    unstaged=unstaged,  # Parameter kept for backward compatibility
-                    untracked=untracked,  # Parameter kept for backward compatibility
                     file_path=file_path,
                 )
                 grouped_diffs = self._combine_unstaged_and_staged_as_changes(
@@ -127,10 +115,6 @@ class TemplateRenderingService(BaseService):
             # Calculate totals
             total_files = sum(group["count"] for group in enhanced_groups.values())
 
-            # Pass through the UI state parameters as received from the user
-            ui_unstaged = unstaged
-            ui_staged = staged
-
             logger.info(
                 f"Template final: base_ref='{base_ref}', current_branch='{current_branch}', is_head_comparison={is_head_comparison}"
             )
@@ -143,12 +127,12 @@ class TemplateRenderingService(BaseService):
                 # Diff data
                 "groups": enhanced_groups,
                 "total_files": total_files,
-                # UI state
+                # UI state - all data is always fetched, filtering happens client-side
                 # Dropdown selection: default to current branch if not specified in URL
                 "current_base_ref": base_ref or current_branch,
-                "unstaged": ui_unstaged,
-                "staged": ui_staged,
-                "untracked": untracked,
+                "unstaged": True,
+                "staged": True,
+                "untracked": True,
                 "search_filter": search_filter,
                 # Template helpers
                 "syntax_css": self.syntax_service.get_css_styles(),

@@ -126,33 +126,33 @@ class TestAPIDiffCommitComparison:
         assert isinstance(data["groups"], dict)
 
     def test_api_diff_with_base_ref_and_other_params(self, client):
-        """Test API diff endpoint with base_ref and other parameters."""
-        response = client.get(
-            "/api/diff?base_ref=abc123&unstaged=true&untracked=false&file=test.txt"
-        )
+        """Test API diff endpoint with base_ref and file filter."""
+        response = client.get("/api/diff?base_ref=abc123&file=test.txt")
         assert response.status_code == 200
         assert response.is_json
 
         data = response.get_json()
         assert data["status"] == "ok"
         assert data["base_ref"] == "abc123"
+        # All data is always fetched now (filtering happens client-side)
         assert data["unstaged"] is True
-        assert data["untracked"] is False
+        assert data["untracked"] is True
         assert data["file_filter"] == "test.txt"
         assert "groups" in data
         assert isinstance(data["groups"], dict)
 
     def test_api_diff_backward_compatibility(self, client):
         """Test API diff endpoint maintains backward compatibility."""
-        # Test traditional parameters still work
+        # Query params are accepted but ignored - all data is always fetched
         response = client.get("/api/diff?unstaged=true&untracked=false&file=test.txt")
         assert response.status_code == 200
         assert response.is_json
 
         data = response.get_json()
         assert data["status"] == "ok"
+        # Note: query params are accepted but ignored; response always shows True
         assert data["unstaged"] is True
-        assert data["untracked"] is False
+        assert data["untracked"] is True
         assert data["file_filter"] == "test.txt"
         assert "base_ref" in data
         assert "groups" in data

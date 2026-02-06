@@ -89,7 +89,7 @@ class TestTemplateRenderingService:
         service = TemplateRenderingService()
 
         # Test
-        result = service.prepare_diff_data_for_template(unstaged=True)
+        result = service.prepare_diff_data_for_template()
 
         # Assertions
         assert "repo_status" in result
@@ -98,7 +98,7 @@ class TestTemplateRenderingService:
         assert "total_files" in result
         assert "syntax_css" in result
         assert result["total_files"] == 1
-        assert result["unstaged"] is True
+        assert result["unstaged"] is True  # Always True - all data is fetched
         assert result["loading"] is False
 
     @patch("difflicious.services.template_service.DiffService")

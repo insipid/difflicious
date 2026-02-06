@@ -30,7 +30,7 @@ def _get_file_line_count(file_path: str) -> Optional[int]:
                 line_count += 1
         return line_count
 
-    except (OSError, IOError) as e:
+    except OSError as e:
         logger.warning(f"Failed to count lines in {file_path}: {e}")
         return None
 

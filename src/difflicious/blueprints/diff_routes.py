@@ -16,14 +16,15 @@ diff_api = Blueprint("diff_api", __name__, url_prefix="/api")
 
 @diff_api.route("/diff")
 def api_diff() -> Union[Response, tuple[Response, int]]:
-    """API endpoint for git diff information."""
+    """API endpoint for git diff information.
+
+    Note: Both unstaged and untracked data are always fetched. The `unstaged`
+    and `untracked` query parameters are accepted for backward compatibility
+    but are ignored. Filtering should be handled client-side.
+    """
     # Get optional query parameters
-    unstaged = request.args.get("unstaged", "true").lower() == "true"
-    untracked = request.args.get("untracked", "false").lower() == "true"
     file_path = request.args.get("file")
     base_ref = request.args.get("base_ref")
-
-    # New single-source parameters
     use_head = request.args.get("use_head", "false").lower() == "true"
 
     try:
@@ -39,23 +40,16 @@ def api_diff() -> Union[Response, tuple[Response, int]]:
 
         if is_head_comparison:
             # Working directory vs HEAD comparison - use diff service directly
-            # Always fetch both unstaged and untracked (parameters kept for backward compatibility)
             diff_service = DiffService()
             grouped_data = diff_service.get_grouped_diffs(
                 base_ref="HEAD",
-                unstaged=unstaged,  # Parameter kept for backward compatibility
-                untracked=untracked,  # Parameter kept for backward compatibility
                 file_path=file_path,
             )
         else:
             # Working directory vs branch comparison - use template service logic
             # This ensures proper combining of staged/unstaged into "changes" group
-            # Always fetch both unstaged and untracked (parameters kept for backward compatibility)
             template_data = template_service.prepare_diff_data_for_template(
                 base_ref=base_ref,
-                unstaged=unstaged,  # Parameter kept for backward compatibility
-                staged=True,  # Always include staged for branch comparisons
-                untracked=untracked,  # Parameter kept for backward compatibility
                 file_path=file_path,
             )
             grouped_data = template_data["groups"]
@@ -73,8 +67,8 @@ def api_diff() -> Union[Response, tuple[Response, int]]:
             {
                 "status": "ok",
                 "groups": grouped_data,
-                "unstaged": unstaged,
-                "untracked": untracked,
+                "unstaged": True,  # Always True - all data is fetched
+                "untracked": True,  # Always True - all data is fetched
                 "file_filter": file_path,
                 "use_head": use_head,
                 "base_ref": base_ref,

@@ -15,13 +15,15 @@ views = Blueprint("views", __name__)
 
 @views.route("/")
 def index() -> str:
-    """Main diff visualization page with server-side rendering."""
+    """Main diff visualization page with server-side rendering.
+
+    Note: Query parameters `unstaged`, `staged`, and `untracked` are accepted
+    for URL compatibility but are ignored. All data is always fetched and
+    filtering happens client-side.
+    """
     try:
         # Get query parameters
         base_ref = request.args.get("base_ref")
-        unstaged = request.args.get("unstaged", "true").lower() == "true"
-        staged = request.args.get("staged", "true").lower() == "true"
-        untracked = request.args.get("untracked", "false").lower() == "true"
         file_path = request.args.get("file")
         search_filter = request.args.get("search", "").strip()
         expand_files = request.args.get("expand", "false").lower() == "true"
@@ -43,9 +45,6 @@ def index() -> str:
         template_service = TemplateRenderingService()
         template_data = template_service.prepare_diff_data_for_template(
             base_ref=base_ref,
-            unstaged=unstaged,
-            staged=staged,
-            untracked=untracked,
             file_path=file_path,
             search_filter=search_filter if search_filter else None,
             expand_files=expand_files,
@@ -65,7 +64,8 @@ def index() -> str:
             "loading": False,
             "syntax_css": "",
             "unstaged": True,
-            "untracked": False,
+            "staged": True,
+            "untracked": True,
             "search_filter": "",
             "current_base_ref": "main",
         }
