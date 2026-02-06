@@ -257,8 +257,9 @@ difflicious
 |----------|---------|-------------|
 | `DIFFLICIOUS_FONT` | `jetbrains-mono` | Programming font to use |
 | `DIFFLICIOUS_DISABLE_GOOGLE_FONTS` | `false` | Disable Google Fonts CDN |
-| `DIFFLICIOUS_REPO_PATH` | `.` (current directory) | Git repository path |
-| `PORT` | `5000` | Application port |
+| `DIFFLICIOUS_AUTO_RELOAD` | `true` | Enable auto-reload on file changes |
+| `DIFFLICIOUS_WATCH_DEBOUNCE` | `1.0` | Debounce time (seconds) for file watcher |
+| `DIFFLICIOUS_DEBUG` | `false` | Enable verbose debug logging in browser console |
 
 ## Troubleshooting
 

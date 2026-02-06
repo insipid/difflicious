@@ -3,11 +3,14 @@
  * Sets up Alpine stores and registers global component factories
  */
 
-console.log('[Alpine] alpine-init.js loading...');
+// Debug flag - reads from DIFFLICIOUS_DEBUG env var (set in base.html template)
+const DEBUG = window.DIFFLICIOUS_DEBUG || false;
+
+if (DEBUG) console.log('[Alpine] alpine-init.js loading...');
 
 import Alpine from 'alpinejs';
 
-console.log('[Alpine] Alpine module imported:', Alpine);
+if (DEBUG) console.log('[Alpine] Alpine module imported:', Alpine);
 
 // Import stores
 import diffStore from './stores/diffStore.js';
@@ -31,7 +34,7 @@ window.Alpine = Alpine;
 
 // Initialize Alpine stores
 document.addEventListener('alpine:init', () => {
-    console.log('[Alpine] alpine:init event fired, registering stores...');
+    if (DEBUG) console.log('[Alpine] alpine:init event fired, registering stores...');
 
     // Register stores
     // NOTE: Alpine.js automatically calls init() on stores when registered
@@ -40,7 +43,7 @@ document.addEventListener('alpine:init', () => {
     Alpine.store('search', searchStore);
     Alpine.store('theme', themeStore);
 
-    console.log('[Alpine] Stores registered:', {
+    if (DEBUG) console.log('[Alpine] Stores registered:', {
         diff: Alpine.store('diff'),
         search: Alpine.store('search'),
         theme: Alpine.store('theme')
@@ -50,15 +53,15 @@ document.addEventListener('alpine:init', () => {
 // Start Alpine after DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        console.log('[Alpine] Starting Alpine.js (after DOMContentLoaded)');
+        if (DEBUG) console.log('[Alpine] Starting Alpine.js (after DOMContentLoaded)');
         Alpine.start();
-        console.log('[Alpine] Alpine.js started');
+        if (DEBUG) console.log('[Alpine] Alpine.js started');
     });
 } else {
     // DOM is already ready
-    console.log('[Alpine] Starting Alpine.js (DOM already ready)');
+    if (DEBUG) console.log('[Alpine] Starting Alpine.js (DOM already ready)');
     Alpine.start();
-    console.log('[Alpine] Alpine.js started');
+    if (DEBUG) console.log('[Alpine] Alpine.js started');
 }
 
 export default Alpine;

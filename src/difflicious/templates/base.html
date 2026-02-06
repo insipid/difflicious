@@ -73,6 +73,11 @@
         {% block content %}{% endblock %}
     </div>
 
+    <!-- Global configuration (set before modules load) -->
+    <script>
+        window.DIFFLICIOUS_DEBUG = {{ 'true' if debug_enabled else 'false' }};
+    </script>
+
     <!-- Alpine.js -->
     <script type="module" defer src="{{ url_for('static', filename='js/alpine-init.js') }}"></script>
 

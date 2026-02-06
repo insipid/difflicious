@@ -3,6 +3,9 @@
  * Handles light/dark theme switching and persistence
  */
 
+// Debug flag - reads from DIFFLICIOUS_DEBUG env var (set in base.html template)
+const DEBUG = window.DIFFLICIOUS_DEBUG || false;
+
 export default {
     // State
     current: 'light',
@@ -11,7 +14,7 @@ export default {
      * Initialize the theme store
      */
     init() {
-        console.log('[ThemeStore] Initializing theme store...');
+        if (DEBUG) console.log('[ThemeStore] Initializing theme store...');
 
         const savedTheme = localStorage.getItem('difflicious-theme');
         const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -21,13 +24,15 @@ export default {
 
         this.current = savedTheme || currentDomTheme || (systemPrefersDark ? 'dark' : 'light');
 
-        console.log('[ThemeStore] Theme initialized:', {
-            savedTheme,
-            systemPrefersDark,
-            currentDomTheme,
-            current: this.current,
-            icon: this.icon
-        });
+        if (DEBUG) {
+            console.log('[ThemeStore] Theme initialized:', {
+                savedTheme,
+                systemPrefersDark,
+                currentDomTheme,
+                current: this.current,
+                icon: this.icon
+            });
+        }
 
         // Apply theme to document
         this.applyTheme();
@@ -45,7 +50,7 @@ export default {
      * Toggle between light and dark theme
      */
     toggle() {
-        console.log('[ThemeStore] Toggle called, current theme:', this.current);
+        if (DEBUG) console.log('[ThemeStore] Toggle called, current theme:', this.current);
 
         const htmlElement = document.documentElement;
 
