@@ -116,7 +116,7 @@ This will fall back to system monospace fonts like SF Mono, Cascadia Code, Monac
 ## Technology Stack
 
 - **Backend**: Python Flask for minimal setup and excellent git integration
-- **Frontend**: Alpine.js + vanilla CSS for lightweight, declarative UI
+- **Frontend**: Alpine.js + Tailwind CSS for lightweight, declarative UI
 - **Real-time**: Server-Sent Events for live git status updates
 - **Security**: Proper subprocess sanitization for safe git command execution
 - **Distribution**: Modern Python packaging (PyPI) and Docker containers
