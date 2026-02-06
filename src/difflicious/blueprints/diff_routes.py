@@ -9,6 +9,8 @@ from difflicious.services.diff_service import DiffService
 from difflicious.services.exceptions import DiffServiceError
 from difflicious.services.template_service import TemplateRenderingService
 
+from .helpers import error_response
+
 logger = logging.getLogger(__name__)
 
 diff_api = Blueprint("diff_api", __name__, url_prefix="/api")
@@ -78,19 +80,16 @@ def api_diff() -> Union[Response, tuple[Response, int]]:
 
     except DiffServiceError as e:
         logger.error(f"Diff service error: {e}")
-        return (
-            jsonify(
-                {
-                    "status": "error",
-                    "message": str(e),
-                    "groups": {
-                        "untracked": {"files": [], "count": 0},
-                        "unstaged": {"files": [], "count": 0},
-                        "staged": {"files": [], "count": 0},
-                    },
-                }
-            ),
-            500,
+        return error_response(
+            str(e),
+            code=500,
+            context={
+                "groups": {
+                    "untracked": {"files": [], "count": 0},
+                    "unstaged": {"files": [], "count": 0},
+                    "staged": {"files": [], "count": 0},
+                },
+            },
         )
 
 
@@ -99,10 +98,7 @@ def api_diff_full() -> Union[Response, tuple[Response, int]]:
     """API endpoint for complete file diff with unlimited context."""
     file_path = request.args.get("file_path")
     if not file_path:
-        return (
-            jsonify({"status": "error", "message": "file_path parameter is required"}),
-            400,
-        )
+        return error_response("file_path parameter is required", code=400)
 
     base_ref = request.args.get("base_ref")
     use_head = request.args.get("use_head", "false").lower() == "true"
@@ -120,13 +116,8 @@ def api_diff_full() -> Union[Response, tuple[Response, int]]:
 
     except DiffServiceError as e:
         logger.error(f"Full diff service error: {e}")
-        return (
-            jsonify(
-                {
-                    "status": "error",
-                    "message": str(e),
-                    "file_path": file_path,
-                }
-            ),
-            500,
+        return error_response(
+            str(e),
+            code=500,
+            context={"file_path": file_path},
         )

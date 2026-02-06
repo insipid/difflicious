@@ -8,27 +8,30 @@ from flask import Blueprint, Response, jsonify
 from difflicious.services.exceptions import GitServiceError
 from difflicious.services.git_service import GitService
 
+from .helpers import error_response
+
 logger = logging.getLogger(__name__)
 
 git_api = Blueprint("git_api", __name__, url_prefix="/api")
 
 
 @git_api.route("/status")
-def api_status() -> Response:
+def api_status() -> Union[Response, tuple[Response, int]]:
     """API endpoint for git status information (kept for compatibility)."""
     try:
         git_service = GitService()
         return jsonify(git_service.get_repository_status())
     except Exception as e:
         logger.error(f"Failed to get git status: {e}")
-        return jsonify(
-            {
-                "status": "error",
+        return error_response(
+            str(e),
+            code=500,
+            context={
                 "current_branch": "unknown",
                 "repository_name": "unknown",
                 "files_changed": 0,
                 "git_available": False,
-            }
+            },
         )
 
 
@@ -40,4 +43,4 @@ def api_branches() -> Union[Response, tuple[Response, int]]:
         return jsonify(git_service.get_branch_information())
     except GitServiceError as e:
         logger.error(f"Failed to get branch info: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return error_response(str(e), code=500)
