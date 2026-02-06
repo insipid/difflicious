@@ -42,7 +42,7 @@ difflicious
 ### Option 2: Docker (Containerized)
 ```bash
 # Pull and run the Docker image
-docker run -p 5000:5000 -v $(pwd):/workspace difflicious/difflicious
+docker run -p 5000:5000 -v $(pwd):/workspace insipid/difflicious:latest
 
 # Open your browser to localhost:5000
 ```
