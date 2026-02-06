@@ -3,7 +3,7 @@
 import logging
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from flask import Flask
 
@@ -44,7 +44,7 @@ def create_app(
     logging.basicConfig(level=logging.INFO)
 
     @app.context_processor
-    def inject_font_config() -> dict[str, dict]:
+    def inject_font_config() -> dict[str, dict[str, Any]]:
         """Inject font configuration into all templates."""
         return {"font_config": font_config}
 

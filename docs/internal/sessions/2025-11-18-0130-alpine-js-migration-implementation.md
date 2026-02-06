@@ -2,7 +2,7 @@
 
 **Date:** 2025-11-18
 **Branch:** claude/alpine-js-proposal-01AjLA7J5N3wY3SF5hyjUd3h
-**Proposal:** docs/proposals/2025-11-18-0130-alpine-js-dom-manipulation.md
+**Proposal:** docs/internal/proposals/2025-11-18-0130-alpine-js-dom-manipulation.md
 
 ## Implementation Progress
 

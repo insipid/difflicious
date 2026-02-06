@@ -583,10 +583,13 @@ When adding new styles:
 ## Resources
 
 - **Design System:** See `docs/tailwind-design-system.md`
-- **Color Variables:** See `src/difflicious/static/css/styles.css` (lines 19-397)
-- **Component Classes:** See `src/difflicious/static/css/styles.css` (lines 399-463)
+- **Color Variables:** See the "COLOR SYSTEM" section in
+  `src/difflicious/static/css/styles.css`
+- **Component Classes:** See the "SEMANTIC COMPONENT CLASSES" section in
+  `src/difflicious/static/css/styles.css`
 - **Tailwind Config:** See `tailwind.config.cjs`
-- **CSS Rationalization:** See `docs/reports/2025-11-05-css-rationalization-analysis.md`
+- **CSS Rationalization:** See
+  `docs/internal/reports/2025-11-05-css-rationalization-analysis.md`
 
 ---
 

@@ -1,6 +1,7 @@
 """Centralized configuration for Difflicious application."""
 
 import os
+from typing import Any
 
 # Git diff configuration
 DEFAULT_CONTEXT_LINES = 3  # Default number of context lines in diffs
@@ -43,7 +44,7 @@ AVAILABLE_FONTS = {
 }
 
 
-def get_font_config() -> dict:
+def get_font_config() -> dict[str, Any]:
     """Get font configuration based on environment variables.
 
     Returns:
