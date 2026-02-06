@@ -1,5 +1,9 @@
 # Difflicious
 
+[![PyPI version](https://img.shields.io/pypi/v/difflicious.svg)](https://pypi.org/project/difflicious/)
+[![Python versions](https://img.shields.io/pypi/pyversions/difflicious.svg)](https://pypi.org/project/difflicious/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A sleek web-based git diff visualization tool used when working locally on branches. Difflicious provides a lightweight local web application that transforms git diffs into an intuitive, interactive experience.
 
 ## What is Difflicious?
