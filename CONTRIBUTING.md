@@ -96,13 +96,9 @@ Branch naming conventions:
    ```bash
    uv run difflicious --debug
    ```
-3. **Run tests** to ensure nothing broke:
+3. **Run the full quality suite** to ensure nothing broke:
    ```bash
-   uv run pytest
-   ```
-4. **Run linting** to check code style:
-   ```bash
-   uv run ruff check
+   ./cilicious.sh
    ```
 
 ### Running All Checks
@@ -144,7 +140,7 @@ uv run pytest-watch  # if installed
 ### Writing Tests
 
 Guidelines for writing tests:
-- **Write tests for new features** - maintain 80%+ coverage
+- **Write tests for new features** - maintain 70%+ coverage
 - **Use descriptive test names** - make it clear what's being tested
 - **Mock external dependencies** - don't rely on external services
 - **Test error cases** - happy path and failure scenarios
@@ -201,10 +197,10 @@ Style guidelines:
 
 ```bash
 # Lint JavaScript files
-npm run lint:js
+pnpm run lint:js
 
 # Auto-fix issues
-npm run lint:js -- --fix
+pnpm run lint:js:fix
 ```
 
 ### Before Committing

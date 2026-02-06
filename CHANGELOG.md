@@ -5,6 +5,29 @@ All notable changes to difflicious will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-02-06
+
+### Stable Release
+
+Difflicious 1.0 marks the first stable release with hardened security, a
+cleaner frontend, and documentation aligned with current behavior.
+
+### Added
+- **Live repo updates** - Real-time status refresh via Server-Sent Events
+- **Context expansion** - Load full file hunks on demand
+- **Font customization** - Choose from curated programming fonts
+
+### Changed
+- **Release metadata** - Production-ready packaging and classifiers
+- **Frontend cleanup** - Legacy scripts removed and debug logging gated
+- **Backend safety** - Safer diff parsing and commit validation
+- **Documentation** - Installation, README, and contributing guidance aligned
+
+### Fixed
+- **Full diff UI** - Escaped full-diff retry handler for safety
+- **Diff parsing** - Removed external subprocess dependency for line counts
+- **API errors** - Consistent error handling and HTTP status codes
+
 ## [0.10.0] - 2025-11-23
 
 ### Polish & Refinement Release
@@ -41,7 +64,7 @@ Difflicious 0.10 focuses on polish, consistency, and user experience improvement
 - **JavaScript architecture** - Clear separation of concerns between Alpine.js and vanilla JS
 - **Code quality** - Removed dead code comments, improved documentation
 
-## [0.9.2] - 2025-01-28
+## [0.9.2] - 2025-12-03
 
 ### Infrastructure & Deployment
 
@@ -50,7 +73,7 @@ Difflicious 0.10 focuses on polish, consistency, and user experience improvement
 - **Improved tag detection** - Publishing workflows automatically detect latest tag when triggered by workflow_run event
 - **End-to-end automation** - Complete release workflow now fully automated from version bump to publishing
 
-## [0.9.1] - 2025-01-28
+## [0.9.1] - 2025-12-01
 
 ### Infrastructure & Deployment
 
@@ -138,38 +161,16 @@ Difflicious 0.10 focuses on polish, consistency, and user experience improvement
 
 ## Future Releases
 
-### Planned for 1.0
-- Final UI/UX polish and improvements
-- Performance optimizations
-- Accessibility enhancements
-- Browser compatibility improvements
-- User feedback incorporation
+### Release Readiness Checklist
+- Version and package metadata finalized
+- Documentation accuracy and duplication cleanup
+- Outstanding bugs triaged from TODO.org
 
 ### Under Consideration
-- Real-time updates with Server-Sent Events
 - Advanced search and filtering
 - Keyboard shortcuts
 - Plugin system
 - Export options
-
----
-
-## Release Notes
-
-### 0.9.0 - Infrastructure Release
-
-The 0.9 release marks a significant milestone for difflicious, establishing the development and operational infrastructure needed for reliable releases. This release focuses entirely on infrastructure, automation, and packaging tooling, laying the foundation for the 1.0 feature release.
-
-**Key Achievements:**
-- ✅ Complete CI/CD pipeline with GitHub Actions
-- ✅ Docker images for easy local installation
-- ✅ Automated testing across multiple Python versions
-- ✅ 86% test coverage with 169 passing tests
-- ✅ Automated quality checks and code coverage reporting
-- ✅ Docker Hub and PyPI publishing automation
-
-**What's Next:**
-Version 1.0 will focus on final features, polish, and user experience improvements based on real-world usage feedback from the 0.9 release.
 
 ---
 

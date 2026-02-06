@@ -12,20 +12,9 @@ This guide covers installing and running difflicious locally for developers.
 
 ## Quick Start
 
-The fastest way to get started with difflicious:
-
-```bash
-# Install from PyPI
-pip install difflicious
-
-# Or use Docker
-docker run -p 5000:5000 -v $(pwd):/workspace insipid/difflicious:latest
-
-# Run it
-difflicious
-
-# Open http://localhost:5000 in your browser
-```
+For the fastest path to running difflicious, follow the quick-start steps in
+the [README](../README.md#installation--quick-start). This guide focuses on
+detailed configuration, Docker workflows, and troubleshooting.
 
 ## PyPI Installation
 
@@ -62,14 +51,6 @@ The application looks for a git repository in the current directory:
 cd /path/to/my/project
 
 # Run difflicious
-difflicious
-```
-
-Or specify a different repository:
-
-```bash
-# Set repository path via environment variable
-export DIFFLICIOUS_REPO_PATH=/path/to/my/project
 difflicious
 ```
 
@@ -226,21 +207,9 @@ docker-compose up
 
 ### Font Customization
 
-Choose your favorite programming font:
-
-```bash
-# Set font via environment variable
-export DIFFLICIOUS_FONT=fira-code
-difflicious
-
-# Available fonts:
-# - jetbrains-mono (default)
-# - fira-code
-# - source-code-pro
-# - ibm-plex-mono
-# - roboto-mono
-# - inconsolata
-```
+For the full list of fonts and examples, see the
+[README font customization section](../README.md#font-customization). The key
+configuration point is still the `DIFFLICIOUS_FONT` environment variable.
 
 ### Disable Google Fonts
 
@@ -287,8 +256,7 @@ lsof -ti:5000 | xargs kill -9
 cd /path/to/git/repo
 git status
 
-# Or set the repository path
-export DIFFLICIOUS_REPO_PATH=/path/to/git/repo
+# Run difflicious from that directory
 difflicious
 ```
 
