@@ -151,7 +151,7 @@ Difflicious uses a themeable Tailwind-driven design system with semantic tokens.
 - Syntax highlighting with Pygments for 100+ languages
 - Docker containerization with multi-platform support
 - PyPI package publishing with automated CI/CD
-- Comprehensive test suite (169 tests, 86% coverage)
+- Comprehensive test suite (135+ tests, 70%+ coverage)
 - Real git integration (status, diff, branch detection, parsing)
 - Context expansion for viewing more code around hunks
 - Font customization with 6 programming fonts
