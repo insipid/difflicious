@@ -56,6 +56,12 @@ def create_app(
         )
         return {"auto_reload_enabled": auto_reload_enabled}
 
+    @app.context_processor
+    def inject_debug_config() -> dict[str, bool]:
+        """Inject debug configuration into all templates."""
+        debug_enabled = os.getenv("DIFFLICIOUS_DEBUG", "false").lower() == "true"
+        return {"debug_enabled": debug_enabled}
+
     # Store service instances on app for blueprints to use
     # These can be injected for testing or created fresh
     app.git_service = git_service  # type: ignore[attr-defined]

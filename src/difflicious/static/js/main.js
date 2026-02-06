@@ -15,8 +15,8 @@ import { setDebug as setExpansionDebug } from './modules/context-expansion.js';
 import { AutoReload, setDebug as setAutoReloadDebug } from './modules/auto-reload.js';
 import { $$ } from './modules/dom-utils.js';
 
-// Debug toggle - set to false for production
-const DEBUG = false;
+// Debug flag - reads from DIFFLICIOUS_DEBUG env var (set in base.html template)
+const DEBUG = window.DIFFLICIOUS_DEBUG || false;
 
 // Propagate DEBUG flag to all modules
 setStateDebug(DEBUG);

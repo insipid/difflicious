@@ -14,8 +14,8 @@ import {
     statusPanel
 } from './design-system.js';
 
-// Debug flag - set to true for verbose logging
-const DEBUG = false;
+// Debug flag - reads from DIFFLICIOUS_DEBUG env var (set in base.html template)
+const DEBUG = window.DIFFLICIOUS_DEBUG || false;
 
 /**
  * Load and display content for a moved/renamed file with no changes.

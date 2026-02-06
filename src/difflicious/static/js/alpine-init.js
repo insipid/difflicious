@@ -3,8 +3,8 @@
  * Sets up Alpine stores and registers global component factories
  */
 
-// Debug flag - set to true for verbose logging
-const DEBUG = false;
+// Debug flag - reads from DIFFLICIOUS_DEBUG env var (set in base.html template)
+const DEBUG = window.DIFFLICIOUS_DEBUG || false;
 
 if (DEBUG) console.log('[Alpine] alpine-init.js loading...');
 

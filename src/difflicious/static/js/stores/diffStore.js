@@ -4,8 +4,8 @@
  * Using objects instead of Sets for better Alpine.js reactivity
  */
 
-// Debug flag - set to true for verbose logging
-const DEBUG = false;
+// Debug flag - reads from DIFFLICIOUS_DEBUG env var (set in base.html template)
+const DEBUG = window.DIFFLICIOUS_DEBUG || false;
 
 export default {
     // State - using objects for better Alpine.js reactivity
