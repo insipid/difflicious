@@ -37,7 +37,7 @@ class TestDiffService:
         }
 
         # Test
-        result = self.service.get_grouped_diffs(unstaged=True)
+        result = self.service.get_grouped_diffs()
 
         # Assertions
         assert result["unstaged"]["count"] == 1
@@ -57,7 +57,7 @@ class TestDiffService:
 
         base_ref = "feature-x"
         service = DiffService()
-        service.get_grouped_diffs(unstaged=True, base_ref=base_ref)
+        service.get_grouped_diffs(base_ref=base_ref)
 
         # Verify base_ref was passed through
         assert mock_repo.get_diff.called

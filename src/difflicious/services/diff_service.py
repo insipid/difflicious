@@ -24,8 +24,6 @@ class DiffService(BaseService):
     def get_grouped_diffs(
         self,
         base_ref: Optional[str] = None,
-        unstaged: bool = True,
-        untracked: bool = False,
         file_path: Optional[str] = None,
     ) -> dict[str, Any]:
         """Get processed diff data grouped by type.
@@ -33,14 +31,11 @@ class DiffService(BaseService):
         This method extracts the business logic currently in get_real_git_diff()
         from app.py and makes it independently testable.
 
+        Note: Both unstaged and untracked data are always fetched. Filtering
+        is handled client-side based on UI toggle state.
+
         Args:
             base_ref: Base reference for comparison (HEAD or branch)
-            unstaged: Whether to include unstaged changes (mapped to include_unstaged)
-                Note: This parameter is kept for backward compatibility but is ignored.
-                Both unstaged and untracked data are always fetched.
-            untracked: Whether to include untracked files (mapped to include_untracked)
-                Note: This parameter is kept for backward compatibility but is ignored.
-                Both unstaged and untracked data are always fetched.
             file_path: Optional specific file to diff
 
         Returns:
@@ -56,8 +51,7 @@ class DiffService(BaseService):
             use_head = base_ref in ["HEAD", current_branch] if base_ref else False
 
             # Always fetch both unstaged and untracked data for client-side filtering
-            # The unstaged and untracked parameters are kept for backward compatibility
-            # but are ignored here - the frontend will filter visibility based on toggle state
+            # The frontend will filter visibility based on toggle state
             grouped_diffs = self.repo.get_diff(
                 use_head=use_head,
                 include_unstaged=True,  # Always fetch unstaged

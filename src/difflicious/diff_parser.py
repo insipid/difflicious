@@ -2,7 +2,6 @@
 
 import logging
 import os
-import subprocess
 from typing import Any, Optional
 
 from unidiff import Hunk, PatchedFile, PatchSet
@@ -12,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def _get_file_line_count(file_path: str) -> Optional[int]:
-    """Get the number of lines in a file using wc -l.
+    """Get the number of lines in a file using pure Python.
 
     Args:
         file_path: Path to the file to count lines in
@@ -24,19 +23,14 @@ def _get_file_line_count(file_path: str) -> Optional[int]:
         if not file_path or not os.path.isfile(file_path):
             return None
 
-        result = subprocess.run(
-            ["wc", "-l", file_path], capture_output=True, text=True, timeout=5
-        )
+        # Pure Python line counting, memory-efficient
+        line_count = 0
+        with open(file_path, "rb") as f:
+            for _ in f:
+                line_count += 1
+        return line_count
 
-        if result.returncode == 0:
-            # wc -l output format: "  123 filename"
-            line_count = int(result.stdout.strip().split()[0])
-            return line_count
-        else:
-            logger.warning(f"wc command failed for {file_path}: {result.stderr}")
-            return None
-
-    except (subprocess.TimeoutExpired, ValueError, IndexError, OSError) as e:
+    except OSError as e:
         logger.warning(f"Failed to count lines in {file_path}: {e}")
         return None
 
