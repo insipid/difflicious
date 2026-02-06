@@ -1,6 +1,13 @@
 # Difflicious
 
+[![PyPI version](https://img.shields.io/pypi/v/difflicious.svg)](https://pypi.org/project/difflicious/)
+[![Python versions](https://img.shields.io/pypi/pyversions/difflicious.svg)](https://pypi.org/project/difflicious/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A sleek web-based git diff visualization tool used when working locally on branches. Difflicious provides a lightweight local web application that transforms git diffs into an intuitive, interactive experience.
+
+<!-- TODO: Add screenshots showing light and dark mode side-by-side diff views -->
+<!-- ![Difflicious Screenshot](docs/screenshots/difflicious-demo.png) -->
 
 ## What is Difflicious?
 
@@ -15,7 +22,7 @@ Perfect for:
 ## Features
 
 - **Side-by-Side Diff Visualization**: Professional-grade side-by-side view with accurate line numbering
-- **Syntax Highlighting**: Beautiful code highlighting for 30+ programming languages using Highlight.js
+- **Syntax Highlighting**: Beautiful code highlighting for 100+ programming languages using Pygments
 - **Intelligent Diff Parsing**: Advanced git diff parser with proper alignment of additions and deletions
 - **Smart UI Controls**: Expand/collapse all buttons with intelligent disabled states
 - **Interactive Interface**: Toggle visibility, search through changes, and filter content
@@ -42,7 +49,7 @@ difflicious
 ### Option 2: Docker (Containerized)
 ```bash
 # Pull and run the Docker image
-docker run -p 5000:5000 -v $(pwd):/workspace difflicious/difflicious
+docker run -p 5000:5000 -v $(pwd):/workspace insipid/difflicious:latest
 
 # Open your browser to localhost:5000
 ```
@@ -116,7 +123,7 @@ This will fall back to system monospace fonts like SF Mono, Cascadia Code, Monac
 ## Technology Stack
 
 - **Backend**: Python Flask for minimal setup and excellent git integration
-- **Frontend**: Alpine.js + vanilla CSS for lightweight, declarative UI
+- **Frontend**: Alpine.js + Tailwind CSS for lightweight, declarative UI
 - **Real-time**: Server-Sent Events for live git status updates
 - **Security**: Proper subprocess sanitization for safe git command execution
 - **Distribution**: Modern Python packaging (PyPI) and Docker containers
@@ -144,20 +151,25 @@ Difflicious uses a themeable Tailwind-driven design system with semantic tokens.
 - Syntax highlighting with Pygments for 100+ languages
 - Docker containerization with multi-platform support
 - PyPI package publishing with automated CI/CD
-- Comprehensive test suite (169 tests, 86% coverage)
+- Comprehensive test suite (135+ tests, 70%+ coverage)
 - Real git integration (status, diff, branch detection, parsing)
 - Context expansion for viewing more code around hunks
 - Font customization with 6 programming fonts
+- Real-time auto-reload with Server-Sent Events
 
 ### Future Enhancements 🚧
 - Advanced search and filtering capabilities
 - Keyboard shortcuts and accessibility improvements
-- Real-time updates with Server-Sent Events
 - Sticky file headers during scroll
 
 ## Contributing
 
-This project is in early development. More contribution guidelines will be available as the core functionality is completed.
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
+
+- Setting up the development environment
+- Running tests and quality checks
+- Code style and conventions
+- Submitting pull requests
 
 ## License
 
