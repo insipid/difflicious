@@ -436,29 +436,54 @@ Understanding the codebase:
 
 ```
 difflicious/
-├── src/difflicious/       # Main application code
-│   ├── app.py            # Flask application and routes
-│   ├── cli.py            # Command-line interface
-│   ├── diff_parser.py    # Git diff parsing logic
-│   ├── git_operations.py # Git command execution
-│   ├── services/         # Business logic services
+├── src/difflicious/          # Main application code
+│   ├── app.py                # Flask application factory
+│   ├── cli.py                # Command-line interface
+│   ├── config.py             # Configuration and constants
+│   ├── diff_parser.py        # Git diff parsing logic
+│   ├── git_operations.py     # Git command execution
+│   ├── blueprints/           # Flask blueprints
+│   │   ├── auto_reload_routes.py
+│   │   ├── context_routes.py
+│   │   ├── diff_routes.py
+│   │   ├── git_routes.py
+│   │   ├── helpers.py
+│   │   └── views.py
+│   ├── services/             # Business logic services
+│   │   ├── base_service.py
 │   │   ├── diff_service.py
+│   │   ├── dtos.py
+│   │   ├── exceptions.py
+│   │   ├── file_watcher.py
 │   │   ├── git_service.py
 │   │   ├── syntax_service.py
 │   │   └── template_service.py
-│   ├── static/           # Static assets
-│   │   ├── css/          # Stylesheets
-│   │   └── js/           # JavaScript
-│   └── templates/        # Jinja2 templates
-├── tests/                # Test suite
-│   ├── test_app.py      # Application tests
-│   ├── test_cli.py      # CLI tests
+│   ├── static/               # Frontend assets
+│   │   ├── css/              # Stylesheets
+│   │   ├── data/             # Static data
+│   │   └── js/               # JavaScript
+│   │       ├── alpine-init.js
+│   │       ├── components/
+│   │       ├── modules/
+│   │       └── stores/
+│   └── templates/            # Jinja2 templates
+│       ├── base.html
+│       ├── diff_file.html
+│       ├── diff_groups.html
+│       ├── diff_hunk.html
+│       ├── index.html
+│       └── partials/
+├── tests/                    # Test suite
+│   ├── conftest.py           # pytest fixtures
+│   ├── test_app.py
+│   ├── test_cli.py
 │   ├── test_git_operations.py
-│   └── services/        # Service tests
-├── docs/                # Documentation
-├── pyproject.toml       # Python package config
-├── uv.lock              # Dependency lock file
-└── README.md           # Project overview
+│   ├── services/             # Service tests
+│   └── js/                   # JavaScript tests
+├── docs/                     # Documentation
+├── pyproject.toml            # Python package config
+├── uv.lock                   # Dependency lock file
+└── README.md                 # Project overview
 ```
 
 ## Getting Help
