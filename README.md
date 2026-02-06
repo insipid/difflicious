@@ -6,6 +6,9 @@
 
 A sleek web-based git diff visualization tool used when working locally on branches. Difflicious provides a lightweight local web application that transforms git diffs into an intuitive, interactive experience.
 
+<!-- TODO: Add screenshots showing light and dark mode side-by-side diff views -->
+<!-- ![Difflicious Screenshot](docs/screenshots/difflicious-demo.png) -->
+
 ## What is Difflicious?
 
 Difflicious is a developer-focused tool that runs locally and provides a beautiful interface for viewing git changes. Instead of squinting at terminal output, you get a clean, searchable, and toggleable view of your work-in-progress changes.
