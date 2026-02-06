@@ -785,6 +785,12 @@ class GitRepository:
             if not self._is_safe_file_path(file_path):
                 return f"Error: Unsafe file path: {file_path}"
 
+            # Validate commit refs to prevent command injection
+            if base_commit and not self._is_safe_commit_sha(base_commit):
+                return f"Error: Unsafe base commit reference: {base_commit}"
+            if target_commit and not self._is_safe_commit_sha(target_commit):
+                return f"Error: Unsafe target commit reference: {target_commit}"
+
             # Build arguments for git diff
             # -M enables rename detection so moved files produce proper diffs
             diff_args = [f"-U{context_lines}", "--no-color", "-M"]
