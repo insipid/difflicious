@@ -148,11 +148,11 @@ Difflicious uses a themeable Tailwind-driven design system with semantic tokens.
 - Real git integration (status, diff, branch detection, parsing)
 - Context expansion for viewing more code around hunks
 - Font customization with 6 programming fonts
+- Real-time auto-reload with Server-Sent Events
 
 ### Future Enhancements 🚧
 - Advanced search and filtering capabilities
 - Keyboard shortcuts and accessibility improvements
-- Real-time updates with Server-Sent Events
 - Sticky file headers during scroll
 
 ## Contributing
