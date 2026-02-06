@@ -136,6 +136,31 @@ The repository includes `cilicious.sh`, a comprehensive quality check script tha
 
 Always use `./cilicious.sh` instead of running individual test/lint commands.
 
+## Environment Variables
+
+Difflicious supports the following environment variables for configuration:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DIFFLICIOUS_FONT` | `jetbrains-mono` | Programming font (see `--list-fonts`) |
+| `DIFFLICIOUS_DISABLE_GOOGLE_FONTS` | `false` | Disable Google Fonts CDN |
+| `DIFFLICIOUS_AUTO_RELOAD` | `true` | Enable auto-reload on file changes |
+| `DIFFLICIOUS_WATCH_DEBOUNCE` | `1.0` | Debounce time (seconds) for file watcher |
+| `DIFFLICIOUS_WATCH_IGNORE` | `.git` | Patterns to ignore for file watching |
+| `DIFFLICIOUS_DEBUG` | `false` | Enable verbose debug logging in browser console |
+
+**Example usage:**
+```bash
+# Enable debug logging
+DIFFLICIOUS_DEBUG=true difflicious
+
+# Use Fira Code font with debug enabled
+DIFFLICIOUS_FONT=fira-code DIFFLICIOUS_DEBUG=true difflicious
+
+# Disable auto-reload
+DIFFLICIOUS_AUTO_RELOAD=false difflicious
+```
+
 ## Current Development Status
 
 **Phase 1 - Project Setup & Core Backend (COMPLETED ✅):**
