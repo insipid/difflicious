@@ -103,8 +103,8 @@ All 5 phases of the CSS rationalization have been successfully completed. The CS
 
 **Files Modified:**
 - `src/difflicious/static/css/styles.css` (complete refactor of variables)
-- `docs/reports/2025-11-05-color-audit.md` (comprehensive color documentation)
-- `docs/reports/2025-11-05-phase2-implementation-plan.md` (implementation strategy)
+- `docs/internal/reports/2025-11-05-2019-color-audit.md` (comprehensive color documentation)
+- `docs/internal/reports/2025-11-05-2019-phase2-implementation-plan.md` (implementation strategy)
 
 **Testing Verified:**
 - Visual appearance unchanged (variables only renamed, colors preserved)
