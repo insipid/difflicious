@@ -390,4 +390,5 @@ test('fileComponent toggles expansion', () => {
 
 - [Alpine.js Documentation](https://alpinejs.dev)
 - [Alpine.js Cheatsheet](https://alpinejs.dev/cheatsheet)
-- Difflicious Implementation Plan: `docs/proposals/2025-11-18-0130-alpine-js-dom-manipulation.md`
+- Difflicious Implementation Plan:
+  `docs/internal/proposals/2025-11-18-0130-alpine-js-dom-manipulation.md`

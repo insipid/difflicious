@@ -3,7 +3,8 @@
 **Date:** 2025-11-17
 **Status:** Implemented (2026-02-06)
 **Objective:** Split `diff-interactions.js` (1,661 lines) into focused, testable modules
-**Reference:** Section 3.1 of `docs/reports/2025-11-17-codebase-improvements-analysis.md`
+**Reference:** Section 3.1 of
+`docs/internal/reports/2025-11-17-codebase-improvements-analysis.md`
 
 ## Status Update (2026-02-06)
 

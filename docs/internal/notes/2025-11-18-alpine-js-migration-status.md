@@ -10,7 +10,7 @@
 ### Findings
 
 1. **Missing Proposal Document**
-   - Expected: `docs/proposals/2025-11-18-0130-alpine-js-dom-manipulation.md`
+   - Expected: `docs/internal/proposals/2025-11-18-0130-alpine-js-dom-manipulation.md`
    - Status: Does not exist in current branch
 
 2. **Previous Branch**

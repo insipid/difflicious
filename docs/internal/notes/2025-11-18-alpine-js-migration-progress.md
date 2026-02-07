@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-This migration implements Alpine.js for reactive UI components in Difflicious, following the plan outlined in `docs/proposals/2025-11-18-0130-alpine-js-dom-manipulation.md`. The work has been completed iteratively with tests and commits after each task.
+This migration implements Alpine.js for reactive UI components in Difflicious, following the plan outlined in `docs/internal/proposals/2025-11-18-0130-alpine-js-dom-manipulation.md`. The work has been completed iteratively with tests and commits after each task.
 
 **Key Achievement:** Successfully migrated core UI components (file operations, groups, search, theme) to Alpine.js while maintaining 100% test pass rate and code quality standards.
 
