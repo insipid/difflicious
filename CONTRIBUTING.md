@@ -96,13 +96,9 @@ Branch naming conventions:
    ```bash
    uv run difflicious --debug
    ```
-3. **Run tests** to ensure nothing broke:
+3. **Run the full quality suite** to ensure nothing broke:
    ```bash
-   uv run pytest
-   ```
-4. **Run linting** to check code style:
-   ```bash
-   uv run ruff check
+   ./cilicious.sh
    ```
 
 ### Running All Checks
@@ -144,7 +140,7 @@ uv run pytest-watch  # if installed
 ### Writing Tests
 
 Guidelines for writing tests:
-- **Write tests for new features** - maintain 80%+ coverage
+- **Write tests for new features** - maintain 70%+ coverage
 - **Use descriptive test names** - make it clear what's being tested
 - **Mock external dependencies** - don't rely on external services
 - **Test error cases** - happy path and failure scenarios
@@ -201,10 +197,10 @@ Style guidelines:
 
 ```bash
 # Lint JavaScript files
-npm run lint:js
+pnpm run lint:js
 
 # Auto-fix issues
-npm run lint:js -- --fix
+pnpm run lint:js:fix
 ```
 
 ### Before Committing
@@ -436,29 +432,54 @@ Understanding the codebase:
 
 ```
 difflicious/
-├── src/difflicious/       # Main application code
-│   ├── app.py            # Flask application and routes
-│   ├── cli.py            # Command-line interface
-│   ├── diff_parser.py    # Git diff parsing logic
-│   ├── git_operations.py # Git command execution
-│   ├── services/         # Business logic services
+├── src/difflicious/          # Main application code
+│   ├── app.py                # Flask application factory
+│   ├── cli.py                # Command-line interface
+│   ├── config.py             # Configuration and constants
+│   ├── diff_parser.py        # Git diff parsing logic
+│   ├── git_operations.py     # Git command execution
+│   ├── blueprints/           # Flask blueprints
+│   │   ├── auto_reload_routes.py
+│   │   ├── context_routes.py
+│   │   ├── diff_routes.py
+│   │   ├── git_routes.py
+│   │   ├── helpers.py
+│   │   └── views.py
+│   ├── services/             # Business logic services
+│   │   ├── base_service.py
 │   │   ├── diff_service.py
+│   │   ├── dtos.py
+│   │   ├── exceptions.py
+│   │   ├── file_watcher.py
 │   │   ├── git_service.py
 │   │   ├── syntax_service.py
 │   │   └── template_service.py
-│   ├── static/           # Static assets
-│   │   ├── css/          # Stylesheets
-│   │   └── js/           # JavaScript
-│   └── templates/        # Jinja2 templates
-├── tests/                # Test suite
-│   ├── test_app.py      # Application tests
-│   ├── test_cli.py      # CLI tests
+│   ├── static/               # Frontend assets
+│   │   ├── css/              # Stylesheets
+│   │   ├── data/             # Static data
+│   │   └── js/               # JavaScript
+│   │       ├── alpine-init.js
+│   │       ├── components/
+│   │       ├── modules/
+│   │       └── stores/
+│   └── templates/            # Jinja2 templates
+│       ├── base.html
+│       ├── diff_file.html
+│       ├── diff_groups.html
+│       ├── diff_hunk.html
+│       ├── index.html
+│       └── partials/
+├── tests/                    # Test suite
+│   ├── conftest.py           # pytest fixtures
+│   ├── test_app.py
+│   ├── test_cli.py
 │   ├── test_git_operations.py
-│   └── services/        # Service tests
-├── docs/                # Documentation
-├── pyproject.toml       # Python package config
-├── uv.lock              # Dependency lock file
-└── README.md           # Project overview
+│   ├── services/             # Service tests
+│   └── js/                   # JavaScript tests
+├── docs/                     # Documentation
+├── pyproject.toml            # Python package config
+├── uv.lock                   # Dependency lock file
+└── README.md                 # Project overview
 ```
 
 ## Getting Help
