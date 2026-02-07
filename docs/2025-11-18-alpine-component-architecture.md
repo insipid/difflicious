@@ -1,7 +1,15 @@
 # Alpine.js Component Architecture for Difflicious
 
 **Date:** 2025-11-18
-**Status:** Active Development
+**Status:** Implemented (Hybrid Alpine + ES modules)
+
+## Current Status
+
+Difflicious now uses Alpine component factories in
+`src/difflicious/static/js/components/` with shared state in
+`src/difflicious/static/js/stores/`. Diff behavior and data fetching live in
+ES modules under `src/difflicious/static/js/modules/`, so the architecture is
+hybrid rather than Alpine-only.
 
 ## Overview
 

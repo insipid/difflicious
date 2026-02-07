@@ -1,5 +1,8 @@
 # Difflicious - Git Diff Visualization Tool
 
+**Historical document:** This plan reflects early project goals and decisions.
+For current status, refer to `README.md` and `CHANGELOG.md`.
+
 ## Project Overview
 A lightweight local web application for developers to visualize git diffs with an interactive interface. The tool runs from the command line, starts a local web server, and provides a "diff" style interface with various display options.
 

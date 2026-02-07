@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+**Last Updated:** 2026-02-06 (v0.10.0)
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
@@ -409,44 +411,71 @@ difflicious/
 │   ├── app.py                # Flask application factory
 │   ├── cli.py                # Command-line interface
 │   ├── config.py             # Configuration and constants
-│   ├── git_operations.py     # Legacy git utilities (being phased out)
+│   ├── git_operations.py     # Git command execution utilities
 │   ├── diff_parser.py        # Git diff parsing utilities
 │   │
 │   ├── blueprints/           # Flask route blueprints
-│   │   ├── views.py          # Main UI views
-│   │   ├── git_routes.py     # Git API endpoints
-│   │   ├── diff_routes.py    # Diff API endpoints
+│   │   ├── auto_reload_routes.py # SSE auto-reload endpoints
 │   │   ├── context_routes.py # Context expansion endpoints
-│   │   └── helpers.py        # Blueprint utilities
+│   │   ├── diff_routes.py    # Diff API endpoints
+│   │   ├── git_routes.py     # Git API endpoints
+│   │   ├── helpers.py        # Blueprint utilities
+│   │   └── views.py          # Main UI views
 │   │
 │   ├── services/             # Business logic layer
 │   │   ├── base_service.py   # Base service class
 │   │   ├── diff_service.py   # Diff processing
+│   │   ├── dtos.py           # Data transfer objects
+│   │   ├── exceptions.py     # Service exceptions
+│   │   ├── file_watcher.py   # Filesystem watcher utilities
 │   │   ├── git_service.py    # Git operations
 │   │   ├── syntax_service.py # Syntax highlighting
-│   │   ├── template_service.py # Template rendering
-│   │   ├── dtos.py           # Data transfer objects
-│   │   └── exceptions.py     # Service exceptions
+│   │   └── template_service.py # Template rendering
 │   │
 │   ├── static/               # Frontend assets
 │   │   ├── css/              # Stylesheets
 │   │   │   ├── tailwind.input.css  # Tailwind source
 │   │   │   ├── tailwind.css  # Compiled Tailwind
 │   │   │   └── styles.css    # Custom styles & CSS variables
+│   │   ├── data/             # Static data files
+│   │   │   └── language_map.json
 │   │   ├── js/               # JavaScript
-│   │   │   ├── app.js        # Main Alpine.js application
-│   │   │   ├── diff-interactions.js # Diff UI logic
+│   │   │   ├── alpine-init.js # Alpine initialization
 │   │   │   ├── main.js       # Entry point
-│   │   │   └── modules/      # ES6 modules
-│   │   └── data/             # Static data files
+│   │   │   ├── components/   # Alpine component factories
+│   │   │   │   ├── fileComponent.js
+│   │   │   │   ├── groupComponent.js
+│   │   │   │   ├── hunkComponent.js
+│   │   │   │   └── searchComponent.js
+│   │   │   ├── modules/      # ES6 modules
+│   │   │   │   ├── auto-reload.js
+│   │   │   │   ├── context-expansion-ui.js
+│   │   │   │   ├── context-expansion.js
+│   │   │   │   ├── design-system.js
+│   │   │   │   ├── dom-utils.js
+│   │   │   │   ├── file-operations.js
+│   │   │   │   ├── full-diff.js
+│   │   │   │   ├── hunk-operations.js
+│   │   │   │   ├── navigation.js
+│   │   │   │   ├── search.js
+│   │   │   │   ├── state.js
+│   │   │   │   └── theme.js
+│   │   │   └── stores/       # Alpine stores
+│   │   │       ├── diffStore.js
+│   │   │       ├── searchStore.js
+│   │   │       └── themeStore.js
 │   │
 │   └── templates/            # Jinja2 templates
 │       ├── base.html         # Base template
-│       ├── index.html        # Main application view
 │       ├── diff_file.html    # File diff component
 │       ├── diff_groups.html  # Diff groups component
 │       ├── diff_hunk.html    # Hunk component
+│       ├── index.html        # Main application view
 │       └── partials/         # Template partials
+│           ├── empty_state.html
+│           ├── global_controls.html
+│           ├── loading_state.html
+│           └── toolbar.html
 │
 ├── tests/                    # Test suite
 │   ├── conftest.py           # pytest fixtures
@@ -477,6 +506,7 @@ difflicious/
 - `GitPython>=3.1.40` - Git repository operations
 - `jinja-partials>=0.2.0` - Template composition
 - `MarkupSafe>=2.1.0` - HTML escaping
+- `watchdog>=6.0.0` - Filesystem watching for auto-reload
 
 **Python (Development):**
 - `pytest>=8.3.5` - Testing framework
