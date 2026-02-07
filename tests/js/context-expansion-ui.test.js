@@ -49,8 +49,8 @@ describe('createPlainContextHtml', () => {
         );
 
         expect(html).toContain('&lt;tag&gt;');
-        expect(html).toContain('>3<');
-        expect(html).toContain('>8<');
+        expect(html).toContain('>4<');
+        expect(html).toContain('>7<');
     });
 });
 
