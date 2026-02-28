@@ -216,8 +216,12 @@ def main() -> None:
                     )
                     page = ctx.new_page()
                     page.goto(URL)
-                    page.wait_for_load_state("networkidle")
-                    page.wait_for_timeout(600)  # let Alpine finish rendering
+                    # "networkidle" never fires because the SSE auto-reload
+                    # connection is always open.  Wait for the page to load,
+                    # then block until at least one diff file header appears.
+                    page.wait_for_load_state("load")
+                    page.wait_for_selector(".file-header", timeout=15_000)
+                    page.wait_for_timeout(400)  # let Alpine finish rendering
 
                     out = OUT_DIR / f"{scheme}.png"
                     page.screenshot(path=str(out))
