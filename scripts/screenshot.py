@@ -221,7 +221,11 @@ def main() -> None:
                     # then block until at least one diff file header appears.
                     page.wait_for_load_state("load")
                     page.wait_for_selector(".file-header", timeout=15_000)
-                    page.wait_for_timeout(400)  # let Alpine finish rendering
+
+                    # Files are collapsed by default — click each header to expand
+                    for header in page.query_selector_all(".file-header"):
+                        header.click()
+                    page.wait_for_timeout(400)  # let expansion animate
 
                     out = OUT_DIR / f"{scheme}.png"
                     page.screenshot(path=str(out))
