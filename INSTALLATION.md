@@ -207,9 +207,23 @@ docker-compose up
 
 ### Font Customization
 
-For the full list of fonts and examples, see the
-[README font customization section](../README.md#font-customization). The key
-configuration point is still the `DIFFLICIOUS_FONT` environment variable.
+Set the `DIFFLICIOUS_FONT` environment variable to choose a programming font:
+
+| Key | Font |
+|-----|------|
+| `jetbrains-mono` | JetBrains Mono (default) |
+| `fira-code` | Fira Code |
+| `source-code-pro` | Source Code Pro |
+| `ibm-plex-mono` | IBM Plex Mono |
+| `roboto-mono` | Roboto Mono |
+| `inconsolata` | Inconsolata |
+
+```bash
+DIFFLICIOUS_FONT=fira-code difflicious
+
+# List all available fonts
+difflicious --list-fonts
+```
 
 ### Disable Google Fonts
 
