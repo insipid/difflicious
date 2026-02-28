@@ -6,8 +6,14 @@
 
 A local web application for reviewing git diffs. Run it in your working directory and view your changes in a browser with side-by-side visualization, syntax highlighting, and context expansion.
 
-<!-- TODO: Add screenshots showing light and dark mode side-by-side diff views -->
-<!-- ![Difflicious Screenshot](docs/screenshots/difflicious-demo.png) -->
+## Screenshots
+
+| Light mode | Dark mode |
+|------------|-----------|
+| ![Light mode](docs/screenshots/light.png) | ![Dark mode](docs/screenshots/dark.png) |
+
+> To regenerate: `uv run python scripts/screenshot.py`
+> Prerequisites: `uv add --dev playwright && uv run playwright install chromium`
 
 ## Installation
 
