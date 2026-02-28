@@ -5,12 +5,13 @@ All notable changes to difflicious will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 2026-02-06
+## [1.1.0] - 2026-02-06
 
 ### Stable Release
 
-Difflicious 1.0 marks the first stable release with hardened security, a
-cleaner frontend, and documentation aligned with current behavior.
+Difflicious 1.1 is the first intentional stable release. Version 1.0.0 was
+published to PyPI accidentally during a pipeline test and is considered
+spurious; 1.1.0 supersedes it.
 
 ### Added
 - **Live repo updates** - Real-time status refresh via Server-Sent Events
