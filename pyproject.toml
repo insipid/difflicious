@@ -9,10 +9,10 @@ description = "A sleek web-based git diff visualization tool for developers"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "Drew", email = "noreply@example.com"},
+    {name = "Drew"},
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
@@ -20,6 +20,9 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Environment :: Web Environment",
+    "Framework :: Flask",
     "Topic :: Software Development :: Version Control :: Git",
     "Topic :: Text Processing :: General",
 ]
@@ -36,19 +39,12 @@ dependencies = [
     "watchdog>=3.0.0,<4.0",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "mypy>=1.0.0",
-]
-
 [project.urls]
 Homepage = "https://github.com/insipid/difflicious"
 Repository = "https://github.com/insipid/difflicious"
 Issues = "https://github.com/insipid/difflicious/issues"
+Documentation = "https://github.com/insipid/difflicious#readme"
+Changelog = "https://github.com/insipid/difflicious/blob/main/CHANGELOG.md"
 
 [project.scripts]
 difflicious = "difflicious.cli:main"
