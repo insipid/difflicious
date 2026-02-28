@@ -2,5 +2,4 @@
 
 __version__ = "0.10.0"
 __author__ = "Drew"
-__email__ = "noreply@example.com"
 __description__ = "A sleek web-based git diff visualization tool for developers"
