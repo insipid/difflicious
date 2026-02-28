@@ -277,7 +277,6 @@ For more troubleshooting help, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
 ## Next Steps
 
-- Learn how to [contribute](CONTRIBUTING.md) to difflicious
 - Check [troubleshooting](TROUBLESHOOTING.md) for common issues
 - Read the main [README](../README.md) for features
-- Explore the [development setup](CONTRIBUTING.md#development-setup) for hacking on difflicious
+- Explore [DEVELOPING.md](../DEVELOPING.md) for development setup and workflow
