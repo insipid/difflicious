@@ -227,6 +227,10 @@ def main() -> None:
                         header.click()
                     page.wait_for_timeout(400)  # let expansion animate
 
+                    # Scroll back to the top so the nav bar is in frame
+                    page.evaluate("window.scrollTo(0, 0)")
+                    page.wait_for_timeout(150)  # let scroll settle
+
                     out = OUT_DIR / f"{scheme}.png"
                     page.screenshot(path=str(out))
                     print(f"  ✓ {scheme:5s}  →  {out}")
