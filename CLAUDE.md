@@ -535,7 +535,8 @@ The application is designed for multiple distribution channels:
 - `README.md` - User-facing documentation and installation instructions
 - `CLAUDE.md` - This file - AI assistant guidance and codebase overview
 - `PLAN.md` - Original project plan and technical decisions
-- `CONTRIBUTING.md` - Contribution guidelines
+- `CONTRIBUTING.md` - Brief contribution pointer
+- `DEVELOPING.md` - Full development setup, workflow, and conventions
 - `CHANGELOG.md` - Version history and changes
 - `INSTALLATION.md` - Installation and usage guide (PyPI, Docker, configuration)
 
