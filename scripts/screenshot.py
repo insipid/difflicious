@@ -37,7 +37,8 @@ OUT_DIR = Path(__file__).resolve().parent.parent / "docs" / "screenshots"
 
 FIXTURE: dict[str, dict[str, str]] = {
     "server.py": {
-        "before": dedent("""\
+        "before": dedent(
+            """\
             import re
 
             SECRET_PATTERN = re.compile(r'^[a-f0-9]{32}$')
@@ -56,8 +57,10 @@ FIXTURE: dict[str, dict[str, str]] = {
 
             def format_response(data, status='ok'):
                 return {'status': status, 'data': data}
-        """),
-        "after": dedent("""\
+        """
+        ),
+        "after": dedent(
+            """\
             import re
             from typing import Any
 
@@ -91,10 +94,12 @@ FIXTURE: dict[str, dict[str, str]] = {
                     "per_page": per_page,
                     "total": len(items),
                 }
-        """),
+        """
+        ),
     },
     "config.py": {
-        "before": dedent("""\
+        "before": dedent(
+            """\
             import os
 
             DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
@@ -104,8 +109,10 @@ FIXTURE: dict[str, dict[str, str]] = {
             DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///app.db')
 
             ALLOWED_ORIGINS = ['http://localhost:3000']
-        """),
-        "after": dedent("""\
+        """
+        ),
+        "after": dedent(
+            """\
             import os
             from dataclasses import dataclass, field
 
@@ -124,7 +131,8 @@ FIXTURE: dict[str, dict[str, str]] = {
 
 
             config = Config()
-        """),
+        """
+        ),
     },
 }
 
@@ -187,14 +195,18 @@ def main() -> None:
         raise SystemExit(
             "Playwright is not installed.\n"
             "Run:  uv add --dev playwright && uv run playwright install chromium"
-        )
+        ) from None
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     with tempfile.TemporaryDirectory() as tmp_str:
         repo = make_fixture_repo(Path(tmp_str))
 
-        env = {**os.environ, "DIFFLICIOUS_PORT": str(PORT), "DIFFLICIOUS_HOST": "127.0.0.1"}
+        env = {
+            **os.environ,
+            "DIFFLICIOUS_PORT": str(PORT),
+            "DIFFLICIOUS_HOST": "127.0.0.1",
+        }
         server = subprocess.Popen(
             ["uv", "run", "difflicious"],
             cwd=repo,
