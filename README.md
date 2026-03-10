@@ -48,8 +48,8 @@ If you prefer not to install globally, add one of these to your shell profile:
 # via uvx
 difflicious() { uvx difflicious "$@"; }
 
-# via Docker
-difflicious() { docker run -it --rm -v "$PWD:/workspace" -p 5000:5000 insipid/difflicious "$@"; }
+# via Docker (uses DIFFLICIOUS_PORT if set, otherwise 5000)
+difflicious() { docker run -it --rm -v "$PWD:/workspace" -p "${DIFFLICIOUS_PORT:-5000}:${DIFFLICIOUS_PORT:-5000}" insipid/difflicious "$@"; }
 ```
 
 ## Features
