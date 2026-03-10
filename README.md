@@ -1,8 +1,9 @@
+# Difflicious
+
 <div align="center">
   <img src="docs/site/assets/logo.png" width="160" alt="Difflicious">
-  <h1>Difflicious</h1>
-  <p>A local diff viewer for comparing your working directory to any branch, not just HEAD.<br>
-  No forge, no push — just run it in your repo.</p>
+  <p><em>A local diff viewer for comparing your working directory to any branch, not just HEAD.<br>
+  No forge, no push — just run it in your repo.</em></p>
 </div>
 
 ---
@@ -40,6 +41,16 @@ difflicious
 ```
 
 See [INSTALLATION.md](INSTALLATION.md) for Docker, source installation, and full configuration options.
+
+If you prefer not to install globally, add one of these to your shell profile:
+
+```bash
+# via uvx
+difflicious() { uvx difflicious "$@"; }
+
+# via Docker
+difflicious() { docker run -it --rm -v "$PWD:/workspace" -p 5000:5000 insipid/difflicious "$@"; }
+```
 
 ## Features
 
