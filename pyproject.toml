@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "difflicious"
 dynamic = ["version"]
-description = "A local diff viewer for comparing your working directory to any branch, not just HEAD"
+description = "A local web diff viewer for git diffs of a working directory"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
