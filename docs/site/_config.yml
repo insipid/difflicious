@@ -1,0 +1,6 @@
+title: Difflicious
+description: A local web application for reviewing git diffs
+theme: jekyll-theme-cayman
+
+url: "https://insipid.github.io"
+baseurl: "/difflicious"
