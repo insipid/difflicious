@@ -69,16 +69,17 @@ Like your favourite forge, and then some:
 
 ## Configuration
 
-Set environment variables to configure behaviour:
+All options can be set via environment variable or CLI flag:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `DIFFLICIOUS_PORT` | `5000` | Port to listen on |
-| `DIFFLICIOUS_HOST` | `127.0.0.1` | Host to bind to |
-| `DIFFLICIOUS_FONT` | `jetbrains-mono` | Code font (see `--list-fonts`) |
-| `DIFFLICIOUS_DISABLE_GOOGLE_FONTS` | `false` | Use system fonts only |
-| `DIFFLICIOUS_AUTO_RELOAD` | `true` | Auto-reload on file changes |
-| `DIFFLICIOUS_DEBUG` | `false` | Verbose debug logging |
+| Environment variable | CLI flag | Default | Description |
+|----------------------|----------|---------|-------------|
+| `DIFFLICIOUS_PORT` | `--port`, `-p` | `5000` | Port to listen on |
+| `DIFFLICIOUS_HOST` | `--host`, `-h` | `127.0.0.1` | Host to bind to |
+| `DIFFLICIOUS_FONT` | — | `jetbrains-mono` | Code font (`--list-fonts` to browse) |
+| `DIFFLICIOUS_DISABLE_GOOGLE_FONTS` | — | `false` | Use system fonts only |
+| `DIFFLICIOUS_AUTO_RELOAD` | `--auto-reload` / `--no-auto-reload` | `true` | Auto-reload on file changes |
+| `DIFFLICIOUS_WATCH_DEBOUNCE` | `--watch-debounce` | `1.0` | File watcher debounce delay (seconds) |
+| `DIFFLICIOUS_DEBUG` | `--debug` | `false` | Verbose debug logging |
 
 See [INSTALLATION.md](INSTALLATION.md) for full configuration details.
 
