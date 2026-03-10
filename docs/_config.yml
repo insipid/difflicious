@@ -1,0 +1,17 @@
+title: Difflicious
+description: A local web application for reviewing git diffs
+theme: jekyll-theme-cayman
+
+url: "https://insipid.github.io"
+baseurl: "/difflicious"
+
+# Exclude developer docs from the Jekyll site build
+exclude:
+  - CSS-STYLE-GUIDE.md
+  - TROUBLESHOOTING.md
+  - javascript-modularization-plan.md
+  - tailwind-design-system.md
+  - 2025-11-18-alpine-component-architecture.md
+  - internal
+  - plans
+  - reference
