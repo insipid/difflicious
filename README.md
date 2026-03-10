@@ -61,6 +61,9 @@ difflicious() { docker run -it --rm -v "$PWD:/workspace" -p "${DIFFLICIOUS_PORT:
 - Light and dark themes
 - Live auto-reload on file changes (SSE)
 - Font customization via `DIFFLICIOUS_FONT` environment variable
+- Compare against any branch — defaults to remote HEAD, configurable per session
+- Toggle staged and unstaged changes independently
+- UI state is persistent — collapsed files, hidden files, and view settings are remembered in the browser across sessions
 
 ## Configuration
 
