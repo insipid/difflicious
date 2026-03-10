@@ -54,7 +54,7 @@ difflicious() { docker run -it --rm -v "$PWD:/workspace" -p "${DIFFLICIOUS_PORT:
 
 ## Features
 
-Everything you'd expect from a forge diff view, and a few things you wouldn't:
+Like your favourite forge, and then some:
 
 - Side-by-side diff view with line numbering
 - Syntax highlighting for 100+ languages (via Pygments)
