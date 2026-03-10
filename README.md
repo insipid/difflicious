@@ -1,28 +1,43 @@
-# Difflicious
+<div align="center">
+  <img src="docs/site/assets/logo.png" width="160" alt="Difflicious">
+  <h1>Difflicious</h1>
+  <p>A local diff viewer for comparing your working directory to any branch, not just HEAD.<br>
+  No forge, no push — just run it in your repo.</p>
+</div>
 
-[![PyPI version](https://img.shields.io/pypi/v/difflicious.svg)](https://pypi.org/project/difflicious/)
-[![Python versions](https://img.shields.io/pypi/pyversions/difflicious.svg)](https://pypi.org/project/difflicious/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-A local web application for reviewing git diffs. Run it in your working directory and view your changes in a browser with side-by-side visualization, syntax highlighting, and context expansion.
+---
 
 ## Screenshots
 
-| Light mode | Dark mode |
-|------------|-----------|
-| ![Light mode](docs/screenshots/light.png) | ![Dark mode](docs/screenshots/dark.png) |
+<p align="center">
+  <img src="docs/screenshots/light.png" width="49%" alt="Light mode">
+  <img src="docs/screenshots/dark.png" width="49%" alt="Dark mode">
+</p>
 
-> To regenerate: `uv run python scripts/screenshot.py`
-> Prerequisites: `uv add --dev playwright && uv run playwright install chromium`
+## Usage
+
+The quickest way — no install required:
+
+```bash
+uvx difflicious
+```
+
+Or with Docker:
+
+```bash
+docker run -it --rm -v "$PWD:/workspace" -p 5000:5000 insipid/difflicious
+```
+
+Then open `http://localhost:5000` in your browser.
 
 ## Installation
+
+For regular use, install from PyPI:
 
 ```bash
 pip install difflicious
 difflicious
 ```
-
-Open `http://localhost:5000` in your browser.
 
 See [INSTALLATION.md](INSTALLATION.md) for Docker, source installation, and full configuration options.
 
@@ -38,7 +53,7 @@ See [INSTALLATION.md](INSTALLATION.md) for Docker, source installation, and full
 
 ## Configuration
 
-Set environment variables to configure behavior:
+Set environment variables to configure behaviour:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -62,13 +77,14 @@ See [INSTALLATION.md](INSTALLATION.md) for full configuration details.
 - [INSTALLATION.md](INSTALLATION.md) — installation options, configuration, environment variables
 - [DEVELOPING.md](DEVELOPING.md) — development setup, testing, code conventions
 - [CHANGELOG.md](CHANGELOG.md) — version history
-- [docs/CSS-STYLE-GUIDE.md](docs/CSS-STYLE-GUIDE.md) — CSS conventions and design tokens
 - [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) — common issues
 
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## License
+---
 
-MIT License — see [LICENSE](LICENSE) file for details.
+[![PyPI version](https://img.shields.io/pypi/v/difflicious.svg)](https://pypi.org/project/difflicious/)
+[![Python versions](https://img.shields.io/pypi/pyversions/difflicious.svg)](https://pypi.org/project/difflicious/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
