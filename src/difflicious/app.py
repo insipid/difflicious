@@ -2,6 +2,7 @@
 
 import logging
 import os
+import signal
 from pathlib import Path
 from typing import Any, Optional
 
@@ -41,7 +42,7 @@ def create_app(
     jinja_partials.register_extensions(app)
 
     # Configure logging
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.WARNING)
 
     @app.context_processor
     def inject_font_config() -> dict[str, dict[str, Any]]:
@@ -87,25 +88,24 @@ def create_app(
 
 
 def run_server(host: str = "127.0.0.1", port: int = 5000, debug: bool = False) -> None:
-    """Run the Flask development server.
+    """Run the web server.
 
-    When debug mode is enabled, automatically watches all HTML templates,
-    JavaScript, and CSS files for changes to trigger server reloads.
+    In debug mode, uses Flask's development server with auto-reload support.
+    Otherwise, uses Waitress (a production WSGI server) for quiet, warning-free output.
 
     Args:
         host: Host to bind the server to
         port: Port to run the server on
-        debug: Enable debug mode with auto-reload
+        debug: Enable debug mode with auto-reload (uses Flask dev server)
     """
     app = create_app()
 
-    # When debug mode is enabled, automatically watch all frontend files
-    extra_files = None
     if debug:
+        # Debug mode uses Flask's dev server for hot reloading of frontend files
         template_dir = os.path.join(os.path.dirname(__file__), "templates")
         static_dir = os.path.join(os.path.dirname(__file__), "static")
 
-        extra_files = []
+        extra_files: list[str] = []
 
         # Collect all HTML templates
         template_path = Path(template_dir)
@@ -121,8 +121,11 @@ def run_server(host: str = "127.0.0.1", port: int = 5000, debug: bool = False) -
             for css_file in static_path.rglob("*.css"):
                 extra_files.append(str(css_file.resolve()))
 
-    # Flask's app.run() accepts extra_files parameter for watching additional files in debug mode
-    if extra_files:
-        app.run(host=host, port=port, debug=debug, extra_files=extra_files)
+        app.run(host=host, port=port, debug=debug, extra_files=extra_files or None)
     else:
-        app.run(host=host, port=port, debug=debug)
+        # Use Waitress for normal operation: no dev-server warnings, quiet logging
+        from waitress import serve
+
+        # Local dev tool only — no graceful shutdown needed, exit immediately on SIGTERM
+        signal.signal(signal.SIGTERM, lambda *_: os._exit(0))
+        serve(app, host=host, port=port, threads=8)
