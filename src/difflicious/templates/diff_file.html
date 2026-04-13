@@ -18,7 +18,9 @@
                 </span>
                 <span
                     class="expand-icon text-neutral-400 dark:text-neutral-600 hover:text-neutral-600 dark:hover:text-neutral-500 cursor-pointer transition-colors flex-shrink-0"
-                    onclick="loadFullDiff('{{ file.path }}', '{{ file.file_id }}'); event.stopPropagation()"
+                    @click.stop="$store.diff.loadFullDiff($el)"
+                    data-file-path="{{ file.path }}"
+                    data-file-id="{{ file.file_id }}"
                     title="Show complete file diff with unlimited context" id="expand-icon-{{ file.file_id }}">
                     ↕
                 </span>
@@ -61,12 +63,14 @@
 
                 <!-- File Navigation -->
                 <div class="flex items-center space-x-1" onclick="event.stopPropagation()">
-                    <button onclick="navigateToPreviousFile('{{ file.file_id }}')"
+                    <button @click="$store.diff.navigateToPreviousFile($el)"
+                        data-file-id="{{ file.file_id }}"
                         class="p-1 text-neutral-400 dark:text-neutral-600 hover:text-neutral-600 dark:hover:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded transition-colors"
                         title="Previous file">
                         <span class="text-sm">↑</span>
                     </button>
-                    <button onclick="navigateToNextFile('{{ file.file_id }}')"
+                    <button @click="$store.diff.navigateToNextFile($el)"
+                        data-file-id="{{ file.file_id }}"
                         class="p-1 text-neutral-400 dark:text-neutral-600 hover:text-neutral-600 dark:hover:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded transition-colors"
                         title="Next file">
                         <span class="text-sm">↓</span>
@@ -95,7 +99,7 @@
                 <div class="flex-1 border-r border-neutral-200 dark:border-neutral-600">
                     <div class="flex">
                         <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
-                            <button onclick="loadMovedFileContent(this)"
+                            <button @click="$store.diff.loadMovedFileContent($el)"
                                 class="expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
                                 title="Show file content">
                                 ↕
@@ -110,7 +114,7 @@
                 <div class="flex-1">
                     <div class="flex">
                         <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
-                            <button onclick="loadMovedFileContent(this)"
+                            <button @click="$store.diff.loadMovedFileContent($el)"
                                 class="expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
                                 title="Show file content">
                                 ↕
