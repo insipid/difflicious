@@ -123,7 +123,7 @@ export function handleButtonHiding(button, direction, targetStart, targetEnd) {
     if (!context) return;
 
     const { currentHunk } = context;
-    const sameSideButtons = currentHunk.querySelectorAll(`.expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
+    const sameSideButtons = currentHunk.querySelectorAll(`.js-expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
     sameSideButtons.forEach(btn => {
         btn.style.display = 'none';
     });
@@ -165,7 +165,7 @@ export function updateButtonForNextExpansion(button, direction, targetStart, tar
             if (!context) return;
 
             const { currentHunk } = context;
-            const sameSideButtons = currentHunk.querySelectorAll(`.expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
+            const sameSideButtons = currentHunk.querySelectorAll(`.js-expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
             sameSideButtons.forEach(btn => {
                 btn.style.display = 'none';
             });
@@ -187,7 +187,7 @@ export function updateButtonForNextExpansion(button, direction, targetStart, tar
 
                 // If adjustment makes the range invalid (start > end), hide both buttons (left and right sides)
                 if (adjustedTargetStart > newTargetEnd) {
-                    const sameSideButtons = currentHunk.querySelectorAll(`.expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
+                    const sameSideButtons = currentHunk.querySelectorAll(`.js-expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
                     sameSideButtons.forEach(btn => {
                         btn.style.display = 'none';
                     });
@@ -219,7 +219,7 @@ export function updateButtonForNextExpansion(button, direction, targetStart, tar
 
             // If adjustment makes the range invalid (start > end), hide both buttons (left and right sides)
             if (newTargetStart > adjustedTargetEnd) {
-                const sameSideButtons = currentHunk.querySelectorAll(`.expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
+                const sameSideButtons = currentHunk.querySelectorAll(`.js-expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
                 sameSideButtons.forEach(btn => {
                     btn.style.display = 'none';
                 });
