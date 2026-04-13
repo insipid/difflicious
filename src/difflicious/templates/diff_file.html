@@ -100,7 +100,7 @@
                     <div class="flex">
                         <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
                             <button @click="$store.diff.loadMovedFileContent($el)"
-                                class="expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
+                                class="js-expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
                                 title="Show file content">
                                 ↕
                             </button>
@@ -115,7 +115,7 @@
                     <div class="flex">
                         <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
                             <button @click="$store.diff.loadMovedFileContent($el)"
-                                class="expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
+                                class="js-expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
                                 title="Show file content">
                                 ↕
                             </button>
@@ -149,7 +149,7 @@
             </div>
             <!-- Render all lines from the single hunk -->
             {% for hunk in file.hunks %}
-            <div class="hunk-lines">
+            <div class="js-hunk-lines">
                 {% for line in hunk.lines %}
                 <div class="diff-line flex line-{{ line.type }}">
                     <!-- Left Side: All deleted lines -->

@@ -323,9 +323,9 @@ export function renderSideBySideHunk(hunk, filePath, hunkIndex) {
     }
 
     let html = `
-        <div class="hunk border-b border-neutral-100 last:border-b-0">
+        <div class="js-hunk border-b border-neutral-100 last:border-b-0">
             <!-- Hunk Lines -->
-            <div class="hunk-lines font-mono text-xs">
+            <div class="js-hunk-lines font-mono text-xs">
     `;
 
     if (hunk.lines && Array.isArray(hunk.lines)) {

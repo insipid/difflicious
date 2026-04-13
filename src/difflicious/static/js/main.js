@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // This runs once after state restoration is complete
     requestAnimationFrame(() => {
         if (DEBUG) console.log('Initializing expansion buttons...');
-        const buttons = $$('.expansion-btn');
+        const buttons = $$('.js-expansion-btn');
         buttons.forEach((button, index) => {
             const targetStart = parseInt(button.dataset.targetStart);
             const targetEnd = parseInt(button.dataset.targetEnd);
