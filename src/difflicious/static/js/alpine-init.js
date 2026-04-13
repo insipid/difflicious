@@ -22,12 +22,14 @@ import { fileComponent } from './components/fileComponent.js';
 import { groupComponent } from './components/groupComponent.js';
 import { searchComponent } from './components/searchComponent.js';
 import { hunkComponent } from './components/hunkComponent.js';
+import { toolbarComponent } from './modules/toolbar.js';
 
 // Register component factories globally BEFORE Alpine starts
 window.fileComponent = fileComponent;
 window.groupComponent = groupComponent;
 window.searchComponent = searchComponent;
 window.hunkComponent = hunkComponent;
+window.toolbarComponent = toolbarComponent;
 
 // Export Alpine for use in components
 window.Alpine = Alpine;
