@@ -51,6 +51,6 @@ describe('renderFullDiff', () => {
         };
 
         await renderFullDiff(container, diffData, 'file-1');
-        expect(container.innerHTML).toContain('hunk-lines');
+        expect(container.innerHTML).toContain('js-hunk-lines');
     });
 });

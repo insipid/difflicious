@@ -1,5 +1,5 @@
 <!-- Single Hunk -->
-<div class="hunk border-neutral-200 dark:border-neutral-600 last:border-b-0" data-line-start="{{ hunk.line_start }}"
+<div class="js-hunk border-neutral-200 dark:border-neutral-600 last:border-b-0" data-line-start="{{ hunk.line_start }}"
     data-line-end="{{ hunk.line_end }}" data-left-line-start="{{ hunk.left_start or 0 }}"
     data-left-line-end="{{ hunk.left_end or 0 }}">
 
@@ -11,7 +11,7 @@
             <div class="flex">
                 <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
                     <button @click="$store.diff.expandContext($el)"
-                        class="expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
+                        class="js-expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
                         data-file-path="{{ file.path }}"
                         data-hunk-index="{{ hunk.index }}"
                         data-target-start="{{ hunk.expand_before_start }}"
@@ -37,7 +37,7 @@
             <div class="flex">
                 <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
                     <button @click="$store.diff.expandContext($el)"
-                        class="expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
+                        class="js-expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
                         data-file-path="{{ file.path }}"
                         data-hunk-index="{{ hunk.index }}"
                         data-target-start="{{ hunk.expand_before_start }}"
@@ -55,7 +55,7 @@
     {% endif %}
 
     <!-- Hunk Lines -->
-    <div class="hunk-lines font-mono text-xs" data-left-start-line="{{ hunk.old_start }}"
+    <div class="js-hunk-lines font-mono text-xs" data-left-start-line="{{ hunk.old_start }}"
         data-left-end-line="{{ hunk.old_start + hunk.old_count - 1 }}" data-right-start-line="{{ hunk.new_start }}"
         data-right-end-line="{{ hunk.new_start + hunk.new_count - 1 }}">
         {% for line in hunk.lines %}
@@ -139,7 +139,7 @@
             <div class="flex">
                 <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
                     <button @click="$store.diff.expandContext($el)"
-                        class="expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
+                        class="js-expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
                         data-file-path="{{ file.path }}"
                         data-hunk-index="{{ hunk.index }}"
                         data-target-start="{{ hunk.expand_after_start }}" data-target-end="{{ hunk.expand_after_end }}"
@@ -159,7 +159,7 @@
             <div class="flex">
                 <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
                     <button @click="$store.diff.expandContext($el)"
-                        class="expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
+                        class="js-expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
                         data-file-path="{{ file.path }}"
                         data-hunk-index="{{ hunk.index }}"
                         data-target-start="{{ hunk.expand_after_start }}" data-target-end="{{ hunk.expand_after_end }}"

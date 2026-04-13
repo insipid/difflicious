@@ -37,7 +37,7 @@ describe('AutoReload', () => {
 
         const indicator = document.getElementById('auto-reload-indicator');
         expect(indicator).not.toBeNull();
-        expect(indicator.querySelector('.connection-status').textContent).toContain('Auto-reload');
+        expect(indicator.querySelector('.js-connection-status').textContent).toContain('Auto-reload');
     });
 
     it('handleConnectionError schedules reconnect', () => {
