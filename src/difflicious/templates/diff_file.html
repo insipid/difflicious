@@ -90,13 +90,13 @@
         <!-- Pure rename/move with no content changes - show expander bar -->
         <!-- Condition: renamed file with no deletions means all lines show as "additions" but it's actually unchanged content -->
         <div class="moved-file-content" data-file-path="{{ file.path }}" data-old-path="{{ file.old_path }}">
-            <div class="moved-file-expansion bg-info-bg-50 text-xs font-mono text-info-text-800 flex">
+            <div class="moved-file-expansion moved-file-strip text-xs font-mono flex">
                 <!-- Left Side -->
                 <div class="flex-1 border-r border-neutral-200 dark:border-neutral-600">
                     <div class="flex">
-                        <div class="w-12 bg-info-bg-100 border-r border-neutral-200 dark:border-neutral-600 select-none flex flex-col">
+                        <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
                             <button onclick="loadMovedFileContent(this)"
-                                class="expansion-btn w-full px-2 py-1 text-xs bg-info-bg-200 hover:bg-info-bg-300 text-info-text-800 transition-colors flex items-center justify-center h-full"
+                                class="expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
                                 title="Show file content">
                                 ↕
                             </button>
@@ -109,9 +109,9 @@
                 <!-- Right Side -->
                 <div class="flex-1">
                     <div class="flex">
-                        <div class="w-12 bg-info-bg-100 border-r border-neutral-200 dark:border-neutral-600 select-none flex flex-col">
+                        <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
                             <button onclick="loadMovedFileContent(this)"
-                                class="expansion-btn w-full px-2 py-1 text-xs bg-info-bg-200 hover:bg-info-bg-300 text-info-text-800 transition-colors flex items-center justify-center h-full"
+                                class="expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
                                 title="Show file content">
                                 ↕
                             </button>
@@ -151,11 +151,11 @@
                     <!-- Left Side: All deleted lines -->
                     <div class="line-left flex-1 border-r border-neutral-200 dark:border-neutral-600">
                         <div class="flex">
-                            <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 dark:border-neutral-600 select-none bg-red-50 dark:bg-red-900/20">
+                            <div class="line-num w-12 px-2 py-1 text-right border-r select-none diff-line-deleted-num">
                                 <span>{{ line.left.line_num }}</span>
                             </div>
-                            <div class="line-content flex-1 px-2 py-1 overflow-x-auto bg-red-50 dark:bg-red-900/20">
-                                <span class="text-danger-text-600">-</span>
+                            <div class="line-content flex-1 px-2 py-1 overflow-x-auto diff-line-deleted">
+                                <span class="diff-line-deleted-gutter">-</span>
                                 {% if line.left.highlighted_content %}
                                 <span>{{ line.left.highlighted_content|safe }}</span>
                                 {% else %}
