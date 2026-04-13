@@ -26,40 +26,35 @@ describe('themeStore', () => {
             expect(themeStore.current).toBe('light');
         });
 
-        it('should initialize from localStorage', () => {
-            localStorage.setItem('difflicious-theme', 'dark');
+        it('should initialize dark from DOM data-theme attribute', () => {
+            document.documentElement.setAttribute('data-theme', 'dark');
 
             themeStore.init();
 
             expect(themeStore.current).toBe('dark');
         });
 
-        it('should initialize from system preference when no saved theme', () => {
-            // Mock matchMedia to return dark preference
-            window.matchMedia = jest.fn().mockImplementation(query => ({
-                matches: query === '(prefers-color-scheme: dark)',
-                media: query,
-                addEventListener: jest.fn(),
-                removeEventListener: jest.fn()
-            }));
-
-            themeStore.init();
-
-            expect(themeStore.current).toBe('dark');
-        });
-
-        it('should default to light theme when no preference', () => {
-            // Mock matchMedia to return light preference
-            window.matchMedia = jest.fn().mockImplementation(query => ({
-                matches: false,
-                media: query,
-                addEventListener: jest.fn(),
-                removeEventListener: jest.fn()
-            }));
+        it('should initialize light when DOM data-theme is not dark', () => {
+            // data-theme not set (or set to 'light') → light
+            document.documentElement.removeAttribute('data-theme');
 
             themeStore.init();
 
             expect(themeStore.current).toBe('light');
+        });
+
+        it('should register system-preference change listener', () => {
+            const addEventListenerMock = jest.fn();
+            window.matchMedia = jest.fn().mockReturnValue({
+                matches: false,
+                media: '',
+                addEventListener: addEventListenerMock,
+                removeEventListener: jest.fn()
+            });
+
+            themeStore.init();
+
+            expect(addEventListenerMock).toHaveBeenCalledWith('change', expect.any(Function));
         });
     });
 
