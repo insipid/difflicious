@@ -1,14 +1,12 @@
 # Presentation Layer Separation — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
-
 **Goal:** Enforce four explicit contracts between the data, service, template, CSS, and JS layers so each layer can be changed independently without touching the others.
 
 **Architecture:** Server renders structure and data as HTML with `data-*` attributes; client owns all interactivity via Alpine stores (single state system). Templates use only semantic CSS class names; all colour lives in `styles.css` variables.
 
 **Tech Stack:** Python/Flask, Jinja2, Alpine.js, Tailwind CSS, vanilla ES6 modules, pytest, Jest
 
-**Spec:** `docs/superpowers/specs/2026-04-08-presentation-layer-separation-design.md`
+**Spec:** `docs/presentation-layer-separation.md`
 
 **Verification command (run after every PR):** `./cilicious.sh`
 
