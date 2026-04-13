@@ -26,7 +26,6 @@ def index() -> str:
         base_ref = request.args.get("base_ref")
         file_path = request.args.get("file")
         search_filter = request.args.get("search", "").strip()
-        expand_files = request.args.get("expand", "false").lower() == "true"
 
         # If no base_ref specified, default to current checked-out branch to trigger HEAD comparison mode
         if not base_ref:
@@ -47,7 +46,6 @@ def index() -> str:
             base_ref=base_ref,
             file_path=file_path,
             search_filter=search_filter if search_filter else None,
-            expand_files=expand_files,
         )
 
         return render_template("index.html", **template_data)

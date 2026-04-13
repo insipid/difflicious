@@ -1,10 +1,8 @@
 <!-- Single File Diff -->
-{% set file_id = group_name + ":" + file.path %}
 <div class="file-diff bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-600 rounded-lg shadow-sm"
-    data-file="{{ file_id }}"
+    data-file="{{ file.file_id }}"
     {% if file.old_path %}data-old-path="{{ file.old_path }}"{% endif %}
-    x-data="fileComponent('{{ file_id }}')"
-    {% if file.hidden_by_search %}style="display: none;"{% endif %}>
+    x-data="fileComponent('{{ file.file_id }}')">
     <!-- File Header Wrapper -->
     <div class="file-header-wrapper">
         <!-- Spacer div to fill the gap -->
@@ -20,8 +18,8 @@
                 </span>
                 <span
                     class="expand-icon text-neutral-400 dark:text-neutral-600 hover:text-neutral-600 dark:hover:text-neutral-500 cursor-pointer transition-colors flex-shrink-0"
-                    onclick="loadFullDiff('{{ file.path }}', '{{ file_id }}'); event.stopPropagation()"
-                    title="Show complete file diff with unlimited context" id="expand-icon-{{ file_id }}">
+                    onclick="loadFullDiff('{{ file.path }}', '{{ file.file_id }}'); event.stopPropagation()"
+                    title="Show complete file diff with unlimited context" id="expand-icon-{{ file.file_id }}">
                     ↕
                 </span>
                 <div class="flex-1 min-w-0 break-words">
@@ -63,12 +61,12 @@
 
                 <!-- File Navigation -->
                 <div class="flex items-center space-x-1" onclick="event.stopPropagation()">
-                    <button onclick="navigateToPreviousFile('{{ file_id }}')"
+                    <button onclick="navigateToPreviousFile('{{ file.file_id }}')"
                         class="p-1 text-neutral-400 dark:text-neutral-600 hover:text-neutral-600 dark:hover:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded transition-colors"
                         title="Previous file">
                         <span class="text-sm">↑</span>
                     </button>
-                    <button onclick="navigateToNextFile('{{ file_id }}')"
+                    <button onclick="navigateToNextFile('{{ file.file_id }}')"
                         class="p-1 text-neutral-400 dark:text-neutral-600 hover:text-neutral-600 dark:hover:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded transition-colors"
                         title="Next file">
                         <span class="text-sm">↓</span>
@@ -79,7 +77,7 @@
     </div>
 
     <!-- File Content -->
-    <div class="file-content" data-file-content="{{ file_id }}"
+    <div class="file-content" data-file-content="{{ file.file_id }}"
         x-show="isExpanded"
         x-cloak
         x-transition:enter="transition ease-out duration-200"
