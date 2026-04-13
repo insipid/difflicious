@@ -604,6 +604,7 @@
 }
 .file-card-header {
     color: var(--text-primary);
+    transition: background 0.15s;
 }
 .file-card-header:hover {
     background: var(--surface-tertiary);
@@ -979,6 +980,18 @@ body {
 [data-theme="dark"] .diff-line .line-num {
     background-color: #1a2332 !important;
     color: #94a3b8;
+}
+
+/* Dark theme: Restore addition/deletion colouring on semantic line-num classes.
+ * These must use !important to win against the generic .diff-line .line-num rule above. */
+[data-theme="dark"] .diff-line .diff-line-deleted-num {
+    background-color: var(--diff-deletion-linenum-bg) !important;
+    color: var(--diff-deletion-linenum-text) !important;
+}
+
+[data-theme="dark"] .diff-line .diff-line-added-num {
+    background-color: var(--diff-addition-linenum-bg) !important;
+    color: var(--diff-addition-linenum-text) !important;
 }
 
 /* Simple highlight for filename search */

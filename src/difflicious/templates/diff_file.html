@@ -1,5 +1,5 @@
 <!-- Single File Diff -->
-<div class="file-diff bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-600 rounded-lg shadow-sm"
+<div class="file-diff file-card"
     data-file="{{ file.file_id }}"
     {% if file.old_path %}data-old-path="{{ file.old_path }}"{% endif %}
     x-data="fileComponent('{{ file.file_id }}')">
@@ -8,7 +8,7 @@
         <!-- Spacer div to fill the gap -->
         <div class="file-header-spacer"></div>
         <!-- File Header -->
-        <div class="file-header flex items-center justify-between p-4 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors space-x-2"
+        <div class="file-header file-card-header flex items-center justify-between p-4 cursor-pointer space-x-2"
             @click="toggle()">
             <!-- Left side: toggle, expand, filename, status - all flush left -->
             <div class="flex items-center space-x-3 flex-shrink min-w-0">
@@ -65,13 +65,13 @@
                 <div class="flex items-center space-x-1" onclick="event.stopPropagation()">
                     <button @click="$store.diff.navigateToPreviousFile($el)"
                         data-file-id="{{ file.file_id }}"
-                        class="p-1 text-neutral-400 dark:text-neutral-600 hover:text-neutral-600 dark:hover:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded transition-colors"
+                        class="file-card-nav-btn p-1"
                         title="Previous file">
                         <span class="text-sm">↑</span>
                     </button>
                     <button @click="$store.diff.navigateToNextFile($el)"
                         data-file-id="{{ file.file_id }}"
-                        class="p-1 text-neutral-400 dark:text-neutral-600 hover:text-neutral-600 dark:hover:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded transition-colors"
+                        class="file-card-nav-btn p-1"
                         title="Next file">
                         <span class="text-sm">↓</span>
                     </button>
