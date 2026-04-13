@@ -3,8 +3,6 @@
  * Uses Server-Sent Events (SSE) to receive file change notifications
  */
 
-import { DiffState } from './state.js';
-
 let DEBUG = false;
 
 export function setDebug(value) {
@@ -71,7 +69,7 @@ export const AutoReload = {
         if (DEBUG) console.log('File change detected, refreshing...');
 
         // Save current state and scroll position
-        DiffState.saveState();
+        window.Alpine?.store('diff')?.saveState();
         const scrollY = window.scrollY;
 
         try {
