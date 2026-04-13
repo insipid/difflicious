@@ -10,8 +10,10 @@
         <div class="flex-1 border-r border-neutral-200 dark:border-neutral-600">
             <div class="flex">
                 <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
-                    <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'before', 10, 'pygments')"
+                    <button @click="$store.diff.expandContext($el)"
                         class="expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
+                        data-file-path="{{ file.path }}"
+                        data-hunk-index="{{ hunk.index }}"
                         data-target-start="{{ hunk.expand_before_start }}"
                         data-target-end="{{ hunk.expand_before_end }}" data-direction="before"
                         title="Expand 10 lines up ({{ hunk.expand_before_start }}-{{ hunk.expand_before_end }})">
@@ -34,8 +36,10 @@
         <div class="flex-1">
             <div class="flex">
                 <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
-                    <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'before', 10, 'pygments')"
+                    <button @click="$store.diff.expandContext($el)"
                         class="expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
+                        data-file-path="{{ file.path }}"
+                        data-hunk-index="{{ hunk.index }}"
                         data-target-start="{{ hunk.expand_before_start }}"
                         data-target-end="{{ hunk.expand_before_end }}" data-direction="before"
                         title="Expand 10 lines up ({{ hunk.expand_before_start }}-{{ hunk.expand_before_end }})">
@@ -134,8 +138,10 @@
         <div class="flex-1 border-r border-neutral-200 dark:border-neutral-600">
             <div class="flex">
                 <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
-                    <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'after', 10, 'pygments')"
+                    <button @click="$store.diff.expandContext($el)"
                         class="expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
+                        data-file-path="{{ file.path }}"
+                        data-hunk-index="{{ hunk.index }}"
                         data-target-start="{{ hunk.expand_after_start }}" data-target-end="{{ hunk.expand_after_end }}"
                         data-direction="after"
                         title="Expand 10 lines down ({{ hunk.expand_after_start }}-{{ hunk.expand_after_end }})">
@@ -152,8 +158,10 @@
         <div class="flex-1">
             <div class="flex">
                 <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
-                    <button onclick="expandContext(this, '{{ file.path }}', {{ hunk.index }}, 'after', 10, 'pygments')"
+                    <button @click="$store.diff.expandContext($el)"
                         class="expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
+                        data-file-path="{{ file.path }}"
+                        data-hunk-index="{{ hunk.index }}"
                         data-target-start="{{ hunk.expand_after_start }}" data-target-end="{{ hunk.expand_after_end }}"
                         data-direction="after"
                         title="Expand 10 lines down ({{ hunk.expand_after_start }}-{{ hunk.expand_after_end }})">

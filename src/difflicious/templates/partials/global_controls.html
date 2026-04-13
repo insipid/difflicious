@@ -1,7 +1,7 @@
 <!-- Global Controls -->
 <div class="flex items-center justify-between mb-4">
     <div class="flex items-center space-x-2">
-        <button id="expandAll" @click="window.expandAllFiles()"
+        <button id="expandAll" @click="$store.diff.expandAllFiles()"
             :disabled="$store.diff.allFilesExpanded"
             class="px-3 py-1 text-sm global-controls-btn flex items-center space-x-2"
             title="Expand All">
@@ -13,7 +13,7 @@
             </svg>
             <span>Expand All</span>
         </button>
-        <button id="collapseAll" @click="window.collapseAllFiles()"
+        <button id="collapseAll" @click="$store.diff.collapseAllFiles()"
             :disabled="$store.diff.allFilesCollapsed"
             class="px-3 py-1 text-sm global-controls-btn flex items-center space-x-2"
             title="Collapse All">
