@@ -120,6 +120,7 @@ class TemplateRenderingService(BaseService):
             return {
                 # Repository info
                 "repo_status": repo_status,
+                "repo_name": repo_status.get("repository_name", "default"),
                 "branches": branch_info.get("branches", {}),
                 "current_branch": current_branch,
                 # Diff data
@@ -350,6 +351,7 @@ class TemplateRenderingService(BaseService):
         """Get template data for error states."""
         return {
             "repo_status": {"current_branch": "error", "git_available": False},
+            "repo_name": "default",
             "branches": {"all": [], "current": "error", "default": "main"},
             "groups": {
                 "untracked": {"files": [], "count": 0},

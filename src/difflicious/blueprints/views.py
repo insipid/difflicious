@@ -55,6 +55,7 @@ def index() -> str:
         # Render error page
         error_data = {
             "repo_status": {"current_branch": "error", "git_available": False},
+            "repo_name": "default",
             "branches": {"all": [], "current": "error", "default": "main"},
             "groups": {},
             "total_files": 0,
