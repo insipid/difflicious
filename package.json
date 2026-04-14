@@ -1,6 +1,5 @@
 {
   "name": "difflicious",
-  "version": "1.0.0",
   "description": "A sleek web-based git diff visualization tool",
   "scripts": {
     "lint:js": "eslint src/difflicious/static/js/**/*.js",

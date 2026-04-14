@@ -1,0 +1,75 @@
+name: Check Version Bump
+
+on:
+  pull_request:
+    paths:
+      - 'src/difflicious/__init__.py'
+      - 'CHANGELOG.md'
+  pull_request_target:
+    paths:
+      - 'src/difflicious/__init__.py'
+      - 'CHANGELOG.md'
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  check-version-bump:
+    runs-on: ubuntu-latest
+    name: Verify version was bumped
+
+    steps:
+      - name: Checkout base (main)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: base
+
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          path: head
+
+      - name: Extract version from main
+        id: main_version
+        run: |
+          version=$(grep '__version__' base/src/difflicious/__init__.py | sed -E 's/.*"([^"]+)".*/\1/')
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "Main version: $version"
+
+      - name: Extract version from PR
+        id: pr_version
+        run: |
+          version=$(grep '__version__' head/src/difflicious/__init__.py | sed -E 's/.*"([^"]+)".*/\1/')
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "PR version: $version"
+
+      - name: Compare versions
+        id: compare
+        run: |
+          main_version="${{ steps.main_version.outputs.version }}"
+          pr_version="${{ steps.pr_version.outputs.version }}"
+
+          if [ "$main_version" = "$pr_version" ]; then
+            echo "❌ Version was not bumped"
+            echo "Main: $main_version"
+            echo "PR: $pr_version"
+            exit 1
+          fi
+
+          echo "✅ Version was bumped"
+          echo "Main: $main_version → PR: $pr_version"
+
+      - name: Comment on PR if version not bumped
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '❌ **Version Check Failed**\n\nThis PR does not have a version bump in `src/difflicious/__init__.py`. Please update the version to proceed.\n\nIf this is an intentional release without version changes, a maintainer can override this check.'
+            })

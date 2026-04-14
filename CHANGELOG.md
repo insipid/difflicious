@@ -5,6 +5,28 @@ All notable changes to difflicious will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2026-04-14
+
+### Release Automation & Infrastructure
+
+Automated version management and release processes to streamline development workflows.
+
+### Added
+- **Automated version bump enforcement** - GitHub Action that requires version updates on main branch merges
+- **Branch protection integration** - Enforces changelog discipline with override capability
+
+### Improved
+- **Frontend animations** - Smoother transitions and reduced visual flashing during state changes
+- **CSS architecture** - Consolidated theme styling and improved dark mode consistency
+- **Signal handling** - Better graceful shutdown for SIGINT/SIGTERM
+- **JavaScript selectors** - Standardized hooks with `js-` prefix for maintainability
+
+### Fixed
+- **CSS x-cloak** - Added missing rule to prevent FOUC (flash of unstyled content)
+- **Expansion state** - Eliminated flash of incorrect state on page load
+- **Dark mode backgrounds** - Consistent file header styling across themes
+- **Queue warnings** - Resolved Waitress concurrency warnings
+
 ## [0.12.0] - 2026-04-14
 
 ### Presentation Layer Separation
