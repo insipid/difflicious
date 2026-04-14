@@ -1294,7 +1294,6 @@ body {
 }
 
 [data-theme="dark"] .file-diff .file-header {
-    background-color: var(--color-neutral-800) !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
