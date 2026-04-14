@@ -148,10 +148,11 @@ def watch_changes() -> Response:
             # Stream events
             while True:
                 try:
-                    event = event_queue.get(timeout=30)
+                    event = event_queue.get(timeout=5)
                     yield f"data: {json.dumps(event)}\n\n"
                 except queue.Empty:
-                    # Send keepalive
+                    # Send keepalive — also detects client disconnect promptly
+                    # so Waitress threads are freed within ~5 s of a tab closing
                     yield ": keepalive\n\n"
 
         except Exception as e:

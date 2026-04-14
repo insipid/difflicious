@@ -1,5 +1,6 @@
 <!-- Toolbar -->
-<header class="bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-600 px-4 py-3">
+<header x-data="toolbarComponent({{ unstaged|lower }}, {{ untracked|lower }})"
+    class="bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-600 px-4 py-3">
     <div class="flex items-center justify-between">
         <div class="flex items-center space-x-4 flex-1">
             <h1 class="text-xl font-semibold text-neutral-900 dark:text-neutral-300">
@@ -8,7 +9,7 @@
 
             <!-- Base Branch Dropdown -->
             <form method="GET" action="/" class="flex items-center space-x-2 flex-1"
-                onsubmit="return scrubEmptyInputs(this)"
+                @submit="scrubEmptySearch($el)"
                 id="diff-toolbar-form">
                 <label class="text-sm font-medium text-neutral-700 dark:text-neutral-400">
                     <svg width="20" height="20" viewBox="0 0 512 512" fill="currentColor" class="inline" title="Branch"
@@ -33,7 +34,8 @@
                     <!-- HEAD comparison: show "Untracked" and "Unstaged" (staged always visible) -->
                     <label class="flex items-center">
                         <input type="checkbox" name="untracked" value="true" {% if untracked %}checked{% endif %}
-                            class="h-4 w-4 text-info-text-600 focus:ring-info-text-600 border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 rounded checkbox-control">
+                            @change.stop="updateToggle('untracked', $event.target.checked)"
+                            class="h-4 w-4 text-info-text-600 focus:ring-info-text-600 border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 rounded">
                         <svg width="20" height="20" viewBox="0 0 1024 1024" fill="currentColor"
                             class="ml-1 text-neutral-700 dark:text-neutral-300" title="Untracked"
                             aria-label="Untracked">
@@ -45,7 +47,8 @@
 
                     <label class="flex items-center">
                         <input type="checkbox" name="unstaged" value="true" {% if unstaged %}checked{% endif %}
-                            class="h-4 w-4 text-info-text-600 focus:ring-info-text-600 border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 rounded checkbox-control">
+                            @change.stop="updateToggle('unstaged', $event.target.checked)"
+                            class="h-4 w-4 text-info-text-600 focus:ring-info-text-600 border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 rounded">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                             class="ml-1 text-neutral-700 dark:text-neutral-400" title="Unstaged" aria-label="Unstaged">
@@ -62,7 +65,8 @@
                     <!-- Branch comparison: only show "Untracked" (changes are always visible) -->
                     <label class="flex items-center">
                         <input type="checkbox" name="untracked" value="true" {% if untracked %}checked{% endif %}
-                            class="h-4 w-4 text-info-text-600 focus:ring-info-text-600 border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 rounded checkbox-control">
+                            @change.stop="updateToggle('untracked', $event.target.checked)"
+                            class="h-4 w-4 text-info-text-600 focus:ring-info-text-600 border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 rounded">
                         <svg width="20" height="20" viewBox="0 0 1024 1024" fill="currentColor"
                             class="ml-1 text-neutral-700 dark:text-neutral-400" title="Untracked"
                             aria-label="Untracked">
@@ -93,6 +97,7 @@
                         type="button"
                         @click="clear()"
                         x-show="isActive"
+                        x-cloak
                         class="absolute inset-y-0 right-2 my-auto text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300"
                         aria-label="Clear search">
                         ×
@@ -113,126 +118,3 @@
         </div>
     </div>
 </header>
-
-<script>
-    // Global state for toggle visibility (client-side filtering)
-    const ToggleState = {
-        unstaged: {{ unstaged|lower }},
-        untracked: {{ untracked|lower }},
-
-        updateToggle(name, checked) {
-            this[name] = checked;
-            this.updateGroupVisibility();
-            this.updateURL();
-        },
-
-        updateGroupVisibility() {
-            // Show/hide groups based on toggle state without server request
-            const unstagedGroup = document.querySelector('[data-group="unstaged"]');
-            const untrackedGroup = document.querySelector('[data-group="untracked"]');
-
-            if (unstagedGroup) {
-                unstagedGroup.style.display = this.unstaged ? '' : 'none';
-            }
-
-            if (untrackedGroup) {
-                untrackedGroup.style.display = this.untracked ? '' : 'none';
-            }
-        },
-
-        updateURL() {
-            // Update URL without page reload for bookmarking/sharing
-            const url = new URL(window.location);
-            url.searchParams.set('unstaged', this.unstaged.toString());
-            url.searchParams.set('untracked', this.untracked.toString());
-            window.history.replaceState({}, '', url);
-        }
-    };
-
-    function updateCheckboxAndSubmit(checkbox) {
-        // This function is called for non-toggle checkboxes only
-        // Toggles are handled in the event listener directly
-
-        // For other form elements (branch select, search), submit normally
-        const form = checkbox.form;
-        const formData = new FormData(form);
-        const params = new URLSearchParams();
-
-        // Get all form data except checkboxes (we'll handle those explicitly)
-        for (const [key, value] of formData.entries()) {
-            if (key !== 'unstaged' && key !== 'staged' && key !== 'untracked') {
-                // Skip empty-ish search values
-                if (key === 'search' && (!value || value.trim() === '')) {
-                    continue;
-                }
-                params.set(key, value);
-            }
-        }
-
-        // Include current toggle states in URL
-        params.set('unstaged', ToggleState.unstaged.toString());
-        params.set('untracked', ToggleState.untracked.toString());
-
-        // Explicitly set checkbox states based on their current checked state
-        const unstagedCheckbox = form.querySelector('input[name="unstaged"]');
-        const stagedCheckbox = form.querySelector('input[name="staged"]');
-        const untrackedCheckbox = form.querySelector('input[name="untracked"]');
-
-        if (unstagedCheckbox) {
-            params.set('unstaged', unstagedCheckbox.checked ? 'true' : 'false');
-        }
-        if (stagedCheckbox) {
-            // Only set staged parameter if staged checkbox exists (not in HEAD comparisons)
-            params.set('staged', stagedCheckbox.checked ? 'true' : 'false');
-        }
-        if (untrackedCheckbox) {
-            params.set('untracked', untrackedCheckbox.checked ? 'true' : 'false');
-        }
-
-        // Navigate to the updated URL
-        window.location.href = '?' + params.toString();
-    }
-
-    function scrubEmptyInputs(form) {
-        // Prevent submitting empty search to avoid blank search param
-        const searchInput = form.querySelector('input[name="search"]');
-        if (searchInput && (!searchInput.value || searchInput.value.trim() === '')) {
-            searchInput.name = '';
-        }
-        return true;
-    }
-
-    // Set up event listeners when DOM is ready
-    // Use capture phase to ensure our handler runs before other listeners
-    document.addEventListener('DOMContentLoaded', function () {
-        // Initialize toggle state based on initial visibility
-        ToggleState.updateGroupVisibility();
-
-        const form = document.getElementById('diff-toolbar-form');
-        const checkboxes = document.querySelectorAll('input[name="unstaged"], input[name="untracked"]');
-
-        // Prevent form submission when unstaged/untracked toggles change
-        if (form) {
-            form.addEventListener('submit', function(event) {
-                const target = event.target || event.submitter;
-                // Check if submit was triggered by unstaged/untracked checkbox change
-                if (target && (target.name === 'unstaged' || target.name === 'untracked')) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    return false;
-                }
-            }, true);
-        }
-
-        checkboxes.forEach(function (checkbox) {
-            // Use capture phase and stopImmediatePropagation to ensure our handler runs first
-            checkbox.addEventListener('change', function (event) {
-                // For unstaged/untracked toggles, use client-side filtering
-                event.preventDefault();
-                event.stopPropagation();
-                event.stopImmediatePropagation();
-                ToggleState.updateToggle(checkbox.name, checkbox.checked);
-            }, true); // Use capture phase
-        });
-    });
-</script>

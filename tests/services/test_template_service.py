@@ -188,19 +188,14 @@ class TestTemplateRenderingService:
         # Test with search filter
         result = service.prepare_diff_data_for_template(search_filter="test")
 
-        # All files should be included, but non-matching ones should be marked as hidden
+        # All files should be included — filtering is a client concern
         # When no base_commit is provided, unstaged and staged are combined into "changes"
         assert result["groups"]["changes"]["count"] == 3
         files = result["groups"]["changes"]["files"]
         assert len(files) == 3
-        # test.py should match (not hidden)
-        test_py = next(f for f in files if f["path"] == "test.py")
-        assert test_py.get("hidden_by_search", False) is False
-        # example.js and other.txt should not match (hidden)
-        example_js = next(f for f in files if f["path"] == "example.js")
-        assert example_js.get("hidden_by_search", False) is True
-        other_txt = next(f for f in files if f["path"] == "other.txt")
-        assert other_txt.get("hidden_by_search", False) is True
+        # No file should have hidden_by_search set (client concern)
+        for f in files:
+            assert "hidden_by_search" not in f
 
     def test_process_line_side_with_content(self):
         """Test processing line side with content."""
@@ -329,14 +324,13 @@ class TestTemplateRenderingService:
             }
         }
 
-        result = self.service._enhance_diff_data_for_template(
-            grouped_diffs, expand_files=True
-        )
+        result = self.service._enhance_diff_data_for_template(grouped_diffs)
 
         assert "unstaged" in result
         assert result["unstaged"]["count"] == 1
         assert len(result["unstaged"]["files"]) == 1
-        assert result["unstaged"]["files"][0]["expanded"] is True
+        # expanded is a client concern — must not be set by the service
+        assert "expanded" not in result["unstaged"]["files"][0]
 
     def test_enhance_diff_data_with_search_filter(self):
         """Test enhancing diff data with search filter."""
@@ -353,17 +347,14 @@ class TestTemplateRenderingService:
             grouped_diffs, search_filter="test"
         )
 
-        # All files should be included, but non-matching ones marked as hidden
+        # All files should be included — filtering is a client concern
         assert result["unstaged"]["count"] == 2
         assert len(result["unstaged"]["files"]) == 2
-        # test.py should not be hidden
-        test_py = next(f for f in result["unstaged"]["files"] if f["path"] == "test.py")
-        assert test_py.get("hidden_by_search", False) is False
-        # example.js should be hidden
-        example_js = next(
-            f for f in result["unstaged"]["files"] if f["path"] == "example.js"
-        )
-        assert example_js.get("hidden_by_search", False) is True
+        # No file should have hidden_by_search set
+        for f in result["unstaged"]["files"]:
+            assert "hidden_by_search" not in f
+        # Group should not have hidden_by_search either
+        assert "hidden_by_search" not in result["unstaged"]
 
     @patch("difflicious.services.template_service.DiffService")
     @patch("difflicious.services.template_service.GitService")
@@ -398,3 +389,63 @@ class TestTemplateRenderingService:
         assert "repo_status" in result
         assert "branches" in result
         assert "groups" in result
+
+    def test_enhanced_file_has_no_hidden_by_search_flag(self):
+        """Service must not produce hidden_by_search — that is a client concern."""
+        service = TemplateRenderingService()
+        result = service._enhance_diff_data_for_template(
+            {
+                "unstaged": {
+                    "files": [{"path": "foo.py", "status": "modified", "hunks": []}],
+                    "count": 1,
+                }
+            },
+            search_filter="bar",  # does NOT match "foo.py"
+        )
+        files = result["unstaged"]["files"]
+        assert len(files) == 1
+        assert "hidden_by_search" not in files[0]
+
+    def test_enhanced_file_has_no_expanded_flag(self):
+        """Service must not produce expanded — initial UI state is a client concern."""
+        service = TemplateRenderingService()
+        result = service._enhance_diff_data_for_template(
+            {
+                "unstaged": {
+                    "files": [{"path": "foo.py", "status": "modified", "hunks": []}],
+                    "count": 1,
+                }
+            },
+        )
+        files = result["unstaged"]["files"]
+        assert "expanded" not in files[0]
+
+    def test_enhanced_file_has_file_id(self):
+        """Service must compute file_id for each file."""
+        service = TemplateRenderingService()
+        result = service._enhance_diff_data_for_template(
+            {
+                "unstaged": {
+                    "files": [
+                        {"path": "src/foo.py", "status": "modified", "hunks": []}
+                    ],
+                    "count": 1,
+                }
+            },
+        )
+        files = result["unstaged"]["files"]
+        assert files[0]["file_id"] == "unstaged:src/foo.py"
+
+    def test_group_has_no_hidden_by_search_flag(self):
+        """Group-level hidden_by_search must not be produced."""
+        service = TemplateRenderingService()
+        result = service._enhance_diff_data_for_template(
+            {
+                "unstaged": {
+                    "files": [{"path": "foo.py", "status": "modified", "hunks": []}],
+                    "count": 1,
+                }
+            },
+            search_filter="zzz",
+        )
+        assert "hidden_by_search" not in result["unstaged"]

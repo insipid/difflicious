@@ -12,20 +12,20 @@ import {
 const buildHunkWithLines = (direction = 'before') => {
     document.body.innerHTML = `
         <div data-file="src/test.js">
-            <div class="hunk">
-                <div class="hunk-lines"
+            <div class="js-hunk">
+                <div class="js-hunk-lines"
                     data-left-start-line="5"
                     data-left-end-line="10"
                     data-right-start-line="8"
                     data-right-end-line="13">
                     <div class="existing-line">Existing</div>
                 </div>
-                <button class="expansion-btn" data-direction="${direction}"></button>
+                <button class="js-expansion-btn" data-direction="${direction}"></button>
             </div>
         </div>
     `;
 
-    return document.querySelector('.expansion-btn');
+    return document.querySelector('.js-expansion-btn');
 };
 
 describe('injectPygmentsCss', () => {
@@ -65,7 +65,7 @@ describe('insertExpandedContext', () => {
             '<div class="expanded-context">New</div>'
         );
 
-        const hunkLines = document.querySelector('.hunk-lines');
+        const hunkLines = document.querySelector('.js-hunk-lines');
         expect(hunkLines.firstElementChild.classList.contains('expanded-context')).toBe(true);
     });
 });
@@ -75,7 +75,7 @@ describe('updateHunkLinesDataAttributes', () => {
         const button = buildHunkWithLines('before');
         updateHunkLinesDataAttributes(button, 'before', 2);
 
-        const hunkLines = document.querySelector('.hunk-lines');
+        const hunkLines = document.querySelector('.js-hunk-lines');
         expect(hunkLines.dataset.leftStartLine).toBe('3');
         expect(hunkLines.dataset.rightStartLine).toBe('6');
     });

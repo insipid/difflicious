@@ -3,12 +3,7 @@
  * Coordinates all modules and initializes the application
  */
 
-import { DiffState, setDebug as setStateDebug } from './modules/state.js';
-import { toggleFile, toggleGroup, expandAllFiles, collapseAllFiles } from './modules/file-operations.js';
-import { navigateToPreviousFile, navigateToNextFile } from './modules/navigation.js';
-import { toggleTheme, setDebug as setThemeDebug } from './modules/theme.js';
-import { expandContext } from './modules/context-expansion.js';
-import { loadFullDiff, loadMovedFileContent } from './modules/full-diff.js';
+import { setDebug as setThemeDebug } from './modules/theme.js';
 import { setDebug as setHunkDebug } from './modules/hunk-operations.js';
 import { setDebug as setContextUIDebug } from './modules/context-expansion-ui.js';
 import { setDebug as setExpansionDebug } from './modules/context-expansion.js';
@@ -19,7 +14,6 @@ import { $$ } from './modules/dom-utils.js';
 const DEBUG = window.DIFFLICIOUS_DEBUG || false;
 
 // Propagate DEBUG flag to all modules
-setStateDebug(DEBUG);
 setThemeDebug(DEBUG);
 setHunkDebug(DEBUG);
 setContextUIDebug(DEBUG);
@@ -49,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // This runs once after state restoration is complete
     requestAnimationFrame(() => {
         if (DEBUG) console.log('Initializing expansion buttons...');
-        const buttons = $$('.expansion-btn');
+        const buttons = $$('.js-expansion-btn');
         buttons.forEach((button, index) => {
             const targetStart = parseInt(button.dataset.targetStart);
             const targetEnd = parseInt(button.dataset.targetEnd);
@@ -67,43 +61,3 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 });
-
-// NOTE: Alpine.js integration is active and handles most UI state management
-// (diffStore, searchStore, themeStore) and components (fileComponent, groupComponent, hunkComponent).
-// The following functions are exported to window for use by inline event handlers and Alpine components:
-
-// Context expansion - used by hunkComponent.expand() which wraps this function
-window.expandContext = expandContext;
-
-// Full diff loading - used by "Load Full Diff" buttons in templates
-window.loadFullDiff = loadFullDiff;
-window.__loadFullDiff = loadFullDiff; // eslint alias
-window.loadMovedFileContent = loadMovedFileContent;
-
-// File navigation - used by navigation buttons in templates
-window.navigateToPreviousFile = navigateToPreviousFile;
-window.navigateToNextFile = navigateToNextFile;
-
-// Bulk file operations - optimized for performance with many files
-window.expandAllFiles = expandAllFiles;
-window.collapseAllFiles = collapseAllFiles;
-
-// NOTE: These functions integrate well with Alpine.js components.
-// Future enhancement: Move these entirely into Alpine component methods (v1.1+)
-
-// Export DiffState for testing
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        DiffState,
-        toggleFile,
-        toggleGroup,
-        expandAllFiles,
-        collapseAllFiles,
-        navigateToPreviousFile,
-        navigateToNextFile,
-        expandContext,
-        toggleTheme,
-        loadFullDiff,
-        loadMovedFileContent
-    };
-}

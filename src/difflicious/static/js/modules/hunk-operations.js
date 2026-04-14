@@ -16,7 +16,7 @@ export function setDebug(value) {
  * @returns {Object|null} Hunk context with element references
  */
 export function hunkContext(button) {
-    const currentHunk = button.closest('.hunk');
+    const currentHunk = button.closest('.js-hunk');
     if (!currentHunk) {
         return null;
     }
@@ -26,7 +26,7 @@ export function hunkContext(button) {
         return { currentHunk, fileElement: null, allHunks: [], currentIndex: -1, prevHunk: null, nextHunk: null };
     }
 
-    const allHunks = Array.from(fileElement.querySelectorAll('.hunk'));
+    const allHunks = Array.from(fileElement.querySelectorAll('.js-hunk'));
     const currentIndex = allHunks.indexOf(currentHunk);
 
     return {
@@ -57,7 +57,7 @@ export function checkHunkAdjacency(button, direction, targetStart, targetEnd) {
             const nextHunkStart = parseInt(nextHunk.dataset.lineStart);
             if (targetEnd === nextHunkStart - 1) {
                 // Hide both before buttons in the next hunk (left and right sides)
-                const nextHunkBeforeBtns = nextHunk.querySelectorAll('.expansion-btn[data-direction="before"]');
+                const nextHunkBeforeBtns = nextHunk.querySelectorAll('.js-expansion-btn[data-direction="before"]');
                 nextHunkBeforeBtns.forEach(btn => {
                     btn.style.display = 'none';
                 });
@@ -66,7 +66,7 @@ export function checkHunkAdjacency(button, direction, targetStart, targetEnd) {
                 }
 
                 // Also hide all remaining after buttons in the current hunk since no more expansion is possible
-                const currentHunkAfterBtns = currentHunk.querySelectorAll('.expansion-btn[data-direction="after"]');
+                const currentHunkAfterBtns = currentHunk.querySelectorAll('.js-expansion-btn[data-direction="after"]');
                 currentHunkAfterBtns.forEach(btn => {
                     btn.style.display = 'none';
                 });
@@ -86,7 +86,7 @@ export function checkHunkAdjacency(button, direction, targetStart, targetEnd) {
             const prevHunkEnd = parseInt(prevHunk.dataset.lineEnd);
             if (targetStart <= prevHunkEnd + 1) {
                 // Hide both after buttons in the previous hunk (left and right sides)
-                const prevHunkAfterBtns = prevHunk.querySelectorAll('.expansion-btn[data-direction="after"]');
+                const prevHunkAfterBtns = prevHunk.querySelectorAll('.js-expansion-btn[data-direction="after"]');
                 prevHunkAfterBtns.forEach(btn => {
                     btn.style.display = 'none';
                 });
@@ -95,7 +95,7 @@ export function checkHunkAdjacency(button, direction, targetStart, targetEnd) {
                 }
 
                 // Also hide all remaining before buttons in the current hunk since no more expansion is possible
-                const currentHunkBeforeBtns = currentHunk.querySelectorAll('.expansion-btn[data-direction="before"]');
+                const currentHunkBeforeBtns = currentHunk.querySelectorAll('.js-expansion-btn[data-direction="before"]');
                 currentHunkBeforeBtns.forEach(btn => {
                     btn.style.display = 'none';
                 });
@@ -123,7 +123,7 @@ export function handleButtonHiding(button, direction, targetStart, targetEnd) {
     if (!context) return;
 
     const { currentHunk } = context;
-    const sameSideButtons = currentHunk.querySelectorAll(`.expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
+    const sameSideButtons = currentHunk.querySelectorAll(`.js-expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
     sameSideButtons.forEach(btn => {
         btn.style.display = 'none';
     });
@@ -165,7 +165,7 @@ export function updateButtonForNextExpansion(button, direction, targetStart, tar
             if (!context) return;
 
             const { currentHunk } = context;
-            const sameSideButtons = currentHunk.querySelectorAll(`.expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
+            const sameSideButtons = currentHunk.querySelectorAll(`.js-expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
             sameSideButtons.forEach(btn => {
                 btn.style.display = 'none';
             });
@@ -187,7 +187,7 @@ export function updateButtonForNextExpansion(button, direction, targetStart, tar
 
                 // If adjustment makes the range invalid (start > end), hide both buttons (left and right sides)
                 if (adjustedTargetStart > newTargetEnd) {
-                    const sameSideButtons = currentHunk.querySelectorAll(`.expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
+                    const sameSideButtons = currentHunk.querySelectorAll(`.js-expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
                     sameSideButtons.forEach(btn => {
                         btn.style.display = 'none';
                     });
@@ -219,7 +219,7 @@ export function updateButtonForNextExpansion(button, direction, targetStart, tar
 
             // If adjustment makes the range invalid (start > end), hide both buttons (left and right sides)
             if (newTargetStart > adjustedTargetEnd) {
-                const sameSideButtons = currentHunk.querySelectorAll(`.expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
+                const sameSideButtons = currentHunk.querySelectorAll(`.js-expansion-btn[data-direction="${direction}"][data-target-start="${targetStart}"][data-target-end="${targetEnd}"]`);
                 sameSideButtons.forEach(btn => {
                     btn.style.display = 'none';
                 });
@@ -240,7 +240,7 @@ export function updateButtonForNextExpansion(button, direction, targetStart, tar
  */
 export function hideAllExpansionButtonsInHunk(triggerButton) {
     // Get the hunk element containing the trigger button
-    const hunkElement = triggerButton.closest('.hunk');
+    const hunkElement = triggerButton.closest('.js-hunk');
     if (!hunkElement) return;
 
     // Find the expansion bar within this hunk
@@ -248,7 +248,7 @@ export function hideAllExpansionButtonsInHunk(triggerButton) {
     if (!expansionBar) return;
 
     // Hide all expansion buttons in this hunk
-    const expansionButtons = expansionBar.querySelectorAll('.expansion-btn');
+    const expansionButtons = expansionBar.querySelectorAll('.js-expansion-btn');
     expansionButtons.forEach(btn => {
         btn.style.display = 'none';
         if (DEBUG) console.log(`Hiding ${btn.dataset.direction} button`);
@@ -265,7 +265,7 @@ export function hideExpansionBarIfAllButtonsHidden(triggerButton) {
     if (!expansionBar) return;
 
     // Check if all expansion buttons in this specific expansion bar are hidden
-    const expansionButtons = expansionBar.querySelectorAll('.expansion-btn');
+    const expansionButtons = expansionBar.querySelectorAll('.js-expansion-btn');
     const buttonStates = Array.from(expansionButtons).map(btn => ({
         direction: btn.dataset.direction,
         display: btn.style.display,

@@ -3,8 +3,6 @@
  * Uses Server-Sent Events (SSE) to receive file change notifications
  */
 
-import { DiffState } from './state.js';
-
 let DEBUG = false;
 
 export function setDebug(value) {
@@ -71,7 +69,7 @@ export const AutoReload = {
         if (DEBUG) console.log('File change detected, refreshing...');
 
         // Save current state and scroll position
-        DiffState.saveState();
+        window.Alpine?.store('diff')?.saveState();
         const scrollY = window.scrollY;
 
         try {
@@ -148,7 +146,7 @@ export const AutoReload = {
         indicator.id = 'auto-reload-indicator';
         indicator.className = 'fixed bottom-4 right-4 px-2 py-1 text-xs rounded opacity-50 hover:opacity-100 transition-opacity';
         indicator.style.cssText = 'background: var(--surface-secondary); color: var(--text-secondary); pointer-events: auto; cursor: pointer; z-index: 1000;';
-        indicator.innerHTML = '<span class="connection-status">🟡 Auto-reload</span>';
+        indicator.innerHTML = '<span class="js-connection-status">🟡 Auto-reload</span>';
         indicator.title = 'Click to disable auto-reload';
 
         // Toggle on click
@@ -176,7 +174,7 @@ export const AutoReload = {
         const indicator = document.getElementById('auto-reload-indicator');
         if (!indicator) return;
 
-        const statusText = indicator.querySelector('.connection-status');
+        const statusText = indicator.querySelector('.js-connection-status');
         if (!statusText) return;
 
         const statusMessages = {

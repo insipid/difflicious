@@ -323,9 +323,9 @@ export function renderSideBySideHunk(hunk, filePath, hunkIndex) {
     }
 
     let html = `
-        <div class="hunk border-b border-neutral-100 last:border-b-0">
+        <div class="js-hunk border-b border-neutral-100 last:border-b-0">
             <!-- Hunk Lines -->
-            <div class="hunk-lines font-mono text-xs">
+            <div class="js-hunk-lines font-mono text-xs">
     `;
 
     if (hunk.lines && Array.isArray(hunk.lines)) {
@@ -414,7 +414,7 @@ export function renderSideBySideLine(line) {
                     </div>
                     <div class="${lineContent()}">
                         ${leftContent
-        ? (leftBg === 'deletion' ? `<span class="text-danger-text-600">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`)
+        ? (leftBg === 'deletion' ? `<span class="diff-line-deleted-gutter">-</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(leftContent) ? leftContent : escapeHtml(leftContent)}</span>`)
         : ''}
                     </div>
                 </div>
@@ -428,7 +428,7 @@ export function renderSideBySideLine(line) {
                     </div>
                     <div class="${lineContent()}">
                         ${rightContent
-        ? (rightBg === 'addition' ? `<span class="text-success-text-600">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`)
+        ? (rightBg === 'addition' ? `<span class="diff-line-added-gutter">+</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>` : `<span class="text-neutral-400">&nbsp;</span><span>${isHighlightedContent(rightContent) ? rightContent : escapeHtml(rightContent)}</span>`)
         : ''}
                     </div>
                 </div>

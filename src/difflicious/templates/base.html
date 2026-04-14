@@ -76,6 +76,31 @@
     <!-- Global configuration (set before modules load) -->
     <script>
         window.DIFFLICIOUS_DEBUG = {{ 'true' if debug_enabled else 'false' }};
+        window.DIFFLICIOUS_REPO = {{ repo_name | tojson }};
+    </script>
+
+    <!-- Expansion state pre-warming: reads localStorage before Alpine boots to prevent flash of collapsed state -->
+    <script>
+        (function () {
+            try {
+                var repo = window.DIFFLICIOUS_REPO || 'default';
+                var saved = null;
+                try { saved = JSON.parse(localStorage.getItem('difflicious-' + repo)); } catch (e) {}
+                if (!saved) { try { saved = JSON.parse(localStorage.getItem('difflicious-default')); } catch (e) {} }
+                if (saved) {
+                    var files = {};
+                    var groups = { untracked: true, unstaged: true, staged: true };
+                    if (Array.isArray(saved.expandedFiles)) {
+                        saved.expandedFiles.forEach(function (f) { files[f] = true; });
+                    }
+                    if (Array.isArray(saved.expandedGroups)) {
+                        groups = { untracked: false, unstaged: false, staged: false };
+                        saved.expandedGroups.forEach(function (g) { groups[g] = true; });
+                    }
+                    window.__diffliciousInitialState__ = { files: files, groups: groups };
+                }
+            } catch (e) {}
+        })();
     </script>
 
     <!-- Alpine.js -->
