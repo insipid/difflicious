@@ -24,6 +24,7 @@
     <!-- Group Files -->
     <div class="group-content {% if not hide_header %}ml-4{% endif %}" data-group-content="{{ group_key }}"
         x-show="isExpanded"
+        x-cloak
         x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0"
         x-transition:enter-end="opacity-100"

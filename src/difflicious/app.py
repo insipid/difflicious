@@ -128,4 +128,4 @@ def run_server(host: str = "127.0.0.1", port: int = 5000, debug: bool = False) -
 
         # Local dev tool only — no graceful shutdown needed, exit immediately on SIGTERM
         signal.signal(signal.SIGTERM, lambda *_: os._exit(0))
-        serve(app, host=host, port=port, threads=8)
+        serve(app, host=host, port=port, threads=16)
