@@ -12,32 +12,17 @@ export default {
 
     /**
      * Initialize the theme store
+     * The inline script in base.html already applied localStorage/matchMedia
+     * before CSS loaded (to prevent FOUC), so we just mirror the DOM.
      */
     init() {
-        if (DEBUG) console.log('[ThemeStore] Initializing theme store...');
+        // Read the theme the inline script already committed to the DOM
+        const domTheme = document.documentElement.getAttribute('data-theme');
+        this.current = domTheme === 'dark' ? 'dark' : 'light';
 
-        const savedTheme = localStorage.getItem('difflicious-theme');
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (DEBUG) console.log('[ThemeStore] Theme initialized from DOM:', this.current);
 
-        // Also check current DOM state (set by inline script)
-        const currentDomTheme = document.documentElement.getAttribute('data-theme');
-
-        this.current = savedTheme || currentDomTheme || (systemPrefersDark ? 'dark' : 'light');
-
-        if (DEBUG) {
-            console.log('[ThemeStore] Theme initialized:', {
-                savedTheme,
-                systemPrefersDark,
-                currentDomTheme,
-                current: this.current,
-                icon: this.icon
-            });
-        }
-
-        // Apply theme to document
-        this.applyTheme();
-
-        // Listen for system theme changes
+        // Listen for OS-level theme changes (only when user has no saved preference)
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
             if (!localStorage.getItem('difflicious-theme')) {
                 this.current = e.matches ? 'dark' : 'light';

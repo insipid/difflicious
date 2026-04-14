@@ -1,16 +1,14 @@
 <!-- Single File Diff -->
-{% set file_id = group_name + ":" + file.path %}
-<div class="file-diff bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-600 rounded-lg shadow-sm"
-    data-file="{{ file_id }}"
+<div class="file-diff file-card"
+    data-file="{{ file.file_id }}"
     {% if file.old_path %}data-old-path="{{ file.old_path }}"{% endif %}
-    x-data="fileComponent('{{ file_id }}')"
-    {% if file.hidden_by_search %}style="display: none;"{% endif %}>
+    x-data="fileComponent('{{ file.file_id }}')">
     <!-- File Header Wrapper -->
     <div class="file-header-wrapper">
         <!-- Spacer div to fill the gap -->
         <div class="file-header-spacer"></div>
         <!-- File Header -->
-        <div class="file-header flex items-center justify-between p-4 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors space-x-2"
+        <div class="file-header file-card-header flex items-center justify-between p-4 cursor-pointer space-x-2"
             @click="toggle()">
             <!-- Left side: toggle, expand, filename, status - all flush left -->
             <div class="flex items-center space-x-3 flex-shrink min-w-0">
@@ -20,8 +18,10 @@
                 </span>
                 <span
                     class="expand-icon text-neutral-400 dark:text-neutral-600 hover:text-neutral-600 dark:hover:text-neutral-500 cursor-pointer transition-colors flex-shrink-0"
-                    onclick="loadFullDiff('{{ file.path }}', '{{ file_id }}'); event.stopPropagation()"
-                    title="Show complete file diff with unlimited context" id="expand-icon-{{ file_id }}">
+                    @click.stop="$store.diff.loadFullDiff($el)"
+                    data-file-path="{{ file.path }}"
+                    data-file-id="{{ file.file_id }}"
+                    title="Show complete file diff with unlimited context" id="expand-icon-{{ file.file_id }}">
                     ↕
                 </span>
                 <div class="flex-1 min-w-0 break-words">
@@ -63,13 +63,15 @@
 
                 <!-- File Navigation -->
                 <div class="flex items-center space-x-1" onclick="event.stopPropagation()">
-                    <button onclick="navigateToPreviousFile('{{ file_id }}')"
-                        class="p-1 text-neutral-400 dark:text-neutral-600 hover:text-neutral-600 dark:hover:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded transition-colors"
+                    <button @click="$store.diff.navigateToPreviousFile($el)"
+                        data-file-id="{{ file.file_id }}"
+                        class="file-card-nav-btn p-1"
                         title="Previous file">
                         <span class="text-sm">↑</span>
                     </button>
-                    <button onclick="navigateToNextFile('{{ file_id }}')"
-                        class="p-1 text-neutral-400 dark:text-neutral-600 hover:text-neutral-600 dark:hover:text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded transition-colors"
+                    <button @click="$store.diff.navigateToNextFile($el)"
+                        data-file-id="{{ file.file_id }}"
+                        class="file-card-nav-btn p-1"
                         title="Next file">
                         <span class="text-sm">↓</span>
                     </button>
@@ -79,26 +81,26 @@
     </div>
 
     <!-- File Content -->
-    <div class="file-content" data-file-content="{{ file_id }}"
+    <div class="file-content" data-file-content="{{ file.file_id }}"
         x-show="isExpanded"
         x-cloak
-        x-transition:enter="transition ease-out duration-200"
-        x-transition:enter-start="opacity-0 scale-95"
-        x-transition:enter-end="opacity-100 scale-100"
-        x-transition:leave="transition ease-in duration-150"
-        x-transition:leave-start="opacity-100 scale-100"
-        x-transition:leave-end="opacity-0 scale-95">
+        x-transition:enter="transition ease-in-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in-out duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0">
         {% if file.status == 'renamed' and file.deletions == 0 %}
         <!-- Pure rename/move with no content changes - show expander bar -->
         <!-- Condition: renamed file with no deletions means all lines show as "additions" but it's actually unchanged content -->
         <div class="moved-file-content" data-file-path="{{ file.path }}" data-old-path="{{ file.old_path }}">
-            <div class="moved-file-expansion bg-info-bg-50 text-xs font-mono text-info-text-800 flex">
+            <div class="moved-file-expansion moved-file-strip text-xs font-mono flex">
                 <!-- Left Side -->
                 <div class="flex-1 border-r border-neutral-200 dark:border-neutral-600">
                     <div class="flex">
-                        <div class="w-12 bg-info-bg-100 border-r border-neutral-200 dark:border-neutral-600 select-none flex flex-col">
-                            <button onclick="loadMovedFileContent(this)"
-                                class="expansion-btn w-full px-2 py-1 text-xs bg-info-bg-200 hover:bg-info-bg-300 text-info-text-800 transition-colors flex items-center justify-center h-full"
+                        <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
+                            <button @click="$store.diff.loadMovedFileContent($el)"
+                                class="js-expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
                                 title="Show file content">
                                 ↕
                             </button>
@@ -111,9 +113,9 @@
                 <!-- Right Side -->
                 <div class="flex-1">
                     <div class="flex">
-                        <div class="w-12 bg-info-bg-100 border-r border-neutral-200 dark:border-neutral-600 select-none flex flex-col">
-                            <button onclick="loadMovedFileContent(this)"
-                                class="expansion-btn w-full px-2 py-1 text-xs bg-info-bg-200 hover:bg-info-bg-300 text-info-text-800 transition-colors flex items-center justify-center h-full"
+                        <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
+                            <button @click="$store.diff.loadMovedFileContent($el)"
+                                class="js-expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
                                 title="Show file content">
                                 ↕
                             </button>
@@ -147,17 +149,17 @@
             </div>
             <!-- Render all lines from the single hunk -->
             {% for hunk in file.hunks %}
-            <div class="hunk-lines">
+            <div class="js-hunk-lines">
                 {% for line in hunk.lines %}
                 <div class="diff-line flex line-{{ line.type }}">
                     <!-- Left Side: All deleted lines -->
                     <div class="line-left flex-1 border-r border-neutral-200 dark:border-neutral-600">
                         <div class="flex">
-                            <div class="line-num w-12 px-2 py-1 text-neutral-400 text-right border-r border-neutral-200 dark:border-neutral-600 select-none bg-red-50 dark:bg-red-900/20">
+                            <div class="line-num w-12 px-2 py-1 text-right border-r select-none diff-line-deleted-num">
                                 <span>{{ line.left.line_num }}</span>
                             </div>
-                            <div class="line-content flex-1 px-2 py-1 overflow-x-auto bg-red-50 dark:bg-red-900/20">
-                                <span class="text-danger-text-600">-</span>
+                            <div class="line-content flex-1 px-2 py-1 overflow-x-auto diff-line-deleted">
+                                <span class="diff-line-deleted-gutter">-</span>
                                 {% if line.left.highlighted_content %}
                                 <span>{{ line.left.highlighted_content|safe }}</span>
                                 {% else %}

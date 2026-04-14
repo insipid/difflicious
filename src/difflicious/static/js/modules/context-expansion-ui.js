@@ -45,7 +45,7 @@ export function createExpandedContextHtml(result, expansionId, triggerButton, di
 
     // Use the original working logic from before the broken refactoring
     const context = hunkContext(triggerButton);
-    const hunkLinesDiv = context?.currentHunk?.querySelector('.hunk-lines');
+    const hunkLinesDiv = context?.currentHunk?.querySelector('.js-hunk-lines');
 
     let startLineNumLeft, startLineNumRight;
 
@@ -137,7 +137,7 @@ export function createPlainContextHtml(result, expansionId, triggerButton, direc
 
     // Get line numbers from the hunk-lines data attributes
     const context = hunkContext(triggerButton);
-    const hunkLinesDiv = context?.currentHunk?.querySelector('.hunk-lines');
+    const hunkLinesDiv = context?.currentHunk?.querySelector('.js-hunk-lines');
 
     let startLineNumLeft, startLineNumRight;
 
@@ -252,7 +252,7 @@ export function insertExpandedContext(button, filePath, hunkIndex, direction, ex
 
     // Find the hunk lines container within this specific hunk
     const { currentHunk } = context;
-    const hunkLinesElement = currentHunk.querySelector('.hunk-lines');
+    const hunkLinesElement = currentHunk.querySelector('.js-hunk-lines');
     if (!hunkLinesElement) {
         if (DEBUG) console.error('Could not find hunk-lines element for insertion');
         return;
@@ -292,7 +292,7 @@ export function insertExpandedContext(button, filePath, hunkIndex, direction, ex
 export function updateHunkLinesDataAttributes(button, direction, linesAdded) {
     // Find the hunk-lines div and update its data attributes
     const context = hunkContext(button);
-    const hunkLinesDiv = context?.currentHunk?.querySelector('.hunk-lines');
+    const hunkLinesDiv = context?.currentHunk?.querySelector('.js-hunk-lines');
 
     if (!hunkLinesDiv) return;
 

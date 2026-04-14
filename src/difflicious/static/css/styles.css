@@ -1,5 +1,8 @@
 /* Difflicious - Git Diff Visualization Styles */
 
+/* Alpine.js FOUC prevention — hide elements marked x-cloak until Alpine removes the attribute */
+[x-cloak] { display: none !important; }
+
 /*
  * === COLOR SYSTEM ===
  *
@@ -547,6 +550,121 @@
 }
 
 /* ============================================
+ * SEMANTIC DIFF COMPONENT CLASSES (PR1)
+ * ============================================
+ * Use these in templates instead of raw Tailwind colour utilities.
+ * All colours come from CSS variables — never hardcode hex values here.
+ */
+
+/* Diff line: deletion (left side, red) */
+.diff-line-deleted {
+    background: var(--diff-deletion-bg);
+}
+.diff-line-deleted-num {
+    background: var(--diff-deletion-linenum-bg);
+    color: var(--diff-deletion-linenum-text);
+}
+.diff-line-deleted-gutter {
+    color: var(--diff-deletion-text);
+}
+
+/* Diff line: addition (right side, green) */
+.diff-line-added {
+    background: var(--diff-addition-bg);
+}
+.diff-line-added-num {
+    background: var(--diff-addition-linenum-bg);
+    color: var(--diff-addition-linenum-text);
+}
+.diff-line-added-gutter {
+    color: var(--diff-addition-text);
+}
+
+/* Hunk expansion strip (the blue ▲▼ bar between hunks) */
+.hunk-expansion-strip {
+    background: var(--diff-hunk-expansion-bg);
+    color: var(--semantic-info-text);
+    border-color: var(--diff-hunk-expansion-border);
+}
+.hunk-expansion-linenum {
+    background: var(--semantic-info-bg-medium);
+    border-color: var(--diff-hunk-expansion-border);
+}
+.hunk-expansion-btn {
+    background: var(--semantic-info-bg-strong);
+    color: var(--semantic-info-text);
+}
+.hunk-expansion-btn:hover {
+    background: var(--semantic-info-bg-stronger);
+}
+
+/* File card (the rounded container per file) */
+.file-card {
+    background: var(--surface-secondary);
+    border: 1px solid var(--border-default);
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+.file-card-header {
+    color: var(--text-primary);
+    transition: background 0.15s;
+}
+.file-card-header:hover {
+    background: var(--surface-tertiary);
+}
+.file-card-nav-btn {
+    color: var(--text-tertiary);
+    border-radius: 0.25rem;
+    transition: color 0.15s, background 0.15s;
+}
+.file-card-nav-btn:hover {
+    color: var(--text-secondary);
+    background: var(--surface-tertiary);
+}
+
+/* Global controls (expand all / collapse all) */
+.global-controls-btn {
+    background: var(--surface-tertiary);
+    color: var(--text-secondary);
+    border-radius: 0.375rem;
+    transition: background 0.15s;
+}
+.global-controls-btn:hover {
+    background: var(--surface-tertiary);
+    filter: brightness(0.95);
+}
+.global-controls-btn:disabled {
+    background: var(--surface-secondary);
+    color: var(--text-disabled);
+    cursor: not-allowed;
+}
+
+/* Diff group header */
+.diff-group-header {
+    color: var(--text-secondary);
+    border-color: var(--border-default);
+}
+.diff-group-header:hover {
+    background: var(--surface-tertiary);
+}
+.diff-group-header-label {
+    color: var(--text-primary);
+}
+.diff-group-header-count {
+    background: var(--surface-tertiary);
+    color: var(--text-secondary);
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    padding: 0.1rem 0.5rem;
+}
+
+/* Moved-file expansion strip */
+.moved-file-strip {
+    background: var(--semantic-info-bg-subtle);
+    color: var(--semantic-info-text);
+}
+
+/* ============================================
  * END SEMANTIC COMPONENT CLASSES
  * ============================================ */
 
@@ -867,6 +985,18 @@ body {
     color: #94a3b8;
 }
 
+/* Dark theme: Restore addition/deletion colouring on semantic line-num classes.
+ * These must use !important to win against the generic .diff-line .line-num rule above. */
+[data-theme="dark"] .diff-line .diff-line-deleted-num {
+    background-color: var(--diff-deletion-linenum-bg) !important;
+    color: var(--diff-deletion-linenum-text) !important;
+}
+
+[data-theme="dark"] .diff-line .diff-line-added-num {
+    background-color: var(--diff-addition-linenum-bg) !important;
+    color: var(--diff-addition-linenum-text) !important;
+}
+
 /* Simple highlight for filename search */
 .search-highlight {
     outline: 2px solid var(--color-primary);
@@ -1167,7 +1297,6 @@ body {
 }
 
 [data-theme="dark"] .file-diff .file-header {
-    background-color: var(--color-neutral-800) !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 

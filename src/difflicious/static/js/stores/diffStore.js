@@ -4,14 +4,20 @@
  * Using objects instead of Sets for better Alpine.js reactivity
  */
 
+import { expandContext as _expandContext } from '../modules/context-expansion.js';
+import { loadFullDiff as _loadFullDiff, loadMovedFileContent as _loadMovedFileContent } from '../modules/full-diff.js';
+import { navigateToPreviousFile as _navigateToPrev, navigateToNextFile as _navigateToNext } from '../modules/navigation.js';
+
 // Debug flag - reads from DIFFLICIOUS_DEBUG env var (set in base.html template)
 const DEBUG = window.DIFFLICIOUS_DEBUG || false;
 
 export default {
     // State - using objects for better Alpine.js reactivity
+    // Seeded from window.__diffliciousInitialState__ (set by inline pre-warming script in base.html)
+    // so that the first render matches saved state without a flash of collapsed → expanded content.
     repositoryName: '',
-    expandedFiles: {}, // { filePath: true }
-    expandedGroups: { untracked: true, unstaged: true, staged: true },
+    expandedFiles: window.__diffliciousInitialState__?.files ?? {}, // { filePath: true }
+    expandedGroups: window.__diffliciousInitialState__?.groups ?? { untracked: true, unstaged: true, staged: true },
 
     // Computed
     get storageKey() {
@@ -184,6 +190,47 @@ export default {
             lastUpdated: new Date().toISOString()
         };
         localStorage.setItem(this.storageKey, JSON.stringify(state));
+    },
+
+    /**
+     * Expand context lines — called by @click="$store.diff.expandContext($el)"
+     * Reads data-file-path, data-hunk-index, data-direction from the button element.
+     */
+    expandContext(el) {
+        const filePath = el.dataset.filePath;
+        const hunkIndex = parseInt(el.dataset.hunkIndex, 10);
+        const direction = el.dataset.direction;
+        _expandContext(el, filePath, hunkIndex, direction, 10, 'pygments');
+    },
+
+    /**
+     * Load full diff — called by @click="$store.diff.loadFullDiff($el)"
+     * Reads data-file-path and data-file-id from the element.
+     */
+    loadFullDiff(el) {
+        _loadFullDiff(el.dataset.filePath, el.dataset.fileId);
+    },
+
+    /**
+     * Load moved file content — called by @click="$store.diff.loadMovedFileContent($el)"
+     * Passes the element directly; full-diff.js reads data-file-path / data-old-path from parent.
+     */
+    loadMovedFileContent(el) {
+        _loadMovedFileContent(el);
+    },
+
+    /**
+     * Navigate to previous file — called by @click="$store.diff.navigateToPreviousFile($el)"
+     */
+    navigateToPreviousFile(el) {
+        _navigateToPrev(el.dataset.fileId);
+    },
+
+    /**
+     * Navigate to next file — called by @click="$store.diff.navigateToNextFile($el)"
+     */
+    navigateToNextFile(el) {
+        _navigateToNext(el.dataset.fileId);
     },
 
     /**

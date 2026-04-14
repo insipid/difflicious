@@ -39,7 +39,6 @@ class TemplateRenderingService(BaseService):
         base_commit: Optional[str] = None,
         file_path: Optional[str] = None,
         search_filter: Optional[str] = None,
-        expand_files: bool = False,
         base_ref: Optional[str] = None,
     ) -> dict[str, Any]:
         """Prepare complete diff data optimized for Jinja2 template rendering.
@@ -50,8 +49,7 @@ class TemplateRenderingService(BaseService):
         Args:
             base_commit: Base commit for comparison
             file_path: Filter to specific file
-            search_filter: Search term for filtering files
-            expand_files: Whether to expand files by default
+            search_filter: Search term for filtering files (preserved in URL state)
             base_ref: Base reference for comparison (e.g., branch name or HEAD)
 
         Returns:
@@ -109,7 +107,7 @@ class TemplateRenderingService(BaseService):
 
             # Process and enhance diff data for template rendering
             enhanced_groups = self._enhance_diff_data_for_template(
-                grouped_diffs, search_filter, expand_files
+                grouped_diffs, search_filter
             )
 
             # Calculate totals
@@ -122,6 +120,7 @@ class TemplateRenderingService(BaseService):
             return {
                 # Repository info
                 "repo_status": repo_status,
+                "repo_name": repo_status.get("repository_name", "default"),
                 "branches": branch_info.get("branches", {}),
                 "current_branch": current_branch,
                 # Diff data
@@ -149,7 +148,6 @@ class TemplateRenderingService(BaseService):
         self,
         grouped_diffs: dict[str, Any],
         search_filter: Optional[str] = None,
-        expand_files: bool = False,
     ) -> dict[str, Any]:
         """Enhance diff data with syntax highlighting and template-specific features."""
 
@@ -159,19 +157,11 @@ class TemplateRenderingService(BaseService):
             enhanced_files: list[dict[str, Any]] = []
 
             for file_data in group_data.get("files", []):
-                # Check if this file matches the search filter (for initial display state)
-                # All files are included in HTML, but non-matching ones start hidden
-                matches_search = True
-                if search_filter is not None:
-                    file_path_lower = file_data.get("path", "").lower()
-                    search_lower = search_filter.lower()
-                    matches_search = search_lower in file_path_lower
-
                 # Add template-specific properties
+                # Note: hidden_by_search and expanded are client concerns — not set here
                 enhanced_file = {
                     **file_data,
-                    "expanded": expand_files,  # Control initial expansion state
-                    "hidden_by_search": not matches_search,  # Initial visibility state
+                    "file_id": f"{group_key}:{file_data.get('path', '')}",
                 }
 
                 # Process hunks with syntax highlighting
@@ -186,17 +176,9 @@ class TemplateRenderingService(BaseService):
 
                 enhanced_files.append(enhanced_file)
 
-            # Check if all files in this group are hidden by search
-            all_files_hidden = (
-                search_filter is not None
-                and len(enhanced_files) > 0
-                and all(f.get("hidden_by_search", False) for f in enhanced_files)
-            )
-
             enhanced_groups[group_key] = {
                 "files": enhanced_files,
                 "count": len(enhanced_files),
-                "hidden_by_search": all_files_hidden,  # Hide group container if all files hidden
             }
 
         return enhanced_groups
@@ -369,6 +351,7 @@ class TemplateRenderingService(BaseService):
         """Get template data for error states."""
         return {
             "repo_status": {"current_branch": "error", "git_available": False},
+            "repo_name": "default",
             "branches": {"all": [], "current": "error", "default": "main"},
             "groups": {
                 "untracked": {"files": [], "count": 0},
