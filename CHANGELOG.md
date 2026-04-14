@@ -5,6 +5,24 @@ All notable changes to difflicious will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2026-04-14
+
+### Presentation Layer Separation
+
+Enforced explicit contracts between the data, service, template, CSS, and JS layers. Full design rationale in [`docs/presentation-layer-separation.md`](docs/presentation-layer-separation.md).
+
+### Changed
+- **Removed dual state** — deleted `state.js` and `file-operations.js`; `diffStore` is now the single source of truth for expansion state
+- **Template→JS contract** — all JS query-hook CSS selectors prefixed `js-` (e.g. `js-hunk`, `js-expansion-btn`) to distinguish them from styled classes
+- **Template→CSS contract** — inline Tailwind colour utilities moved to semantic component classes (`.file-card`, `.file-card-header`, `.file-card-nav-btn`)
+- **ThemeStore init** — reads initial theme from the server-rendered `data-theme` DOM attribute only; no redundant localStorage/matchMedia read on boot
+
+### Fixed
+- **Flash of unstyled content** — added the missing `[x-cloak] { display: none !important }` CSS rule; every prior `x-cloak` attribute was inert without it
+- **Flash of expansion state** — server now embeds repo name as `window.DIFFLICIOUS_REPO`; an inline pre-warming script reads localStorage before Alpine boots so the first render reflects saved state
+- **File content animation** — removed vertical scale transform; transition is now a plain opacity fade
+- **Ctrl+C shutdown** — SIGINT now triggers `os._exit(0)` matching the existing SIGTERM handler, so a single keypress exits cleanly regardless of open SSE connections
+
 ## [1.0.0] - 2026-02-06
 
 ### Stable Release
