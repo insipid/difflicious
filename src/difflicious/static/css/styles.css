@@ -1,5 +1,8 @@
 /* Difflicious - Git Diff Visualization Styles */
 
+/* Alpine.js FOUC prevention — hide elements marked x-cloak until Alpine removes the attribute */
+[x-cloak] { display: none !important; }
+
 /*
  * === COLOR SYSTEM ===
  *
