@@ -32,6 +32,10 @@
       "**/tests/js/**/*.test.js",
       "**/tests/js/**/*.spec.js"
     ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/.worktrees/"
+    ],
     "collectCoverageFrom": [
       "src/difflicious/static/js/**/*.js"
     ],
