@@ -3,14 +3,7 @@
  * Sets up Alpine stores and registers global component factories
  */
 
-// Debug flag - reads from DIFFLICIOUS_DEBUG env var (set in base.html template)
-const DEBUG = window.DIFFLICIOUS_DEBUG || false;
-
-if (DEBUG) console.log('[Alpine] alpine-init.js loading...');
-
 import Alpine from 'alpinejs';
-
-if (DEBUG) console.log('[Alpine] Alpine module imported:', Alpine);
 
 // Import stores
 import diffStore from './stores/diffStore.js';
@@ -23,6 +16,11 @@ import { groupComponent } from './components/groupComponent.js';
 import { searchComponent } from './components/searchComponent.js';
 import { hunkComponent } from './components/hunkComponent.js';
 import { toolbarComponent } from './modules/toolbar.js';
+
+// Debug flag - reads from DIFFLICIOUS_DEBUG env var (set in base.html template)
+const DEBUG = window.DIFFLICIOUS_DEBUG || false;
+
+if (DEBUG) console.log('[Alpine] alpine-init.js loading, Alpine module:', Alpine);
 
 // Register component factories globally BEFORE Alpine starts
 window.fileComponent = fileComponent;
@@ -45,11 +43,13 @@ document.addEventListener('alpine:init', () => {
     Alpine.store('search', searchStore);
     Alpine.store('theme', themeStore);
 
-    if (DEBUG) console.log('[Alpine] Stores registered:', {
-        diff: Alpine.store('diff'),
-        search: Alpine.store('search'),
-        theme: Alpine.store('theme')
-    });
+    if (DEBUG) {
+        console.log('[Alpine] Stores registered:', {
+            diff: Alpine.store('diff'),
+            search: Alpine.store('search'),
+            theme: Alpine.store('theme')
+        });
+    }
 });
 
 // Start Alpine after DOM is ready

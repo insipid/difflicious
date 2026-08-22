@@ -23,7 +23,7 @@ setAutoReloadDebug(DEBUG);
 /**
  * Initialize the application when DOM is ready
  */
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async() => {
     // NOTE: State management handled by Alpine.js stores (diffStore, searchStore, themeStore)
     // via alpine-init.js. Theme, expansion state, and search are all Alpine-managed.
 
