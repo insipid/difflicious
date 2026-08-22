@@ -1,0 +1,566 @@
+/* ============================================================================
+ * DIFFLICIOUS — THEME
+ * ============================================================================
+ *
+ * This file is the ONLY place design decisions live. Colours, spacing, radii,
+ * border widths, typography, shadows, motion and density are all declared here
+ * as custom properties. `styles.css` and the templates consume these tokens and
+ * contain no literal design values.
+ *
+ * To restyle Difflicious, edit this file alone. To ship an alternative look,
+ * swap this file for another that declares the same token names.
+ *
+ * ---------------------------------------------------------------------------
+ * STRUCTURE
+ * ---------------------------------------------------------------------------
+ *   1. PRIMITIVES      raw scales, theme-independent (space, radius, type, motion)
+ *   2. PALETTE         raw colour ramps, one set per theme
+ *   3. SEMANTIC        role-based aliases (--surface-*, --text-*, --accent-*)
+ *   4. COMPONENT       density/geometry knobs for specific UI parts
+ *   5. LEGACY          back-compat aliases for older variable names
+ *
+ * Rule: components reference SEMANTIC and COMPONENT tokens. They never
+ * reference PALETTE or PRIMITIVE tokens directly, so a theme swap is total.
+ *
+ * ---------------------------------------------------------------------------
+ * DESIGN DIRECTION — "Ledger"
+ * ---------------------------------------------------------------------------
+ * A diff is a printed record. The light theme is warm paper and near-black ink;
+ * the dark theme is cool deep ink with warm off-white type. One accent — ochre —
+ * carries every interactive and structural signal. Green and red are reserved
+ * exclusively for diff semantics and are tuned down to printed tints so they
+ * read as information rather than alarm.
+ * ========================================================================== */
+
+
+/* ============================================================================
+ * 1. PRIMITIVES — theme-independent scales
+ * ========================================================================== */
+
+:root {
+
+    /* --- Spacing ---------------------------------------------------------
+     * 4px base grid. Use these for margin/padding/gap everywhere. */
+    --space-0:    0;
+    --space-3xs:  0.125rem;   /*  2px */
+    --space-2xs:  0.25rem;    /*  4px */
+    --space-xs:   0.375rem;   /*  6px */
+    --space-sm:   0.5rem;     /*  8px */
+    --space-md:   0.75rem;    /* 12px */
+    --space-lg:   1rem;       /* 16px */
+    --space-xl:   1.5rem;     /* 24px */
+    --space-2xl:  2rem;       /* 32px */
+    --space-3xl:  3rem;       /* 48px */
+    --space-4xl:  4rem;       /* 64px */
+
+    /* --- Radii ----------------------------------------------------------- */
+    --radius-none: 0;
+    --radius-xs:   3px;
+    --radius-sm:   5px;
+    --radius-md:   8px;
+    --radius-lg:   12px;
+    --radius-xl:   16px;
+    --radius-pill: 9999px;
+
+    /* --- Border widths ---------------------------------------------------- */
+    --border-width-hairline: 1px;
+    --border-width-thick:    2px;
+    --border-width-accent:   3px;
+
+    /* --- Typography -------------------------------------------------------
+     * --font-mono is overridden at runtime by the DIFFLICIOUS_FONT setting. */
+    --font-display: 'Bricolage Grotesque', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-ui:      'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono:    'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+
+    --text-2xs:  0.6875rem;   /* 11px — line numbers, micro labels */
+    --text-xs:   0.75rem;     /* 12px — badges, counts */
+    --text-sm:   0.8125rem;   /* 13px — UI default, diff body */
+    --text-md:   0.875rem;    /* 14px — file names */
+    --text-lg:   1rem;        /* 16px */
+    --text-xl:   1.25rem;     /* 20px — wordmark */
+
+    --font-weight-normal:   400;
+    --font-weight-medium:   500;
+    --font-weight-semibold: 600;
+    --font-weight-bold:     700;
+
+    --leading-tight:  1.25;
+    --leading-normal: 1.5;
+    --leading-code:   1.55;
+
+    --tracking-tight:  -0.011em;
+    --tracking-normal: 0;
+    --tracking-wide:   0.02em;
+    --tracking-caps:   0.06em;   /* for uppercase micro-labels */
+
+    /* --- Motion -----------------------------------------------------------
+     * Quick and mechanical. Nothing bounces. */
+    --duration-instant: 80ms;
+    --duration-fast:    140ms;
+    --duration-base:    200ms;
+    --duration-slow:    320ms;
+
+    --ease-out:     cubic-bezier(0.22, 0.8, 0.28, 1);
+    --ease-in-out:  cubic-bezier(0.55, 0.06, 0.28, 1);
+
+    /* --- Layout ------------------------------------------------------------ */
+    --layout-max-width: 1400px;
+    --layout-gutter:    var(--space-xl);
+    --focus-ring-width: 2px;
+    --focus-ring-offset: 2px;
+}
+
+
+/* ============================================================================
+ * 2. PALETTE + 3. SEMANTIC — LIGHT THEME ("warm paper")
+ * ========================================================================== */
+
+:root {
+
+    /* --- Palette: warm neutral ramp (paper → ink) ------------------------- */
+    --theme-paper-50:  #fdfcfa;
+    --theme-paper-100: #faf8f4;
+    --theme-paper-200: #f4f0e9;
+    --theme-paper-300: #eae4d9;
+    --theme-paper-400: #ddd4c5;
+    --theme-paper-500: #b9ae9c;
+    --theme-paper-600: #8a8175;
+    --theme-paper-700: #625b52;
+    --theme-paper-800: #3a3630;
+    --theme-paper-900: #23211d;
+
+    /* --- Palette: ochre accent ------------------------------------------- */
+    --theme-accent-subtle:  #f6ecd8;
+    --theme-accent-muted:   #e8d4a8;
+    --theme-accent-base:    #b07d24;
+    --theme-accent-hover:   #93671a;
+    --theme-accent-active:  #7a5514;
+    --theme-accent-contrast:#ffffff;
+
+    /* --- Palette: diff green (printed sage) ------------------------------- */
+    --theme-add-bg:       #e8f1e4;
+    --theme-add-bg-strong:#d3e6cb;
+    --theme-add-marker:   #38703f;
+    --theme-add-ink:      #2b5a31;
+
+    /* --- Palette: diff red (printed rose) --------------------------------- */
+    --theme-del-bg:       #fae9e5;
+    --theme-del-bg-strong:#f2d3cb;
+    --theme-del-marker:   #a8412f;
+    --theme-del-ink:      #8c3325;
+
+    /* --- Palette: shadow ink ---------------------------------------------- */
+    --theme-shadow-color: 30 26 20;     /* r g b, consumed with alpha */
+
+    /* ---------------------------------------------------------------------
+     * SEMANTIC — surfaces
+     * ------------------------------------------------------------------- */
+    --surface-primary:   var(--theme-paper-100);  /* page background */
+    --surface-secondary: var(--theme-paper-50);   /* cards, panels */
+    --surface-tertiary:  var(--theme-paper-200);  /* hover states, wells */
+    --surface-raised:    #ffffff;                 /* elevated: menus, inputs */
+    --surface-sunken:    var(--theme-paper-200);  /* inset wells */
+    --surface-overlay:   var(--theme-paper-50);
+    --surface-chrome:    var(--theme-paper-50);   /* toolbar */
+
+    /* --- SEMANTIC — text --------------------------------------------------- */
+    --text-primary:   var(--theme-paper-900);
+    --text-secondary: var(--theme-paper-700);
+    --text-tertiary:  var(--theme-paper-600);
+    --text-disabled:  var(--theme-paper-500);
+    --text-inverted:  var(--theme-paper-50);
+    --text-accent:    var(--theme-accent-base);
+
+    /* --- SEMANTIC — borders ------------------------------------------------ */
+    --border-subtle:      var(--theme-paper-200);
+    --border-default:     var(--theme-paper-300);
+    --border-strong:      var(--theme-paper-400);
+    --border-interactive: var(--theme-paper-500);
+    --border-accent:      var(--theme-accent-base);
+
+    /* --- SEMANTIC — accent / interactive ----------------------------------- */
+    --accent-base:     var(--theme-accent-base);
+    --accent-hover:    var(--theme-accent-hover);
+    --accent-active:   var(--theme-accent-active);
+    --accent-subtle:   var(--theme-accent-subtle);
+    --accent-muted:    var(--theme-accent-muted);
+    --accent-contrast: var(--theme-accent-contrast);
+
+    --interactive-primary:        var(--accent-base);
+    --interactive-primary-hover:  var(--accent-hover);
+    --interactive-primary-active: var(--accent-active);
+    --interactive-secondary:      var(--text-secondary);
+    --interactive-secondary-hover:var(--text-primary);
+    --interactive-disabled:       var(--text-disabled);
+
+    --focus-ring:   var(--accent-base);
+    --focus-border: var(--accent-base);
+
+    /* --- SEMANTIC — elevation ---------------------------------------------- */
+    --shadow-none: none;
+    --shadow-xs: 0 1px 1px 0 rgb(var(--theme-shadow-color) / 0.04);
+    --shadow-sm: 0 1px 2px 0 rgb(var(--theme-shadow-color) / 0.06),
+                 0 1px 3px 0 rgb(var(--theme-shadow-color) / 0.04);
+    --shadow-md: 0 2px 4px -1px rgb(var(--theme-shadow-color) / 0.08),
+                 0 4px 12px -2px rgb(var(--theme-shadow-color) / 0.06);
+    --shadow-lg: 0 4px 8px -2px rgb(var(--theme-shadow-color) / 0.10),
+                 0 12px 28px -6px rgb(var(--theme-shadow-color) / 0.10);
+    --shadow-focus: 0 0 0 var(--focus-ring-width) var(--accent-muted);
+
+    /* --- SEMANTIC — diff ---------------------------------------------------- */
+    --diff-addition-bg:            var(--theme-add-bg);
+    --diff-addition-text:          var(--theme-add-marker);
+    --diff-addition-linenum-bg:    var(--theme-add-bg-strong);
+    --diff-addition-linenum-text:  var(--theme-add-ink);
+    --diff-addition-rule:          var(--theme-add-marker);
+
+    --diff-deletion-bg:            var(--theme-del-bg);
+    --diff-deletion-text:          var(--theme-del-marker);
+    --diff-deletion-linenum-bg:    var(--theme-del-bg-strong);
+    --diff-deletion-linenum-text:  var(--theme-del-ink);
+    --diff-deletion-rule:          var(--theme-del-marker);
+
+    --diff-context-bg:             var(--surface-secondary);
+    --diff-context-text:           var(--text-secondary);
+    --diff-context-linenum-bg:     var(--surface-secondary);
+    --diff-context-linenum-text:   var(--text-disabled);
+
+    --diff-gutter-bg:              var(--theme-paper-200);
+    --diff-gutter-border:          var(--theme-paper-300);
+    --diff-gutter-text:            var(--theme-paper-600);
+
+    --diff-expanded-bg:            var(--surface-tertiary);
+    --diff-hunk-strip-bg:          var(--surface-tertiary);
+    --diff-hunk-expansion-bg:      var(--accent-subtle);
+    --diff-hunk-expansion-border:  var(--accent-muted);
+    --diff-hunk-expansion-text:    var(--accent-active);
+
+    /* --- SEMANTIC — status (file badges only; never diff bodies) ------------ */
+    --status-added-bg:     var(--theme-add-bg);
+    --status-added-text:   var(--theme-add-ink);
+    --status-deleted-bg:   var(--theme-del-bg);
+    --status-deleted-text: var(--theme-del-ink);
+    --status-renamed-bg:   var(--accent-subtle);
+    --status-renamed-text: var(--accent-active);
+    --status-modified-bg:  var(--surface-tertiary);
+    --status-modified-text:var(--text-secondary);
+
+    /* --- SEMANTIC — syntax highlighting ------------------------------------- */
+    --syntax-keyword:  #8a3b8f;
+    --syntax-string:   #3f6f36;
+    --syntax-number:   #9a5518;
+    --syntax-comment:  var(--theme-paper-600);
+    --syntax-function: #2f5fa8;
+    --syntax-class:    #9a6a12;
+    --syntax-builtin:  #1f6f74;
+    --syntax-operator: var(--theme-paper-700);
+    --syntax-name:     var(--text-primary);
+    --syntax-error:    var(--theme-del-marker);
+}
+
+
+/* ============================================================================
+ * 2. PALETTE + 3. SEMANTIC — DARK THEME ("deep ink")
+ * ========================================================================== */
+
+[data-theme="dark"] {
+
+    /* --- Palette: cool ink ramp ------------------------------------------- */
+    --theme-ink-950: #0e1116;
+    --theme-ink-900: #131820;
+    --theme-ink-850: #171d26;
+    --theme-ink-800: #1c232e;
+    --theme-ink-700: #252e3b;
+    --theme-ink-600: #33404f;
+    --theme-ink-500: #5b6879;
+    --theme-ink-400: #7d8899;
+    --theme-ink-300: #a3adba;
+    --theme-ink-200: #cbd2da;
+    --theme-ink-100: #e6e2da;   /* warm off-white — the tension against cool ink */
+
+    /* --- Palette: ochre accent, lifted for dark ---------------------------- */
+    --theme-accent-subtle:  #2e2513;
+    --theme-accent-muted:   #4d3d1c;
+    --theme-accent-base:    #d9a441;
+    --theme-accent-hover:   #e8b862;
+    --theme-accent-active:  #f0c87f;
+    --theme-accent-contrast:#1a1408;
+
+    /* --- Palette: diff green / red for dark -------------------------------- */
+    --theme-add-bg:       #16281c;
+    --theme-add-bg-strong:#1e3a27;
+    --theme-add-marker:   #71c188;
+    --theme-add-ink:      #9bd6ac;
+
+    --theme-del-bg:       #2e191b;
+    --theme-del-bg-strong:#452226;
+    --theme-del-marker:   #e08a80;
+    --theme-del-ink:      #f0aaa1;
+
+    --theme-shadow-color: 0 0 0;
+
+    /* --- SEMANTIC — surfaces ------------------------------------------------ */
+    --surface-primary:   var(--theme-ink-950);
+    --surface-secondary: var(--theme-ink-900);
+    --surface-tertiary:  var(--theme-ink-800);
+    --surface-raised:    var(--theme-ink-850);
+    --surface-sunken:    var(--theme-ink-950);
+    --surface-overlay:   var(--theme-ink-850);
+    --surface-chrome:    var(--theme-ink-900);
+
+    /* --- SEMANTIC — text ----------------------------------------------------- */
+    --text-primary:   var(--theme-ink-100);
+    --text-secondary: var(--theme-ink-300);
+    --text-tertiary:  var(--theme-ink-400);
+    --text-disabled:  var(--theme-ink-500);
+    --text-inverted:  var(--theme-ink-950);
+    --text-accent:    var(--theme-accent-base);
+
+    /* --- SEMANTIC — borders --------------------------------------------------- */
+    --border-subtle:      var(--theme-ink-850);
+    --border-default:     var(--theme-ink-700);
+    --border-strong:      var(--theme-ink-600);
+    --border-interactive: var(--theme-ink-500);
+    --border-accent:      var(--theme-accent-base);
+
+    /* --- SEMANTIC — elevation (darker, tighter) -------------------------------- */
+    --shadow-xs: 0 1px 1px 0 rgb(var(--theme-shadow-color) / 0.30);
+    --shadow-sm: 0 1px 2px 0 rgb(var(--theme-shadow-color) / 0.40),
+                 0 1px 3px 0 rgb(var(--theme-shadow-color) / 0.30);
+    --shadow-md: 0 2px 4px -1px rgb(var(--theme-shadow-color) / 0.45),
+                 0 4px 12px -2px rgb(var(--theme-shadow-color) / 0.35);
+    --shadow-lg: 0 4px 8px -2px rgb(var(--theme-shadow-color) / 0.50),
+                 0 12px 28px -6px rgb(var(--theme-shadow-color) / 0.45);
+
+    /* --- SEMANTIC — diff -------------------------------------------------------- */
+    --diff-context-bg:           var(--surface-secondary);
+    --diff-context-linenum-bg:   var(--surface-secondary);
+
+    --diff-hunk-strip-bg:        var(--theme-ink-850);
+
+    --diff-gutter-bg:            var(--theme-ink-850);
+    --diff-gutter-border:        var(--theme-ink-800);
+    --diff-gutter-text:          var(--theme-ink-500);
+
+    /* --- SEMANTIC — syntax highlighting, tuned for dark ------------------------- */
+    --syntax-keyword:  #cf92d8;
+    --syntax-string:   #9ccf87;
+    --syntax-number:   #e8a76a;
+    --syntax-comment:  var(--theme-ink-500);
+    --syntax-function: #78b4f0;
+    --syntax-class:    #e5c07b;
+    --syntax-builtin:  #56c8c8;
+    --syntax-operator: var(--theme-ink-300);
+    --syntax-name:     var(--text-primary);
+    --syntax-error:    var(--theme-del-marker);
+}
+
+
+/* ============================================================================
+ * 4. COMPONENT TOKENS — density and geometry knobs
+ * ----------------------------------------------------------------------------
+ * Theme-independent. Change these to make the UI tighter, rounder, flatter.
+ * ========================================================================== */
+
+:root {
+    /* Toolbar */
+    --toolbar-height:        3.25rem;
+    --toolbar-padding-x:     var(--space-xl);
+    --toolbar-gap:           var(--space-lg);
+    --toolbar-rule-width:    var(--border-width-thick);   /* accent rule under toolbar */
+
+    /* Controls (buttons, selects, inputs, checkboxes) */
+    --control-height:        1.875rem;
+    --control-padding-x:     var(--space-md);
+    --control-radius:        var(--radius-sm);
+    --control-border-width:  var(--border-width-hairline);
+    --control-font-size:     var(--text-sm);
+    --checkbox-size:         1rem;
+    --checkbox-radius:       var(--radius-xs);
+
+    /* File card */
+    --file-card-radius:        var(--radius-md);
+    --file-card-border-width:  var(--border-width-hairline);
+    --file-card-accent-width:  var(--border-width-accent);  /* status strip on left edge */
+    --file-card-accent-opacity: 0.65;
+    --file-card-header-height: 2.75rem;
+    --file-card-padding-x:     var(--space-lg);
+    --file-card-gap:           var(--space-md);
+    --file-card-shadow:        var(--shadow-sm);
+    --file-card-shadow-hover:  var(--shadow-md);
+
+    /* Badges */
+    --badge-radius:      var(--radius-xs);
+    --badge-padding-x:   var(--space-sm);
+    --badge-padding-y:   var(--space-3xs);
+    --badge-font-size:   var(--text-2xs);
+    --badge-font-weight: var(--font-weight-medium);
+    --badge-tracking:    var(--tracking-caps);
+
+    /* Diff body */
+    --diff-line-height:      1.5rem;
+    --diff-font-size:        var(--text-sm);
+    --diff-gutter-width:     3rem;      /* line-number column */
+    --diff-marker-width:     1rem;      /* the +/- column */
+    --diff-pane-gap:         var(--border-width-hairline);
+    --diff-rule-width:       var(--border-width-thick);  /* left rule on changed rows */
+
+    /* Hunk expansion strip */
+    --hunk-strip-height:   1.5rem;
+    --hunk-strip-radius:   var(--radius-pill);
+    --hunk-strip-font-size:var(--text-2xs);
+
+    /* Group headers */
+    --group-header-gap:       var(--space-sm);
+    --group-header-font-size: var(--text-md);
+    --group-label-tracking:   var(--tracking-caps);
+}
+
+
+/* ============================================================================
+ * 5. LEGACY ALIASES
+ * ----------------------------------------------------------------------------
+ * Older variable names still referenced by styles.css, templates and the
+ * Tailwind build. Kept so the theme swap is non-breaking. Prefer the semantic
+ * names above in new code.
+ * ========================================================================== */
+
+:root {
+    --font-family:      var(--font-ui);
+    --font-family-mono: var(--font-mono);
+
+    --spacing-xs: var(--space-2xs);
+    --spacing-sm: var(--space-sm);
+    --spacing-md: var(--space-lg);
+    --spacing-lg: var(--space-xl);
+    --spacing-xl: var(--space-2xl);
+    --file-header-sticky-offset: var(--space-lg);
+
+    --border-radius:    var(--radius-md);
+    --border-radius-sm: var(--radius-xs);
+    --box-shadow:       var(--shadow-sm);
+
+    /* Base colours */
+    --color-primary:       var(--interactive-primary);
+    --color-primary-hover: var(--interactive-primary-hover);
+    --color-success:       var(--diff-addition-text);
+    --color-danger:        var(--diff-deletion-text);
+    --color-warning:       var(--accent-base);
+
+    --color-bg:           var(--surface-primary);
+    --color-bg-secondary: var(--surface-secondary);
+    --color-bg-tertiary:  var(--surface-tertiary);
+
+    --color-text:           var(--text-primary);
+    --color-text-secondary: var(--text-secondary);
+
+    --color-border:       var(--border-default);
+    --color-border-hover: var(--border-strong);
+
+    --color-diff-addition-bg:   var(--diff-addition-bg);
+    --color-diff-addition-text: var(--diff-addition-text);
+    --color-diff-deletion-bg:   var(--diff-deletion-bg);
+    --color-diff-deletion-text: var(--diff-deletion-text);
+    --color-diff-context-bg:    var(--diff-context-bg);
+    --color-diff-context-text:  var(--diff-context-text);
+    --color-expanded-context-bg:var(--diff-expanded-bg);
+
+    --color-focus-ring:   var(--focus-ring);
+    --color-focus-border: var(--focus-border);
+
+    /* Semantic families — mapped onto the new roles */
+    --semantic-success-bg-subtle:  var(--diff-addition-bg);
+    --semantic-success-bg-medium:  var(--diff-addition-linenum-bg);
+    --semantic-success-bg-strong:  var(--diff-addition-linenum-bg);
+    --semantic-success-text:       var(--diff-addition-text);
+    --semantic-success-text-strong:var(--diff-addition-linenum-text);
+    --semantic-success-border:     var(--diff-addition-linenum-bg);
+
+    --semantic-danger-bg-subtle:  var(--diff-deletion-bg);
+    --semantic-danger-bg-medium:  var(--diff-deletion-linenum-bg);
+    --semantic-danger-bg-strong:  var(--diff-deletion-linenum-bg);
+    --semantic-danger-text:       var(--diff-deletion-text);
+    --semantic-danger-text-medium:var(--diff-deletion-text);
+    --semantic-danger-text-strong:var(--diff-deletion-linenum-text);
+    --semantic-danger-border:     var(--diff-deletion-linenum-bg);
+
+    --semantic-warning-bg-subtle:  var(--accent-subtle);
+    --semantic-warning-bg-medium:  var(--accent-muted);
+    --semantic-warning-text:       var(--accent-base);
+    --semantic-warning-text-strong:var(--accent-active);
+    --semantic-warning-border:     var(--accent-muted);
+
+    /* "info" is retired as a colour family — it now resolves to the accent,
+     * which is what keeps the palette down to one highlight hue. */
+    --semantic-info-bg-subtle:   var(--accent-subtle);
+    --semantic-info-bg-medium:   var(--accent-subtle);
+    --semantic-info-bg-strong:   var(--accent-muted);
+    --semantic-info-bg-stronger: var(--accent-muted);
+    --semantic-info-text:        var(--diff-hunk-expansion-text);
+    --semantic-info-text-medium: var(--accent-base);
+    --semantic-info-text-strong: var(--accent-active);
+    --semantic-info-border:      var(--accent-muted);
+
+    --color-danger-bg:        var(--semantic-danger-bg-subtle);
+    --color-danger-bg-50:     var(--semantic-danger-bg-subtle);
+    --color-danger-bg-100:    var(--semantic-danger-bg-medium);
+    --color-danger-bg-200:    var(--semantic-danger-bg-strong);
+    --color-danger-bg-300:    var(--semantic-danger-border);
+    --color-danger-text:      var(--semantic-danger-text);
+    --color-danger-text-strong:var(--semantic-danger-text-strong);
+    --color-danger-text-600:  var(--semantic-danger-text);
+    --color-danger-text-500:  var(--semantic-danger-text-medium);
+    --color-danger-text-700:  var(--semantic-danger-text-strong);
+
+    --color-success-bg:      var(--semantic-success-bg-subtle);
+    --color-success-bg-50:   var(--semantic-success-bg-subtle);
+    --color-success-bg-100:  var(--semantic-success-bg-medium);
+    --color-success-bg-300:  var(--semantic-success-bg-strong);
+    --color-success-text:    var(--semantic-success-text);
+    --color-success-text-600:var(--semantic-success-text);
+    --color-success-text-800:var(--semantic-success-text-strong);
+
+    --color-warning-bg-100:   var(--semantic-warning-bg-subtle);
+    --color-warning-text-800: var(--semantic-warning-text-strong);
+
+    --color-info-bg:      var(--semantic-info-bg-subtle);
+    --color-info-bg-50:   var(--semantic-info-bg-subtle);
+    --color-info-bg-100:  var(--semantic-info-bg-medium);
+    --color-info-bg-200:  var(--semantic-info-bg-strong);
+    --color-info-bg-300:  var(--semantic-info-bg-stronger);
+    --color-info-text:    var(--semantic-info-text);
+    --color-info-text-600:var(--semantic-info-text-medium);
+    --color-info-text-800:var(--semantic-info-text);
+
+    /* Neutral ramp — consumed by the Tailwind build and legacy template classes.
+     * Light theme: paper ramp, low → high. */
+    --color-neutral-50:  var(--theme-paper-50);
+    --color-neutral-100: var(--theme-paper-100);
+    --color-neutral-200: var(--theme-paper-200);
+    --color-neutral-300: var(--theme-paper-300);
+    --color-neutral-400: var(--theme-paper-500);
+    --color-neutral-500: var(--theme-paper-600);
+    --color-neutral-600: var(--theme-paper-700);
+    --color-neutral-700: var(--theme-paper-800);
+    --color-neutral-800: var(--theme-paper-900);
+    --color-neutral-900: var(--theme-paper-900);
+}
+
+[data-theme="dark"] {
+    /* Neutral ramp inverts in dark so legacy `bg-neutral-50` style hooks
+     * continue to mean "subtle surface" rather than "near-white". */
+    --color-neutral-50:  var(--theme-ink-900);
+    --color-neutral-100: var(--theme-ink-850);
+    --color-neutral-200: var(--theme-ink-800);
+    --color-neutral-300: var(--theme-ink-700);
+    --color-neutral-400: var(--theme-ink-400);
+    --color-neutral-500: var(--theme-ink-400);
+    --color-neutral-600: var(--theme-ink-600);
+    --color-neutral-700: var(--theme-ink-200);
+    --color-neutral-800: var(--theme-ink-100);
+    --color-neutral-900: var(--theme-ink-100);
+
+    --color-warning-bg-100:   var(--accent-subtle);
+    --color-warning-text-800: var(--accent-base);
+}

@@ -1,29 +1,27 @@
 <!-- Empty State -->
-<div class="flex items-center justify-center h-full">
-    <div class="text-center mt-8">
+<div class="flex items-start justify-center pt-12">
+    <div class="state-panel {% if error %}state-panel-error{% endif %}">
         {% if error %}
-        <div class="text-4xl mb-4">⚠️</div>
-        <h2 class="text-xl font-semibold text-danger-text-600 mb-2">Error</h2>
-        <p class="text-danger-text-500 mb-4">{{ error }}</p>
+        <h2 class="state-panel-title">Something went wrong</h2>
+        <p class="state-panel-body">{{ error }}</p>
         {% else %}
-        <div class="text-6xl mb-4">✨</div>
-        <h2 class="text-xl font-semibold text-neutral-900 dark:text-neutral-300 mb-2">No changes found</h2>
-        {% endif %}
-        <div class="text-neutral-600 space-y-2">
+        <h2 class="state-panel-title">Nothing to show</h2>
+        <div class="state-panel-body space-y-2">
             {% if not unstaged and not untracked %}
-            <p>Enable "Unstaged" or "Untracked" to see changes.</p>
+            <p>Turn on <strong>Unstaged</strong> or <strong>Untracked</strong> to see changes.</p>
             {% elif unstaged and not untracked %}
             <p>No unstaged changes in your working directory.</p>
             {% elif not unstaged and untracked %}
             <p>No untracked files found.</p>
             {% else %}
-            <p>Your working directory is clean - no unstaged or untracked files.</p>
-            {% endif %}
-            {% if current_base_ref != 'main' %}
-            <p class="text-sm text-neutral-500 mt-3">
-                Comparing against: <span class="font-mono">{{ current_base_ref }}</span>
-            </p>
+            <p>Your working directory is clean — nothing unstaged, nothing untracked.</p>
             {% endif %}
         </div>
+        {% endif %}
+        {% if current_base_ref != 'main' %}
+        <p class="state-panel-note">
+            Comparing against <span class="font-mono">{{ current_base_ref }}</span>
+        </p>
+        {% endif %}
     </div>
 </div>

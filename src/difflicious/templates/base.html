@@ -32,21 +32,23 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="{{ font_config.selected_font.google_fonts_url }}" rel="stylesheet">
+    <!-- UI + wordmark typefaces -->
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap"
+        rel="stylesheet">
     {% endif %}
 
     <!-- Favicon -->
     <link rel="icon" href="/favicon.ico" type="image/png">
 
-    <!-- Custom CSS -->
+    <!-- Design tokens — every colour, spacing, radius and type decision -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+
+    <!-- Component styles (structure only; consumes the tokens above) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 
     <!-- Syntax highlighting CSS -->
     <style>
-        {
-                {
-                syntax_css|safe
-            }
-        }
+        {{ syntax_css|safe }}
     </style>
 
     <!-- Dynamic Font CSS -->
