@@ -2,8 +2,8 @@
   "name": "difflicious",
   "description": "A sleek web-based git diff visualization tool",
   "scripts": {
-    "lint:js": "eslint src/difflicious/static/js/**/*.js",
-    "lint:js:fix": "eslint src/difflicious/static/js/**/*.js --fix",
+    "lint:js": "eslint src/difflicious/static/js",
+    "lint:js:fix": "eslint src/difflicious/static/js --fix",
     "test:js": "NODE_OPTIONS='--experimental-vm-modules' jest",
     "test:js:watch": "NODE_OPTIONS='--experimental-vm-modules' jest --watch",
     "test:js:coverage": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage",
