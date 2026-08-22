@@ -116,3 +116,7 @@ vendor/
 .coverage
 coverage.xml
 vendor/
+
+# Git worktrees live inside the repo so they are easy to find; git tracks them
+# via .git/worktrees, so the checkouts themselves must never be added.
+.worktrees/

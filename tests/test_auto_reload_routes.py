@@ -111,3 +111,40 @@ def test_watch_changes_streams_events(monkeypatch):
         response.close()
 
     assert removed == [7]
+
+
+def test_watch_changes_ignores_nested_worktrees_by_default(monkeypatch):
+    """Git worktrees are commonly checked out inside the repo as `.worktrees/`.
+
+    Without this default, editing a file in one worktree triggers a reload in
+    every difflicious instance watching the others.
+    """
+    captured = {}
+
+    def fake_add_client(repo_path, debounce, ignore_patterns):
+        captured["ignore_patterns"] = ignore_patterns
+        return 1, queue.Queue()
+
+    class FakeRepo:
+        repo_path = "/tmp/repo"
+
+    class FakeGitService:
+        def __init__(self):
+            self.repo = FakeRepo()
+
+    monkeypatch.delenv("DIFFLICIOUS_WATCH_IGNORE", raising=False)
+    monkeypatch.setattr(auto_reload_routes.watch_manager, "add_client", fake_add_client)
+    monkeypatch.setattr(
+        auto_reload_routes.watch_manager, "remove_client", lambda client_id: None
+    )
+    monkeypatch.setattr(auto_reload_routes, "GitService", FakeGitService)
+
+    app = Flask(__name__)
+    app.register_blueprint(auto_reload_routes.auto_reload_api)
+    with app.test_client() as client:
+        response = client.get("/api/watch")
+        # The route streams, so the generator body only runs once consumed.
+        next(iter(response.response))
+        response.close()
+
+    assert captured["ignore_patterns"] == [".git", ".worktrees"]

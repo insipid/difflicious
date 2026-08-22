@@ -133,8 +133,13 @@ def watch_changes() -> Response:
             # Get debounce setting from environment
             debounce = float(os.getenv("DIFFLICIOUS_WATCH_DEBOUNCE", "1.0"))
 
-            # Get additional ignore patterns from environment
-            ignore_patterns_str = os.getenv("DIFFLICIOUS_WATCH_IGNORE", ".git")
+            # Get additional ignore patterns from environment.
+            # `.worktrees` is ignored by default because git worktrees are
+            # commonly checked out inside the repo; without it, editing a file
+            # in one worktree would trigger a reload in every other.
+            ignore_patterns_str = os.getenv(
+                "DIFFLICIOUS_WATCH_IGNORE", ".git,.worktrees"
+            )
             ignore_patterns = [p.strip() for p in ignore_patterns_str.split(",")]
 
             # Register this client with the shared watch manager

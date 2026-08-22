@@ -150,7 +150,7 @@ Difflicious supports the following environment variables for configuration:
 | `DIFFLICIOUS_DISABLE_GOOGLE_FONTS` | `false` | Disable Google Fonts CDN |
 | `DIFFLICIOUS_AUTO_RELOAD` | `true` | Enable auto-reload on file changes |
 | `DIFFLICIOUS_WATCH_DEBOUNCE` | `1.0` | Debounce time (seconds) for file watcher |
-| `DIFFLICIOUS_WATCH_IGNORE` | `.git` | Patterns to ignore for file watching |
+| `DIFFLICIOUS_WATCH_IGNORE` | `.git,.worktrees` | Patterns to ignore for file watching |
 | `DIFFLICIOUS_DEBUG` | `false` | Enable verbose debug logging in browser console |
 
 **Example usage:**
