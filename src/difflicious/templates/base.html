@@ -40,8 +40,13 @@
     <!-- Favicon -->
     <link rel="icon" href="/favicon.ico" type="image/png">
 
-    <!-- Design tokens — every colour, spacing, radius and type decision -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    <!-- Theme contract: scales and density knobs shared by every theme -->
+    <link rel="stylesheet"
+        href="{{ url_for('static', filename='css/themes/' + theme_config.contract_file) }}">
+
+    <!-- Selected theme: the palette and semantic roles (DIFFLICIOUS_THEME) -->
+    <link rel="stylesheet"
+        href="{{ url_for('static', filename='css/themes/' + theme_config.selected_theme.file) }}">
 
     <!-- Component styles (structure only; consumes the tokens above) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">

@@ -624,3 +624,61 @@ class TestUtilityEndpoints:
         data = response.get_json()
         assert "version" in data
         assert data["version"] == 3
+
+
+class TestThemeConfig:
+    """Theme configuration resolution."""
+
+    def test_defaults_to_ledger(self, monkeypatch):
+        from difflicious.config import get_theme_config
+
+        monkeypatch.delenv("DIFFLICIOUS_THEME", raising=False)
+        config = get_theme_config()
+
+        assert config["selected_theme_key"] == "ledger"
+        assert config["selected_theme"]["file"] == "ledger.css"
+
+    def test_selects_a_registered_theme(self, monkeypatch):
+        from difflicious.config import get_theme_config
+
+        monkeypatch.setenv("DIFFLICIOUS_THEME", "slate")
+        config = get_theme_config()
+
+        assert config["selected_theme_key"] == "slate"
+        assert config["selected_theme"]["file"] == "slate.css"
+
+    def test_unknown_theme_falls_back_rather_than_failing(self, monkeypatch):
+        """A typo in a shell profile must not stop the tool starting."""
+        from difflicious.config import get_theme_config
+
+        monkeypatch.setenv("DIFFLICIOUS_THEME", "not-a-theme")
+        config = get_theme_config()
+
+        assert config["selected_theme_key"] == "ledger"
+
+    def test_every_registered_theme_file_exists(self):
+        """The registry must not point at a stylesheet that was never shipped."""
+        from pathlib import Path
+
+        import difflicious
+        from difflicious.config import AVAILABLE_THEMES, THEME_CONTRACT_FILE
+
+        themes_dir = Path(difflicious.__file__).parent / "static" / "css" / "themes"
+
+        assert (themes_dir / THEME_CONTRACT_FILE).is_file()
+        for key, entry in AVAILABLE_THEMES.items():
+            assert (themes_dir / entry["file"]).is_file(), f"{key} stylesheet missing"
+
+    def test_selected_theme_stylesheet_is_linked_in_the_page(self, monkeypatch):
+        from difflicious.app import create_app
+
+        monkeypatch.setenv("DIFFLICIOUS_THEME", "slate")
+        client = create_app().test_client()
+
+        html = client.get("/").get_data(as_text=True)
+
+        # Match the stylesheet link specifically. The page also renders the
+        # working tree's diff, which can mention these filenames as content.
+        assert 'href="/static/css/themes/_contract.css"' in html
+        assert 'href="/static/css/themes/slate.css"' in html
+        assert 'href="/static/css/themes/ledger.css"' not in html

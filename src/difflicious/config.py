@@ -44,6 +44,53 @@ AVAILABLE_FONTS = {
 }
 
 
+# Theme configuration
+#
+# A theme supplies the palette and the semantic roles built on it. The scales,
+# density knobs and back-compat aliases every theme shares live in
+# `static/css/themes/_contract.css`, which is always loaded first. See
+# docs/THEMING.md.
+DEFAULT_THEME = "ledger"
+
+AVAILABLE_THEMES = {
+    "ledger": {
+        "name": "Ledger",
+        "description": "Warm paper and ink, with a single ochre accent",
+        "file": "ledger.css",
+    },
+    "slate": {
+        "name": "Slate",
+        "description": "Cool neutral greys with an indigo accent",
+        "file": "slate.css",
+    },
+}
+
+THEME_CONTRACT_FILE = "_contract.css"
+
+
+def get_theme_config() -> dict[str, Any]:
+    """Get theme configuration based on environment variables.
+
+    Returns:
+        Dictionary containing the selected theme, the shared contract stylesheet
+        and the full registry, for the template to render stylesheet links from.
+    """
+    selected_theme_key = os.getenv("DIFFLICIOUS_THEME", DEFAULT_THEME)
+
+    # An unknown name falls back rather than failing: a typo in a shell profile
+    # should not stop the tool starting. The CLI validates up front and reports
+    # the mistake, which is where a user can actually act on it.
+    if selected_theme_key not in AVAILABLE_THEMES:
+        selected_theme_key = DEFAULT_THEME
+
+    return {
+        "selected_theme_key": selected_theme_key,
+        "selected_theme": AVAILABLE_THEMES[selected_theme_key],
+        "available_themes": AVAILABLE_THEMES,
+        "contract_file": THEME_CONTRACT_FILE,
+    }
+
+
 def get_font_config() -> dict[str, Any]:
     """Get font configuration based on environment variables.
 

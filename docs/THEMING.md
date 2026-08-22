@@ -1,15 +1,50 @@
 # Theming Difflicious
 
-Every design decision lives in one file: `src/difflicious/static/css/theme.css`.
-Change a value there and it propagates. Nothing else needs editing, and no other
+Difflicious ships several themes and picks one at startup. Every design decision
+lives in the theme files under `src/difflicious/static/css/themes/`; no other
 file may declare a literal colour, radius, or spacing value.
+
+## Choosing a theme
+
+```bash
+difflicious --theme slate        # for one run
+export DIFFLICIOUS_THEME=slate   # for the shell
+difflicious --list-themes        # what is available
+```
+
+The default is `ledger`. An unknown name on the command line is rejected with the
+valid options; an unknown name in the environment falls back to the default
+rather than refusing to start, so a stale shell profile cannot break the tool.
+
+| Theme | Look |
+|---|---|
+| `ledger` (default) | Warm paper and ink, single ochre accent |
+| `slate` | Cool neutral greys, indigo accent, squarer and denser |
+
+## How the files fit together
+
+Two stylesheets load, in this order:
+
+```
+themes/_contract.css   scales, density knobs, back-compat aliases  (always)
+themes/<name>.css      palette + semantic roles                    (selected)
+```
+
+The contract holds what is theme-independent. A theme supplies the palette and
+the roles built on it — and because it loads second, it may override anything in
+the contract. `slate.css` does exactly that to get squarer corners and a
+different display face, which is the intended way for a theme to change more
+than colour.
+
+Custom property resolution is lazy, so the aliases in the contract may reference
+semantic tokens the theme has not declared yet. Order never matters.
 
 ## The rule
 
 ```
-theme.css   →  declares tokens        (all design decisions)
-styles.css  →  consumes tokens        (structure and layout only)
-templates   →  use semantic classes   (never Tailwind colour utilities)
+themes/*.css  →  declare tokens        (all design decisions)
+styles.css    →  consumes tokens       (structure and layout only)
+templates     →  use semantic classes  (never Tailwind colour utilities)
 ```
 
 `styles.css` is checked for this: it contains zero hex colours. If you find
@@ -17,7 +52,7 @@ yourself typing `#` or a raw `px` radius into it, add a token instead.
 
 ## Token layers
 
-`theme.css` is ordered in five sections.
+Between them, the contract and a theme cover five sections.
 
 | Section | What it holds | Edit it when |
 |---|---|---|
@@ -48,8 +83,20 @@ For the diff body specifically, `--diff-line-height` and `--diff-gutter-width`.
 hardcoded here. Remember to update the Google Fonts link in `base.html`, which
 sits behind the `DIFFLICIOUS_DISABLE_GOOGLE_FONTS` opt-out.
 
-**A whole new look.** Write a replacement `theme.css` declaring the same token
-names and swap the `<link>` in `base.html`.
+**A whole new theme.** Copy `themes/ledger.css`, change the values, and register
+it in `AVAILABLE_THEMES` in `src/difflicious/config.py`:
+
+```python
+"midnight": {
+    "name": "Midnight",
+    "description": "What it looks like, in a few words",
+    "file": "midnight.css",
+},
+```
+
+`ledger.css` declares every token a theme is expected to supply, so starting from
+a copy of it means nothing is missed. A test asserts that each registered theme's
+stylesheet actually exists.
 
 ## Diff colours are reserved
 
@@ -72,5 +119,15 @@ could override them.
 ## Both themes, every time
 
 Light and dark are peers, not a base and a filter. Every semantic token is
-declared in both blocks. Test both: `uv run python design-review/shoot.py <dir>`
-captures the same fixture repo in each.
+declared in both blocks of a theme file. Test both, for each theme:
+
+```bash
+DIFFLICIOUS_THEME=slate uv run python design-review/shoot.py <dir>
+```
+
+## Not yet built
+
+The theme is fixed for the life of the server process. Still to come: a picker in
+the UI that persists to `localStorage`, per-request selection, and pointing at a
+stylesheet outside the registry (a path or URL) so people can bring their own.
+The registry in `config.py` is the seam those will extend.

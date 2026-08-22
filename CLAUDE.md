@@ -147,6 +147,7 @@ Difflicious supports the following environment variables for configuration:
 | `DIFFLICIOUS_PORT` | `5000` | Port to run the web server on |
 | `DIFFLICIOUS_HOST` | `127.0.0.1` | Host to bind the web server to |
 | `DIFFLICIOUS_FONT` | `jetbrains-mono` | Programming font (see `--list-fonts`) |
+| `DIFFLICIOUS_THEME` | `ledger` | Colour theme (see `--list-themes`) |
 | `DIFFLICIOUS_DISABLE_GOOGLE_FONTS` | `false` | Disable Google Fonts CDN |
 | `DIFFLICIOUS_AUTO_RELOAD` | `true` | Enable auto-reload on file changes |
 | `DIFFLICIOUS_WATCH_DEBOUNCE` | `1.0` | Debounce time (seconds) for file watcher |
