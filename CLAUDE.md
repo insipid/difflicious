@@ -486,7 +486,10 @@ difflicious/
 ├── docs/                     # Documentation
 │   ├── CSS-STYLE-GUIDE.md    # CSS conventions
 │   ├── TROUBLESHOOTING.md    # Common issues
-│   └── javascript-modularization-plan.md
+│   ├── internal/             # Working notes, reports, session logs
+│   │   └── archive/          # Completed plans and superseded specs
+│   ├── screenshots/          # README screenshots
+│   └── site/                 # GitHub Pages content
 │
 ├── pyproject.toml            # Python project configuration
 ├── uv.lock                   # uv lockfile
@@ -543,7 +546,11 @@ The application is designed for multiple distribution channels:
 **Technical Guides:**
 - `docs/CSS-STYLE-GUIDE.md` - Comprehensive CSS architecture and conventions
 - `docs/TROUBLESHOOTING.md` - Common issues and solutions
-- `docs/javascript-modularization-plan.md` - Frontend architecture decisions
+
+**Archive:**
+- `docs/internal/archive/` - Completed plans and superseded specs, kept for
+  context only. Do not treat anything there as a description of current
+  behaviour; see `docs/internal/archive/README.md` for the index.
 
 **Keep these files synchronized when making architectural changes!**
 

@@ -1,5 +1,9 @@
 # Presentation Layer Separation — Design Spec
 
+> **Archived.** This document describes work that is finished or a direction that
+> was not taken. It is kept for context and is not a description of current
+> behaviour. See `docs/internal/archive/README.md`.
+
 **Date:** 2026-04-08
 **Status:** Approved for planning
 

@@ -582,14 +582,15 @@ When adding new styles:
 
 ## Resources
 
-- **Design System:** See `docs/tailwind-design-system.md`
+- **Design System:** superseded. The historical snapshot is at
+  `docs/internal/archive/tailwind-design-system.md`
 - **Color Variables:** See the "COLOR SYSTEM" section in
   `src/difflicious/static/css/styles.css`
 - **Component Classes:** See the "SEMANTIC COMPONENT CLASSES" section in
   `src/difflicious/static/css/styles.css`
 - **Tailwind Config:** See `tailwind.config.cjs`
 - **CSS Rationalization:** See
-  `docs/internal/reports/2025-11-05-css-rationalization-analysis.md`
+  `docs/internal/reports/2025-11-05-1857-css-rationalization-analysis.md`
 
 ---
 
