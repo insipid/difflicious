@@ -1,0 +1,286 @@
+/* ============================================================================
+ * SORBET — bright, rounded, outlined
+ * ============================================================================
+ *
+ * Takes its cue from the Difflicious logo: a bitten fruit in saturated red and
+ * green, drawn with a heavy black outline and set in fat rounded letterforms.
+ * So: generous radii, a strong ink outline on every card, brighter surfaces
+ * than paper, and diff tints with real saturation rather than Ledger's printed
+ * restraint.
+ *
+ * The accent is turquoise. The logo's own colours are red and green, and those
+ * belong to diff semantics — an accent drawn from the logo would be unreadable
+ * next to them. Turquoise sits far from both hues, and far from Ledger's ochre
+ * and Slate's indigo, so the three themes never blur together.
+ *
+ * Loaded after `themes/_contract.css`, whose scales and density tokens this
+ * file overrides freely — being rounder and chunkier is most of the point.
+ * ========================================================================== */
+
+:root {
+
+    /* --- Palette: bright cool neutrals -------------------------------------- */
+    --theme-sorbet-50:  #ffffff;
+    --theme-sorbet-100: #fbfcff;
+    --theme-sorbet-200: #f2f5fb;
+    --theme-sorbet-300: #e3e9f5;
+    --theme-sorbet-400: #c9d3e6;
+    --theme-sorbet-500: #94a1bd;
+    --theme-sorbet-600: #6b7898;
+    --theme-sorbet-700: #45506b;
+    --theme-sorbet-800: #2b3348;
+    --theme-sorbet-900: #171c2b;
+
+    /* The logo's outline. Used at full strength on card edges. */
+    --theme-outline: #171c2b;
+
+    /* --- Palette: turquoise accent ------------------------------------------- */
+    --theme-accent-subtle:   #d8f7f7;
+    --theme-accent-muted:    #92e5e6;
+    --theme-accent-base:     #0eaeb4;
+    --theme-accent-hover:    #0b9296;
+    --theme-accent-active:   #077679;
+    --theme-accent-contrast: #ffffff;
+
+    /* --- Palette: diff colours, saturated like the logo ---------------------- */
+    --theme-add-bg:        #ddf7e3;
+    --theme-add-bg-strong: #b4ecc2;
+    --theme-add-marker:    #1a9c46;
+    --theme-add-ink:       #0f6b2f;
+
+    --theme-del-bg:        #ffe2e2;
+    --theme-del-bg-strong: #ffc4c4;
+    --theme-del-marker:    #e5342f;
+    --theme-del-ink:       #a81c18;
+
+    --theme-shadow-color: 23 28 43;
+
+    /* --- Surfaces ------------------------------------------------------------- */
+    --surface-primary:   var(--theme-sorbet-200);
+    --surface-secondary: var(--theme-sorbet-50);
+    --surface-tertiary:  var(--theme-sorbet-300);
+    --surface-raised:    var(--theme-sorbet-50);
+    --surface-sunken:    var(--theme-sorbet-200);
+    --surface-overlay:   var(--theme-sorbet-50);
+    --surface-chrome:    var(--theme-sorbet-50);
+
+    /* --- Text ------------------------------------------------------------------ */
+    --text-primary:   var(--theme-sorbet-900);
+    --text-secondary: var(--theme-sorbet-700);
+    --text-tertiary:  var(--theme-sorbet-600);
+    --text-disabled:  var(--theme-sorbet-500);
+    --text-inverted:  var(--theme-sorbet-50);
+    --text-accent:    var(--theme-accent-base);
+
+    /* --- Borders: the outline is the whole point -------------------------------- */
+    --border-subtle:      var(--theme-sorbet-300);
+    --border-default:     var(--theme-sorbet-400);
+    --border-strong:      var(--theme-outline);
+    --border-interactive: var(--theme-sorbet-600);
+    --border-accent:      var(--theme-accent-base);
+
+    /* --- Accent / interactive ---------------------------------------------------- */
+    --accent-base:     var(--theme-accent-base);
+    --accent-hover:    var(--theme-accent-hover);
+    --accent-active:   var(--theme-accent-active);
+    --accent-subtle:   var(--theme-accent-subtle);
+    --accent-muted:    var(--theme-accent-muted);
+    --accent-contrast: var(--theme-accent-contrast);
+
+    --interactive-primary:         var(--accent-base);
+    --interactive-primary-hover:   var(--accent-hover);
+    --interactive-primary-active:  var(--accent-active);
+    --interactive-secondary:       var(--text-secondary);
+    --interactive-secondary-hover: var(--text-primary);
+    --interactive-disabled:        var(--text-disabled);
+
+    --focus-ring:   var(--accent-base);
+    --focus-border: var(--accent-base);
+
+    /* --- Elevation: soft and lifted, not the flat paper of Ledger ----------------- */
+    --shadow-none: none;
+    --shadow-xs: 0 1px 2px 0 rgb(var(--theme-shadow-color) / 0.05);
+    --shadow-sm: 0 2px 4px -1px rgb(var(--theme-shadow-color) / 0.08),
+                 0 2px 8px -2px rgb(var(--theme-shadow-color) / 0.06);
+    --shadow-md: 0 4px 8px -2px rgb(var(--theme-shadow-color) / 0.10),
+                 0 8px 20px -4px rgb(var(--theme-shadow-color) / 0.10);
+    --shadow-lg: 0 8px 16px -4px rgb(var(--theme-shadow-color) / 0.12),
+                 0 20px 40px -8px rgb(var(--theme-shadow-color) / 0.14);
+    --shadow-focus: 0 0 0 3px var(--accent-muted);
+
+    /* --- Diff ---------------------------------------------------------------------- */
+    --diff-addition-bg:           var(--theme-add-bg);
+    --diff-addition-text:         var(--theme-add-marker);
+    --diff-addition-linenum-bg:   var(--theme-add-bg-strong);
+    --diff-addition-linenum-text: var(--theme-add-ink);
+    --diff-addition-rule:         var(--theme-add-marker);
+
+    --diff-deletion-bg:           var(--theme-del-bg);
+    --diff-deletion-text:         var(--theme-del-marker);
+    --diff-deletion-linenum-bg:   var(--theme-del-bg-strong);
+    --diff-deletion-linenum-text: var(--theme-del-ink);
+    --diff-deletion-rule:         var(--theme-del-marker);
+
+    --diff-context-bg:           var(--surface-secondary);
+    --diff-context-text:         var(--text-secondary);
+    --diff-context-linenum-bg:   var(--surface-secondary);
+    --diff-context-linenum-text: var(--text-disabled);
+
+    --diff-gutter-bg:     var(--theme-sorbet-200);
+    --diff-gutter-border: var(--theme-sorbet-300);
+    --diff-gutter-text:   var(--theme-sorbet-600);
+
+    --diff-expanded-bg:           var(--surface-tertiary);
+    --diff-hunk-strip-bg:         var(--theme-accent-subtle);
+    --diff-hunk-expansion-bg:     var(--accent-subtle);
+    --diff-hunk-expansion-border: var(--accent-muted);
+    --diff-hunk-expansion-text:   var(--accent-active);
+
+    /* --- Status badges ---------------------------------------------------------------- */
+    --status-added-bg:      var(--theme-add-bg-strong);
+    --status-added-text:    var(--theme-add-ink);
+    --status-deleted-bg:    var(--theme-del-bg-strong);
+    --status-deleted-text:  var(--theme-del-ink);
+    --status-renamed-bg:    var(--accent-muted);
+    --status-renamed-text:  var(--accent-active);
+    --status-modified-bg:   var(--theme-sorbet-300);
+    --status-modified-text: var(--theme-sorbet-700);
+
+    /* --- Syntax: brighter, higher contrast ---------------------------------------------- */
+    --syntax-keyword:  #b5179e;
+    --syntax-string:   #16873f;
+    --syntax-number:   #c2410c;
+    --syntax-comment:  var(--theme-sorbet-500);
+    --syntax-function: #1462d4;
+    --syntax-class:    #b8730c;
+    --syntax-builtin:  #0b9296;
+    --syntax-operator: var(--theme-sorbet-700);
+    --syntax-name:     var(--text-primary);
+    --syntax-error:    var(--theme-del-marker);
+
+    /* --- Shape: rounded and outlined ------------------------------------------------------
+     * These override the contract defaults. Sorbet is defined as much by its
+     * geometry as its palette: fat radii, a real outline on cards, pill controls.
+     * ---------------------------------------------------------------------------------- */
+    --font-display: 'Fredoka', 'Nunito', ui-rounded, system-ui, sans-serif;
+    --font-ui:      'Nunito', ui-rounded, system-ui, -apple-system, sans-serif;
+
+    --radius-xs:   5px;
+    --radius-sm:   8px;
+    --radius-md:   12px;
+    --radius-lg:   18px;
+    --radius-xl:   24px;
+
+    --file-card-radius:        var(--radius-lg);
+    --file-card-border-width:  var(--border-width-thick);
+    /* The outline is the resting state here, not a hover affordance — it is
+     * the single feature the logo most obviously has. */
+    --file-card-border-colour:       var(--theme-outline);
+    --file-card-border-colour-hover: var(--theme-accent-base);
+    --file-card-accent-width:  6px;
+    --file-card-accent-opacity: 1;
+    --file-card-shadow:        var(--shadow-sm);
+    --file-card-shadow-hover:  var(--shadow-lg);
+
+    --control-radius:   var(--radius-pill);
+    --control-height:   2rem;
+    --checkbox-radius:  var(--radius-xs);
+    --badge-radius:     var(--radius-pill);
+    --badge-padding-x:  var(--space-md);
+
+    --toolbar-rule-width: var(--border-width-accent);
+    --tracking-tight:   -0.005em;
+}
+
+[data-theme="dark"] {
+
+    /* Dark Sorbet keeps the brightness in the ink and the accents; the ground
+     * goes to a deep blue-plum rather than the near-black Ledger uses. */
+    --theme-sorbet-50:  #171a2e;
+    --theme-sorbet-100: #1d2138;
+    --theme-sorbet-200: #131628;
+    --theme-sorbet-300: #2a2f4d;
+    --theme-sorbet-400: #3b4268;
+    --theme-sorbet-500: #6f79a3;
+    --theme-sorbet-600: #97a1c4;
+    --theme-sorbet-700: #c3cae4;
+    --theme-sorbet-800: #dfe4f4;
+    --theme-sorbet-900: #f4f6ff;
+
+    --theme-outline: #0b0d18;
+
+    --theme-accent-subtle:   #0d3b40;
+    --theme-accent-muted:    #12626a;
+    --theme-accent-base:     #35d6dc;
+    --theme-accent-hover:    #5fe4e8;
+    --theme-accent-active:   #8ff0f2;
+    --theme-accent-contrast: #06222a;
+
+    --theme-add-bg:        #17381f;
+    --theme-add-bg-strong: #1f5030;
+    --theme-add-marker:    #56dd7f;
+    --theme-add-ink:       #97efb2;
+
+    --theme-del-bg:        #3d1a1c;
+    --theme-del-bg-strong: #5a2427;
+    --theme-del-marker:    #ff6b6b;
+    --theme-del-ink:       #ffa8a8;
+
+    --theme-shadow-color: 0 0 0;
+
+    --surface-primary:   var(--theme-sorbet-200);
+    --surface-secondary: var(--theme-sorbet-50);
+    --surface-tertiary:  var(--theme-sorbet-300);
+    --surface-raised:    var(--theme-sorbet-100);
+    --surface-sunken:    var(--theme-sorbet-200);
+    --surface-overlay:   var(--theme-sorbet-100);
+    --surface-chrome:    var(--theme-sorbet-100);
+
+    --text-primary:   var(--theme-sorbet-900);
+    --text-secondary: var(--theme-sorbet-700);
+    --text-tertiary:  var(--theme-sorbet-600);
+    --text-disabled:  var(--theme-sorbet-500);
+    --text-inverted:  var(--theme-sorbet-200);
+
+    /* In dark the outline reads as a lift, not a stroke, so cards take a
+     * lighter edge than the near-black used in light. */
+    --border-subtle:      var(--theme-sorbet-300);
+    --border-default:     var(--theme-sorbet-400);
+    --border-strong:      var(--theme-sorbet-500);
+    --border-interactive: var(--theme-sorbet-600);
+
+    --file-card-border-colour:       var(--theme-sorbet-400);
+    --file-card-border-colour-hover: var(--theme-accent-base);
+
+    --shadow-xs: 0 1px 2px 0 rgb(var(--theme-shadow-color) / 0.35);
+    --shadow-sm: 0 2px 4px -1px rgb(var(--theme-shadow-color) / 0.45),
+                 0 2px 8px -2px rgb(var(--theme-shadow-color) / 0.35);
+    --shadow-md: 0 4px 8px -2px rgb(var(--theme-shadow-color) / 0.50),
+                 0 8px 20px -4px rgb(var(--theme-shadow-color) / 0.40);
+    --shadow-lg: 0 8px 16px -4px rgb(var(--theme-shadow-color) / 0.55),
+                 0 20px 40px -8px rgb(var(--theme-shadow-color) / 0.50);
+
+    --diff-context-bg:         var(--surface-secondary);
+    --diff-context-linenum-bg: var(--surface-secondary);
+
+    --diff-gutter-bg:     var(--theme-sorbet-100);
+    --diff-gutter-border: var(--theme-sorbet-300);
+    --diff-gutter-text:   var(--theme-sorbet-500);
+
+    --diff-hunk-strip-bg: var(--theme-accent-subtle);
+
+    /* sorbet-300 sat too close to the card surface to read as a pill. */
+    --status-modified-bg:   var(--theme-sorbet-400);
+    --status-modified-text: var(--theme-sorbet-800);
+
+    --syntax-keyword:  #f19ae8;
+    --syntax-string:   #86efac;
+    --syntax-number:   #fdba74;
+    --syntax-comment:  var(--theme-sorbet-500);
+    --syntax-function: #7cc0ff;
+    --syntax-class:    #ffd479;
+    --syntax-builtin:  #5fe4e8;
+    --syntax-operator: var(--theme-sorbet-700);
+    --syntax-name:     var(--text-primary);
+    --syntax-error:    var(--theme-del-marker);
+}

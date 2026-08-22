@@ -20,6 +20,23 @@ rather than refusing to start, so a stale shell profile cannot break the tool.
 |---|---|
 | `ledger` (default) | Warm paper and ink, single ochre accent |
 | `slate` | Cool neutral greys, indigo accent, squarer and denser |
+| `sorbet` | Bright and rounded, heavy outlines, turquoise accent |
+
+### Bring your own stylesheet
+
+A theme value that looks like a URL — anything starting `http://`, `https://`,
+`//`, or ending in `.css` — is treated as a stylesheet reference rather than a
+registry key, and the theme is named after the file:
+
+```bash
+difflicious --theme https://example.com/themes/midnight-neon.css   # → "Midnight Neon"
+```
+
+It still loads on top of `_contract.css`, so a custom stylesheet only has to
+supply a palette. Fonts are not fetched on its behalf — declare `@import` or
+`@font-face` inside the stylesheet if it needs them. Note that a remote URL means
+the page makes an external request, which `DIFFLICIOUS_DISABLE_GOOGLE_FONTS` does
+not cover.
 
 ## How the files fit together
 
@@ -78,10 +95,11 @@ knobs `--control-radius` and `--file-card-radius`.
 **Tighter or airier.** The space scale is a 4px grid (`--space-2xs` … `--space-4xl`).
 For the diff body specifically, `--diff-line-height` and `--diff-gutter-width`.
 
-**Different typefaces.** `--font-display` (wordmark), `--font-ui` (interface).
-`--font-mono` is set at runtime from `DIFFLICIOUS_FONT` and should not be
-hardcoded here. Remember to update the Google Fonts link in `base.html`, which
-sits behind the `DIFFLICIOUS_DISABLE_GOOGLE_FONTS` opt-out.
+**Different typefaces.** Set `--font-display` (wordmark) and `--font-ui`
+(interface) in the theme, and give the theme a `google_fonts_url` in the registry
+so its faces are fetched. Only the selected theme's fonts load, and only when
+`DIFFLICIOUS_DISABLE_GOOGLE_FONTS` is not set. `--font-mono` comes from
+`DIFFLICIOUS_FONT` at runtime and should not be hardcoded in a theme.
 
 **A whole new theme.** Copy `themes/ledger.css`, change the values, and register
 it in `AVAILABLE_THEMES` in `src/difflicious/config.py`:
@@ -125,9 +143,27 @@ declared in both blocks of a theme file. Test both, for each theme:
 DIFFLICIOUS_THEME=slate uv run python design-review/shoot.py <dir>
 ```
 
+## A theme may change more than colour
+
+Because a theme loads after the contract, it can override any token there.
+`slate` uses this to be squarer; `sorbet` goes further — fatter radii, a real
+outline on cards, pill-shaped controls, and its own rounded typeface. If a theme
+only changes hex values, it will look like a repaint of Ledger.
+
+Card edges have their own tokens (`--file-card-border-colour`,
+`--file-card-border-colour-hover`) precisely so a theme can outline cards heavily
+without making every control and divider heavy too.
+
+## Watch out for
+
+**Never reference another theme's private palette.** Tokens prefixed
+`--theme-<something>-*` belong to the theme that declares them. The contract and
+`styles.css` must only use semantic roles, which every theme declares. A rule
+pointing at `--theme-paper-500` silently resolves to nothing under Slate or
+Sorbet.
+
 ## Not yet built
 
 The theme is fixed for the life of the server process. Still to come: a picker in
-the UI that persists to `localStorage`, per-request selection, and pointing at a
-stylesheet outside the registry (a path or URL) so people can bring their own.
-The registry in `config.py` is the seam those will extend.
+the UI that persists to `localStorage`, and per-request selection. The registry
+in `config.py` is the seam those will extend.

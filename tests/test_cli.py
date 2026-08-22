@@ -138,3 +138,24 @@ class TestThemeSelection:
             runner.invoke(main, ["--theme", "slate"])
 
         assert os.environ.get("DIFFLICIOUS_THEME") == "slate"
+
+
+class TestThemeUrls:
+    """A URL is a valid --theme value and bypasses registry validation."""
+
+    def test_url_theme_is_accepted(self, monkeypatch):
+        monkeypatch.delenv("DIFFLICIOUS_THEME", raising=False)
+        runner = CliRunner()
+
+        with patch("difflicious.cli.run_server"):
+            result = runner.invoke(main, ["--theme", "https://example.com/neon.css"])
+
+        assert result.exit_code == 0
+        assert os.environ.get("DIFFLICIOUS_THEME") == "https://example.com/neon.css"
+
+    def test_error_message_mentions_the_url_option(self):
+        runner = CliRunner()
+        result = runner.invoke(main, ["--theme", "nonsense"])
+
+        assert result.exit_code != 0
+        assert ".css" in result.output

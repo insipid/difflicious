@@ -113,12 +113,13 @@ def main(
     # it. The app itself falls back to the default so a stale shell profile
     # cannot stop it starting.
     if theme is not None:
-        from difflicious.config import AVAILABLE_THEMES
+        from difflicious.config import AVAILABLE_THEMES, looks_like_stylesheet_url
 
-        if theme not in AVAILABLE_THEMES:
+        if not looks_like_stylesheet_url(theme) and theme not in AVAILABLE_THEMES:
             raise click.BadParameter(
                 f"unknown theme {theme!r}. "
-                f"Available: {', '.join(sorted(AVAILABLE_THEMES))}",
+                f"Available: {', '.join(sorted(AVAILABLE_THEMES))}, "
+                f"or a URL ending in .css",
                 param_hint="--theme",
             )
         os.environ["DIFFLICIOUS_THEME"] = theme

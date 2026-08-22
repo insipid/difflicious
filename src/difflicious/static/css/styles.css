@@ -7,11 +7,13 @@
  * === DESIGN TOKENS ===
  *
  * Every design decision — colour, spacing, radius, border width, typography,
- * shadow, motion, density — lives in `theme.css`, which is loaded before this
- * file. This file contains structure and layout only, and consumes tokens.
+ * shadow, motion, density — lives in `static/css/themes/`: `_contract.css`
+ * holds the theme-independent scales, and the selected theme supplies the
+ * palette. Both load before this file, which contains structure and layout only.
  *
  * Do not add literal colours, pixel radii or hardcoded spacing here. If a value
- * needs to be tunable, add a token to theme.css and reference it.
+ * needs to be tunable, add a token to the contract and reference it.
+ * See docs/THEMING.md.
  */
 
 
@@ -23,49 +25,6 @@
  * with semantic, reusable component classes that use the color variables
  * defined above.
  */
-
-/* === STATUS BADGES === */
-.status-badge {
-    display: inline-block;
-    font-size: 0.75rem; /* text-xs */
-    padding: 0.25rem 0.5rem; /* px-2 py-1 */
-    border-radius: 0.25rem; /* rounded */
-    flex-shrink: 0;
-}
-
-.status-badge-added {
-    background-color: var(--semantic-success-bg-subtle);
-    color: var(--semantic-success-text-strong);
-}
-
-.status-badge-deleted {
-    background-color: var(--semantic-danger-bg-subtle);
-    color: var(--semantic-danger-text-strong);
-}
-
-.status-badge-renamed {
-    background-color: var(--semantic-warning-bg-subtle);
-    color: var(--semantic-warning-text-strong);
-}
-
-.status-badge-modified {
-    background-color: var(--color-neutral-100);
-    color: var(--color-neutral-500);
-}
-
-/* Dark mode - use custom class to override */
-[data-theme="dark"] .status-badge-modified {
-    background-color: var(--color-neutral-800);
-    color: var(--color-neutral-500);
-}
-
-/* === FILE STATS (Addition/Deletion Counts) === */
-.file-stat {
-    display: inline-block;
-    padding: 0.25rem 0.5rem; /* px-2 py-1 */
-    border-radius: 0.25rem; /* rounded */
-    font-size: 0.75rem; /* text-xs */
-}
 
 .file-stat-addition {
     background-color: var(--semantic-success-bg-medium);
@@ -143,24 +102,18 @@
     box-shadow: var(--shadow-focus);
 }
 
-/* File card (the rounded container per file) */
-.file-card {
-    background: var(--surface-secondary);
-    border: 1px solid var(--border-default);
-    border-radius: 0.5rem;
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-}
 .file-card-header {
     color: var(--text-primary);
-    transition: background 0.15s;
+    transition: background var(--duration-fast) var(--ease-out);
 }
 .file-card-header:hover {
     background: var(--surface-tertiary);
 }
 .file-card-nav-btn {
     color: var(--text-tertiary);
-    border-radius: 0.25rem;
-    transition: color 0.15s, background 0.15s;
+    border-radius: var(--radius-xs);
+    transition: color var(--duration-fast) var(--ease-out),
+                background var(--duration-fast) var(--ease-out);
 }
 .file-card-nav-btn:hover {
     color: var(--text-secondary);
@@ -171,8 +124,8 @@
 .global-controls-btn {
     background: var(--surface-tertiary);
     color: var(--text-secondary);
-    border-radius: 0.375rem;
-    transition: background 0.15s;
+    border-radius: var(--control-radius);
+    transition: background var(--duration-fast) var(--ease-out);
 }
 .global-controls-btn:hover {
     background: var(--surface-tertiary);
@@ -198,9 +151,9 @@
 .diff-group-header-count {
     background: var(--surface-tertiary);
     color: var(--text-secondary);
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    padding: 0.1rem 0.5rem;
+    border-radius: var(--radius-pill);
+    font-size: var(--text-xs);
+    padding: var(--space-3xs) var(--space-sm);
 }
 
 /* Moved-file expansion strip */
@@ -1106,7 +1059,7 @@ a.u-text-tertiary:hover,
     position: relative;
     overflow: hidden;
     background: var(--surface-secondary);
-    border: var(--file-card-border-width) solid var(--border-default);
+    border: var(--file-card-border-width) solid var(--file-card-border-colour);
     border-radius: var(--file-card-radius);
     box-shadow: var(--file-card-shadow);
     transition: box-shadow var(--duration-base) var(--ease-out),
@@ -1115,7 +1068,7 @@ a.u-text-tertiary:hover,
 
 .file-card:hover {
     box-shadow: var(--file-card-shadow-hover);
-    border-color: var(--border-strong);
+    border-color: var(--file-card-border-colour-hover);
 }
 
 .file-card::before {

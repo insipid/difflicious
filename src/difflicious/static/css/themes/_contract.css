@@ -121,6 +121,10 @@
     /* File card */
     --file-card-radius:        var(--radius-md);
     --file-card-border-width:  var(--border-width-hairline);
+    /* Separate from --border-default so a theme can outline cards heavily
+     * without making every control and divider heavy too. */
+    --file-card-border-colour:       var(--border-default);
+    --file-card-border-colour-hover: var(--border-strong);
     --file-card-accent-width:  var(--border-width-accent);  /* status strip on left edge */
     --file-card-accent-opacity: 0.65;
     --file-card-header-height: 2.75rem;
@@ -274,32 +278,24 @@
 
     /* Neutral ramp — consumed by the Tailwind build and legacy template classes.
      * Light theme: paper ramp, low → high. */
-    --color-neutral-50:  var(--theme-paper-50);
-    --color-neutral-100: var(--theme-paper-100);
-    --color-neutral-200: var(--theme-paper-200);
-    --color-neutral-300: var(--theme-paper-300);
-    --color-neutral-400: var(--theme-paper-500);
-    --color-neutral-500: var(--theme-paper-600);
-    --color-neutral-600: var(--theme-paper-700);
-    --color-neutral-700: var(--theme-paper-800);
-    --color-neutral-800: var(--theme-paper-900);
-    --color-neutral-900: var(--theme-paper-900);
+    /* Mapped onto semantic roles, never onto a theme's own ramp: --theme-paper-*
+     * exists only in Ledger, so pointing here at that ramp silently resolved to
+     * nothing under any other theme. */
+    --color-neutral-50:  var(--surface-secondary);
+    --color-neutral-100: var(--surface-tertiary);
+    --color-neutral-200: var(--border-subtle);
+    --color-neutral-300: var(--border-default);
+    --color-neutral-400: var(--text-disabled);
+    --color-neutral-500: var(--text-tertiary);
+    --color-neutral-600: var(--text-secondary);
+    --color-neutral-700: var(--text-secondary);
+    --color-neutral-800: var(--text-primary);
+    --color-neutral-900: var(--text-primary);
 }
 
 [data-theme="dark"] {
-    /* Neutral ramp inverts in dark so legacy `bg-neutral-50` style hooks
-     * continue to mean "subtle surface" rather than "near-white". */
-    --color-neutral-50:  var(--theme-ink-900);
-    --color-neutral-100: var(--theme-ink-850);
-    --color-neutral-200: var(--theme-ink-800);
-    --color-neutral-300: var(--theme-ink-700);
-    --color-neutral-400: var(--theme-ink-400);
-    --color-neutral-500: var(--theme-ink-400);
-    --color-neutral-600: var(--theme-ink-600);
-    --color-neutral-700: var(--theme-ink-200);
-    --color-neutral-800: var(--theme-ink-100);
-    --color-neutral-900: var(--theme-ink-100);
-
+    /* The neutral ramp needs no dark override now that it resolves through
+     * semantic roles: each theme already declares those per mode. */
     --color-warning-bg-100:   var(--accent-subtle);
     --color-warning-text-800: var(--accent-base);
 }

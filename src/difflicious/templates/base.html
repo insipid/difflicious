@@ -32,9 +32,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="{{ font_config.selected_font.google_fonts_url }}" rel="stylesheet">
-    <!-- UI + wordmark typefaces -->
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap"
-        rel="stylesheet">
+    <!-- UI + wordmark typefaces, declared by the selected theme -->
+    {% if theme_config.selected_theme.google_fonts_url %}
+    <link href="{{ theme_config.selected_theme.google_fonts_url }}" rel="stylesheet">
+    {% endif %}
     {% endif %}
 
     <!-- Favicon -->
@@ -44,9 +45,14 @@
     <link rel="stylesheet"
         href="{{ url_for('static', filename='css/themes/' + theme_config.contract_file) }}">
 
-    <!-- Selected theme: the palette and semantic roles (DIFFLICIOUS_THEME) -->
+    <!-- Selected theme: the palette and semantic roles (DIFFLICIOUS_THEME).
+         A theme given as a URL is linked directly; built-ins are served locally. -->
+    {% if theme_config.selected_theme.url %}
+    <link rel="stylesheet" href="{{ theme_config.selected_theme.url }}">
+    {% else %}
     <link rel="stylesheet"
         href="{{ url_for('static', filename='css/themes/' + theme_config.selected_theme.file) }}">
+    {% endif %}
 
     <!-- Component styles (structure only; consumes the tokens above) -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
