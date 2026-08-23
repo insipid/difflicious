@@ -64,7 +64,7 @@ A lightweight local web application for developers to visualize git diffs with a
 - Implement advanced display options (more git data)
 - Add keyboard shortcuts and accessibility
 - Polish UI/UX with responsive design
-- **Sticky file headers** - File headers that stick to top during scroll (attempted but needs further investigation with CSS positioning in Alpine.js/Tailwind context)
+- ~~Sticky file headers~~ - implemented; headers pin while scrolling a diff
 
 ## Current Status (as of Version 0.10.0)
 - ✅ Phase 1: Project Setup & Core Backend - COMPLETE

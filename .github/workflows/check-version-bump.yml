@@ -1,11 +1,10 @@
 name: Check Version Bump
 
+# `pull_request` only. Registering `pull_request_target` as well ran the job a
+# second time with the base checked out as the head, so it compared main against
+# main and reported "Version was not bumped" on every genuine version bump.
 on:
   pull_request:
-    paths:
-      - 'src/difflicious/__init__.py'
-      - 'CHANGELOG.md'
-  pull_request_target:
     paths:
       - 'src/difflicious/__init__.py'
       - 'CHANGELOG.md'

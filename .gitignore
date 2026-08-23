@@ -120,3 +120,7 @@ vendor/
 # Git worktrees live inside the repo so they are easy to find; git tracks them
 # via .git/worktrees, so the checkouts themselves must never be added.
 .worktrees/
+
+# Working notes. The rule is shared so everyone gets the same convention and
+# their own private file; the contents are never committed.
+.notes/
