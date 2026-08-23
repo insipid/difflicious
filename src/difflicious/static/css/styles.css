@@ -609,7 +609,7 @@ header {
 
 .file-diff {
     position: relative;
-    scroll-margin-top: calc(var(--file-header-sticky-offset) + var(--spacing-sm));
+    scroll-margin-top: var(--file-header-sticky-offset);
     border-left: none;
     border-right: none;
     border-top: none;
@@ -620,7 +620,7 @@ header {
     position: sticky;
     top: var(--file-header-sticky-offset);
     z-index: var(--z-file-header);
-    scroll-margin-top: calc(var(--file-header-sticky-offset) + var(--spacing-sm));
+    scroll-margin-top: var(--file-header-sticky-offset);
 }
 
 .file-diff .file-header-spacer {

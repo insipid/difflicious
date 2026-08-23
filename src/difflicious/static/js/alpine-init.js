@@ -8,6 +8,7 @@ import Alpine from 'alpinejs';
 // Import stores
 import diffStore from './stores/diffStore.js';
 import filtersStore from './stores/filtersStore.js';
+import navStore from './stores/navStore.js';
 import searchStore from './stores/searchStore.js';
 import themeStore from './stores/themeStore.js';
 
@@ -44,6 +45,7 @@ document.addEventListener('alpine:init', () => {
     Alpine.store('search', searchStore);
     Alpine.store('theme', themeStore);
     Alpine.store('filters', filtersStore);
+    Alpine.store('nav', navStore);
 
     if (DEBUG) {
         console.log('[Alpine] Stores registered:', {

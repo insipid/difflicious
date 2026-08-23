@@ -20,6 +20,9 @@ export default {
         this.unstaged = unstaged;
         this.untracked = untracked;
         this.applyVisibility();
+        // Runs after Alpine has applied x-show, so this is the first point at
+        // which the visible file list is accurate.
+        if (window.Alpine?.store('nav')) window.Alpine.store('nav').rebuild();
     },
 
     /**
@@ -31,6 +34,8 @@ export default {
         this[name] = checked;
         this.applyVisibility();
         this.persistToURL();
+        // The file dropdown lists only visible files, so it has to follow.
+        if (window.Alpine?.store('nav')) window.Alpine.store('nav').rebuild();
     },
 
     applyVisibility() {
