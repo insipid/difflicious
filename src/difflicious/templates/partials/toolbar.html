@@ -40,8 +40,12 @@
                     @change="$store.nav.jumpToFile($event.target.value)"
                     x-show="$store.nav.files.length > 1"
                     x-cloak>
-                    <template x-for="file in $store.nav.files" :key="file.id">
-                        <option :value="file.id" x-text="file.label"></option>
+                    <template x-for="group in $store.nav.fileGroups" :key="group.label">
+                        <optgroup :label="group.label || 'Files'">
+                            <template x-for="file in group.files" :key="file.id">
+                                <option :value="file.id" x-text="file.label"></option>
+                            </template>
+                        </optgroup>
                     </template>
                 </select>
 

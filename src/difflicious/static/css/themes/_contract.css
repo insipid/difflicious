@@ -112,6 +112,10 @@
 :root {
     /* Toolbar */
     --toolbar-height:        3.25rem;
+    /* --toolbar-height-measured is set at runtime from the bar's real height,
+     * which grows when the controls wrap at a narrow window. It is deliberately
+     * a separate token: writing the measurement back into --toolbar-height would
+     * feed into the bar's own min-height, and it could then never shrink again. */
     --toolbar-padding-x:     var(--space-xl);
     --toolbar-gap:           var(--space-lg);
     --toolbar-rule-width:    var(--border-width-thick);   /* accent rule under toolbar */
@@ -192,7 +196,7 @@
      * beneath it, so this is the contract between the two layers: how far down
      * a file header pins, and how much room `scroll-margin-top` must leave when
      * jumping to a file. It must equal the toolbar's height. */
-    --file-header-sticky-offset: var(--toolbar-height);
+    --file-header-sticky-offset: var(--toolbar-height-measured, var(--toolbar-height));
     /* Masking strip above the sticky file header. Zero by default: the header is
      * opaque, so it needs no mask, and any height here reads as an empty bar
      * inside every card rather than as space between them. */

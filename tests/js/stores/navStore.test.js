@@ -13,11 +13,24 @@ function addToolbar(height = 52) {
     return bar;
 }
 
-function addFile(id, { visible = true, headerTop = 500 } = {}) {
+/**
+ * Wrap files in a rendered group, the way diff_groups.html does.
+ * @param {string} label - Heading text, e.g. "Staged" or "Changes vs trunk"
+ * @returns {HTMLElement} The group element to add files into
+ */
+function addGroup(label) {
+    const group = document.createElement('div');
+    group.className = 'diff-group';
+    group.innerHTML = `<h3 class="diff-group-header-label">${label}</h3>`;
+    document.body.appendChild(group);
+    return group;
+}
+
+function addFile(id, { visible = true, headerTop = 500, parent = null } = {}) {
     const el = document.createElement('div');
     el.dataset.file = id;
     el.innerHTML = '<div class="file-header-wrapper"></div>';
-    document.body.appendChild(el);
+    (parent || document.body).appendChild(el);
 
     const header = el.querySelector('.file-header-wrapper');
     Object.defineProperty(el, 'offsetParent', { value: visible ? document.body : null });
@@ -31,6 +44,7 @@ describe('navStore', () => {
     beforeEach(() => {
         document.body.innerHTML = '';
         navStore.files = [];
+        navStore.fileGroups = [];
         navStore.currentFile = '';
         window.matchMedia = jest.fn(() => ({ matches: false }));
         window.scrollTo = jest.fn();
@@ -61,6 +75,37 @@ describe('navStore', () => {
             navStore.rebuild();
 
             expect(navStore.files[0].label).toBe('src/deep/file.py');
+        });
+
+        test('mirrors the page grouping, keeping same-named files apart', () => {
+            const staged = addGroup('Staged');
+            const unstaged = addGroup('Unstaged');
+            addFile('staged:same.py', { parent: staged });
+            addFile('unstaged:same.py', { parent: unstaged });
+
+            navStore.rebuild();
+
+            expect(navStore.fileGroups.map((g) => g.label)).toEqual(['Staged', 'Unstaged']);
+            expect(navStore.fileGroups[0].files.map((f) => f.id)).toEqual(['staged:same.py']);
+            expect(navStore.fileGroups[1].files.map((f) => f.id)).toEqual(['unstaged:same.py']);
+        });
+
+        test('uses the rendered heading, so the compared ref shows through', () => {
+            const changes = addGroup('Changes vs trunk');
+            addFile('changes:a.py', { parent: changes });
+
+            navStore.rebuild();
+
+            expect(navStore.fileGroups[0].label).toBe('Changes vs trunk');
+        });
+
+        test('falls back to a single unlabelled group when files are not grouped', () => {
+            addFile('changes:a.py');
+
+            navStore.rebuild();
+
+            expect(navStore.fileGroups).toHaveLength(1);
+            expect(navStore.fileGroups[0].label).toBe('');
         });
 
         test('drops a selection that has been filtered away', () => {

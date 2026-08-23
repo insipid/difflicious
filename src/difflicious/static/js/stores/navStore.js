@@ -17,11 +17,13 @@ const BOTTOM_EPSILON_PX = 2;
 
 export default {
     files: [],
+    fileGroups: [],
     currentFile: '',
     atTop: true,
     atBottom: false,
 
     init() {
+        this.observeToolbarHeight();
         this.observeScrollPosition();
 
         // Stores initialise before Alpine walks the DOM, and until it has,
@@ -41,14 +43,51 @@ export default {
             .filter((el) => el.offsetParent !== null)
             .map((el) => ({
                 id: el.dataset.file,
-                label: el.dataset.file.replace(/^[^:]+:/, '')
+                label: el.dataset.file.replace(/^[^:]+:/, ''),
+                group: this.groupHeadingFor(el)
             }));
+
+        this.fileGroups = this.groupFiles(this.files);
 
         // A file that has just been filtered away must not stay selected.
         if (!this.files.some((f) => f.id === this.currentFile)) {
             this.currentFile = this.files.length ? this.files[0].id : '';
         }
         this.updateCurrentFile();
+    },
+
+    /**
+     * The heading a file sits under on the page, read from the rendered
+     * heading rather than derived from the id. The same path can appear under
+     * both Staged and Unstaged, and the combined group names the ref it is
+     * compared against — so the dropdown has to say exactly what the page says.
+     *
+     * @param {HTMLElement} el - The file element
+     * @returns {string} Heading text, or '' when the files are not grouped
+     */
+    groupHeadingFor(el) {
+        const heading = el
+            .closest('.diff-group')
+            ?.querySelector('.diff-group-header-label');
+        return heading ? heading.textContent.trim() : '';
+    },
+
+    /**
+     * Bucket files under their headings, preserving document order.
+     * @param {Array<object>} files - Flat file list
+     * @returns {Array<object>} Groups of {label, files}
+     */
+    groupFiles(files) {
+        const groups = [];
+        files.forEach((file) => {
+            const last = groups[groups.length - 1];
+            if (last && last.label === file.group) {
+                last.files.push(file);
+            } else {
+                groups.push({ label: file.group, files: [file] });
+            }
+        });
+        return groups;
     },
 
     /**
@@ -118,6 +157,25 @@ export default {
 
         const file = pinned.closest('[data-file]');
         if (file) this.currentFile = file.dataset.file;
+    },
+
+    /**
+     * Publish the toolbar's real height so file headers pin directly beneath it
+     * even when the bar wraps to two rows on a narrow window. The nominal token
+     * is a starting point only; the bar's height depends on its contents.
+     */
+    observeToolbarHeight() {
+        const bar = document.querySelector('.app-toolbar');
+        if (!bar || typeof ResizeObserver === 'undefined') return;
+
+        const publish = () => {
+            const height = Math.round(bar.getBoundingClientRect().height);
+            document.documentElement.style.setProperty(
+                '--toolbar-height-measured', `${height}px`
+            );
+        };
+        publish();
+        new ResizeObserver(publish).observe(bar);
     },
 
     /**
