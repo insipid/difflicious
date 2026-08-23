@@ -1,5 +1,9 @@
 ## Tailwind Design System (Extracted)
 
+> **Archived.** This document describes work that is finished or a direction that
+> was not taken. It is kept for context and is not a description of current
+> behaviour. See `docs/internal/archive/README.md`.
+
 This document captures the existing design system already present in the app
 and shows how it is now applied via CVA-style class recipes for consistency.
 

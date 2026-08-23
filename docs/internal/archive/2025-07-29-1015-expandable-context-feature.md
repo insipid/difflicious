@@ -1,5 +1,9 @@
 # Plan: Expandable Context Feature for Difflicious
 
+> **Archived.** This document describes work that is finished or a direction that
+> was not taken. It is kept for context and is not a description of current
+> behaviour. See `docs/internal/archive/README.md`.
+
 **Date**: 2025-07-29 10:15 AM
 **Feature**: Expandable Context Lines in Diff View
 **Status**: Planning Complete, Ready for Implementation

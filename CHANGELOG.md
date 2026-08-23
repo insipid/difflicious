@@ -31,7 +31,7 @@ Automated version management and release processes to streamline development wor
 
 ### Presentation Layer Separation
 
-Enforced explicit contracts between the data, service, template, CSS, and JS layers. Full design rationale in [`docs/presentation-layer-separation.md`](docs/presentation-layer-separation.md).
+Enforced explicit contracts between the data, service, template, CSS, and JS layers. Full design rationale in [`docs/internal/archive/presentation-layer-separation.md`](docs/internal/archive/presentation-layer-separation.md).
 
 ### Changed
 - **Removed dual state** — deleted `state.js` and `file-operations.js`; `diffStore` is now the single source of truth for expansion state

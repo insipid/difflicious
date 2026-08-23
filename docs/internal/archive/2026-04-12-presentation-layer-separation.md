@@ -1,12 +1,16 @@
 # Presentation Layer Separation — Implementation Plan
 
+> **Archived.** This document describes work that is finished or a direction that
+> was not taken. It is kept for context and is not a description of current
+> behaviour. See `docs/internal/archive/README.md`.
+
 **Goal:** Enforce four explicit contracts between the data, service, template, CSS, and JS layers so each layer can be changed independently without touching the others.
 
 **Architecture:** Server renders structure and data as HTML with `data-*` attributes; client owns all interactivity via Alpine stores (single state system). Templates use only semantic CSS class names; all colour lives in `styles.css` variables.
 
 **Tech Stack:** Python/Flask, Jinja2, Alpine.js, Tailwind CSS, vanilla ES6 modules, pytest, Jest
 
-**Spec:** `docs/presentation-layer-separation.md`
+**Spec:** `docs/internal/archive/presentation-layer-separation.md`
 
 **Verification command (run after every PR):** `./cilicious.sh`
 

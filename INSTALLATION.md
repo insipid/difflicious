@@ -13,7 +13,7 @@ This guide covers installing and running difflicious locally for developers.
 ## Quick Start
 
 For the fastest path to running difflicious, follow the quick-start steps in
-the [README](../README.md#installation--quick-start). This guide focuses on
+the [README](README.md#installation--quick-start). This guide focuses on
 detailed configuration, Docker workflows, and troubleshooting.
 
 ## PyPI Installation
@@ -287,10 +287,10 @@ docker logs <container-id>
 docker images insipid/difflicious
 ```
 
-For more troubleshooting help, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+For more troubleshooting help, see [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
 
 ## Next Steps
 
-- Check [troubleshooting](TROUBLESHOOTING.md) for common issues
-- Read the main [README](../README.md) for features
-- Explore [DEVELOPING.md](../DEVELOPING.md) for development setup and workflow
+- Check [troubleshooting](docs/TROUBLESHOOTING.md) for common issues
+- Read the main [README](README.md) for features
+- Explore [DEVELOPING.md](DEVELOPING.md) for development setup and workflow

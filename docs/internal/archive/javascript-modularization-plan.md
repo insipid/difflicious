@@ -1,17 +1,21 @@
 # JavaScript Modularization Plan
 
+> **Archived.** This document describes work that is finished or a direction that
+> was not taken. It is kept for context and is not a description of current
+> behaviour. See `docs/internal/archive/README.md`.
+
 **Date:** 2025-11-17
 **Status:** Implemented (2026-02-06)
 **Objective:** Split `diff-interactions.js` (1,661 lines) into focused, testable modules
 **Reference:** Section 3.1 of
-`docs/internal/reports/2025-11-17-codebase-improvements-analysis.md`
+`docs/internal/reports/2025-11-17-1730-codebase-improvements-analysis.md`
 
 ## Status Update (2026-02-06)
 
 - The modularization has been completed with ES6 modules in
   `src/difflicious/static/js/modules/`.
 - The legacy monolithic file was archived to
-  `docs/reference/diff-interactions.js.reference`.
+  the pre-split file in git history (`git log --all -- src/difflicious/static/js/diff-interactions.js`).
 - `src/difflicious/static/js/main.js` coordinates module initialization.
 
 ## Current State Analysis (Historical)
