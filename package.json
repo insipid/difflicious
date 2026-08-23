@@ -26,6 +26,10 @@
     "tailwindcss": "^3.4.17"
   },
   "type": "module",
+  "engines": {
+    "node": ">=22.13",
+    "pnpm": ">=11"
+  },
   "jest": {
     "testEnvironment": "jsdom",
     "testMatch": [
