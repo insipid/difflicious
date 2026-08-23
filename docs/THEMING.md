@@ -22,6 +22,24 @@ rather than refusing to start, so a stale shell profile cannot break the tool.
 | `slate` | Cool neutral greys, indigo accent, squarer and denser |
 | `sorbet` | Bright and rounded, heavy outlines, turquoise accent |
 
+### What they look like
+
+Thumbnails — click any one for the full-size image.
+
+| Ledger | Slate | Sorbet |
+|:---:|:---:|:---:|
+| <a href="screenshots/themes/ledger-light.png"><img src="screenshots/themes/ledger-light.png" alt="Ledger, light mode" width="260"></a> | <a href="screenshots/themes/slate-light.png"><img src="screenshots/themes/slate-light.png" alt="Slate, light mode" width="260"></a> | <a href="screenshots/themes/sorbet-light.png"><img src="screenshots/themes/sorbet-light.png" alt="Sorbet, light mode" width="260"></a> |
+| <a href="screenshots/themes/ledger-dark.png"><img src="screenshots/themes/ledger-dark.png" alt="Ledger, dark mode" width="260"></a> | <a href="screenshots/themes/slate-dark.png"><img src="screenshots/themes/slate-dark.png" alt="Slate, dark mode" width="260"></a> | <a href="screenshots/themes/sorbet-dark.png"><img src="screenshots/themes/sorbet-dark.png" alt="Sorbet, dark mode" width="260"></a> |
+
+Light on the top row, dark on the bottom. Every theme ships both; neither is a
+filter over the other.
+
+Regenerate them all after changing a theme:
+
+```bash
+uv run python scripts/screenshot.py --all-themes
+```
+
 ### Bring your own stylesheet
 
 A theme value that looks like a URL — anything starting `http://`, `https://`,

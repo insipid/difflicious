@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate docs/screenshots/light.png and docs/screenshots/dark.png.
+Generate the screenshots used by README.md and docs/THEMING.md.
 
 The script spins up a temporary git repo containing a realistic staged diff,
 starts a difflicious server pointed at that repo, takes screenshots in both
@@ -12,9 +12,11 @@ Prerequisites (one-time setup):
     uv run playwright install chromium
 
 Usage:
-    uv run python scripts/screenshot.py
+    uv run python scripts/screenshot.py                # README shots, default theme
+    uv run python scripts/screenshot.py --all-themes   # one pair per theme
 """
 
+import argparse
 import os
 import subprocess
 import tempfile
@@ -23,6 +25,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 from textwrap import dedent
+from typing import Any, Optional
 
 # ---------------------------------------------------------------------------
 # Output location
@@ -188,6 +191,61 @@ def wait_for_server(url: str, timeout: float = 15.0) -> None:
 # ---------------------------------------------------------------------------
 
 
+def _capture(
+    sync_playwright: Any, repo: Path, theme: Optional[str], out_dir: Path
+) -> None:
+    """Run a server for one theme and shoot it in both colour schemes."""
+    env = {
+        **os.environ,
+        "DIFFLICIOUS_PORT": str(PORT),
+        "DIFFLICIOUS_HOST": "127.0.0.1",
+    }
+    if theme:
+        env["DIFFLICIOUS_THEME"] = theme
+
+    server = subprocess.Popen(
+        ["uv", "run", "difflicious"],
+        cwd=repo,
+        env=env,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    try:
+        wait_for_server(URL)
+        with sync_playwright() as p:
+            for scheme in ("light", "dark"):
+                browser = p.chromium.launch()
+                ctx = browser.new_context(
+                    viewport={"width": 1440, "height": 900},
+                    color_scheme=scheme,
+                )
+                page = ctx.new_page()
+                page.goto(URL)
+                # "networkidle" never fires because the SSE auto-reload
+                # connection is always open.  Wait for the page to load,
+                # then block until at least one diff file header appears.
+                page.wait_for_load_state("load")
+                page.wait_for_selector(".file-header", timeout=15_000)
+
+                # Files are collapsed by default — click each header to expand
+                for header in page.query_selector_all(".file-header"):
+                    header.click()
+                page.wait_for_timeout(400)  # let expansion animate
+
+                # Scroll back to the top so the nav bar is in frame
+                page.evaluate("window.scrollTo(0, 0)")
+                page.wait_for_timeout(150)  # let scroll settle
+
+                stem = f"{theme}-{scheme}" if theme else scheme
+                out = out_dir / f"{stem}.png"
+                page.screenshot(path=str(out))
+                print(f"  ✓ {stem:16s}  →  {out}")
+                browser.close()
+    finally:
+        server.terminate()
+        server.wait()
+
+
 def main() -> None:
     try:
         from playwright.sync_api import sync_playwright  # noqa: PLC0415
@@ -197,60 +255,32 @@ def main() -> None:
             "Run:  uv add --dev playwright && uv run playwright install chromium"
         ) from None
 
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--all-themes",
+        action="store_true",
+        help="Capture every registered theme into docs/screenshots/themes/",
+    )
+    parser.add_argument("--out", type=Path, default=None, help="Output directory")
+    args = parser.parse_args()
+
+    if args.all_themes:
+        from difflicious.config import AVAILABLE_THEMES  # noqa: PLC0415
+
+        themes: list[Optional[str]] = list(AVAILABLE_THEMES)
+        out_dir = args.out or (OUT_DIR / "themes")
+    else:
+        # The README shows the default theme; keep the historical filenames.
+        themes = [None]
+        out_dir = args.out or OUT_DIR
+
+    out_dir.mkdir(parents=True, exist_ok=True)
 
     with tempfile.TemporaryDirectory() as tmp_str:
         repo = make_fixture_repo(Path(tmp_str))
-
-        env = {
-            **os.environ,
-            "DIFFLICIOUS_PORT": str(PORT),
-            "DIFFLICIOUS_HOST": "127.0.0.1",
-        }
-        server = subprocess.Popen(
-            ["uv", "run", "difflicious"],
-            cwd=repo,
-            env=env,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-
-        try:
-            print(f"Waiting for server on {URL} …")
-            wait_for_server(URL)
-
-            with sync_playwright() as p:
-                for scheme in ("light", "dark"):
-                    browser = p.chromium.launch()
-                    ctx = browser.new_context(
-                        viewport={"width": 1440, "height": 900},
-                        color_scheme=scheme,
-                    )
-                    page = ctx.new_page()
-                    page.goto(URL)
-                    # "networkidle" never fires because the SSE auto-reload
-                    # connection is always open.  Wait for the page to load,
-                    # then block until at least one diff file header appears.
-                    page.wait_for_load_state("load")
-                    page.wait_for_selector(".file-header", timeout=15_000)
-
-                    # Files are collapsed by default — click each header to expand
-                    for header in page.query_selector_all(".file-header"):
-                        header.click()
-                    page.wait_for_timeout(400)  # let expansion animate
-
-                    # Scroll back to the top so the nav bar is in frame
-                    page.evaluate("window.scrollTo(0, 0)")
-                    page.wait_for_timeout(150)  # let scroll settle
-
-                    out = OUT_DIR / f"{scheme}.png"
-                    page.screenshot(path=str(out))
-                    print(f"  ✓ {scheme:5s}  →  {out}")
-                    browser.close()
-
-        finally:
-            server.terminate()
-            server.wait()
+        print(f"Waiting for server on {URL} …")
+        for theme in themes:
+            _capture(sync_playwright, repo, theme, out_dir)
 
     print("Done.")
 
