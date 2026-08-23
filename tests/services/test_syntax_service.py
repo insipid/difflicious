@@ -10,8 +10,7 @@ class TestSyntaxHighlightingService:
         """Test service initialization."""
         service = SyntaxHighlightingService()
 
-        assert service.light_formatter is not None
-        assert service.dark_formatter is not None
+        assert service.formatter is not None
         assert service._lexer_cache == {}
         assert isinstance(service.language_map, dict)
         assert "py" in service.language_map
@@ -166,17 +165,33 @@ class TestSyntaxHighlightingService:
         """Test that formatter is configured correctly."""
         service = SyntaxHighlightingService()
 
-        light_formatter = service.light_formatter
-        dark_formatter = service.dark_formatter
+        formatter = service.formatter
 
-        # Check light formatter settings
-        assert light_formatter.nowrap is True  # Should not wrap in <pre> tags
-        assert light_formatter.noclasses is True  # Should use inline styles
-        assert light_formatter.style.name == "default"  # Should use default style
-        assert light_formatter.cssclass == "highlight"  # Should use correct CSS class
+        assert formatter.nowrap is True  # Should not wrap in <pre> tags
+        assert formatter.noclasses is False  # Must emit classes, not inline styles
+        assert formatter.cssclass == "highlight"  # Should use correct CSS class
 
-        # Check dark formatter settings
-        assert dark_formatter.nowrap is True  # Should not wrap in <pre> tags
-        assert dark_formatter.noclasses is True  # Should use inline styles
-        assert dark_formatter.style.name == "one-dark"  # Should use one-dark style
-        assert dark_formatter.cssclass == "highlight"  # Should use correct CSS class
+    def test_highlighting_is_theme_independent(self):
+        """Both themes must share one set of markup.
+
+        Highlighting happens once on the server while the theme is switched in
+        the browser, so the markup cannot carry theme-specific colours.
+        """
+        service = SyntaxHighlightingService()
+
+        light = service.highlight_diff_line("def f(): pass", "a.py", theme="light")
+        dark = service.highlight_diff_line("def f(): pass", "a.py", theme="dark")
+
+        assert light == dark
+        assert "style=" not in light  # No inline colours to override
+        assert 'class="k"' in light  # Token classes the stylesheet can target
+
+    def test_css_styles_resolve_from_theme_variables(self):
+        """Token colours must come from CSS variables, not baked-in hex."""
+        service = SyntaxHighlightingService()
+
+        css = service.get_css_styles()
+
+        assert "var(--syntax-keyword)" in css
+        assert "var(--syntax-string)" in css
+        assert "#" not in css  # No hardcoded colours

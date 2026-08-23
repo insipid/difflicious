@@ -624,3 +624,106 @@ class TestUtilityEndpoints:
         data = response.get_json()
         assert "version" in data
         assert data["version"] == 3
+
+
+class TestThemeConfig:
+    """Theme configuration resolution."""
+
+    def test_defaults_to_ledger(self, monkeypatch):
+        from difflicious.config import get_theme_config
+
+        monkeypatch.delenv("DIFFLICIOUS_THEME", raising=False)
+        config = get_theme_config()
+
+        assert config["selected_theme_key"] == "ledger"
+        assert config["selected_theme"]["file"] == "ledger.css"
+
+    def test_selects_a_registered_theme(self, monkeypatch):
+        from difflicious.config import get_theme_config
+
+        monkeypatch.setenv("DIFFLICIOUS_THEME", "slate")
+        config = get_theme_config()
+
+        assert config["selected_theme_key"] == "slate"
+        assert config["selected_theme"]["file"] == "slate.css"
+
+    def test_unknown_theme_falls_back_rather_than_failing(self, monkeypatch):
+        """A typo in a shell profile must not stop the tool starting."""
+        from difflicious.config import get_theme_config
+
+        monkeypatch.setenv("DIFFLICIOUS_THEME", "not-a-theme")
+        config = get_theme_config()
+
+        assert config["selected_theme_key"] == "ledger"
+
+    def test_every_registered_theme_file_exists(self):
+        """The registry must not point at a stylesheet that was never shipped."""
+        from pathlib import Path
+
+        import difflicious
+        from difflicious.config import AVAILABLE_THEMES, THEME_CONTRACT_FILE
+
+        themes_dir = Path(difflicious.__file__).parent / "static" / "css" / "themes"
+
+        assert (themes_dir / THEME_CONTRACT_FILE).is_file()
+        for key, entry in AVAILABLE_THEMES.items():
+            assert (themes_dir / entry["file"]).is_file(), f"{key} stylesheet missing"
+
+    def test_selected_theme_stylesheet_is_linked_in_the_page(self, monkeypatch):
+        from difflicious.app import create_app
+
+        monkeypatch.setenv("DIFFLICIOUS_THEME", "slate")
+        client = create_app().test_client()
+
+        html = client.get("/").get_data(as_text=True)
+
+        # Match the stylesheet link specifically. The page also renders the
+        # working tree's diff, which can mention these filenames as content.
+        assert 'href="/static/css/themes/_contract.css"' in html
+        assert 'href="/static/css/themes/slate.css"' in html
+        assert 'href="/static/css/themes/ledger.css"' not in html
+
+
+class TestThemeFromUrl:
+    """A theme given as a URL is named after its stylesheet."""
+
+    def test_recognises_stylesheet_references(self):
+        from difflicious.config import looks_like_stylesheet_url
+
+        assert looks_like_stylesheet_url("https://example.com/neon.css")
+        assert looks_like_stylesheet_url("http://example.com/neon.css")
+        assert looks_like_stylesheet_url("//cdn.example.com/neon.css")
+        assert looks_like_stylesheet_url("neon.css")
+        assert not looks_like_stylesheet_url("ledger")
+        assert not looks_like_stylesheet_url("slate")
+
+    def test_names_the_theme_after_the_css_file(self):
+        from difflicious.config import theme_from_url
+
+        entry = theme_from_url("https://example.com/css/midnight-neon.css")
+
+        assert entry["name"] == "Midnight Neon"
+        assert entry["url"] == "https://example.com/css/midnight-neon.css"
+
+    def test_url_theme_is_selected_and_linked_directly(self, monkeypatch):
+        from difflicious.app import create_app
+        from difflicious.config import get_theme_config
+
+        url = "https://example.com/themes/hot-pink.css"
+        monkeypatch.setenv("DIFFLICIOUS_THEME", url)
+
+        config = get_theme_config()
+        assert config["selected_theme"]["name"] == "Hot Pink"
+        assert config["selected_theme"]["url"] == url
+
+        html = create_app().test_client().get("/").get_data(as_text=True)
+        assert f'href="{url}"' in html
+        # The contract still loads: a custom theme only supplies a palette.
+        assert 'href="/static/css/themes/_contract.css"' in html
+
+    def test_url_theme_does_not_pull_google_fonts_on_its_behalf(self, monkeypatch):
+        from difflicious.config import get_theme_config
+
+        monkeypatch.setenv("DIFFLICIOUS_THEME", "https://example.com/x.css")
+
+        assert get_theme_config()["selected_theme"]["google_fonts_url"] == ""

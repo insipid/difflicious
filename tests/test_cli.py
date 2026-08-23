@@ -1,5 +1,6 @@
 """Tests for the CLI module."""
 
+import os
 from unittest.mock import patch
 
 from click.testing import CliRunner
@@ -106,3 +107,55 @@ class TestCLIErrorHandling:
 
         # Should exit with non-zero code due to unhandled exception
         assert result.exit_code != 0
+
+
+class TestThemeSelection:
+    """Theme selection via --theme / DIFFLICIOUS_THEME."""
+
+    def test_list_themes_shows_registry_and_marks_default(self):
+        runner = CliRunner()
+        result = runner.invoke(main, ["--list-themes"])
+
+        assert result.exit_code == 0
+        assert "ledger" in result.output
+        assert "slate" in result.output
+        assert "(default)" in result.output
+
+    def test_unknown_theme_is_rejected_with_the_valid_names(self):
+        runner = CliRunner()
+        result = runner.invoke(main, ["--theme", "nonsense"])
+
+        assert result.exit_code != 0
+        assert "unknown theme" in result.output
+        assert "ledger" in result.output
+
+    def test_theme_option_is_published_to_the_environment(self, monkeypatch):
+        """The app factory reads DIFFLICIOUS_THEME, so --theme must set it."""
+        monkeypatch.delenv("DIFFLICIOUS_THEME", raising=False)
+        runner = CliRunner()
+
+        with patch("difflicious.cli.run_server"):
+            runner.invoke(main, ["--theme", "slate"])
+
+        assert os.environ.get("DIFFLICIOUS_THEME") == "slate"
+
+
+class TestThemeUrls:
+    """A URL is a valid --theme value and bypasses registry validation."""
+
+    def test_url_theme_is_accepted(self, monkeypatch):
+        monkeypatch.delenv("DIFFLICIOUS_THEME", raising=False)
+        runner = CliRunner()
+
+        with patch("difflicious.cli.run_server"):
+            result = runner.invoke(main, ["--theme", "https://example.com/neon.css"])
+
+        assert result.exit_code == 0
+        assert os.environ.get("DIFFLICIOUS_THEME") == "https://example.com/neon.css"
+
+    def test_error_message_mentions_the_url_option(self):
+        runner = CliRunner()
+        result = runner.invoke(main, ["--theme", "nonsense"])
+
+        assert result.exit_code != 0
+        assert ".css" in result.output

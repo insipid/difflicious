@@ -147,6 +147,7 @@ Difflicious supports the following environment variables for configuration:
 | `DIFFLICIOUS_PORT` | `5000` | Port to run the web server on |
 | `DIFFLICIOUS_HOST` | `127.0.0.1` | Host to bind the web server to |
 | `DIFFLICIOUS_FONT` | `jetbrains-mono` | Programming font (see `--list-fonts`) |
+| `DIFFLICIOUS_THEME` | `ledger` | Colour theme (see `--list-themes`) |
 | `DIFFLICIOUS_DISABLE_GOOGLE_FONTS` | `false` | Disable Google Fonts CDN |
 | `DIFFLICIOUS_AUTO_RELOAD` | `true` | Enable auto-reload on file changes |
 | `DIFFLICIOUS_WATCH_DEBOUNCE` | `1.0` | Debounce time (seconds) for file watcher |
@@ -301,7 +302,7 @@ All API endpoints return JSON responses with consistent error handling via the b
 **Modifying Styles:**
 1. Add Tailwind utilities in templates for layout/spacing
 2. Add custom styles in `static/css/styles.css` for components
-3. Use CSS variables for all colors (see CSS Style Guide)
+3. Use tokens for all colours (see `docs/THEMING.md`)
 4. Rebuild Tailwind: `pnpm run tailwind:build`
 5. Test both light and dark themes
 
@@ -314,93 +315,54 @@ All API endpoints return JSON responses with consistent error handling via the b
 - **Security**: All git command execution must use proper subprocess sanitization
 - **Type Hints**: All new Python code should include type hints (enforced by mypy via cilicious.sh)
 - **Docstrings**: All public functions/classes should have docstrings
-- **CSS Guidelines**: Follow the CSS Style Guide for all styling changes (see below)
+- **CSS Guidelines**: Follow `docs/THEMING.md` for all styling changes (see below)
 - **Testing**: All tests must pass via cilicious.sh (both Python pytest and JavaScript Jest)
 - **Linting**: Code must pass all linters via cilicious.sh (ruff, black, eslint)
 
-## CSS Architecture & Guidelines
+## CSS Architecture & Theming
 
-**IMPORTANT:** Difflicious uses a semantic CSS variable system. Always follow these guidelines:
+**IMPORTANT:** Every design decision — colour, spacing, radius, border width,
+typography, shadow, motion, density — lives in `src/difflicious/static/css/themes/`.
+Read `docs/THEMING.md` before making any styling change.
 
-### Core Principles
+### The rule
 
-1. **CSS Variables for Colors** - ALWAYS use CSS variables, NEVER hardcode hex values
-2. **Tailwind for Utilities Only** - Layout, spacing, typography (NOT colors)
-3. **Semantic Class Names** - Describe purpose, not appearance
-4. **Both Themes** - Always test light AND dark themes
-
-### Quick Reference
-
-**✅ DO:**
-```css
-.component {
-    background: var(--surface-secondary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-default);
-}
+```
+themes/_contract.css  →  theme-independent scales, density knobs, aliases
+themes/<name>.css     →  palette + semantic roles for one theme
+styles.css            →  structure and layout only; consumes tokens
+templates             →  semantic classes only; never Tailwind colour utilities
 ```
 
-```html
-<span class="status-badge status-badge-added">added</span>
-```
+`styles.css` contains no literal colours, radii or shadows. If a value needs to
+be tunable, add a token to the contract and reference it — do not inline it.
 
-**❌ DON'T:**
-```css
-.component {
-    background: #f8fafc;  /* Hardcoded! */
-    color: green;         /* Won't respect theme! */
-}
-```
+### Never reference another theme's palette
 
-```html
-<span class="bg-green-100 text-green-800">  <!-- Don't use Tailwind colors! -->
-```
+Tokens prefixed `--theme-<name>-*` are private to the theme that declares them.
+The contract, `styles.css` and templates may only use semantic roles
+(`--surface-*`, `--text-*`, `--border-*`, `--accent-*`, `--diff-*`), which every
+theme declares. Pointing at `--theme-paper-500` resolves to nothing under any
+theme but Ledger.
 
-### Common Color Variables
+### Themes
 
-- `--surface-primary` - Page background
-- `--surface-secondary` - Cards, panels
-- `--text-primary` - Main text
-- `--text-secondary` - Secondary text
-- `--border-default` - Standard borders
-- `--semantic-success-bg-subtle` - Success badges/states
-- `--semantic-danger-bg-subtle` - Error badges/states
+`ledger` (default), `slate`, `sorbet`. Select with `--theme` or
+`DIFFLICIOUS_THEME`; `--list-themes` shows them. A value that looks like a URL is
+loaded as a custom stylesheet named after its file.
 
-### Component Classes Available
+### Both themes, every time
 
-- `.status-badge .status-badge-{added|deleted|renamed|modified}` - Status indicators
-- `.file-stat .file-stat-{addition|deletion}` - File change counts
+Light and dark are peers. Every semantic token is declared in both blocks of a
+theme file, and every UI change must be checked in both.
 
-### Tailwind Usage
+### Rebuilding Tailwind
 
-**Use Tailwind for:**
-- Layout: `flex`, `grid`, `space-x-4`
-- Spacing: `p-4`, `m-2`, `px-3`
-- Typography: `text-sm`, `font-mono`
-- Display: `block`, `hidden`
-
-**DON'T use Tailwind for:**
-- Colors (use CSS variables)
-- Dark mode (use `[data-theme="dark"]`)
-- Complex components (use semantic classes)
-
-### CSS File Rebuilding
-
-When modifying Tailwind config or input CSS:
 ```bash
 pnpm run tailwind:build
 ```
 
-### Complete Documentation
-
-For comprehensive CSS guidelines, see: `docs/CSS-STYLE-GUIDE.md`
-
-This includes:
-- Complete list of CSS variables by category
-- How to create new component classes
-- Dark mode implementation details
-- Common patterns and examples
-- Best practices and migration guide
+Tailwind is for layout, spacing and typography only — never colours or dark mode.
 
 ## Project Structure
 
@@ -484,7 +446,7 @@ difflicious/
 │   └── js/                   # JavaScript tests
 │
 ├── docs/                     # Documentation
-│   ├── CSS-STYLE-GUIDE.md    # CSS conventions
+│   ├── THEMING.md            # Themes and design tokens
 │   ├── TROUBLESHOOTING.md    # Common issues
 │   ├── internal/             # Working notes, reports, session logs
 │   │   └── archive/          # Completed plans and superseded specs
@@ -544,7 +506,7 @@ The application is designed for multiple distribution channels:
 - `INSTALLATION.md` - Installation and usage guide (PyPI, Docker, configuration)
 
 **Technical Guides:**
-- `docs/CSS-STYLE-GUIDE.md` - Comprehensive CSS architecture and conventions
+- `docs/THEMING.md` - Themes, design tokens, and how to add a theme
 - `docs/TROUBLESHOOTING.md` - Common issues and solutions
 
 **Archive:**

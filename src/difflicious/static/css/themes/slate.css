@@ -1,0 +1,241 @@
+/* ============================================================================
+ * SLATE — a cool, conventional alternative
+ * ============================================================================
+ *
+ * The deliberate counterpoint to Ledger: neutral grey surfaces and an indigo
+ * accent, the register most developer tools already speak. It exists partly to
+ * be useful and partly to prove the token contract holds — nothing outside this
+ * file changes to swap the entire look.
+ *
+ * Same rule as every theme: green and red belong to diff semantics alone, and
+ * the accent hue stays clear of both.
+ *
+ * Loaded after `themes/_contract.css`.
+ * ========================================================================== */
+
+:root {
+
+    /* --- Palette: cool neutral ramp --------------------------------------- */
+    --theme-slate-50:  #ffffff;
+    --theme-slate-100: #f8fafc;
+    --theme-slate-200: #f1f5f9;
+    --theme-slate-300: #e2e8f0;
+    --theme-slate-400: #cbd5e1;
+    --theme-slate-500: #94a3b8;
+    --theme-slate-600: #64748b;
+    --theme-slate-700: #475569;
+    --theme-slate-800: #334155;
+    --theme-slate-900: #0f172a;
+
+    /* --- Palette: indigo accent -------------------------------------------- */
+    --theme-accent-subtle:   #eef2ff;
+    --theme-accent-muted:    #c7d2fe;
+    --theme-accent-base:     #4f46e5;
+    --theme-accent-hover:    #4338ca;
+    --theme-accent-active:   #3730a3;
+    --theme-accent-contrast: #ffffff;
+
+    /* --- Palette: diff green / red ------------------------------------------ */
+    --theme-add-bg:        #e7f6ec;
+    --theme-add-bg-strong: #c9ead4;
+    --theme-add-marker:    #15803d;
+    --theme-add-ink:       #14532d;
+
+    --theme-del-bg:        #fdeaea;
+    --theme-del-bg-strong: #f8cfcf;
+    --theme-del-marker:    #b91c1c;
+    --theme-del-ink:       #7f1d1d;
+
+    --theme-shadow-color: 15 23 42;
+
+    /* --- Surfaces ------------------------------------------------------------ */
+    --surface-primary:   var(--theme-slate-200);
+    --surface-secondary: var(--theme-slate-50);
+    --surface-tertiary:  var(--theme-slate-300);
+    --surface-raised:    var(--theme-slate-50);
+    --surface-sunken:    var(--theme-slate-200);
+    --surface-overlay:   var(--theme-slate-50);
+    --surface-chrome:    var(--theme-slate-50);
+
+    /* --- Text ---------------------------------------------------------------- */
+    --text-primary:   var(--theme-slate-900);
+    --text-secondary: var(--theme-slate-700);
+    --text-tertiary:  var(--theme-slate-600);
+    --text-disabled:  var(--theme-slate-500);
+    --text-inverted:  var(--theme-slate-50);
+    --text-accent:    var(--theme-accent-base);
+
+    /* --- Borders -------------------------------------------------------------- */
+    --border-subtle:      var(--theme-slate-200);
+    --border-default:     var(--theme-slate-300);
+    --border-strong:      var(--theme-slate-400);
+    --border-interactive: var(--theme-slate-500);
+    --border-accent:      var(--theme-accent-base);
+
+    /* --- Accent / interactive -------------------------------------------------- */
+    --accent-base:     var(--theme-accent-base);
+    --accent-hover:    var(--theme-accent-hover);
+    --accent-active:   var(--theme-accent-active);
+    --accent-subtle:   var(--theme-accent-subtle);
+    --accent-muted:    var(--theme-accent-muted);
+    --accent-contrast: var(--theme-accent-contrast);
+
+    --interactive-primary:         var(--accent-base);
+    --interactive-primary-hover:   var(--accent-hover);
+    --interactive-primary-active:  var(--accent-active);
+    --interactive-secondary:       var(--text-secondary);
+    --interactive-secondary-hover: var(--text-primary);
+    --interactive-disabled:        var(--text-disabled);
+
+    --focus-ring:   var(--accent-base);
+    --focus-border: var(--accent-base);
+
+    /* --- Elevation ------------------------------------------------------------- */
+    --shadow-none: none;
+    --shadow-xs: 0 1px 1px 0 rgb(var(--theme-shadow-color) / 0.04);
+    --shadow-sm: 0 1px 2px 0 rgb(var(--theme-shadow-color) / 0.06),
+                 0 1px 3px 0 rgb(var(--theme-shadow-color) / 0.05);
+    --shadow-md: 0 2px 4px -1px rgb(var(--theme-shadow-color) / 0.08),
+                 0 4px 12px -2px rgb(var(--theme-shadow-color) / 0.07);
+    --shadow-lg: 0 4px 8px -2px rgb(var(--theme-shadow-color) / 0.10),
+                 0 12px 28px -6px rgb(var(--theme-shadow-color) / 0.10);
+    --shadow-focus: 0 0 0 var(--focus-ring-width) var(--accent-muted);
+
+    /* --- Diff -------------------------------------------------------------------- */
+    --diff-addition-bg:           var(--theme-add-bg);
+    --diff-addition-text:         var(--theme-add-marker);
+    --diff-addition-linenum-bg:   var(--theme-add-bg-strong);
+    --diff-addition-linenum-text: var(--theme-add-ink);
+    --diff-addition-rule:         var(--theme-add-marker);
+
+    --diff-deletion-bg:           var(--theme-del-bg);
+    --diff-deletion-text:         var(--theme-del-marker);
+    --diff-deletion-linenum-bg:   var(--theme-del-bg-strong);
+    --diff-deletion-linenum-text: var(--theme-del-ink);
+    --diff-deletion-rule:         var(--theme-del-marker);
+
+    --diff-context-bg:           var(--surface-secondary);
+    --diff-context-text:         var(--text-secondary);
+    --diff-context-linenum-bg:   var(--surface-secondary);
+    --diff-context-linenum-text: var(--text-disabled);
+
+    --diff-gutter-bg:     var(--theme-slate-200);
+    --diff-gutter-border: var(--theme-slate-300);
+    --diff-gutter-text:   var(--theme-slate-600);
+
+    --diff-expanded-bg:           var(--surface-tertiary);
+    --diff-hunk-strip-bg:         var(--surface-tertiary);
+    --diff-hunk-expansion-bg:     var(--accent-subtle);
+    --diff-hunk-expansion-border: var(--accent-muted);
+    --diff-hunk-expansion-text:   var(--accent-active);
+
+    /* --- Status badges ------------------------------------------------------------- */
+    --status-added-bg:      var(--theme-add-bg);
+    --status-added-text:    var(--theme-add-ink);
+    --status-deleted-bg:    var(--theme-del-bg);
+    --status-deleted-text:  var(--theme-del-ink);
+    --status-renamed-bg:    var(--accent-subtle);
+    --status-renamed-text:  var(--accent-active);
+    --status-modified-bg:   var(--surface-tertiary);
+    --status-modified-text: var(--text-secondary);
+
+    /* --- Syntax --------------------------------------------------------------------- */
+    --syntax-keyword:  #7c3aed;
+    --syntax-string:   #047857;
+    --syntax-number:   #b45309;
+    --syntax-comment:  var(--theme-slate-500);
+    --syntax-function: #2563eb;
+    --syntax-class:    #b45309;
+    --syntax-builtin:  #0e7490;
+    --syntax-operator: var(--theme-slate-700);
+    --syntax-name:     var(--text-primary);
+    --syntax-error:    var(--theme-del-marker);
+
+    /* Slate reads as a denser, squarer tool than Ledger. Overriding contract
+     * defaults here is the intended way for a theme to change more than colour. */
+    --file-card-radius:  var(--radius-sm);
+    --control-radius:    var(--radius-xs);
+    --toolbar-rule-width: 0;
+    --file-card-accent-opacity: 0.9;
+    --font-display: var(--font-ui);
+}
+
+[data-theme="dark"] {
+
+    --theme-slate-50:  #0b1220;
+    --theme-slate-100: #0f172a;
+    --theme-slate-200: #16203a;
+    --theme-slate-300: #1e293b;
+    --theme-slate-400: #334155;
+    --theme-slate-500: #64748b;
+    --theme-slate-600: #94a3b8;
+    --theme-slate-700: #cbd5e1;
+    --theme-slate-800: #e2e8f0;
+    --theme-slate-900: #f1f5f9;
+
+    --theme-accent-subtle:   #1e1b4b;
+    --theme-accent-muted:    #312e81;
+    --theme-accent-base:     #818cf8;
+    --theme-accent-hover:    #a5b4fc;
+    --theme-accent-active:   #c7d2fe;
+    --theme-accent-contrast: #0b1220;
+
+    --theme-add-bg:        #12291c;
+    --theme-add-bg-strong: #1a3a28;
+    --theme-add-marker:    #4ade80;
+    --theme-add-ink:       #86efac;
+
+    --theme-del-bg:        #2b1517;
+    --theme-del-bg-strong: #401d21;
+    --theme-del-marker:    #f87171;
+    --theme-del-ink:       #fca5a5;
+
+    --theme-shadow-color: 0 0 0;
+
+    --surface-primary:   var(--theme-slate-50);
+    --surface-secondary: var(--theme-slate-100);
+    --surface-tertiary:  var(--theme-slate-300);
+    --surface-raised:    var(--theme-slate-200);
+    --surface-sunken:    var(--theme-slate-50);
+    --surface-overlay:   var(--theme-slate-200);
+    --surface-chrome:    var(--theme-slate-100);
+
+    --text-primary:   var(--theme-slate-900);
+    --text-secondary: var(--theme-slate-700);
+    --text-tertiary:  var(--theme-slate-600);
+    --text-disabled:  var(--theme-slate-500);
+    --text-inverted:  var(--theme-slate-50);
+
+    --border-subtle:      var(--theme-slate-200);
+    --border-default:     var(--theme-slate-300);
+    --border-strong:      var(--theme-slate-400);
+    --border-interactive: var(--theme-slate-500);
+
+    --shadow-xs: 0 1px 1px 0 rgb(var(--theme-shadow-color) / 0.30);
+    --shadow-sm: 0 1px 2px 0 rgb(var(--theme-shadow-color) / 0.40),
+                 0 1px 3px 0 rgb(var(--theme-shadow-color) / 0.30);
+    --shadow-md: 0 2px 4px -1px rgb(var(--theme-shadow-color) / 0.45),
+                 0 4px 12px -2px rgb(var(--theme-shadow-color) / 0.35);
+    --shadow-lg: 0 4px 8px -2px rgb(var(--theme-shadow-color) / 0.50),
+                 0 12px 28px -6px rgb(var(--theme-shadow-color) / 0.45);
+
+    --diff-context-bg:         var(--surface-secondary);
+    --diff-context-linenum-bg: var(--surface-secondary);
+
+    --diff-gutter-bg:     var(--theme-slate-200);
+    --diff-gutter-border: var(--theme-slate-300);
+    --diff-gutter-text:   var(--theme-slate-500);
+
+    --diff-hunk-strip-bg: var(--theme-slate-200);
+
+    --syntax-keyword:  #c4b5fd;
+    --syntax-string:   #86efac;
+    --syntax-number:   #fdba74;
+    --syntax-comment:  var(--theme-slate-500);
+    --syntax-function: #93c5fd;
+    --syntax-class:    #fcd34d;
+    --syntax-builtin:  #67e8f9;
+    --syntax-operator: var(--theme-slate-700);
+    --syntax-name:     var(--text-primary);
+    --syntax-error:    var(--theme-del-marker);
+}

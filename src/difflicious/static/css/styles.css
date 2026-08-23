@@ -4,488 +4,18 @@
 [x-cloak] { display: none !important; }
 
 /*
- * === COLOR SYSTEM ===
+ * === DESIGN TOKENS ===
  *
- * This project uses a semantic color variable system for maintainability and theming.
+ * Every design decision — colour, spacing, radius, border width, typography,
+ * shadow, motion, density — lives in `static/css/themes/`: `_contract.css`
+ * holds the theme-independent scales, and the selected theme supplies the
+ * palette. Both load before this file, which contains structure and layout only.
  *
- * KEY PRINCIPLES:
- * 1. Variable names describe PURPOSE, not just color values
- * 2. No inversion - "primary" means primary in both light and dark themes
- * 3. Clear hierarchy - surface/text/border/interactive categories
- * 4. All colors are variables - no hardcoded hex codes
- *
- * BACKWARDS COMPATIBILITY:
- * Old variable names (--color-*) are preserved and map to new semantic names.
- * Templates can continue using old names during transition.
+ * Do not add literal colours, pixel radii or hardcoded spacing here. If a value
+ * needs to be tunable, add a token to the contract and reference it.
+ * See docs/THEMING.md.
  */
 
-:root {
-    /* ============================================
-     * NEW SEMANTIC COLOR SYSTEM (Phase 2 - 2025-11-05)
-     * ============================================ */
-
-    /* === THEME PALETTE TOKENS (Light) === */
-    /* Swap these for alternate light themes. */
-    --theme-surface-primary: #ffffff;           /* Main page background */
-    --theme-surface-secondary: #f8fafc;         /* Cards, panels, file headers */
-    --theme-surface-tertiary: #f1f5f9;          /* Hover states, wells */
-    --theme-surface-raised: #ffffff;            /* Elevated elements (modals, dropdowns) */
-    --theme-surface-sunken: #f9fafb;            /* Depressed areas (inputs, wells) */
-    --theme-surface-overlay: #f9fafb;           /* Overlay backgrounds */
-
-    --theme-text-primary: #1e293b;              /* Main body text */
-    --theme-text-secondary: #64748b;            /* Secondary text, labels */
-    --theme-text-tertiary: #94a3b8;             /* Deemphasized text, placeholders */
-    --theme-text-disabled: #cbd5e1;             /* Disabled state text */
-    --theme-text-inverted: #ffffff;             /* Text on dark backgrounds */
-
-    --theme-border-default: #e2e8f0;            /* Standard borders */
-    --theme-border-strong: #cbd5e1;             /* Emphasized borders */
-    --theme-border-subtle: #f1f5f9;             /* Subtle dividers */
-    --theme-border-interactive: #94a3af;        /* Interactive element borders */
-
-    --theme-interactive-primary: #2563eb;       /* Primary action buttons */
-    --theme-interactive-primary-hover: #1d4ed8; /* Primary hover state */
-    --theme-interactive-primary-active: #1e40af;/* Primary active/pressed state */
-    --theme-interactive-secondary: #64748b;     /* Secondary actions */
-    --theme-interactive-secondary-hover: #475569; /* Secondary hover */
-    --theme-interactive-disabled: #cbd5e1;      /* Disabled interactive elements */
-
-    --theme-focus-ring: #3b82f6;                /* Focus outline color */
-    --theme-focus-border: #2563eb;              /* Focus border color */
-
-    --theme-diff-addition-bg: #dcfce7;          /* Added line background */
-    --theme-diff-addition-text: #059669;        /* Added line text */
-    --theme-diff-addition-linenum-bg: #bbf7d0;  /* Added line number background */
-    --theme-diff-addition-linenum-text: #065f46;/* Added line number text */
-    --theme-diff-deletion-bg: #fee2e2;          /* Deleted line background */
-    --theme-diff-deletion-text: #dc2626;        /* Deleted line text */
-    --theme-diff-deletion-linenum-bg: #fecaca;  /* Deleted line number background */
-    --theme-diff-deletion-linenum-text: #b91c1c;/* Deleted line number text */
-    --theme-diff-context-bg: #ffffff;           /* Context line background */
-    --theme-diff-context-text: #64748b;         /* Context line text */
-    --theme-diff-context-linenum-bg: #f3f4f6;   /* Context line number background */
-    --theme-diff-context-linenum-text: #9ca3af; /* Context line number text */
-    --theme-diff-expanded-bg: #f9fafb;          /* Expanded context background */
-    --theme-diff-hunk-expansion-bg: #eff6ff;    /* Hunk expansion area background */
-    --theme-diff-hunk-expansion-border: #bfdbfe;/* Hunk expansion border */
-
-    --theme-semantic-success-bg-subtle: #dcfce7;
-    --theme-semantic-success-bg-medium: #bbf7d0;
-    --theme-semantic-success-bg-strong: #86efac;
-    --theme-semantic-success-text: #059669;
-    --theme-semantic-success-text-strong: #065f46;
-    --theme-semantic-success-border: #bbf7d0;
-
-    --theme-semantic-danger-bg-subtle: #fee2e2;
-    --theme-semantic-danger-bg-medium: #fecaca;
-    --theme-semantic-danger-bg-strong: #fca5a5;
-    --theme-semantic-danger-text: #dc2626;
-    --theme-semantic-danger-text-strong: #b91c1c;
-    --theme-semantic-danger-text-medium: #ef4444;
-    --theme-semantic-danger-border: #fecaca;
-
-    --theme-semantic-warning-bg-subtle: #fef3c7;
-    --theme-semantic-warning-bg-medium: #fde68a;
-    --theme-semantic-warning-text: #d97706;
-    --theme-semantic-warning-text-strong: #92400e;
-    --theme-semantic-warning-border: #fcd34d;
-
-    --theme-semantic-info-bg-subtle: #eff6ff;
-    --theme-semantic-info-bg-medium: #dbeafe;
-    --theme-semantic-info-bg-strong: #bfdbfe;
-    --theme-semantic-info-bg-stronger: #93c5fd;
-    --theme-semantic-info-text: #1e40af;
-    --theme-semantic-info-text-medium: #2563eb;
-    --theme-semantic-info-text-strong: #1e3a8a;
-    --theme-semantic-info-border: #93c5fd;
-
-    --theme-neutral-50: #f9fafb;
-    --theme-neutral-100: #f3f4f6;
-    --theme-neutral-200: #e5e7eb;
-    --theme-neutral-300: #d1d5db;
-    --theme-neutral-400: #9ca3af;
-    --theme-neutral-500: #6b7280;
-    --theme-neutral-600: #4b5563;
-    --theme-neutral-700: #374151;
-    --theme-neutral-800: #1f2937;
-    --theme-neutral-900: #111827;
-
-    /* === SURFACES (Backgrounds) === */
-    --surface-primary: var(--theme-surface-primary);           /* Main page background */
-    --surface-secondary: var(--theme-surface-secondary);       /* Cards, panels, file headers */
-    --surface-tertiary: var(--theme-surface-tertiary);         /* Hover states, wells */
-    --surface-raised: var(--theme-surface-raised);             /* Elevated elements (modals, dropdowns) */
-    --surface-sunken: var(--theme-surface-sunken);             /* Depressed areas (inputs, wells) */
-    --surface-overlay: var(--theme-surface-overlay);           /* Overlay backgrounds */
-
-    /* === TEXT === */
-    --text-primary: var(--theme-text-primary);              /* Main body text */
-    --text-secondary: var(--theme-text-secondary);          /* Secondary text, labels */
-    --text-tertiary: var(--theme-text-tertiary);            /* Deemphasized text, placeholders */
-    --text-disabled: var(--theme-text-disabled);            /* Disabled state text */
-    --text-inverted: var(--theme-text-inverted);            /* Text on dark backgrounds */
-
-    /* === BORDERS === */
-    --border-default: var(--theme-border-default);            /* Standard borders */
-    --border-strong: var(--theme-border-strong);              /* Emphasized borders */
-    --border-subtle: var(--theme-border-subtle);              /* Subtle dividers */
-    --border-interactive: var(--theme-border-interactive);    /* Interactive element borders */
-
-    /* === INTERACTIVE (Buttons, Links, Controls) === */
-    --interactive-primary: var(--theme-interactive-primary);       /* Primary action buttons */
-    --interactive-primary-hover: var(--theme-interactive-primary-hover); /* Primary hover state */
-    --interactive-primary-active: var(--theme-interactive-primary-active);/* Primary active/pressed state */
-    --interactive-secondary: var(--theme-interactive-secondary);     /* Secondary actions */
-    --interactive-secondary-hover: var(--theme-interactive-secondary-hover); /* Secondary hover */
-    --interactive-disabled: var(--theme-interactive-disabled);      /* Disabled interactive elements */
-
-    /* === FOCUS STATES === */
-    --focus-ring: var(--theme-focus-ring);                /* Focus outline color */
-    --focus-border: var(--theme-focus-border);            /* Focus border color */
-
-    /* === DIFF-SPECIFIC COLORS === */
-    /* Addition (Green) - Softer, more pleasant green-100 instead of green-200 */
-    --diff-addition-bg: var(--theme-diff-addition-bg);          /* Added line background - softer green */
-    --diff-addition-text: var(--theme-diff-addition-text);      /* Added line text - keep for contrast */
-    --diff-addition-linenum-bg: var(--theme-diff-addition-linenum-bg);  /* Added line number background - medium green */
-    --diff-addition-linenum-text: var(--theme-diff-addition-linenum-text);/* Added line number text */
-
-    /* Deletion (Red) - Softer, more pleasant red-100 instead of red-200 */
-    --diff-deletion-bg: var(--theme-diff-deletion-bg);          /* Deleted line background - softer red */
-    --diff-deletion-text: var(--theme-diff-deletion-text);      /* Deleted line text - keep for contrast */
-    --diff-deletion-linenum-bg: var(--theme-diff-deletion-linenum-bg);  /* Deleted line number background - medium red */
-    --diff-deletion-linenum-text: var(--theme-diff-deletion-linenum-text);/* Deleted line number text */
-
-    /* Context (Unchanged lines) */
-    --diff-context-bg: var(--theme-diff-context-bg);           /* Context line background */
-    --diff-context-text: var(--theme-diff-context-text);       /* Context line text */
-    --diff-context-linenum-bg: var(--theme-diff-context-linenum-bg);   /* Context line number background */
-    --diff-context-linenum-text: var(--theme-diff-context-linenum-text); /* Context line number text */
-
-    /* Expanded context and hunk expansion */
-    --diff-expanded-bg: var(--theme-diff-expanded-bg);          /* Expanded context background */
-    --diff-hunk-expansion-bg: var(--theme-diff-hunk-expansion-bg);    /* Hunk expansion area background */
-    --diff-hunk-expansion-border: var(--theme-diff-hunk-expansion-border);/* Hunk expansion border */
-
-    /* === SEMANTIC COLORS === */
-    /* Success (Green) - for success messages, additions - softer tones */
-    --semantic-success-bg-subtle: var(--theme-semantic-success-bg-subtle);
-    --semantic-success-bg-medium: var(--theme-semantic-success-bg-medium);
-    --semantic-success-bg-strong: var(--theme-semantic-success-bg-strong);
-    --semantic-success-text: var(--theme-semantic-success-text);
-    --semantic-success-text-strong: var(--theme-semantic-success-text-strong);
-    --semantic-success-border: var(--theme-semantic-success-border);
-
-    /* Danger (Red) - for errors, deletions - softer tones */
-    --semantic-danger-bg-subtle: var(--theme-semantic-danger-bg-subtle);
-    --semantic-danger-bg-medium: var(--theme-semantic-danger-bg-medium);
-    --semantic-danger-bg-strong: var(--theme-semantic-danger-bg-strong);
-    --semantic-danger-text: var(--theme-semantic-danger-text);
-    --semantic-danger-text-strong: var(--theme-semantic-danger-text-strong);
-    --semantic-danger-text-medium: var(--theme-semantic-danger-text-medium);
-    --semantic-danger-border: var(--theme-semantic-danger-border);
-
-    /* Warning (Yellow/Amber) - for warnings, renamed files */
-    --semantic-warning-bg-subtle: var(--theme-semantic-warning-bg-subtle);
-    --semantic-warning-bg-medium: var(--theme-semantic-warning-bg-medium);
-    --semantic-warning-text: var(--theme-semantic-warning-text);
-    --semantic-warning-text-strong: var(--theme-semantic-warning-text-strong);
-    --semantic-warning-border: var(--theme-semantic-warning-border);
-
-    /* Info (Blue) - for informational messages */
-    --semantic-info-bg-subtle: var(--theme-semantic-info-bg-subtle);
-    --semantic-info-bg-medium: var(--theme-semantic-info-bg-medium);
-    --semantic-info-bg-strong: var(--theme-semantic-info-bg-strong);
-    --semantic-info-bg-stronger: var(--theme-semantic-info-bg-stronger);
-    --semantic-info-text: var(--theme-semantic-info-text);
-    --semantic-info-text-medium: var(--theme-semantic-info-text-medium);
-    --semantic-info-text-strong: var(--theme-semantic-info-text-strong);
-    --semantic-info-border: var(--theme-semantic-info-border);
-
-    /* ============================================
-     * BACKWARDS COMPATIBILITY MAPPINGS
-     * Old variable names map to new semantic system
-     * ============================================ */
-
-    /* Legacy base colors */
-    --color-primary: var(--interactive-primary);
-    --color-primary-hover: var(--interactive-primary-hover);
-    --color-success: var(--semantic-success-text);
-    --color-danger: var(--semantic-danger-text);
-    --color-warning: var(--semantic-warning-text);
-
-    /* Legacy backgrounds */
-    --color-bg: var(--surface-primary);
-    --color-bg-secondary: var(--surface-secondary);
-    --color-bg-tertiary: var(--surface-tertiary);
-
-    /* Legacy text */
-    --color-text: var(--text-primary);
-    --color-text-secondary: var(--text-secondary);
-
-    /* Legacy borders */
-    --color-border: var(--border-default);
-    --color-border-hover: var(--border-strong);
-
-    /* Legacy diff colors */
-    --color-diff-addition-bg: var(--diff-addition-bg);
-    --color-diff-addition-text: var(--diff-addition-text);
-    --color-diff-deletion-bg: var(--diff-deletion-bg);
-    --color-diff-deletion-text: var(--diff-deletion-text);
-    --color-diff-context-bg: var(--diff-context-bg);
-    --color-diff-context-text: var(--diff-context-text);
-    --color-expanded-context-bg: var(--diff-expanded-bg);
-
-    /* Legacy neutral colors (kept for Tailwind compatibility) */
-    /* Note: These values are used by Tailwind and will be removed in Phase 3 */
-    --color-neutral-50: var(--theme-neutral-50);
-    --color-neutral-100: var(--theme-neutral-100);
-    --color-neutral-200: var(--theme-neutral-200);
-    --color-neutral-300: var(--theme-neutral-300);
-    --color-neutral-400: var(--theme-neutral-400);
-    --color-neutral-500: var(--theme-neutral-500);
-    --color-neutral-600: var(--theme-neutral-600);
-    --color-neutral-700: var(--theme-neutral-700);
-    --color-neutral-800: var(--theme-neutral-800);
-    --color-neutral-900: var(--theme-neutral-900);
-
-    /* Legacy semantic color backgrounds - map to new system */
-    --color-danger-bg: var(--semantic-danger-bg-subtle);
-    --color-danger-bg-50: var(--semantic-danger-bg-subtle);
-    --color-danger-bg-100: var(--semantic-danger-bg-medium);
-    --color-danger-bg-200: var(--semantic-danger-bg-strong);
-    --color-danger-bg-300: var(--semantic-danger-text-medium);
-    --color-danger-text: var(--semantic-danger-text-medium);
-    --color-danger-text-strong: var(--semantic-danger-text);
-    --color-danger-text-600: var(--semantic-danger-text);
-    --color-danger-text-500: var(--semantic-danger-text-medium);
-    --color-danger-text-700: var(--semantic-danger-text-strong);
-
-    --color-success-bg: var(--semantic-success-bg-subtle);
-    --color-success-bg-50: var(--semantic-success-bg-subtle);
-    --color-success-bg-100: var(--semantic-success-bg-medium);
-    --color-success-bg-300: var(--semantic-success-bg-strong);
-    --color-success-text: var(--semantic-success-text);
-    --color-success-text-600: var(--semantic-success-text);
-    --color-success-text-800: var(--semantic-success-text-strong);
-
-    --color-warning-bg-100: var(--semantic-warning-bg-subtle);
-    --color-warning-text-800: var(--semantic-warning-text-strong);
-
-    --color-info-bg: var(--semantic-info-bg-subtle);
-    --color-info-bg-50: var(--semantic-info-bg-subtle);
-    --color-info-bg-100: var(--semantic-info-bg-medium);
-    --color-info-bg-200: var(--semantic-info-bg-strong);
-    --color-info-bg-300: var(--semantic-info-bg-stronger);
-    --color-info-text: var(--semantic-info-text);
-    --color-info-text-600: var(--semantic-info-text-medium);
-    --color-info-text-800: var(--semantic-info-text);
-
-    /* Legacy focus and ring colors */
-    --color-focus-ring: var(--focus-ring);
-    --color-focus-border: var(--focus-border);
-
-    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --font-family-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
-
-    --spacing-xs: 0.25rem;
-    --spacing-sm: 0.5rem;
-    --spacing-md: 1rem;
-    --spacing-lg: 1.5rem;
-    --spacing-xl: 2rem;
-    --file-header-sticky-offset: var(--spacing-md);
-
-    --border-radius: 0.5rem;
-    --border-radius-sm: 0.25rem;
-    --box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-}
-
-/* ============================================
- * DARK THEME
- * ============================================ */
-
-[data-theme="dark"] {
-    /* ============================================
-     * SEMANTIC COLOR SYSTEM - DARK THEME
-     * ============================================ */
-
-    /* === SURFACES (Backgrounds) === */
-    --theme-surface-primary: #0f172a;           /* Main page background - darkest */
-    --theme-surface-secondary: #1e293b;         /* Cards, panels, file headers */
-    --theme-surface-tertiary: #475569;          /* Hover states, wells - LIGHTENED for better hierarchy */
-    --theme-surface-raised: #1e293b;            /* Elevated elements (modals, dropdowns) */
-    --theme-surface-sunken: #0a0f1a;            /* Depressed areas (inputs, wells) - darker than primary */
-    --theme-surface-overlay: #1e293b;           /* Overlay backgrounds */
-
-    /* === TEXT === */
-    --theme-text-primary: #f1f5f9;              /* Main body text - lightest */
-    --theme-text-secondary: #cbd5e1;            /* Secondary text, labels */
-    --theme-text-tertiary: #94a3b8;             /* Deemphasized text, placeholders */
-    --theme-text-disabled: #64748b;             /* Disabled state text */
-    --theme-text-inverted: #0f172a;             /* Text on light backgrounds */
-
-    /* === BORDERS === */
-    --theme-border-default: #475569;            /* Standard borders - LIGHTENED for better visibility */
-    --theme-border-strong: #64748b;             /* Emphasized borders - LIGHTENED */
-    --theme-border-subtle: #1e293b;             /* Subtle dividers */
-    --theme-border-interactive: #64748b;        /* Interactive element borders - LIGHTENED */
-
-    /* === INTERACTIVE (Buttons, Links, Controls) === */
-    --theme-interactive-primary: #3b82f6;       /* Primary action buttons - brighter blue */
-    --theme-interactive-primary-hover: #2563eb; /* Primary hover state */
-    --theme-interactive-primary-active: #1d4ed8;/* Primary active/pressed state */
-    --theme-interactive-secondary: #94a3b8;     /* Secondary actions */
-    --theme-interactive-secondary-hover: #cbd5e1; /* Secondary hover */
-    --theme-interactive-disabled: #475569;      /* Disabled interactive elements */
-
-    /* === FOCUS STATES === */
-    --theme-focus-ring: #60a5fa;                /* Focus outline color - lighter blue */
-    --theme-focus-border: #3b82f6;              /* Focus border color */
-
-    /* === DIFF-SPECIFIC COLORS === */
-    /* Addition (Green) - Richer, more saturated for better visibility */
-    --theme-diff-addition-bg: #1a3a2a;          /* Added line background - richer green, more saturation */
-    --theme-diff-addition-text: #6ee7b7;        /* Added line text - softer green-300 */
-    --theme-diff-addition-linenum-bg: #2e5e44;  /* Added line number background */
-    --theme-diff-addition-linenum-text: #86efac;/* Added line number text */
-
-    /* Deletion (Red) - Richer, less purple for better visibility */
-    --theme-diff-deletion-bg: #3a1a1a;          /* Deleted line background - richer red, less purple */
-    --theme-diff-deletion-text: #fca5a5;        /* Deleted line text - keep red-300 */
-    --theme-diff-deletion-linenum-bg: #5e2f34;  /* Deleted line number background */
-    --theme-diff-deletion-linenum-text: #fca5a5;/* Deleted line number text */
-
-    /* Context (Unchanged lines) - More visible */
-    --theme-diff-context-bg: #0f172a;           /* Context line background - same as surface-primary for visibility */
-    --theme-diff-context-text: #94a3b8;         /* Context line text */
-    --theme-diff-context-linenum-bg: #1a2332;   /* Context line number background */
-    --theme-diff-context-linenum-text: #64748b; /* Context line number text */
-
-    /* Expanded context and hunk expansion */
-    --theme-diff-expanded-bg: #1e293b;          /* Expanded context background */
-    --theme-diff-hunk-expansion-bg: #2d3748;    /* Hunk expansion area background */
-    --theme-diff-hunk-expansion-border: #4a5568;/* Hunk expansion border */
-
-    /* === SEMANTIC COLORS === */
-    /* Success (Green) - for success messages, additions */
-    --theme-semantic-success-bg-subtle: #2e5e44;
-    --theme-semantic-success-bg-medium: #3e6e54;
-    --theme-semantic-success-bg-strong: #4e7e64;
-    --theme-semantic-success-text: #10b981;
-    --theme-semantic-success-text-strong: #34d399;
-    --theme-semantic-success-border: #3e6e54;
-
-    /* Danger (Red) - for errors, deletions */
-    --theme-semantic-danger-bg-subtle: #4e2f44;
-    --theme-semantic-danger-bg-medium: #5e3f54;
-    --theme-semantic-danger-bg-strong: #6e4f64;
-    --theme-semantic-danger-text: #f87171;
-    --theme-semantic-danger-text-strong: #fca5a5;
-    --theme-semantic-danger-text-medium: #ef4444;
-    --theme-semantic-danger-border: #7e5f74;
-
-    /* Warning (Yellow/Amber) - for warnings, renamed files */
-    --theme-semantic-warning-bg-subtle: #4a3f2e;
-    --theme-semantic-warning-bg-medium: #5a4f3e;
-    --theme-semantic-warning-text: #f59e0b;
-    --theme-semantic-warning-text-strong: #fbbf24;
-    --theme-semantic-warning-border: #fbbf24;
-
-    /* Info (Blue) - for informational messages */
-    --theme-semantic-info-bg-subtle: #1e293b;
-    --theme-semantic-info-bg-medium: #334155;
-    --theme-semantic-info-bg-strong: #475569;
-    --theme-semantic-info-bg-stronger: #64748b;
-    --theme-semantic-info-text: #60a5fa;
-    --theme-semantic-info-text-medium: #3b82f6;
-    --theme-semantic-info-text-strong: #93c5fd;
-    --theme-semantic-info-border: #64748b;
-
-    /* ============================================
-     * BACKWARDS COMPATIBILITY MAPPINGS - DARK THEME
-     * ============================================ */
-
-    /* Legacy base colors */
-    --color-primary: var(--interactive-primary);
-    --color-primary-hover: var(--interactive-primary-hover);
-    --color-success: var(--semantic-success-text);
-    --color-danger: var(--semantic-danger-text-medium);
-    --color-warning: var(--semantic-warning-text);
-
-    /* Legacy backgrounds */
-    --color-bg: var(--surface-primary);
-    --color-bg-secondary: var(--surface-secondary);
-    --color-bg-tertiary: var(--surface-tertiary);
-
-    /* Legacy text */
-    --color-text: var(--text-primary);
-    --color-text-secondary: var(--text-tertiary);
-
-    /* Legacy borders */
-    --color-border: var(--border-default);
-    --color-border-hover: var(--border-strong);
-
-    /* Legacy diff colors */
-    --color-diff-addition-bg: var(--diff-addition-bg);
-    --color-diff-addition-text: var(--diff-addition-text);
-    --color-diff-deletion-bg: var(--diff-deletion-bg);
-    --color-diff-deletion-text: var(--diff-deletion-text);
-    --color-diff-context-bg: var(--diff-context-bg);
-    --color-diff-context-text: var(--diff-context-text);
-    --color-expanded-context-bg: var(--diff-expanded-bg);
-
-    /* Legacy neutral colors (kept for Tailwind compatibility) */
-    /* Note: In dark mode, these values are INVERTED from light mode */
-    /* This inversion will be removed in Phase 3 */
-    --theme-neutral-50: #1e293b;
-    --theme-neutral-100: #334155;
-    --theme-neutral-200: #475569;
-    --theme-neutral-300: #64748b;
-    --theme-neutral-400: #94a3b8;
-    --theme-neutral-500: #64748b;
-    --theme-neutral-600: #475569;
-    --theme-neutral-700: #cbd5e1;
-    --theme-neutral-800: #e2e8f0;
-    --theme-neutral-900: #f1f5f9;
-
-    /* Legacy semantic color backgrounds - map to new system */
-    --color-danger-bg: var(--semantic-danger-bg-subtle);
-    --color-danger-bg-50: var(--semantic-danger-bg-subtle);
-    --color-danger-bg-100: var(--semantic-danger-bg-medium);
-    --color-danger-bg-200: var(--semantic-danger-bg-strong);
-    --color-danger-bg-300: var(--semantic-danger-border);
-    --color-danger-text: var(--semantic-danger-text);
-    --color-danger-text-strong: var(--semantic-danger-text-strong);
-    --color-danger-text-600: var(--semantic-danger-text);
-    --color-danger-text-500: var(--semantic-danger-text);
-    --color-danger-text-700: var(--semantic-danger-text-strong);
-
-    --color-success-bg: var(--semantic-success-bg-subtle);
-    --color-success-bg-50: var(--semantic-success-bg-subtle);
-    --color-success-bg-100: var(--semantic-success-bg-medium);
-    --color-success-bg-300: var(--semantic-success-bg-strong);
-    --color-success-text: var(--semantic-success-text);
-    --color-success-text-600: var(--semantic-success-text);
-    --color-success-text-800: var(--semantic-success-text-strong);
-
-    /* Warning: light theme color intentionally kept for badge readability */
-    --color-warning-bg-100: #fef3c7;
-    --color-warning-text-800: #ca8a04;
-
-    --color-info-bg: var(--semantic-info-bg-subtle);
-    --color-info-bg-50: var(--semantic-info-bg-subtle);
-    --color-info-bg-100: var(--semantic-info-bg-medium);
-    --color-info-bg-200: var(--semantic-info-bg-strong);
-    --color-info-bg-300: var(--semantic-info-bg-stronger);
-    --color-info-text: var(--semantic-info-text);
-    --color-info-text-600: var(--semantic-info-text-medium);
-    --color-info-text-800: var(--semantic-info-text);
-
-    /* Legacy focus and ring colors */
-    --color-focus-ring: var(--focus-ring);
-    --color-focus-border: var(--focus-border);
-}
 
 
 /* ============================================
@@ -495,49 +25,6 @@
  * with semantic, reusable component classes that use the color variables
  * defined above.
  */
-
-/* === STATUS BADGES === */
-.status-badge {
-    display: inline-block;
-    font-size: 0.75rem; /* text-xs */
-    padding: 0.25rem 0.5rem; /* px-2 py-1 */
-    border-radius: 0.25rem; /* rounded */
-    flex-shrink: 0;
-}
-
-.status-badge-added {
-    background-color: var(--semantic-success-bg-subtle);
-    color: var(--semantic-success-text-strong);
-}
-
-.status-badge-deleted {
-    background-color: var(--semantic-danger-bg-subtle);
-    color: var(--semantic-danger-text-strong);
-}
-
-.status-badge-renamed {
-    background-color: var(--semantic-warning-bg-subtle);
-    color: var(--semantic-warning-text-strong);
-}
-
-.status-badge-modified {
-    background-color: var(--color-neutral-100);
-    color: var(--color-neutral-500);
-}
-
-/* Dark mode - use custom class to override */
-[data-theme="dark"] .status-badge-modified {
-    background-color: var(--color-neutral-800);
-    color: var(--color-neutral-500);
-}
-
-/* === FILE STATS (Addition/Deletion Counts) === */
-.file-stat {
-    display: inline-block;
-    padding: 0.25rem 0.5rem; /* px-2 py-1 */
-    border-radius: 0.25rem; /* rounded */
-    font-size: 0.75rem; /* text-xs */
-}
 
 .file-stat-addition {
     background-color: var(--semantic-success-bg-medium);
@@ -559,6 +46,7 @@
 /* Diff line: deletion (left side, red) */
 .diff-line-deleted {
     background: var(--diff-deletion-bg);
+    position: relative;
 }
 .diff-line-deleted-num {
     background: var(--diff-deletion-linenum-bg);
@@ -571,6 +59,7 @@
 /* Diff line: addition (right side, green) */
 .diff-line-added {
     background: var(--diff-addition-bg);
+    position: relative;
 }
 .diff-line-added-num {
     background: var(--diff-addition-linenum-bg);
@@ -580,42 +69,85 @@
     color: var(--diff-addition-text);
 }
 
-/* Hunk expansion strip (the blue ▲▼ bar between hunks) */
+/* Hunk expansion strip -------------------------------------------------------
+ * Previously a solid band the full width of the diff, which competed with the
+ * code for attention every time context was collapsed. It is now a quiet rule
+ * carrying a small pill: present when looked for, silent otherwise.
+ * -------------------------------------------------------------------------- */
 .hunk-expansion-strip {
-    background: var(--diff-hunk-expansion-bg);
-    color: var(--semantic-info-text);
-    border-color: var(--diff-hunk-expansion-border);
-}
-.hunk-expansion-linenum {
-    background: var(--semantic-info-bg-medium);
-    border-color: var(--diff-hunk-expansion-border);
-}
-.hunk-expansion-btn {
-    background: var(--semantic-info-bg-strong);
-    color: var(--semantic-info-text);
-}
-.hunk-expansion-btn:hover {
-    background: var(--semantic-info-bg-stronger);
+    background: var(--diff-hunk-strip-bg);
+    color: var(--text-tertiary);
+    border-color: var(--border-subtle);
+    font-size: var(--hunk-strip-font-size);
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out),
+                color var(--duration-fast) var(--ease-out);
 }
 
-/* File card (the rounded container per file) */
-.file-card {
-    background: var(--surface-secondary);
-    border: 1px solid var(--border-default);
-    border-radius: 0.5rem;
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+/* The pills are small; the row is the real hit target. Hovering anywhere on it
+ * tints the row and fills the pills, so the whole strip reads as one control. */
+.hunk-expansion-strip:hover {
+    background: var(--hunk-strip-bg-hover);
+    color: var(--accent-active);
 }
+
+.hunk-expansion-strip:hover .hunk-expansion-btn {
+    background: var(--accent-base);
+    border-color: var(--accent-base);
+    color: var(--accent-contrast);
+}
+
+.hunk-expansion-strip:focus-visible {
+    outline: var(--focus-ring-width) solid var(--accent-base);
+    outline-offset: calc(var(--focus-ring-width) * -1);
+}
+
+/* The pills are reached through the row, so they are not separate tab stops. */
+.hunk-expansion-strip .hunk-expansion-btn {
+    pointer-events: none;
+}
+.hunk-expansion-linenum {
+    background: transparent;
+    border-color: var(--border-subtle);
+}
+.hunk-expansion-btn {
+    background: transparent;
+    color: var(--accent-base);
+    border: var(--border-width-hairline) solid var(--diff-hunk-expansion-border);
+    border-radius: var(--hunk-strip-radius);
+    line-height: 1;
+    transition: background var(--duration-fast) var(--ease-out),
+                color var(--duration-fast) var(--ease-out),
+                border-color var(--duration-fast) var(--ease-out);
+    /* Sized here rather than left to the utility classes on the markup. */
+    width: auto;
+    height: var(--hunk-strip-height);
+    min-width: 1.75rem;
+    padding: 0 var(--space-sm);
+    margin: auto;
+}
+.hunk-expansion-btn:hover {
+    background: var(--accent-base);
+    border-color: var(--accent-base);
+    color: var(--accent-contrast);
+}
+.hunk-expansion-btn:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+}
+
 .file-card-header {
     color: var(--text-primary);
-    transition: background 0.15s;
+    transition: background var(--duration-fast) var(--ease-out);
 }
 .file-card-header:hover {
     background: var(--surface-tertiary);
 }
 .file-card-nav-btn {
     color: var(--text-tertiary);
-    border-radius: 0.25rem;
-    transition: color 0.15s, background 0.15s;
+    border-radius: var(--radius-xs);
+    transition: color var(--duration-fast) var(--ease-out),
+                background var(--duration-fast) var(--ease-out);
 }
 .file-card-nav-btn:hover {
     color: var(--text-secondary);
@@ -626,8 +158,8 @@
 .global-controls-btn {
     background: var(--surface-tertiary);
     color: var(--text-secondary);
-    border-radius: 0.375rem;
-    transition: background 0.15s;
+    border-radius: var(--control-radius);
+    transition: background var(--duration-fast) var(--ease-out);
 }
 .global-controls-btn:hover {
     background: var(--surface-tertiary);
@@ -650,14 +182,6 @@
 .diff-group-header-label {
     color: var(--text-primary);
 }
-.diff-group-header-count {
-    background: var(--surface-tertiary);
-    color: var(--text-secondary);
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    padding: 0.1rem 0.5rem;
-}
-
 /* Moved-file expansion strip */
 .moved-file-strip {
     background: var(--semantic-info-bg-subtle);
@@ -693,9 +217,9 @@ body {
     padding: var(--spacing-md) 0;
 }
 
-/* Override header background in dark mode */
-[data-theme="dark"] header {
-    background-color: #1e293b !important; /* neutral-800 */
+/* Chrome surface — the toolbar sits on its own surface token in both themes. */
+header {
+    background-color: var(--surface-chrome);
 }
 
 .header .container {
@@ -930,6 +454,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    background-color: var(--diff-gutter-bg);
+    color: var(--diff-gutter-text);
+    border-right: var(--border-width-hairline) solid var(--diff-gutter-border);
+    font-variant-numeric: tabular-nums;
+    font-size: var(--text-2xs);
 }
 
 .diff-line .line-content {
@@ -979,22 +508,19 @@ body {
 
 /* Don't set background on line-content - let parent elements handle it */
 
-/* Dark theme: Make line numbers brighter version of diff line background */
-[data-theme="dark"] .diff-line .line-num {
-    background-color: #1a2332 !important;
-    color: #94a3b8;
+/* Line-number gutter ---------------------------------------------------------
+ * The gutter previously shared the content surface, so line numbers floated in
+ * what read as dead space. A sunken surface and a hairline rule make it a
+ * column. Ordering (not !important) lets the per-line status classes win.
+ * -------------------------------------------------------------------------- */
+.diff-line .line-num.diff-line-deleted-num {
+    background-color: var(--diff-deletion-linenum-bg);
+    color: var(--diff-deletion-linenum-text);
 }
 
-/* Dark theme: Restore addition/deletion colouring on semantic line-num classes.
- * These must use !important to win against the generic .diff-line .line-num rule above. */
-[data-theme="dark"] .diff-line .diff-line-deleted-num {
-    background-color: var(--diff-deletion-linenum-bg) !important;
-    color: var(--diff-deletion-linenum-text) !important;
-}
-
-[data-theme="dark"] .diff-line .diff-line-added-num {
-    background-color: var(--diff-addition-linenum-bg) !important;
-    color: var(--diff-addition-linenum-text) !important;
+.diff-line .line-num.diff-line-added-num {
+    background-color: var(--diff-addition-linenum-bg);
+    color: var(--diff-addition-linenum-text);
 }
 
 /* Simple highlight for filename search */
@@ -1003,32 +529,18 @@ body {
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
-/* Expanded Context Styles */
-/* Removed background colors to make expanded sections blend seamlessly */
+/* Expanded context: no background of its own, so it blends into the diff. */
 .expanded-context {
-    /* background-color: var(--color-expanded-context-bg); */
-    /* opacity: 0.95; */
     border: none;
+    animation: fadeIn var(--duration-base) var(--ease-out);
 }
 
 .expanded-context .diff-line {
-    /* background-color: var(--color-expanded-context-bg); */
     border: none;
 }
 
 .expanded-context .line-num {
-    /* background-color: var(--color-neutral-100) !important; */
-    /* color: var(--color-neutral-500); */
     font-style: normal;
-}
-
-.expanded-context .line-content {
-    /* color: var(--color-neutral-700); */
-}
-
-/* Expanded context animation - simple fade in */
-.expanded-context {
-    animation: fadeIn 0.2s ease-out;
 }
 
 @keyframes fadeIn {
@@ -1066,176 +578,16 @@ body {
 
 /* Tooltip removed for accessibility. Using aria-label instead for better screen reader support. */
 
-/* Dark theme syntax highlighting improvements */
-[data-theme="dark"] .highlight {
-    background-color: var(--color-diff-context-bg) !important;
-}
+/* Syntax highlighting colours are token-driven: SyntaxHighlightingService
+ * emits class rules that resolve --syntax-* from theme.css, so both themes
+ * are served by one ruleset and neither needs an override here. */
 
-[data-theme="dark"] .highlight .hll {
-    background-color: #334155;
-}
-
-[data-theme="dark"] .highlight .c,
-[data-theme="dark"] .highlight .cm,
-[data-theme="dark"] .highlight .cp,
-[data-theme="dark"] .highlight .c1,
-[data-theme="dark"] .highlight .cs {
-    color: #64748b;
-    font-style: italic;
-}
-
-[data-theme="dark"] .highlight .k,
-[data-theme="dark"] .highlight .kc,
-[data-theme="dark"] .highlight .kd,
-[data-theme="dark"] .highlight .kn,
-[data-theme="dark"] .highlight .kp,
-[data-theme="dark"] .highlight .kr,
-[data-theme="dark"] .highlight .kt {
-    color: #f472b6;
-    font-weight: bold;
-}
-
-[data-theme="dark"] .highlight .s,
-[data-theme="dark"] .highlight .sa,
-[data-theme="dark"] .highlight .sb,
-[data-theme="dark"] .highlight .sc,
-[data-theme="dark"] .highlight .dl,
-[data-theme="dark"] .highlight .s2,
-[data-theme="dark"] .highlight .se,
-[data-theme="dark"] .highlight .sh,
-[data-theme="dark"] .highlight .si,
-[data-theme="dark"] .highlight .sx,
-[data-theme="dark"] .highlight .sr,
-[data-theme="dark"] .highlight .s1,
-[data-theme="dark"] .highlight .ss {
-    color: #a5f3fc;
-}
-
-[data-theme="dark"] .highlight .n,
-[data-theme="dark"] .highlight .na,
-[data-theme="dark"] .highlight .nb,
-[data-theme="dark"] .highlight .bp,
-[data-theme="dark"] .highlight .nc,
-[data-theme="dark"] .highlight .no,
-[data-theme="dark"] .highlight .nd,
-[data-theme="dark"] .highlight .ni,
-[data-theme="dark"] .highlight .ne,
-[data-theme="dark"] .highlight .nf,
-[data-theme="dark"] .highlight .nl,
-[data-theme="dark"] .highlight .nn,
-[data-theme="dark"] .highlight .nx,
-[data-theme="dark"] .highlight .py,
-[data-theme="dark"] .highlight .nt,
-[data-theme="dark"] .highlight .nv,
-[data-theme="dark"] .highlight .vc,
-[data-theme="dark"] .highlight .vg,
-[data-theme="dark"] .highlight .vi {
-    color: #f1f5f9;
-}
-
-[data-theme="dark"] .highlight .m,
-[data-theme="dark"] .highlight .mb,
-[data-theme="dark"] .highlight .mf,
-[data-theme="dark"] .highlight .mh,
-[data-theme="dark"] .highlight .mi,
-[data-theme="dark"] .highlight .mo,
-[data-theme="dark"] .highlight .il {
-    color: #fbbf24;
-}
-
-[data-theme="dark"] .highlight .o,
-[data-theme="dark"] .highlight .ow {
-    color: #f1f5f9;
-    font-weight: bold;
-}
-
-[data-theme="dark"] .highlight .p {
-    color: #f1f5f9;
-}
-
-[data-theme="dark"] .highlight .err {
-    color: #f87171;
-    background-color: transparent;
-}
-
-[data-theme="dark"] .highlight .gd {
-    color: #f87171;
-    background-color: rgba(248, 113, 113, 0.1);
-}
-
-[data-theme="dark"] .highlight .ge {
-    color: #f1f5f9;
-    font-style: italic;
-}
-
-[data-theme="dark"] .highlight .gr {
-    color: #f87171;
-}
-
-[data-theme="dark"] .highlight .gh {
-    color: #94a3b8;
-}
-
-[data-theme="dark"] .highlight .gi {
-    color: #4ade80;
-    background-color: rgba(74, 222, 128, 0.1);
-}
-
-[data-theme="dark"] .highlight .go {
-    color: #64748b;
-}
-
-[data-theme="dark"] .highlight .gp {
-    color: #94a3b8;
-}
-
-[data-theme="dark"] .highlight .gs {
-    color: #f1f5f9;
-    font-weight: bold;
-}
-
-[data-theme="dark"] .highlight .gu {
-    color: #94a3b8;
-}
-
-[data-theme="dark"] .highlight .gt {
-    color: #f87171;
-}
-
-[data-theme="dark"] .highlight .kc,
-[data-theme="dark"] .highlight .kd,
-[data-theme="dark"] .highlight .kn,
-[data-theme="dark"] .highlight .kp,
-[data-theme="dark"] .highlight .kr,
-[data-theme="dark"] .highlight .kt {
-    color: #f472b6;
-    font-weight: bold;
-}
-
-[data-theme="dark"] .highlight .na,
-[data-theme="dark"] .highlight .nb,
-[data-theme="dark"] .highlight .nc,
-[data-theme="dark"] .highlight .no,
-[data-theme="dark"] .highlight .nd,
-[data-theme="dark"] .highlight .ni,
-[data-theme="dark"] .highlight .ne,
-[data-theme="dark"] .highlight .nf,
-[data-theme="dark"] .highlight .nl,
-[data-theme="dark"] .highlight .nn,
-[data-theme="dark"] .highlight .nx,
-[data-theme="dark"] .highlight .py,
-[data-theme="dark"] .highlight .nt,
-[data-theme="dark"] .highlight .nv,
-[data-theme="dark"] .highlight .vc,
-[data-theme="dark"] .highlight .vg,
-[data-theme="dark"] .highlight .vi {
-    color: #60a5fa;
-}
-
-/* File header text truncation fixes */
+/* File header: truncation plus surface. */
 .file-header {
     min-width: 0;
     overflow: hidden;
+    background-color: var(--surface-secondary);
+    transition: background-color var(--duration-fast) var(--ease-out);
 }
 
 /* Force filename container to only take content width */
@@ -1272,8 +624,10 @@ body {
 }
 
 .file-diff .file-header-spacer {
-    height: var(--file-header-sticky-offset);
-    background-color: var(--color-bg);
+    height: var(--file-header-spacer-height);
+    /* Card surface, not page background: if a theme does give this height, it
+     * should read as padding above the header, never as a gap. */
+    background-color: var(--surface-secondary);
     border-left: none;
     border-right: none;
     border-top: none;
@@ -1326,256 +680,84 @@ body {
     min-width: 0 !important;
 }
 
-/* Add subtle highlight to expansion areas in dark mode */
-[data-theme="dark"] .hunk-expansion {
-    background-color: #2d3748 !important;
-    border-top: 1px solid #4a5568 !important;
-    border-bottom: 1px solid #4a5568 !important;
+/* ----------------------------------------------------------------------------
+ * Theme-reactive chrome
+ * ----------------------------------------------------------------------------
+ * This region previously held ~250 lines of dark-mode `!important` overrides
+ * carrying hardcoded hex values. Most targeted Tailwind colour classes
+ * (`bg-red-50`, `dark:bg-green-900/20`) that the templates no longer emit, so
+ * they matched nothing; the rest fought the token layer and won, which is why
+ * a theme change could not fully take effect. Both themes are now driven by
+ * theme.css alone.
+ * -------------------------------------------------------------------------- */
+
+.hunk-expansion {
+    background-color: var(--diff-hunk-strip-bg);
+    border-top: var(--border-width-hairline) solid var(--border-subtle);
+    border-bottom: var(--border-width-hairline) solid var(--border-subtle);
+    color: var(--text-tertiary);
 }
 
-[data-theme="dark"] .hunk-expansion .bg-info-bg-100 {
-    background-color: #374151 !important;
+/* Two adjacent strips (expand-down then expand-up) otherwise stack into a
+ * double-height band with a seam through it. */
+.hunk-expansion + .hunk-expansion {
+    border-top: 0;
 }
 
-[data-theme="dark"] .hunk-expansion .bg-info-bg-200 {
-    background-color: #4b5563 !important;
+.file-header:hover {
+    background-color: var(--surface-tertiary);
 }
 
-/* Force diff colors to be more prominent */
-.diff-line .line-left.bg-red-50 {
-    background-color: #fecaca !important;
+.file-content {
+    border-color: var(--border-subtle);
 }
 
-.diff-line .line-right.bg-green-50 {
-    background-color: #bbf7d0 !important;
-}
-
-/* Dark theme: Force diff colors to override general background */
-[data-theme="dark"] .diff-line .line-left.bg-red-50,
-[data-theme="dark"] .diff-line .line-left.dark\\:bg-red-900\\/20 {
-    background-color: #4e2f44 !important;
-}
-
-[data-theme="dark"] .diff-line .line-right.bg-green-50,
-[data-theme="dark"] .diff-line .line-right.dark\\:bg-green-900\\/20 {
-    background-color: #2e5e44 !important;
-}
-
-/* Additional dark mode diff color rules with higher specificity */
-[data-theme="dark"] .diff-line .line-left[class*="bg-red"] {
-    background-color: #4e2f44 !important;
-}
-
-[data-theme="dark"] .diff-line .line-right[class*="bg-green"] {
-    background-color: #2e5e44 !important;
-}
-
-/* Direct targeting of the exact classes used in the template */
-[data-theme="dark"] .line-left.dark\\:bg-red-900\\/20 {
-    background-color: #4e2f44 !important;
-}
-
-[data-theme="dark"] .line-right.dark\\:bg-green-900\\/20 {
-    background-color: #2e5e44 !important;
-}
-
-
-
-
-
-/* Most direct approach: override all dark mode backgrounds for diff lines */
-[data-theme="dark"] .diff-line .line-left {
-    background-color: var(--color-diff-context-bg) !important;
-}
-
-[data-theme="dark"] .diff-line .line-right {
-    background-color: var(--color-diff-context-bg) !important;
-}
-
-/* Then force the specific colors for additions/deletions */
-[data-theme="dark"] .diff-line .line-left.bg-red-50,
-[data-theme="dark"] .diff-line .line-left.dark\\:bg-red-900\\/20,
-[data-theme="dark"] .diff-line .line-left[class*="red"] {
-    background-color: #4e2f44 !important;
-}
-
-[data-theme="dark"] .diff-line .line-right.bg-green-50,
-[data-theme="dark"] .diff-line .line-right.dark\\:bg-green-900\\/20,
-[data-theme="dark"] .diff-line .line-right[class*="green"] {
-    background-color: #2e5e44 !important;
-}
-
-/* Strong colors for line numbers in dark mode */
-[data-theme="dark"] .line-num[class*="bg-red"] {
-    background-color: #5e2f34 !important;
-}
-
-[data-theme="dark"] .line-num[class*="bg-green"] {
-    background-color: #3e6e54 !important;
-}
-
-/* Softer colors for content areas in dark mode */
-[data-theme="dark"] .line-content[class*="bg-red"] {
-    background-color: #2a1f24 !important;
-}
-
-[data-theme="dark"] .line-content[class*="bg-green"] {
-    background-color: #2e3f34 !important;
-}
-
-/* Target specific line types based on content */
-[data-theme="dark"] .diff-line.line-deletion .line-left {
-    background-color: #4e2f44 !important;
-}
-
-[data-theme="dark"] .diff-line.line-addition .line-right {
-    background-color: #2e5e44 !important;
-}
-
-/* Dark mode input and select styling */
-[data-theme="dark"] input[type="text"],
-[data-theme="dark"] input[type="search"],
-[data-theme="dark"] select {
-    background-color: var(--color-neutral-100) !important; /* neutral-700 equivalent: #334155 */
-    color: var(--color-text) !important; /* neutral-100 */
-    border-color: var(--color-border) !important; /* neutral-600: #475569 */
-}
-
-[data-theme="dark"] input[type="text"]::placeholder,
-[data-theme="dark"] input[type="search"]::placeholder {
-    color: var(--color-text-secondary) !important; /* neutral-400: #94a3b8 */
-}
-
-[data-theme="dark"] input[type="checkbox"] {
-    background-color: var(--color-neutral-100) !important; /* neutral-700: #334155 */
-    border-color: var(--color-border) !important; /* neutral-600: #475569 */
-    accent-color: var(--color-info-text-600);
-}
-
-[data-theme="dark"] input[type="checkbox"]:checked {
-    background-color: var(--color-info-text-600);
-    border-color: var(--color-info-text-600);
-}
-
-/* Dark mode header and file list backgrounds - force with !important */
-[data-theme="dark"] header,
-[data-theme="dark"] header.bg-neutral-50,
-[data-theme="dark"] header[class*="bg-neutral"],
-[data-theme="dark"] header[class*="dark:bg"] {
-    background-color: #1e293b !important; /* neutral-800 */
-    border-color: #475569 !important; /* neutral-600 - softer border */
-}
-
-[data-theme="dark"] .file-diff,
-[data-theme="dark"] .file-diff.bg-neutral-50,
-[data-theme="dark"] .file-diff[class*="bg-neutral"],
-[data-theme="dark"] .file-diff[class*="dark:bg"] {
-    background-color: #1e293b !important; /* neutral-800 */
-    border-color: #475569 !important; /* neutral-600 - softer border */
-}
-
-.file-diff .file-content {
-    border-left: 1px solid var(--color-border);
-    border-right: 1px solid var(--color-border);
-    border-bottom: 1px solid var(--color-border);
-}
-
-[data-theme="dark"] .file-content {
-    border-color: #475569 !important; /* neutral-600 - softer border */
-}
-
-[data-theme="dark"] .file-header,
-[data-theme="dark"] .file-header[class*="hover:bg"] {
-    background-color: #1e293b !important; /* neutral-800 */
-}
-
-[data-theme="dark"] .file-header:hover,
-[data-theme="dark"] .file-header[class*="hover:bg-neutral"]:hover {
-    background-color: #334155 !important; /* neutral-700 */
-}
-
-[data-theme="dark"] .file-header .font-mono,
-[data-theme="dark"] .file-header .font-mono.text-neutral-900,
-[data-theme="dark"] .file-header span[class*="text-neutral-900"],
-[data-theme="dark"] .file-header span[class*="dark:text"] {
-    color: #cbd5e1 !important; /* neutral-300 - less bright */
-}
-
-/* Force darker backgrounds for buttons and modified pills */
-[data-theme="dark"] .dark-button-bg {
-    background-color: #0a0f1a !important; /* Darker than neutral-900 */
-}
-
-/* Expand/Collapse All buttons styling */
+/* Expand / Collapse All */
 #expandAll,
 #collapseAll {
-    border: 1px solid var(--color-border);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    height: var(--control-height);
+    padding: 0 var(--control-padding-x);
+    font-size: var(--control-font-size);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-secondary);
+    background: var(--surface-raised);
+    border: var(--control-border-width) solid var(--border-default);
+    border-radius: var(--control-radius);
+    box-shadow: var(--shadow-xs);
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out),
+                border-color var(--duration-fast) var(--ease-out),
+                color var(--duration-fast) var(--ease-out);
 }
 
-[data-theme="dark"] #expandAll,
-[data-theme="dark"] #collapseAll {
-    background-color: #1e293b !important;
-    /* neutral-800 - more contrasting */
-    border: 1px solid #475569 !important;
-    /* neutral-600 - slight border */
+#expandAll:hover:not(:disabled),
+#collapseAll:hover:not(:disabled) {
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+    background: var(--surface-tertiary);
 }
 
-[data-theme="dark"] #expandAll:hover,
-[data-theme="dark"] #collapseAll:hover {
-    background-color: #334155 !important;
-    /* neutral-700 - hover state */
+#expandAll:disabled,
+#collapseAll:disabled {
+    color: var(--text-disabled);
+    background: var(--surface-primary);
+    border-color: var(--border-subtle);
+    box-shadow: none;
+    cursor: not-allowed;
 }
 
-/* Theme toggle button hover - match file header hover */
-button[type="button"][title*="dark"],
-button[type="button"][title*="light"],
-button[type="button"][title*="theme"] {
-    transition: background-color 0.2s, color 0.2s;
+/* Group header */
+.group-header {
+    background-color: transparent;
+    border-radius: var(--radius-sm);
+    transition: background-color var(--duration-fast) var(--ease-out);
 }
 
-button[type="button"][title*="dark"]:hover,
-button[type="button"][title*="light"]:hover,
-button[type="button"][title*="theme"]:hover {
-    background-color: var(--surface-tertiary) !important;
-}
-
-[data-theme="dark"] button[type="button"][title*="dark"]:hover,
-[data-theme="dark"] button[type="button"][title*="light"]:hover,
-[data-theme="dark"] button[type="button"][title*="theme"]:hover {
-    background-color: #334155 !important;
-    /* Proper dark mode hover - matches file header hover */
-}
-
-/* Navigation arrow buttons (Previous/Next file) hover */
-button[onclick*="navigateToPreviousFile"]:hover,
-button[onclick*="navigateToNextFile"]:hover {
-    background-color: var(--surface-tertiary) !important;
-}
-
-[data-theme="dark"] button[onclick*="navigateToPreviousFile"]:hover,
-[data-theme="dark"] button[onclick*="navigateToNextFile"]:hover {
-    background-color: #1e293b !important;
-    /* Darker than header hover (#334155) to provide contrast when header is also hovered */
-}
-
-[data-theme="dark"] .dark-modified-pill {
-    background-color: #0a0f1a !important;
-    /* Darker than neutral-900 for modified pills */
-}
-
-[data-theme="dark"] .group-header,
-[data-theme="dark"] .group-header[class*="hover:bg"] {
-    background-color: transparent !important;
-}
-
-[data-theme="dark"] .group-header:hover,
-[data-theme="dark"] .group-header[class*="hover:bg-neutral"]:hover {
-    background-color: #334155 !important; /* neutral-700 */
-}
-
-[data-theme="dark"] .group-header h3,
-[data-theme="dark"] .group-header h3[class*="text-neutral"] {
-    color: #cbd5e1 !important; /* neutral-300 */
+.group-header:hover {
+    background-color: var(--surface-tertiary);
 }
 
 /* Responsive Design */
@@ -1608,4 +790,540 @@ button[onclick*="navigateToNextFile"]:hover {
 .theme-transitioning *::after {
     transition: none !important;
     animation: none !important;
+}
+
+
+/* ============================================================================
+ * DESIGN SYSTEM COMPONENTS
+ * ----------------------------------------------------------------------------
+ * Chrome, controls and structural elements. Every value here is a token from
+ * theme.css — no literals. Added as part of the "Ledger" design pass.
+ * ========================================================================== */
+
+/* --- Application chrome ---------------------------------------------------- */
+
+.app-toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--toolbar-gap);
+    min-height: var(--toolbar-height);
+    padding: var(--space-sm) var(--toolbar-padding-x);
+    background: var(--surface-chrome);
+    border-bottom: var(--border-width-hairline) solid var(--border-default);
+    box-shadow: var(--shadow-xs);
+    position: relative;
+}
+
+/* The one piece of brand colour in the chrome: a hairline rule along the base. */
+.app-toolbar::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: calc(var(--toolbar-rule-width) * -1);
+    height: var(--toolbar-rule-width);
+    background: linear-gradient(
+        to right,
+        var(--accent-base) 0,
+        var(--accent-base) 12rem,
+        transparent 26rem
+    );
+    opacity: 0.9;
+    pointer-events: none;
+}
+
+.app-wordmark {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: var(--tracking-tight);
+    color: var(--text-primary);
+    text-decoration: none;
+    line-height: var(--leading-tight);
+    white-space: nowrap;
+}
+
+.app-wordmark:hover {
+    color: var(--accent-hover);
+}
+
+/* The dot is the smallest possible brand mark — cheap, and it anchors the name. */
+.app-wordmark::after {
+    content: ".";
+    color: var(--accent-base);
+}
+
+/* --- Controls --------------------------------------------------------------- */
+
+.control {
+    font-family: var(--font-ui);
+    font-size: var(--control-font-size);
+    color: var(--text-primary);
+    background: var(--surface-raised);
+    border: var(--control-border-width) solid var(--border-default);
+    border-radius: var(--control-radius);
+    height: var(--control-height);
+    padding: 0 var(--control-padding-x);
+    transition: border-color var(--duration-fast) var(--ease-out),
+                box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.control:hover {
+    border-color: var(--border-strong);
+}
+
+.control:focus,
+.control:focus-visible {
+    outline: none;
+    border-color: var(--border-accent);
+    box-shadow: var(--shadow-focus);
+}
+
+.control::placeholder {
+    color: var(--text-disabled);
+}
+
+/* Native select chrome is the single loudest "unstyled app" signal — replace the
+ * arrow with our own and strip the platform appearance. */
+.control-select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: calc(var(--control-padding-x) * 2.5);
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+                      linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position: right var(--space-md) center, right var(--space-sm) center;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    max-width: 16rem;
+    text-overflow: ellipsis;
+}
+
+.control-search {
+    width: 100%;
+    max-width: 22rem;
+    padding-right: calc(var(--control-padding-x) * 2.5);
+}
+
+/* Custom checkbox — the browser default blue was the other loud tell. */
+.control-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    flex-shrink: 0;
+    width: var(--checkbox-size);
+    height: var(--checkbox-size);
+    margin: 0;
+    border: var(--control-border-width) solid var(--border-strong);
+    border-radius: var(--checkbox-radius);
+    background: var(--surface-raised);
+    cursor: pointer;
+    display: inline-grid;
+    place-content: center;
+    transition: background var(--duration-fast) var(--ease-out),
+                border-color var(--duration-fast) var(--ease-out);
+}
+
+.control-checkbox::before {
+    content: "";
+    width: 0.5rem;
+    height: 0.3rem;
+    border-left: var(--border-width-thick) solid var(--accent-contrast);
+    border-bottom: var(--border-width-thick) solid var(--accent-contrast);
+    transform: rotate(-45deg) scale(0);
+    transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.control-checkbox:checked {
+    background: var(--accent-base);
+    border-color: var(--accent-base);
+}
+
+.control-checkbox:checked::before {
+    transform: rotate(-45deg) scale(1);
+}
+
+.control-checkbox:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+}
+
+/* Toggle label wrapping a checkbox + icon + text */
+.control-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-2xs) var(--space-sm) var(--space-2xs) var(--space-2xs);
+    border-radius: var(--control-radius);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    transition: color var(--duration-fast) var(--ease-out),
+                background var(--duration-fast) var(--ease-out);
+}
+
+.control-toggle:hover {
+    background: var(--surface-tertiary);
+    color: var(--text-primary);
+}
+
+.control-toggle:has(.control-checkbox:checked) {
+    color: var(--text-primary);
+}
+
+.control-toggle-icon {
+    color: var(--text-tertiary);
+    flex-shrink: 0;
+}
+
+.control-toggle:has(.control-checkbox:checked) .control-toggle-icon {
+    color: var(--accent-base);
+}
+
+/* Icon-only button (theme toggle, clear search) */
+.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--control-height);
+    height: var(--control-height);
+    border: var(--control-border-width) solid transparent;
+    border-radius: var(--control-radius);
+    background: transparent;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    line-height: 1;
+    transition: color var(--duration-fast) var(--ease-out),
+                background var(--duration-fast) var(--ease-out),
+                border-color var(--duration-fast) var(--ease-out);
+}
+
+.icon-btn:hover {
+    background: var(--surface-tertiary);
+    border-color: var(--border-default);
+    color: var(--text-primary);
+}
+
+.icon-btn:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+}
+
+.search-clear-btn {
+    position: absolute;
+    right: var(--space-2xs);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 0;
+    border-radius: var(--radius-xs);
+    background: transparent;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    line-height: 1;
+}
+
+.search-clear-btn:hover {
+    color: var(--text-primary);
+    background: var(--surface-tertiary);
+}
+
+/* --- Micro-label ------------------------------------------------------------ */
+
+.micro-label {
+    font-size: var(--text-2xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+}
+
+/* --- Token-bound utilities --------------------------------------------------
+ * Stand-ins for Tailwind's `text-neutral-400 dark:text-neutral-600` pairs.
+ * Tailwind's neutral ramp is its own palette and ignores the theme, so any
+ * template using it silently opts out of theming. These do the same job in one
+ * class and resolve from theme.css.
+ * -------------------------------------------------------------------------- */
+
+.u-text-primary   { color: var(--text-primary); }
+.u-text-secondary { color: var(--text-secondary); }
+.u-text-tertiary  { color: var(--text-tertiary); }
+
+.u-border         { border-color: var(--border-subtle); }
+.u-surface-secondary { background-color: var(--surface-secondary); }
+.u-surface-tertiary  { background-color: var(--surface-tertiary); }
+
+a.u-text-tertiary:hover,
+.u-text-tertiary.hover\:u-text-secondary:hover { color: var(--text-secondary); }
+
+/* --- File card: status accent strip -----------------------------------------
+ * A file's status is currently carried only by a small pill. A colour strip on
+ * the card's leading edge makes it readable while scanning, without adding
+ * another coloured surface to compete with the diff body.
+ * -------------------------------------------------------------------------- */
+
+.file-card {
+    position: relative;
+    /* `clip`, not `hidden`: both keep the status strip inside the rounded
+     * corners, but `hidden` makes the card a scroll container, which silently
+     * disables `position: sticky` on the file header inside it. */
+    overflow: clip;
+    background: var(--surface-secondary);
+    border: var(--file-card-border-width) solid var(--file-card-border-colour);
+    border-radius: var(--file-card-radius);
+    box-shadow: var(--file-card-shadow);
+    transition: box-shadow var(--duration-base) var(--ease-out),
+                border-color var(--duration-base) var(--ease-out);
+}
+
+.file-card:hover {
+    box-shadow: var(--file-card-shadow-hover);
+    border-color: var(--file-card-border-colour-hover);
+}
+
+.file-card::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: var(--file-card-accent-width);
+    background: var(--file-card-accent-colour, var(--border-strong));
+    opacity: var(--file-card-accent-opacity);
+}
+
+.file-card[data-status="added"]    { --file-card-accent-colour: var(--diff-addition-text); }
+.file-card[data-status="deleted"]  { --file-card-accent-colour: var(--diff-deletion-text); }
+.file-card[data-status="renamed"]  { --file-card-accent-colour: var(--accent-base); }
+.file-card[data-status="modified"] { --file-card-accent-colour: var(--border-strong); }
+
+/* --- Badges ------------------------------------------------------------------ */
+
+.status-badge {
+    display: inline-block;
+    font-size: var(--badge-font-size);
+    font-weight: var(--badge-font-weight);
+    letter-spacing: var(--badge-tracking);
+    text-transform: uppercase;
+    padding: var(--badge-padding-y) var(--badge-padding-x);
+    border-radius: var(--badge-radius);
+    flex-shrink: 0;
+    line-height: var(--leading-normal);
+}
+
+.status-badge-added    { background: var(--status-added-bg);    color: var(--status-added-text); }
+.status-badge-deleted  { background: var(--status-deleted-bg);  color: var(--status-deleted-text); }
+.status-badge-renamed  { background: var(--status-renamed-bg);  color: var(--status-renamed-text); }
+.status-badge-modified { background: var(--status-modified-bg); color: var(--status-modified-text); }
+
+.file-stat {
+    display: inline-block;
+    padding: var(--badge-padding-y) var(--badge-padding-x);
+    border-radius: var(--badge-radius);
+    font-size: var(--badge-font-size);
+    font-weight: var(--badge-font-weight);
+    font-variant-numeric: tabular-nums;
+}
+
+/* --- Group header ------------------------------------------------------------ */
+
+.diff-group-header-label,
+.group-header h3 {
+    font-size: var(--group-header-font-size);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--group-label-tracking);
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.diff-group-header-count {
+    background: var(--surface-tertiary);
+    color: var(--text-tertiary);
+    border: var(--border-width-hairline) solid var(--border-subtle);
+    border-radius: var(--radius-pill);
+    font-size: var(--text-2xs);
+    font-weight: var(--font-weight-medium);
+    font-variant-numeric: tabular-nums;
+    padding: var(--badge-padding-y) var(--space-md);
+}
+
+/* --- Changed-row rules -------------------------------------------------------
+ * A tinted background alone makes large deletions read as one heavy block. A
+ * rule on the leading edge of each changed row restores line-level structure.
+ * -------------------------------------------------------------------------- */
+
+.diff-line-deleted::before,
+.diff-line-added::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: var(--diff-rule-width);
+}
+
+.diff-line-deleted::before { background: var(--diff-deletion-rule); opacity: 0.55; }
+.diff-line-added::before   { background: var(--diff-addition-rule); opacity: 0.55; }
+
+/* --- Pane headers -------------------------------------------------------------
+ * The "Original file / File deleted" bar above whole-file views, and any other
+ * column caption inside a card.
+ * -------------------------------------------------------------------------- */
+
+.pane-header {
+    font-family: var(--font-ui);
+    font-size: var(--text-2xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    background: var(--surface-tertiary);
+    padding: var(--space-sm) var(--space-lg);
+}
+
+/* --- Auto-reload indicator ------------------------------------------------------ */
+
+#auto-reload-indicator {
+    position: fixed;
+    right: var(--space-lg);
+    bottom: var(--space-lg);
+    z-index: 1000;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    padding: var(--space-2xs) var(--space-md);
+    font-family: var(--font-ui);
+    font-size: var(--text-2xs);
+    letter-spacing: var(--tracking-wide);
+    color: var(--text-tertiary);
+    background: var(--surface-raised);
+    border: var(--border-width-hairline) solid var(--border-default);
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+    opacity: 0.55;
+    transition: opacity var(--duration-base) var(--ease-out),
+                color var(--duration-base) var(--ease-out);
+}
+
+#auto-reload-indicator:hover {
+    opacity: 1;
+    color: var(--text-secondary);
+}
+
+/* --- Empty and loading states ---------------------------------------------------
+ * Both were plain centred text. They are the first thing a new user sees.
+ * -------------------------------------------------------------------------- */
+
+.state-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    padding: var(--space-4xl) var(--space-xl);
+    text-align: center;
+    background: var(--surface-secondary);
+    border: var(--border-width-hairline) dashed var(--border-default);
+    border-radius: var(--file-card-radius);
+    color: var(--text-secondary);
+}
+
+.state-panel-title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--tracking-tight);
+    color: var(--text-primary);
+}
+
+.state-panel-body {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    max-width: 34rem;
+}
+
+.state-panel-note {
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
+}
+
+/* A quiet accent tick so the empty state carries the same identity as the chrome */
+.state-panel::before {
+    content: "";
+    width: var(--space-2xl);
+    height: var(--border-width-thick);
+    background: var(--accent-base);
+    border-radius: var(--radius-pill);
+    opacity: 0.8;
+}
+
+.spinner {
+    width: var(--space-xl);
+    height: var(--space-xl);
+    border: var(--border-width-thick) solid var(--border-default);
+    border-top-color: var(--accent-base);
+    border-radius: var(--radius-pill);
+    animation: spinner-rotate var(--duration-slow) linear infinite;
+}
+
+@keyframes spinner-rotate {
+    to { transform: rotate(360deg); }
+}
+
+/* Connection dot — replaces emoji traffic lights, so the state colour comes
+ * from the theme like everything else. */
+.status-dot {
+    width: var(--space-sm);
+    height: var(--space-sm);
+    border-radius: var(--radius-pill);
+    background: var(--text-disabled);
+    flex-shrink: 0;
+    transition: background var(--duration-base) var(--ease-out);
+}
+
+#auto-reload-indicator[data-status="connected"]  .status-dot { background: var(--diff-addition-text); }
+#auto-reload-indicator[data-status="connecting"] .status-dot { background: var(--accent-base); }
+#auto-reload-indicator[data-status="error"]      .status-dot { background: var(--diff-deletion-text); }
+#auto-reload-indicator[data-status="disabled"]   .status-dot { background: var(--text-disabled); }
+
+#auto-reload-indicator.is-paused { opacity: 0.3; }
+
+.state-panel-error {
+    border-style: solid;
+    border-color: var(--diff-deletion-linenum-bg);
+}
+
+.state-panel-error::before {
+    background: var(--diff-deletion-text);
+}
+
+.state-panel-error .state-panel-title {
+    color: var(--diff-deletion-text);
+}
+
+/* Search sits at the trailing edge and gives up width before anything else. */
+.toolbar-search {
+    flex: 0 1 22rem;
+    min-width: 11rem;
+}
+
+.toolbar-search .control-search {
+    width: 100%;
+    max-width: none;
+}
+
+.hunk-expansion-strip .hunk-expansion-linenum {
+    padding-block: var(--space-2xs);
+}
+
+
+/* --- Spacing between file cards ------------------------------------------------
+ * The cards are siblings inside `.group-content`, which had no spacing rule —
+ * `space-y-2` sits on `.diff-group`, whose children are the group header and the
+ * content wrapper, so it never reached them. The cards were therefore flush, and
+ * the sticky header's masking strip was acting as the separator by accident.
+ * -------------------------------------------------------------------------- */
+
+.group-content > .file-card + .file-card {
+    margin-top: var(--file-card-gap);
 }

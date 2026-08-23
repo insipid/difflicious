@@ -144,9 +144,13 @@ export const AutoReload = {
     addStatusIndicator() {
         const indicator = document.createElement('div');
         indicator.id = 'auto-reload-indicator';
-        indicator.className = 'fixed bottom-4 right-4 px-2 py-1 text-xs rounded opacity-50 hover:opacity-100 transition-opacity';
-        indicator.style.cssText = 'background: var(--surface-secondary); color: var(--text-secondary); pointer-events: auto; cursor: pointer; z-index: 1000;';
-        indicator.innerHTML = '<span class="js-connection-status">🟡 Auto-reload</span>';
+        // Presentation lives in styles.css (#auto-reload-indicator); only the
+        // pointer-events hint stays inline because it is behavioural.
+        indicator.style.pointerEvents = 'auto';
+        indicator.dataset.status = 'connecting';
+        indicator.innerHTML =
+            '<span class="status-dot" aria-hidden="true"></span>' +
+            '<span class="js-connection-status">Auto-reload</span>';
         indicator.title = 'Click to disable auto-reload';
 
         // Toggle on click
@@ -154,11 +158,11 @@ export const AutoReload = {
             if (this.enabled) {
                 this.disconnect();
                 this.enabled = false;
-                indicator.style.opacity = '0.3';
+                indicator.classList.add('is-paused');
                 indicator.title = 'Click to enable auto-reload';
             } else {
                 this.enabled = true;
-                indicator.style.opacity = '0.5';
+                indicator.classList.remove('is-paused');
                 indicator.title = 'Click to disable auto-reload';
                 // Refresh page to catch any changes made while paused
                 await this.handleFileChange();
@@ -178,12 +182,14 @@ export const AutoReload = {
         if (!statusText) return;
 
         const statusMessages = {
-            'connected': '🟢 Auto-reload',
-            'connecting': '🟡 Auto-reload',
-            'error': '🔴 Auto-reload',
-            'disabled': '⚫ Auto-reload'
+            'connected': 'Auto-reload',
+            'connecting': 'Connecting',
+            'error': 'Reload offline',
+            'disabled': 'Auto-reload off'
         };
 
+        // The dot carries the state colour; see .status-dot in styles.css.
+        indicator.dataset.status = status;
         statusText.textContent = statusMessages[status] || status;
     }
 };

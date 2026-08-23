@@ -35,18 +35,16 @@ class SyntaxHighlightingService:
 
     def __init__(self) -> None:
         """Initialize the syntax highlighting service."""
-        # Configure HTML formatters for both themes
-        self.light_formatter = HtmlFormatter(
+        # A single class-based formatter serves both themes.
+        #
+        # Highlighting happens once, server-side, but the theme is switched in the
+        # browser. Inline styles (noclasses=True) would bake one theme's colours
+        # into the markup and could not be overridden by a stylesheet, which left
+        # dark mode showing light-theme code colours. Emitting CSS classes instead
+        # lets `theme.css` own the palette for both themes.
+        self.formatter = HtmlFormatter(
             nowrap=True,  #        # Don't wrap in <pre> tags
-            noclasses=True,  #     # Use inline styles for consistency
-            style="default",  #    # Use default theme for light mode
-            cssclass="highlight",  # CSS class for highlighted code
-        )
-
-        self.dark_formatter = HtmlFormatter(
-            nowrap=True,  #        # Don't wrap in <pre> tags
-            noclasses=True,  #     # Use inline styles for consistency
-            style="one-dark",  #   # Use one-dark theme for dark mode
+            noclasses=False,  #    # Emit CSS classes so themes can restyle them
             cssclass="highlight",  # CSS class for highlighted code
         )
 
@@ -64,7 +62,8 @@ class SyntaxHighlightingService:
         Args:
             content: The code content to highlight
             file_path: Path to determine language
-            theme: Theme to use ("light" or "dark")
+            theme: Retained for API compatibility. Token colours are now supplied
+                by CSS variables, so both themes share one set of markup.
 
         Returns:
             HTML-highlighted code content
@@ -84,8 +83,7 @@ class SyntaxHighlightingService:
             )
 
             lexer = self._get_cached_lexer(file_path)
-            formatter = self.dark_formatter if theme == "dark" else self.light_formatter
-            highlighted = highlight(rest, lexer, formatter)
+            highlighted = highlight(rest, lexer, self.formatter)
             return (nbsp_prefix + str(highlighted)).rstrip("\n")
         except Exception as e:
             logger.debug(f"Highlighting failed for {file_path}: {e}")
@@ -118,21 +116,59 @@ class SyntaxHighlightingService:
 
         return self._lexer_cache[file_ext]
 
+    #: Pygments token classes grouped by the design token that colours them.
+    #: Mapping to variables rather than to a Pygments style keeps every colour
+    #: decision in `theme.css`, and means both themes are served by one ruleset.
+    _TOKEN_GROUPS: dict[str, tuple[str, ...]] = {
+        "keyword": ("k", "kc", "kd", "kn", "kp", "kr", "kt", "ow"),
+        "string": (
+            "s",
+            "sa",
+            "sb",
+            "sc",
+            "dl",
+            "sd",
+            "s2",
+            "se",
+            "sh",
+            "si",
+            "sx",
+            "sr",
+            "s1",
+            "ss",
+        ),
+        "number": ("m", "mb", "mf", "mh", "mi", "mo", "il"),
+        "comment": ("c", "ch", "cm", "cp", "cpf", "c1", "cs"),
+        "function": ("nf", "fm", "nd"),
+        "class": ("nc", "nn", "ne", "no", "nt"),
+        "builtin": ("nb", "bp", "nv", "vc", "vg", "vi", "vm"),
+        "operator": ("o", "p"),
+        "name": ("n", "na", "nl", "nx", "py", "ni"),
+        "error": ("err", "gr"),
+    }
+
     def get_css_styles(self) -> str:
-        """Get CSS styles for syntax highlighting for both light and dark themes.
+        """Get CSS rules mapping Pygments token classes to theme variables.
+
+        The rules are theme-agnostic: each token class points at a
+        ``--syntax-*`` custom property, and the active theme decides the value.
 
         Returns:
-            CSS styles as string with theme-specific rules
+            CSS styles as string
         """
-        light_styles = str(self.light_formatter.get_style_defs(".highlight"))
-        dark_styles = str(
-            self.dark_formatter.get_style_defs('[data-theme="dark"] .highlight')
-        )
+        rules = []
+        for token, classes in self._TOKEN_GROUPS.items():
+            selector = ", ".join(f".highlight .{cls}" for cls in classes)
+            rules.append(f"{selector} {{ color: var(--syntax-{token}); }}")
 
+        body = "\n".join(rules)
         return f"""
-/* Light theme syntax highlighting */
-{light_styles}
-
-/* Dark theme syntax highlighting */
-{dark_styles}
+/* Syntax highlighting — colours resolve from theme.css for the active theme */
+.highlight {{ color: var(--syntax-name); }}
+{body}
+.highlight .gh, .highlight .gu {{ color: var(--syntax-class); }}
+.highlight .gd {{ color: inherit; }}
+.highlight .gi {{ color: inherit; }}
+.highlight .ge {{ font-style: italic; }}
+.highlight .gs {{ font-weight: var(--font-weight-semibold); }}
 """
