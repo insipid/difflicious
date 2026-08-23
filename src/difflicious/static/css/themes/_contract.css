@@ -151,6 +151,9 @@
 
     /* Hunk expansion strip */
     --hunk-strip-height:   1.5rem;
+    /* The whole strip is the click target, so it needs a hover state of its own
+     * rather than relying on the pill inside it. */
+    --hunk-strip-bg-hover: var(--accent-muted);
     --hunk-strip-radius:   var(--radius-pill);
     --hunk-strip-font-size:var(--text-2xs);
 

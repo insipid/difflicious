@@ -5,12 +5,16 @@
 
     <!-- Up Expansion Controls (before hunk) -->
     {% if hunk.can_expand_before %}
-    <div class="hunk-expansion hunk-expansion-strip text-xs font-mono border-b flex">
+    <div class="hunk-expansion hunk-expansion-strip text-xs font-mono border-b flex" @click="$store.diff.expandContext($el.querySelector('.js-expansion-btn'))"
+        @keydown.enter.prevent="$store.diff.expandContext($el.querySelector('.js-expansion-btn'))"
+        @keydown.space.prevent="$store.diff.expandContext($el.querySelector('.js-expansion-btn'))"
+        role="button" tabindex="0"
+        aria-label="Expand 10 lines above this hunk">
         <!-- Left Side Controls -->
         <div class="flex-1 border-r u-border">
             <div class="flex">
                 <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
-                    <button @click="$store.diff.expandContext($el)"
+                    <button @click.stop="$store.diff.expandContext($el)" tabindex="-1"
                         class="js-expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
                         data-file-path="{{ file.path }}"
                         data-hunk-index="{{ hunk.index }}"
@@ -36,7 +40,7 @@
         <div class="flex-1">
             <div class="flex">
                 <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
-                    <button @click="$store.diff.expandContext($el)"
+                    <button @click.stop="$store.diff.expandContext($el)" tabindex="-1"
                         class="js-expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
                         data-file-path="{{ file.path }}"
                         data-hunk-index="{{ hunk.index }}"
@@ -133,12 +137,16 @@
 
     <!-- Down Expansion Controls (after hunk) -->
     {% if hunk.can_expand_after %}
-    <div class="hunk-expansion hunk-expansion-strip text-xs font-mono border-t flex">
+    <div class="hunk-expansion hunk-expansion-strip text-xs font-mono border-t flex" @click="$store.diff.expandContext($el.querySelector('.js-expansion-btn'))"
+        @keydown.enter.prevent="$store.diff.expandContext($el.querySelector('.js-expansion-btn'))"
+        @keydown.space.prevent="$store.diff.expandContext($el.querySelector('.js-expansion-btn'))"
+        role="button" tabindex="0"
+        aria-label="Expand 10 lines below this hunk">
         <!-- Left Side Controls -->
         <div class="flex-1 border-r u-border">
             <div class="flex">
                 <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
-                    <button @click="$store.diff.expandContext($el)"
+                    <button @click.stop="$store.diff.expandContext($el)" tabindex="-1"
                         class="js-expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
                         data-file-path="{{ file.path }}"
                         data-hunk-index="{{ hunk.index }}"
@@ -158,7 +166,7 @@
         <div class="flex-1">
             <div class="flex">
                 <div class="w-12 hunk-expansion-linenum border-r select-none flex flex-col">
-                    <button @click="$store.diff.expandContext($el)"
+                    <button @click.stop="$store.diff.expandContext($el)" tabindex="-1"
                         class="js-expansion-btn w-full px-2 py-1 text-xs hunk-expansion-btn transition-colors flex items-center justify-center h-full"
                         data-file-path="{{ file.path }}"
                         data-hunk-index="{{ hunk.index }}"

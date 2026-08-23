@@ -77,6 +77,32 @@
     color: var(--text-tertiary);
     border-color: var(--border-subtle);
     font-size: var(--hunk-strip-font-size);
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out),
+                color var(--duration-fast) var(--ease-out);
+}
+
+/* The pills are small; the row is the real hit target. Hovering anywhere on it
+ * tints the row and fills the pills, so the whole strip reads as one control. */
+.hunk-expansion-strip:hover {
+    background: var(--hunk-strip-bg-hover);
+    color: var(--accent-active);
+}
+
+.hunk-expansion-strip:hover .hunk-expansion-btn {
+    background: var(--accent-base);
+    border-color: var(--accent-base);
+    color: var(--accent-contrast);
+}
+
+.hunk-expansion-strip:focus-visible {
+    outline: var(--focus-ring-width) solid var(--accent-base);
+    outline-offset: calc(var(--focus-ring-width) * -1);
+}
+
+/* The pills are reached through the row, so they are not separate tab stops. */
+.hunk-expansion-strip .hunk-expansion-btn {
+    pointer-events: none;
 }
 .hunk-expansion-linenum {
     background: transparent;
