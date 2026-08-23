@@ -178,7 +178,12 @@
     --spacing-md: var(--space-lg);
     --spacing-lg: var(--space-xl);
     --spacing-xl: var(--space-2xl);
+    /* Scroll anchoring offset when navigating between files. */
     --file-header-sticky-offset: var(--space-lg);
+    /* Masking strip above the sticky file header. Zero by default: the header is
+     * opaque, so it needs no mask, and any height here reads as an empty bar
+     * inside every card rather than as space between them. */
+    --file-header-spacer-height: 0;
 
     --border-radius:    var(--radius-md);
     --border-radius-sm: var(--radius-xs);

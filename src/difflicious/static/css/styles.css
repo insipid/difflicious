@@ -613,8 +613,10 @@ header {
 }
 
 .file-diff .file-header-spacer {
-    height: var(--file-header-sticky-offset);
-    background-color: var(--color-bg);
+    height: var(--file-header-spacer-height);
+    /* Card surface, not page background: if a theme does give this height, it
+     * should read as padding above the header, never as a gap. */
+    background-color: var(--surface-secondary);
     border-left: none;
     border-right: none;
     border-top: none;
@@ -1057,7 +1059,10 @@ a.u-text-tertiary:hover,
 
 .file-card {
     position: relative;
-    overflow: hidden;
+    /* `clip`, not `hidden`: both keep the status strip inside the rounded
+     * corners, but `hidden` makes the card a scroll container, which silently
+     * disables `position: sticky` on the file header inside it. */
+    overflow: clip;
     background: var(--surface-secondary);
     border: var(--file-card-border-width) solid var(--file-card-border-colour);
     border-radius: var(--file-card-radius);
@@ -1330,4 +1335,16 @@ a.u-text-tertiary:hover,
 
 .hunk-expansion-strip .hunk-expansion-linenum {
     padding-block: var(--space-2xs);
+}
+
+
+/* --- Spacing between file cards ------------------------------------------------
+ * The cards are siblings inside `.group-content`, which had no spacing rule —
+ * `space-y-2` sits on `.diff-group`, whose children are the group header and the
+ * content wrapper, so it never reached them. The cards were therefore flush, and
+ * the sticky header's masking strip was acting as the separator by accident.
+ * -------------------------------------------------------------------------- */
+
+.group-content > .file-card + .file-card {
+    margin-top: var(--file-card-gap);
 }
