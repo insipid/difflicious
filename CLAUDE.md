@@ -217,8 +217,8 @@ DIFFLICIOUS_AUTO_RELOAD=false difflicious
 - ✅ **Docker Support**: Production-ready containerization with Alpine Linux
 - ✅ **Real-time Updates**: Server-Sent Events implementation for live status monitoring
 - ✅ **Modular Frontend**: ES6 module architecture for maintainable JavaScript
-- 🚧 **Word-level Diffs**: Advanced word-diff parsing (future enhancement)
-- 🚧 **Keyboard Shortcuts**: Accessibility and power-user features (planned)
+- ✅ **Theming**: Three built-in themes, selectable at startup, with light and dark variants
+- ✅ **Sticky File Headers**: File headers pin to the top while scrolling a diff
 
 ## Security Requirements (IMPLEMENTED)
 

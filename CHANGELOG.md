@@ -5,6 +5,57 @@ All notable changes to difflicious will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.0] - 2026-08-23
+
+### Themes & Interface
+
+The interface is rebuilt on a theme layer. Every design decision — colour,
+spacing, radius, border width, typography, shadow, motion, density — now lives in
+`static/css/themes/`, and a theme can be swapped without touching anything else.
+See [`docs/THEMING.md`](docs/THEMING.md).
+
+### Added
+- **Three themes** — `ledger` (default, warm paper and ochre), `slate` (cool
+  greys and indigo), `sorbet` (bright, rounded, turquoise). Each ships light and
+  dark variants as peers, not as a filter over one another
+- **Theme selection** — `--theme` or `DIFFLICIOUS_THEME`, listed with
+  `--list-themes`. A value that looks like a URL is loaded as a custom
+  stylesheet, named after its file
+- **Per-theme typefaces** — a theme declares its own display and UI faces; only
+  the selected theme's fonts are fetched
+- **Theme gallery** — thumbnails of every theme in both schemes in the theming
+  docs, and `scripts/screenshot.py --all-themes` to regenerate them
+
+### Fixed
+- **Dark-mode syntax highlighting** — Pygments ran with `noclasses=True`, baking
+  one theme's colours inline server-side where no stylesheet could override
+  them, while the theme is switched in the browser. Dark mode had been showing
+  light-theme code colours. The formatter is now class-based
+- **Syntax CSS was never injected** — a formatter had split `{{ syntax_css }}`
+  into `{ { … } }`, so the block rendered as literal text
+- **Dark-mode overrides fighting the theme** — around 250 lines of `!important`
+  rules with hardcoded colours, most of them matching classes the templates no
+  longer emit, prevented a theme change taking full effect
+- **Sticky file headers** — restored; they had been disabled by an `overflow`
+  rule on the file card
+- **Empty bar above every file header** — a masking strip had become the only
+  separation between cards, which were otherwise flush. Cards now have a real gap
+- **Whole expansion strip is clickable** — expanding context no longer requires
+  hitting a 28px pill, and the row is keyboard-operable
+- **JavaScript linting** — `lint:js` never checked two source files, because npm
+  runs scripts through a shell where `**` is not recursive
+- **Lockfile** — `playwright` was declared in `pyproject.toml` but missing from
+  `uv.lock`, so every `uv run` re-resolved and rewrote it
+
+### Changed
+- **pnpm 11** in CI, matching local development
+- **Git worktrees** may live in `.worktrees/` inside the repo; the file watcher
+  and test runners ignore them
+- **Docs** — completed plans and superseded specs archived under
+  `docs/internal/archive/`; the CSS style guide is retired in favour of
+  `docs/THEMING.md`
+- Removed the stray `package-lock.json`; the project is pnpm throughout
+
 ## [0.13.0] - 2026-04-14
 
 ### Release Automation & Infrastructure
@@ -45,7 +96,13 @@ Enforced explicit contracts between the data, service, template, CSS, and JS lay
 - **File content animation** — removed vertical scale transform; transition is now a plain opacity fade
 - **Ctrl+C shutdown** — SIGINT now triggers `os._exit(0)` matching the existing SIGTERM handler, so a single keypress exits cleanly regardless of open SSE connections
 
-## [1.0.0] - 2026-02-06
+## [1.0.0] - 2026-02-06 — never released
+
+> **This release does not exist.** It was published in error and withdrawn: there
+> is no `v1.0.0` tag, and no 1.0.0 on PyPI. Development continued from 0.11.0.
+> The entry is kept so the mistake is on the record rather than an unexplained
+> gap, but nothing below shipped under this version number — the changes went out
+> in 0.11.0 and later.
 
 ### Stable Release
 
