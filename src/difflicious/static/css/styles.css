@@ -46,6 +46,7 @@
 /* Diff line: deletion (left side, red) */
 .diff-line-deleted {
     background: var(--diff-deletion-bg);
+    position: relative;
 }
 .diff-line-deleted-num {
     background: var(--diff-deletion-linenum-bg);
@@ -58,6 +59,7 @@
 /* Diff line: addition (right side, green) */
 .diff-line-added {
     background: var(--diff-addition-bg);
+    position: relative;
 }
 .diff-line-added-num {
     background: var(--diff-addition-linenum-bg);
@@ -117,6 +119,12 @@
     transition: background var(--duration-fast) var(--ease-out),
                 color var(--duration-fast) var(--ease-out),
                 border-color var(--duration-fast) var(--ease-out);
+    /* Sized here rather than left to the utility classes on the markup. */
+    width: auto;
+    height: var(--hunk-strip-height);
+    min-width: 1.75rem;
+    padding: 0 var(--space-sm);
+    margin: auto;
 }
 .hunk-expansion-btn:hover {
     background: var(--accent-base);
@@ -174,14 +182,6 @@
 .diff-group-header-label {
     color: var(--text-primary);
 }
-.diff-group-header-count {
-    background: var(--surface-tertiary);
-    color: var(--text-secondary);
-    border-radius: var(--radius-pill);
-    font-size: var(--text-xs);
-    padding: var(--space-3xs) var(--space-sm);
-}
-
 /* Moved-file expansion strip */
 .moved-file-strip {
     background: var(--semantic-info-bg-subtle);
@@ -454,6 +454,11 @@ header {
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    background-color: var(--diff-gutter-bg);
+    color: var(--diff-gutter-text);
+    border-right: var(--border-width-hairline) solid var(--diff-gutter-border);
+    font-variant-numeric: tabular-nums;
+    font-size: var(--text-2xs);
 }
 
 .diff-line .line-content {
@@ -508,14 +513,6 @@ header {
  * what read as dead space. A sunken surface and a hairline rule make it a
  * column. Ordering (not !important) lets the per-line status classes win.
  * -------------------------------------------------------------------------- */
-.diff-line .line-num {
-    background-color: var(--diff-gutter-bg);
-    color: var(--diff-gutter-text);
-    border-right: var(--border-width-hairline) solid var(--diff-gutter-border);
-    font-variant-numeric: tabular-nums;
-    font-size: var(--text-2xs);
-}
-
 .diff-line .line-num.diff-line-deleted-num {
     background-color: var(--diff-deletion-linenum-bg);
     color: var(--diff-deletion-linenum-text);
@@ -532,32 +529,18 @@ header {
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
-/* Expanded Context Styles */
-/* Removed background colors to make expanded sections blend seamlessly */
+/* Expanded context: no background of its own, so it blends into the diff. */
 .expanded-context {
-    /* background-color: var(--color-expanded-context-bg); */
-    /* opacity: 0.95; */
     border: none;
+    animation: fadeIn var(--duration-base) var(--ease-out);
 }
 
 .expanded-context .diff-line {
-    /* background-color: var(--color-expanded-context-bg); */
     border: none;
 }
 
 .expanded-context .line-num {
-    /* background-color: var(--color-neutral-100) !important; */
-    /* color: var(--color-neutral-500); */
     font-style: normal;
-}
-
-.expanded-context .line-content {
-    /* color: var(--color-neutral-700); */
-}
-
-/* Expanded context animation - simple fade in */
-.expanded-context {
-    animation: fadeIn 0.2s ease-out;
 }
 
 @keyframes fadeIn {
@@ -599,10 +582,12 @@ header {
  * emits class rules that resolve --syntax-* from theme.css, so both themes
  * are served by one ruleset and neither needs an override here. */
 
-/* File header text truncation fixes */
+/* File header: truncation plus surface. */
 .file-header {
     min-width: 0;
     overflow: hidden;
+    background-color: var(--surface-secondary);
+    transition: background-color var(--duration-fast) var(--ease-out);
 }
 
 /* Force filename container to only take content width */
@@ -717,11 +702,6 @@ header {
  * double-height band with a seam through it. */
 .hunk-expansion + .hunk-expansion {
     border-top: 0;
-}
-
-.file-header {
-    background-color: var(--surface-secondary);
-    transition: background-color var(--duration-fast) var(--ease-out);
 }
 
 .file-header:hover {
@@ -1172,11 +1152,6 @@ a.u-text-tertiary:hover,
  * rule on the leading edge of each changed row restores line-level structure.
  * -------------------------------------------------------------------------- */
 
-.diff-line-deleted,
-.diff-line-added {
-    position: relative;
-}
-
 .diff-line-deleted::before,
 .diff-line-added::before {
     content: "";
@@ -1188,18 +1163,6 @@ a.u-text-tertiary:hover,
 
 .diff-line-deleted::before { background: var(--diff-deletion-rule); opacity: 0.55; }
 .diff-line-added::before   { background: var(--diff-addition-rule); opacity: 0.55; }
-
-/* --- Auto-reload indicator ---------------------------------------------------- */
-
-.auto-reload-indicator,
-#auto-reload-indicator {
-    background: var(--surface-raised);
-    border: var(--border-width-hairline) solid var(--border-default);
-    border-radius: var(--radius-pill);
-    box-shadow: var(--shadow-md);
-    color: var(--text-tertiary);
-    font-size: var(--text-2xs);
-}
 
 /* --- Pane headers -------------------------------------------------------------
  * The "Original file / File deleted" bar above whole-file views, and any other
@@ -1347,16 +1310,6 @@ a.u-text-tertiary:hover,
 .toolbar-search .control-search {
     width: 100%;
     max-width: none;
-}
-
-/* The expansion control is a pill inside the gutter cell, not the whole cell.
- * Overrides the utility sizing still present on the button markup. */
-.hunk-expansion-btn {
-    width: auto;
-    height: var(--hunk-strip-height);
-    min-width: 1.75rem;
-    padding: 0 var(--space-sm);
-    margin: auto;
 }
 
 .hunk-expansion-strip .hunk-expansion-linenum {
