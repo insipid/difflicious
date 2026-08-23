@@ -86,6 +86,43 @@ AVAILABLE_THEMES = {
             "&display=swap"
         ),
     },
+    # --- Candidates under review ------------------------------------------
+    # Three proposals for a theme with more colour and more shape than the
+    # first three. Registered so they can be rendered and screenshotted; one
+    # or more will be kept and the rest dropped before this lands.
+    "terrace": {
+        "name": "Terrace",
+        "description": "Warm plaster and clay, rounded, with a kiln-teal accent",
+        "file": "terrace.css",
+        "google_fonts_url": (
+            "https://fonts.googleapis.com/css2"
+            "?family=Fraunces:opsz,wght@9..144,600;9..144,700"
+            "&family=Karla:wght@400;500;600;700"
+            "&display=swap"
+        ),
+    },
+    "draught": {
+        "name": "Draught",
+        "description": "Petrol-blue drafting board, squared off, with a mulberry accent",
+        "file": "draught.css",
+        "google_fonts_url": (
+            "https://fonts.googleapis.com/css2"
+            "?family=Space+Grotesk:wght@500;600;700"
+            "&family=Archivo:wght@400;500;600"
+            "&display=swap"
+        ),
+    },
+    "riso": {
+        "name": "Riso",
+        "description": "Heather ground and cream stock, hard offset ink, slab type",
+        "file": "riso.css",
+        "google_fonts_url": (
+            "https://fonts.googleapis.com/css2"
+            "?family=Zilla+Slab:wght@500;600;700"
+            "&family=Work+Sans:wght@400;500;600"
+            "&display=swap"
+        ),
+    },
 }
 
 THEME_CONTRACT_FILE = "_contract.css"

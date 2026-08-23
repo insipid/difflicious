@@ -1,0 +1,303 @@
+/* ============================================================================
+ * RISO — two-ink print: heather ground, hard shadows, slab type
+ * ============================================================================
+ *
+ * Approach 3 of three "more character" candidates, and the loudest of them
+ * without ever raising its voice. The reference is a risograph print: a dusty
+ * heather ground, cream stock laid over it, a violet-black ink used for outlines
+ * and for shadows that have no blur at all — an offset block of colour, the way
+ * a second pass of ink sits slightly off-register.
+ *
+ * That hard offset is the whole idea. It is a single change to the shadow tokens
+ * and it makes every card read as a printed object rather than a floating panel.
+ * Ultramarine is the accent: a fifth hue nothing else in the app uses, cool
+ * against the warm cream and clear of both diff colours.
+ *
+ * Type is a slab serif over a humanist sans. Radii are middling — the character
+ * is in the ink and the offset, so the corners stay out of the way.
+ *
+ * Loaded after `themes/_contract.css`.
+ * ========================================================================== */
+
+/* ============================================================================
+ * 2. PALETTE + 3. SEMANTIC — LIGHT ("heather and cream")
+ * ========================================================================== */
+
+:root {
+
+    /* --- Palette: heather ramp -------------------------------------------- */
+    --theme-riso-50:  #fffdfb;
+    --theme-riso-100: #fdf9f6;
+    --theme-riso-200: #e2dcea;
+    --theme-riso-300: #d3cbe1;
+    --theme-riso-400: #b4a9c9;
+    --theme-riso-500: #8a7ea3;
+    --theme-riso-600: #665c7d;
+    --theme-riso-700: #48405c;
+    --theme-riso-800: #2f2940;
+    --theme-riso-900: #1d1828;
+
+    /* The ink. Used at full strength on card edges and, with alpha, as the
+     * offset block that stands in for elevation. */
+    --theme-riso-ink: #2a2340;
+
+    /* Named surfaces, private to this theme. */
+    --theme-riso-rail:   #efeaf7;   /* toolbar — pale lilac */
+    --theme-riso-gutter: #f1ecf7;   /* line-number gutters */
+
+    /* --- Palette: ultramarine accent -------------------------------------- */
+    --theme-accent-subtle:   #e0e4fa;
+    --theme-accent-muted:    #b2bdf1;
+    --theme-accent-base:     #3a4bb8;
+    --theme-accent-hover:    #2f3d9c;
+    --theme-accent-active:   #26317e;
+    --theme-accent-contrast: #ffffff;
+
+    /* --- Palette: diff green / red, printed ink rather than screen ---------- */
+    --theme-add-bg:        #ddf0dd;
+    --theme-add-bg-strong: #bfe3c2;
+    --theme-add-marker:    #2f7a41;
+    --theme-add-ink:       #205a2e;
+
+    --theme-del-bg:        #fce3e0;
+    --theme-del-bg-strong: #f6c8c2;
+    --theme-del-marker:    #c04331;
+    --theme-del-ink:       #9b3122;
+
+    --theme-shadow-color: 42 35 64;   /* the ink, consumed with alpha */
+
+    /* --- SEMANTIC — surfaces ---------------------------------------------- */
+    --surface-primary:   var(--theme-riso-200);   /* page: heather */
+    --surface-secondary: var(--theme-riso-100);   /* cards: cream stock */
+    --surface-tertiary:  var(--theme-riso-300);
+    --surface-raised:    var(--theme-riso-50);
+    --surface-sunken:    var(--theme-riso-300);
+    --surface-overlay:   var(--theme-riso-50);
+    --surface-chrome:    var(--theme-riso-rail);
+
+    /* --- SEMANTIC — text -------------------------------------------------- */
+    --text-primary:   var(--theme-riso-900);
+    --text-secondary: var(--theme-riso-700);
+    --text-tertiary:  var(--theme-riso-600);
+    --text-disabled:  var(--theme-riso-500);
+    --text-inverted:  var(--theme-riso-50);
+    --text-accent:    var(--theme-accent-base);
+
+    /* --- SEMANTIC — borders ----------------------------------------------- */
+    --border-subtle:      var(--theme-riso-300);
+    --border-default:     var(--theme-riso-400);
+    --border-strong:      var(--theme-riso-500);
+    --border-interactive: var(--theme-riso-600);
+    --border-accent:      var(--theme-accent-base);
+
+    /* --- SEMANTIC — accent / interactive ---------------------------------- */
+    --accent-base:     var(--theme-accent-base);
+    --accent-hover:    var(--theme-accent-hover);
+    --accent-active:   var(--theme-accent-active);
+    --accent-subtle:   var(--theme-accent-subtle);
+    --accent-muted:    var(--theme-accent-muted);
+    --accent-contrast: var(--theme-accent-contrast);
+
+    --interactive-primary:         var(--accent-base);
+    --interactive-primary-hover:   var(--accent-hover);
+    --interactive-primary-active:  var(--accent-active);
+    --interactive-secondary:       var(--text-secondary);
+    --interactive-secondary-hover: var(--text-primary);
+    --interactive-disabled:        var(--text-disabled);
+
+    --focus-ring:   var(--accent-base);
+    --focus-border: var(--accent-base);
+
+    /* --- SEMANTIC — elevation: no blur, just off-register ink ---------------
+     * A blurless offset is what separates this theme from every other one. The
+     * smaller sizes keep a little blur so hairline chrome does not gain a hard
+     * step it never asked for. */
+    --shadow-none: none;
+    --shadow-xs: 0 1px 0 0 rgb(var(--theme-shadow-color) / 0.10);
+    --shadow-sm: 3px 3px 0 0 rgb(var(--theme-shadow-color) / 0.40);
+    --shadow-md: 5px 5px 0 0 rgb(var(--theme-shadow-color) / 0.50);
+    --shadow-lg: 7px 7px 0 0 rgb(var(--theme-shadow-color) / 0.55);
+    --shadow-focus: 0 0 0 3px var(--accent-muted);
+
+    /* --- SEMANTIC — diff -------------------------------------------------- */
+    --diff-addition-bg:           var(--theme-add-bg);
+    --diff-addition-text:         var(--theme-add-marker);
+    --diff-addition-linenum-bg:   var(--theme-add-bg-strong);
+    --diff-addition-linenum-text: var(--theme-add-ink);
+    --diff-addition-rule:         var(--theme-add-marker);
+
+    --diff-deletion-bg:           var(--theme-del-bg);
+    --diff-deletion-text:         var(--theme-del-marker);
+    --diff-deletion-linenum-bg:   var(--theme-del-bg-strong);
+    --diff-deletion-linenum-text: var(--theme-del-ink);
+    --diff-deletion-rule:         var(--theme-del-marker);
+
+    --diff-context-bg:           var(--surface-secondary);
+    --diff-context-text:         var(--text-secondary);
+    --diff-context-linenum-bg:   var(--surface-secondary);
+    --diff-context-linenum-text: var(--text-disabled);
+
+    --diff-gutter-bg:     var(--theme-riso-gutter);
+    --diff-gutter-border: var(--theme-riso-400);
+    --diff-gutter-text:   var(--theme-riso-600);
+
+    --diff-expanded-bg:           var(--theme-riso-gutter);
+    --diff-hunk-strip-bg:         var(--theme-accent-subtle);
+    --diff-hunk-expansion-bg:     var(--accent-subtle);
+    --diff-hunk-expansion-border: var(--accent-muted);
+    --diff-hunk-expansion-text:   var(--accent-active);
+
+    /* --- SEMANTIC — status badges ----------------------------------------- */
+    --status-added-bg:      var(--theme-add-bg-strong);
+    --status-added-text:    var(--theme-add-ink);
+    --status-deleted-bg:    var(--theme-del-bg-strong);
+    --status-deleted-text:  var(--theme-del-ink);
+    --status-renamed-bg:    var(--accent-muted);
+    --status-renamed-text:  var(--accent-active);
+    --status-modified-bg:   var(--theme-riso-300);
+    --status-modified-text: var(--theme-riso-700);
+
+    /* --- SEMANTIC — syntax ------------------------------------------------- */
+    --syntax-keyword:  #8b3fb0;
+    --syntax-string:   #2f7a41;
+    --syntax-number:   #b4531b;
+    --syntax-comment:  var(--theme-riso-500);
+    --syntax-function: #3a4bb8;
+    --syntax-class:    #9a6a12;
+    --syntax-builtin:  #0f7a84;
+    --syntax-operator: var(--theme-riso-700);
+    --syntax-name:     var(--text-primary);
+    --syntax-error:    var(--theme-del-marker);
+
+    /* --- 1. + 4. SHAPE AND TYPE — overriding the contract ------------------
+     * Ink outlines at rest, chunky status strips, pill badges, slab wordmark.
+     * ------------------------------------------------------------------- */
+    --font-display: 'Zilla Slab', ui-serif, Georgia, serif;
+    --font-ui:      'Work Sans', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+
+    --radius-xs:   3px;
+    --radius-sm:   6px;
+    --radius-md:   10px;
+    --radius-lg:   14px;
+    --radius-xl:   20px;
+
+    --file-card-radius:       var(--radius-md);
+    --file-card-border-width: var(--border-width-thick);
+    /* The outline is the resting state, as it is in Sorbet — but violet ink
+     * rather than near-black, so it belongs to the heather ground. */
+    --file-card-border-colour:       var(--theme-riso-ink);
+    --file-card-border-colour-hover: var(--theme-accent-base);
+    --file-card-accent-width:  8px;
+    --file-card-accent-opacity: 1;
+    --file-card-shadow:       var(--shadow-sm);
+    --file-card-shadow-hover: var(--shadow-md);
+
+    --control-radius:  var(--radius-sm);
+    --control-height:  2rem;
+    --checkbox-radius: var(--radius-xs);
+    --badge-radius:    var(--radius-pill);
+    --badge-padding-x: var(--space-md);
+
+    --toolbar-rule-width: var(--border-width-accent);
+    --toolbar-height:     3.5rem;
+    --diff-rule-width:    var(--border-width-accent);
+
+    --tracking-caps:  0.08em;
+    --badge-tracking: 0.08em;
+}
+
+
+/* ============================================================================
+ * 2. PALETTE + 3. SEMANTIC — DARK ("night press")
+ * ========================================================================== */
+
+[data-theme="dark"] {
+
+    --theme-riso-50:  #262138;
+    --theme-riso-100: #201b30;
+    --theme-riso-200: #14101f;
+    --theme-riso-300: #2e2847;
+    --theme-riso-400: #443c62;
+    --theme-riso-500: #7a6f9c;
+    --theme-riso-600: #9d93bb;
+    --theme-riso-700: #c5bcdd;
+    --theme-riso-800: #e0daf0;
+    --theme-riso-900: #f5f1ff;
+
+    --theme-riso-ink: #07050e;
+
+    --theme-riso-rail:   #201b30;
+    --theme-riso-gutter: #262138;
+
+    --theme-accent-subtle:   #1c2350;
+    --theme-accent-muted:    #313d8c;
+    --theme-accent-base:     #8d9cf5;
+    --theme-accent-hover:    #aab6fb;
+    --theme-accent-active:   #c7cffd;
+    --theme-accent-contrast: #0d1130;
+
+    --theme-add-bg:        #17301f;
+    --theme-add-bg-strong: #1f4a2c;
+    --theme-add-marker:    #63d086;
+    --theme-add-ink:       #9ae8b0;
+
+    --theme-del-bg:        #3a1a1c;
+    --theme-del-bg-strong: #56262a;
+    --theme-del-marker:    #f0736b;
+    --theme-del-ink:       #ffa79f;
+
+    --theme-shadow-color: 0 0 0;
+
+    --surface-primary:   var(--theme-riso-200);
+    --surface-secondary: var(--theme-riso-100);
+    --surface-tertiary:  var(--theme-riso-300);
+    --surface-raised:    var(--theme-riso-50);
+    --surface-sunken:    var(--theme-riso-200);
+    --surface-overlay:   var(--theme-riso-50);
+    --surface-chrome:    var(--theme-riso-rail);
+
+    --text-primary:   var(--theme-riso-900);
+    --text-secondary: var(--theme-riso-700);
+    --text-tertiary:  var(--theme-riso-600);
+    --text-disabled:  var(--theme-riso-500);
+    --text-inverted:  var(--theme-riso-200);
+
+    --border-subtle:      var(--theme-riso-300);
+    --border-default:     var(--theme-riso-400);
+    --border-strong:      var(--theme-riso-500);
+    --border-interactive: var(--theme-riso-600);
+
+    /* Near-black ink on a near-black ground would erase the card outline, so
+     * in dark the edge steps up the ramp instead. */
+    --file-card-border-colour:       var(--theme-riso-400);
+    --file-card-border-colour-hover: var(--theme-accent-base);
+
+    --shadow-xs: 0 1px 0 0 rgb(var(--theme-shadow-color) / 0.35);
+    --shadow-sm: 3px 3px 0 0 rgb(var(--theme-shadow-color) / 0.40);
+    --shadow-md: 5px 5px 0 0 rgb(var(--theme-shadow-color) / 0.45);
+    --shadow-lg: 8px 8px 0 0 rgb(var(--theme-shadow-color) / 0.50);
+
+    --diff-context-bg:         var(--surface-secondary);
+    --diff-context-linenum-bg: var(--surface-secondary);
+
+    --diff-gutter-bg:     var(--theme-riso-gutter);
+    --diff-gutter-border: var(--theme-riso-300);
+    --diff-gutter-text:   var(--theme-riso-500);
+
+    --diff-expanded-bg:   var(--theme-riso-300);
+    --diff-hunk-strip-bg: var(--theme-accent-subtle);
+
+    --status-modified-bg:   var(--theme-riso-400);
+    --status-modified-text: var(--theme-riso-800);
+
+    --syntax-keyword:  #d59af0;
+    --syntax-string:   #9ae8b0;
+    --syntax-number:   #f5b57a;
+    --syntax-comment:  var(--theme-riso-500);
+    --syntax-function: #8d9cf5;
+    --syntax-class:    #e8c46e;
+    --syntax-builtin:  #5ccfda;
+    --syntax-operator: var(--theme-riso-700);
+    --syntax-name:     var(--text-primary);
+    --syntax-error:    var(--theme-del-marker);
+}
