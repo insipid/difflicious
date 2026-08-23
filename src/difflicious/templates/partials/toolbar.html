@@ -51,10 +51,12 @@
                         @click="$store.nav.jumpToTop()"
                         :disabled="$store.nav.atTop"
                         title="Jump to top" aria-label="Jump to top">
+                        <!-- arrow to a line: the extreme, not the next one along -->
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 19V5" />
-                            <path d="m5 12 7-7 7 7" />
+                            <path d="M5 4h14" />
+                            <path d="M12 21V9" />
+                            <path d="m6 15 6-6 6 6" />
                         </svg>
                     </button>
                     <button type="button" class="icon-btn"
@@ -63,8 +65,9 @@
                         title="Jump to bottom" aria-label="Jump to bottom">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 5v14" />
-                            <path d="m19 12-7 7-7-7" />
+                            <path d="M12 15V3" />
+                            <path d="m6 9 6 6 6-6" />
+                            <path d="M5 20h14" />
                         </svg>
                     </button>
                 </div>
