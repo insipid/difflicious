@@ -6,38 +6,30 @@
 import { $$ } from './dom-utils.js';
 
 /**
- * Get the sticky header offset from CSS variables
- * @returns {number} The sticky header offset in pixels
+ * Whether the visitor has asked for reduced motion.
+ * @returns {boolean} True if animated scrolling should be skipped
  */
-function getStickyHeaderOffset() {
-    const styles = getComputedStyle(document.documentElement);
-    const offset = styles.getPropertyValue('--file-header-sticky-offset');
-    // Parse the rem value and convert to pixels
-    if (offset.includes('rem')) {
-        const remValue = parseFloat(offset);
-        const rootFontSize = parseFloat(styles.fontSize);
-        return remValue * rootFontSize;
-    }
-    return parseFloat(offset) || 0;
+export function prefersReducedMotion() {
+    return (
+        typeof window.matchMedia === 'function' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    );
 }
 
 /**
- * Scroll to a file element, accounting for sticky header offset
+ * Scroll a file to the top of the viewport, just below the sticky toolbar.
+ *
+ * The offset lives in CSS as `scroll-margin-top` on the file element, derived
+ * from --file-header-sticky-offset. Letting the browser apply it keeps the
+ * toolbar's height in one place; the previous hand-rolled arithmetic had to be
+ * corrected whenever that layout changed.
+ *
  * @param {HTMLElement} fileElement - The file element to scroll to
  */
-function scrollToFile(fileElement) {
-    const spacerHeight = getStickyHeaderOffset();
-    const elementTop = fileElement.getBoundingClientRect().top;
-    const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-
-    // Calculate target scroll position: element position plus spacer height
-    // This scrolls the spacer above the viewport, positioning the actual header
-    // content at the top (top: 0), which is its sticky position
-    const targetScroll = currentScroll + elementTop + spacerHeight;
-
-    window.scrollTo({
-        top: targetScroll,
-        behavior: 'smooth'
+export function scrollToFile(fileElement) {
+    fileElement.scrollIntoView({
+        behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+        block: 'start'
     });
 }
 
