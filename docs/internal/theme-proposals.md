@@ -98,6 +98,30 @@ light Riso.
 
 ---
 
+## Interaction with the pinned toolbar
+
+Rebased onto the toolbar redesign (#85), which made the toolbar sticky and pins
+file headers beneath it at `--file-header-sticky-offset`, now defined as
+`var(--toolbar-height-measured, var(--toolbar-height))` and required to equal the
+toolbar's height.
+
+All three proposals override `--toolbar-height` — Terrace and Riso to `3.5rem`,
+Draught down to `3rem`. That is safe, and worth recording why: the offset
+resolves *through* `--toolbar-height`, and `navStore` publishes the bar's real
+rendered height into `--toolbar-height-measured` via a `ResizeObserver`, so the
+pinned header follows a theme's chrome without the theme having to know the
+contract exists. Verified per theme, with the header pinned:
+
+| Theme | `--toolbar-height` | measured | gap between toolbar and pinned header |
+|---|---|---|---|
+| `ledger` | 3.25rem | 52px | 0px |
+| `terrace` | 3.5rem | 56px | 0px |
+| `draught` | 3rem | 48px | 0px |
+| `riso` | 3.5rem | 56px | 0px |
+
+A theme that set a *fixed* `--file-header-sticky-offset` instead would break this,
+so it is best left alone.
+
 ## Two fixes to the screenshot harness, made along the way
 
 Both are in `scripts/screenshot.py` and are independent of which theme wins.
