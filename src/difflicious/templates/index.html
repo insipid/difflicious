@@ -27,6 +27,8 @@ is_head_comparison=is_head_comparison) }}
             is_head_comparison=is_head_comparison,
             has_files=(groups and total_files)) }}
 
+            {{ render_partial('partials/filtered_empty_state.html') }}
+
             {% if not groups or not total_files %}
             {{ render_partial('partials/empty_state.html',
             error=error,

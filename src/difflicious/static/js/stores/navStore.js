@@ -18,6 +18,7 @@ const BOTTOM_EPSILON_PX = 2;
 export default {
     files: [],
     fileGroups: [],
+    nothingVisible: false,
     currentFile: '',
     atTop: true,
     atBottom: false,
@@ -48,12 +49,36 @@ export default {
             }));
 
         this.fileGroups = this.groupFiles(this.files);
+        this.nothingVisible = this.isContentAreaEmpty();
 
         // A file that has just been filtered away must not stay selected.
         if (!this.files.some((f) => f.id === this.currentFile)) {
             this.currentFile = this.files.length ? this.files[0].id : '';
         }
         this.updateCurrentFile();
+    },
+
+    /**
+     * Whether the diff area has been emptied by the filters.
+     *
+     * Distinct from having nothing to show at all, which the server renders as
+     * its own empty state. This is the case where files exist but every one of
+     * them is currently hidden — most often because Untracked and Unstaged are
+     * both unticked.
+     *
+     * Collapsing a group does not count: the headings are still on screen, so
+     * the page does not look broken.
+     *
+     * @returns {boolean} True when the area is blank but need not be
+     */
+    isContentAreaEmpty() {
+        const anyFilesAtAll = document.querySelector('[data-file]') !== null;
+        if (!anyFilesAtAll) return false;
+
+        const visibleHeadings = Array.from(document.querySelectorAll('.diff-group'))
+            .filter((g) => g.offsetParent !== null).length;
+
+        return this.files.length === 0 && visibleHeadings === 0;
     },
 
     /**
