@@ -1,6 +1,13 @@
 <!-- Global Controls -->
-<div class="flex items-center justify-between mb-4">
-    <div class="flex items-center space-x-2">
+<!--
+  These sit in the scrolling content rather than the pinned toolbar: they are
+  things you reach for when you arrive at the page, not while reading a diff, so
+  they are the first thing to scroll away.
+-->
+<div class="flex items-center justify-between mb-4 gap-4 flex-wrap"
+    x-data
+    x-init="$store.filters.init({{ unstaged|lower }}, {{ untracked|lower }})">
+    <div class="flex items-center gap-2 flex-wrap" {% if not has_files %}style="display: none;"{% endif %}>
         <button id="expandAll" @click="$store.diff.expandAllFiles()"
             :disabled="$store.diff.allFilesExpanded"
             class="px-3 py-1 text-sm global-controls-btn flex items-center space-x-2"
@@ -24,7 +31,58 @@
             </svg>
             <span>Collapse All</span>
         </button>
+
+        <!-- Which change groups are shown -->
+            <div class="flex items-center gap-1">
+                {% if is_head_comparison %}
+                <!-- HEAD comparison: show "Untracked" and "Unstaged" (staged always visible) -->
+                <label class="control-toggle">
+                    <input type="checkbox" name="untracked" value="true" {% if untracked %}checked{% endif %}
+                        @change.stop="$store.filters.toggle('untracked', $event.target.checked)"
+                        class="control-checkbox">
+                    <svg width="15" height="15" viewBox="0 0 1024 1024" fill="currentColor"
+                        class="control-toggle-icon" title="Untracked"
+                        aria-label="Untracked">
+                        <path
+                            d="M854.6 288.7L639.4 73.4c-6-6-14.2-9.4-22.7-9.4H192c-17.7 0-32 14.3-32 32v832c0 17.7 14.3 32 32 32h640c17.7 0 32-14.3 32-32V311.3c0-8.5-3.4-16.6-9.4-22.6zM790.2 326H602V137.8L790.2 326zm1.8 562H232V136h302v216a42 42 0 0 0 42 42h216v494zM402 549c0 5.4 4.4 9.5 9.8 9.5h32.4c5.4 0 9.8-4.2 9.8-9.4 0-28.2 25.8-51.6 58-51.6s58 23.4 58 51.5c0 25.3-21 47.2-49.3 50.9-19.3 2.8-34.5 20.3-34.7 40.1v32c0 5.5 4.5 10 10 10h32c5.5 0 10-4.5 10-10v-12.2c0-6 4-11.5 9.7-13.3 44.6-14.4 75-54 74.3-98.9-.8-55.5-49.2-100.8-108.5-101.6-61.4-.7-111.5 45.6-111.5 103zm78 195a32 32 0 1 0 64 0 32 32 0 1 0-64 0z" />
+                    </svg>
+                    <span>Untracked</span>
+                </label>
+
+                <label class="control-toggle">
+                    <input type="checkbox" name="unstaged" value="true" {% if unstaged %}checked{% endif %}
+                        @change.stop="$store.filters.toggle('unstaged', $event.target.checked)"
+                        class="control-checkbox">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="control-toggle-icon" title="Unstaged" aria-label="Unstaged">
+                        <circle cx="6" cy="6" r="3" />
+                        <path d="M6 9v12" />
+                        <path d="m21 3-6 6" />
+                        <path d="m21 9-6-6" />
+                        <path d="M18 11.5V15" />
+                        <circle cx="18" cy="18" r="3" />
+                    </svg>
+                    <span>Unstaged</span>
+                </label>
+                {% else %}
+                <!-- Branch comparison: only show "Untracked" (changes are always visible) -->
+                <label class="control-toggle">
+                    <input type="checkbox" name="untracked" value="true" {% if untracked %}checked{% endif %}
+                        @change.stop="$store.filters.toggle('untracked', $event.target.checked)"
+                        class="control-checkbox">
+                    <svg width="15" height="15" viewBox="0 0 1024 1024" fill="currentColor"
+                        class="control-toggle-icon" title="Untracked"
+                        aria-label="Untracked">
+                        <path
+                            d="M854.6 288.7L639.4 73.4c-6-6-14.2-9.4-22.7-9.4H192c-17.7 0-32 14.3-32 32v832c0 17.7 14.3 32 32 32h640c17.7 0 32-14.3 32-32V311.3c0-8.5-3.4-16.6-9.4-22.6zM790.2 326H602V137.8L790.2 326zm1.8 562H232V136h302v216a42 42 0 0 0 42 42h216v494zM402 549c0 5.4 4.4 9.5 9.8 9.5h32.4c5.4 0 9.8-4.2 9.8-9.4 0-28.2 25.8-51.6 58-51.6s58 23.4 58 51.5c0 25.3-21 47.2-49.3 50.9-19.3 2.8-34.5 20.3-34.7 40.1v32c0 5.5 4.5 10 10 10h32c5.5 0 10-4.5 10-10v-12.2c0-6 4-11.5 9.7-13.3 44.6-14.4 75-54 74.3-98.9-.8-55.5-49.2-100.8-108.5-101.6-61.4-.7-111.5 45.6-111.5 103zm78 195a32 32 0 1 0 64 0 32 32 0 1 0-64 0z" />
+                    </svg>
+                    <span>Untracked</span>
+                </label>
+                {% endif %}
+            </div>
     </div>
+
     <div id="hidden-files-banner" class="text-xs u-text-secondary italic" style="display: none;">
     </div>
 </div>

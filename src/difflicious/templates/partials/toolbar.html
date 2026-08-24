@@ -1,5 +1,5 @@
 <!-- Toolbar -->
-<header x-data="toolbarComponent({{ unstaged|lower }}, {{ untracked|lower }})" class="app-toolbar">
+<header x-data="toolbarComponent()" class="app-toolbar">
     <div class="flex items-center justify-between w-full">
         <div class="flex items-center gap-5 flex-1 min-w-0">
             <h1 class="m-0">
@@ -25,54 +25,55 @@
                     {% endfor %}
                 </select>
 
-                <!-- Diff Options -->
-                <div class="flex items-center gap-1 flex-1 min-w-0">
-                    {% if is_head_comparison %}
-                    <!-- HEAD comparison: show "Untracked" and "Unstaged" (staged always visible) -->
-                    <label class="control-toggle">
-                        <input type="checkbox" name="untracked" value="true" {% if untracked %}checked{% endif %}
-                            @change.stop="updateToggle('untracked', $event.target.checked)"
-                            class="control-checkbox">
-                        <svg width="15" height="15" viewBox="0 0 1024 1024" fill="currentColor"
-                            class="control-toggle-icon" title="Untracked"
-                            aria-label="Untracked">
-                            <path
-                                d="M854.6 288.7L639.4 73.4c-6-6-14.2-9.4-22.7-9.4H192c-17.7 0-32 14.3-32 32v832c0 17.7 14.3 32 32 32h640c17.7 0 32-14.3 32-32V311.3c0-8.5-3.4-16.6-9.4-22.6zM790.2 326H602V137.8L790.2 326zm1.8 562H232V136h302v216a42 42 0 0 0 42 42h216v494zM402 549c0 5.4 4.4 9.5 9.8 9.5h32.4c5.4 0 9.8-4.2 9.8-9.4 0-28.2 25.8-51.6 58-51.6s58 23.4 58 51.5c0 25.3-21 47.2-49.3 50.9-19.3 2.8-34.5 20.3-34.7 40.1v32c0 5.5 4.5 10 10 10h32c5.5 0 10-4.5 10-10v-12.2c0-6 4-11.5 9.7-13.3 44.6-14.4 75-54 74.3-98.9-.8-55.5-49.2-100.8-108.5-101.6-61.4-.7-111.5 45.6-111.5 103zm78 195a32 32 0 1 0 64 0 32 32 0 1 0-64 0z" />
-                        </svg>
-                        <span>Untracked</span>
-                    </label>
+                <!-- Current file: jump to any file, and follow the pinned header -->
+                <label class="control-toggle-icon flex items-center" for="file-jump">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        title="File" aria-label="Jump to file">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <path d="M14 2v6h6" />
+                    </svg>
+                </label>
+                <select id="file-jump" class="control control-select"
+                    aria-label="Jump to file"
+                    x-model="$store.nav.currentFile"
+                    @change="$store.nav.jumpToFile($event.target.value)"
+                    x-show="$store.nav.files.length > 1"
+                    x-cloak>
+                    <template x-for="group in $store.nav.fileGroups" :key="group.label">
+                        <optgroup :label="group.label || 'Files'">
+                            <template x-for="file in group.files" :key="file.id">
+                                <option :value="file.id" x-text="file.label"></option>
+                            </template>
+                        </optgroup>
+                    </template>
+                </select>
 
-                    <label class="control-toggle">
-                        <input type="checkbox" name="unstaged" value="true" {% if unstaged %}checked{% endif %}
-                            @change.stop="updateToggle('unstaged', $event.target.checked)"
-                            class="control-checkbox">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="control-toggle-icon" title="Unstaged" aria-label="Unstaged">
-                            <circle cx="6" cy="6" r="3" />
-                            <path d="M6 9v12" />
-                            <path d="m21 3-6 6" />
-                            <path d="m21 9-6-6" />
-                            <path d="M18 11.5V15" />
-                            <circle cx="18" cy="18" r="3" />
+                <!-- Jump to either end of the diff -->
+                <div class="flex items-center gap-1">
+                    <button type="button" class="icon-btn"
+                        @click="$store.nav.jumpToTop()"
+                        :disabled="$store.nav.atTop"
+                        title="Jump to top" aria-label="Jump to top">
+                        <!-- arrow to a line: the extreme, not the next one along -->
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 4h14" />
+                            <path d="M12 21V9" />
+                            <path d="m6 15 6-6 6 6" />
                         </svg>
-                        <span>Unstaged</span>
-                    </label>
-                    {% else %}
-                    <!-- Branch comparison: only show "Untracked" (changes are always visible) -->
-                    <label class="control-toggle">
-                        <input type="checkbox" name="untracked" value="true" {% if untracked %}checked{% endif %}
-                            @change.stop="updateToggle('untracked', $event.target.checked)"
-                            class="control-checkbox">
-                        <svg width="15" height="15" viewBox="0 0 1024 1024" fill="currentColor"
-                            class="control-toggle-icon" title="Untracked"
-                            aria-label="Untracked">
-                            <path
-                                d="M854.6 288.7L639.4 73.4c-6-6-14.2-9.4-22.7-9.4H192c-17.7 0-32 14.3-32 32v832c0 17.7 14.3 32 32 32h640c17.7 0 32-14.3 32-32V311.3c0-8.5-3.4-16.6-9.4-22.6zM790.2 326H602V137.8L790.2 326zm1.8 562H232V136h302v216a42 42 0 0 0 42 42h216v494zM402 549c0 5.4 4.4 9.5 9.8 9.5h32.4c5.4 0 9.8-4.2 9.8-9.4 0-28.2 25.8-51.6 58-51.6s58 23.4 58 51.5c0 25.3-21 47.2-49.3 50.9-19.3 2.8-34.5 20.3-34.7 40.1v32c0 5.5 4.5 10 10 10h32c5.5 0 10-4.5 10-10v-12.2c0-6 4-11.5 9.7-13.3 44.6-14.4 75-54 74.3-98.9-.8-55.5-49.2-100.8-108.5-101.6-61.4-.7-111.5 45.6-111.5 103zm78 195a32 32 0 1 0 64 0 32 32 0 1 0-64 0z" />
+                    </button>
+                    <button type="button" class="icon-btn"
+                        @click="$store.nav.jumpToBottom()"
+                        :disabled="$store.nav.atBottom"
+                        title="Jump to bottom" aria-label="Jump to bottom">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 15V3" />
+                            <path d="m6 9 6 6 6-6" />
+                            <path d="M5 20h14" />
                         </svg>
-                        <span>Untracked</span>
-                    </label>
-                    {% endif %}
+                    </button>
                 </div>
 
                 <!-- Search Filter -->

@@ -14,7 +14,16 @@
         @click="toggle()">
         <span class="toggle-icon transition-transform duration-200"
             x-text="toggleIcon"></span>
-        <h3 class="diff-group-header-label">{{ group_key|title }}</h3>
+        {#- "changes" is staged and unstaged merged together, which only happens when
+            comparing against another ref. Saying so avoids reading as a third
+            category alongside Staged and Unstaged. -#}
+        <h3 class="diff-group-header-label">
+            {%- if group_key == 'changes' -%}
+            Changes vs {{ current_base_ref }}
+            {%- else -%}
+            {{ group_key|title }}
+            {%- endif -%}
+        </h3>
         <span class="diff-group-header-count">
             {{ group.count }} files
         </span>

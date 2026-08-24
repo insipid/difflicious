@@ -15,17 +15,27 @@ is_head_comparison=is_head_comparison) }}
 <main class="flex-1">
     {% if loading %}
     {{ render_partial('partials/loading_state.html') }}
-    {% elif not groups or not total_files %}
-    {{ render_partial('partials/empty_state.html',
-    error=error,
-    unstaged=unstaged,
-    untracked=untracked,
-    current_base_ref=current_base_ref) }}
     {% else %}
     <!-- Diff Content -->
     <div class="diff-container">
         <div class="p-4 space-y-6">
-            {{ render_partial('partials/global_controls.html') }}
+            {# Rendered even with nothing to show: the empty state tells people to
+               turn on Unstaged or Untracked, so the toggles have to be reachable. #}
+            {{ render_partial('partials/global_controls.html',
+            unstaged=unstaged,
+            untracked=untracked,
+            is_head_comparison=is_head_comparison,
+            has_files=(groups and total_files)) }}
+
+            {{ render_partial('partials/filtered_empty_state.html') }}
+
+            {% if not groups or not total_files %}
+            {{ render_partial('partials/empty_state.html',
+            error=error,
+            unstaged=unstaged,
+            untracked=untracked,
+            current_base_ref=current_base_ref) }}
+            {% else %}
 
             <!-- Render Diff Groups -->
             {% if not is_head_comparison and not untracked and groups.get('changes') %}
@@ -48,6 +58,7 @@ is_head_comparison=is_head_comparison) }}
             </div>
             {% else %}
             {% include "diff_groups.html" %}
+            {% endif %}
             {% endif %}
         </div>
     </div>

@@ -17,7 +17,7 @@ export default {
     // so that the first render matches saved state without a flash of collapsed → expanded content.
     repositoryName: '',
     expandedFiles: window.__diffliciousInitialState__?.files ?? {}, // { filePath: true }
-    expandedGroups: window.__diffliciousInitialState__?.groups ?? { untracked: true, unstaged: true, staged: true },
+    expandedGroups: window.__diffliciousInitialState__?.groups ?? { untracked: true, unstaged: true, staged: true, changes: true },
 
     // Computed
     get storageKey() {

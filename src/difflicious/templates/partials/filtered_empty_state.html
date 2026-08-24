@@ -1,0 +1,28 @@
+{# Shown when files exist but the filters have hidden every one of them.
+   The server-rendered empty state covers "nothing to show at all"; this covers
+   "you have hidden everything", which otherwise leaves a blank panel with no
+   explanation of what to do about it. #}
+<div class="flex items-start justify-center pt-12"
+    x-data
+    x-show="$store.nav.nothingVisible"
+    x-cloak>
+    <div class="state-panel">
+        <h2 class="state-panel-title">Everything is filtered out</h2>
+        <div class="state-panel-body space-y-2">
+            <p x-show="$store.search.isActive" x-cloak>
+                No file matches <span class="font-mono" x-text="$store.search.query"></span>.
+            </p>
+            <p x-show="!$store.search.isActive" x-cloak>
+                <template x-if="!$store.filters.untracked && !$store.filters.unstaged">
+                    <span>Untracked and Unstaged are both turned off.</span>
+                </template>
+                <template x-if="$store.filters.untracked || $store.filters.unstaged">
+                    <span>The current filters hide every change.</span>
+                </template>
+            </p>
+        </div>
+        <p class="state-panel-note">
+            Turn a filter back on, or clear the search, to see changes again.
+        </p>
+    </div>
+</div>

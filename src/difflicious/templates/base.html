@@ -102,12 +102,12 @@
                 if (!saved) { try { saved = JSON.parse(localStorage.getItem('difflicious-default')); } catch (e) {} }
                 if (saved) {
                     var files = {};
-                    var groups = { untracked: true, unstaged: true, staged: true };
+                    var groups = { untracked: true, unstaged: true, staged: true, changes: true };
                     if (Array.isArray(saved.expandedFiles)) {
                         saved.expandedFiles.forEach(function (f) { files[f] = true; });
                     }
                     if (Array.isArray(saved.expandedGroups)) {
-                        groups = { untracked: false, unstaged: false, staged: false };
+                        groups = { untracked: false, unstaged: false, staged: false, changes: false };
                         saved.expandedGroups.forEach(function (g) { groups[g] = true; });
                     }
                     window.__diffliciousInitialState__ = { files: files, groups: groups };

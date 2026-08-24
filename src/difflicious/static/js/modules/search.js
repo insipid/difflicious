@@ -102,6 +102,10 @@ export function applyFilenameFilter(query) {
 
     // Show hidden-count banner
     upsertHiddenBanner(hiddenCount);
+
+    // The file dropdown lists visible files, and the empty-state panel depends
+    // on whether any are left, so both have to follow a search.
+    if (window.Alpine?.store('nav')) window.Alpine.store('nav').rebuild();
 }
 
 /**

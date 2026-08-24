@@ -609,7 +609,7 @@ header {
 
 .file-diff {
     position: relative;
-    scroll-margin-top: calc(var(--file-header-sticky-offset) + var(--spacing-sm));
+    scroll-margin-top: var(--file-header-sticky-offset);
     border-left: none;
     border-right: none;
     border-top: none;
@@ -618,9 +618,9 @@ header {
 
 .file-diff .file-header-wrapper {
     position: sticky;
-    top: 0;
-    z-index: 10;
-    scroll-margin-top: calc(var(--file-header-sticky-offset) + var(--spacing-sm));
+    top: var(--file-header-sticky-offset);
+    z-index: var(--z-file-header);
+    scroll-margin-top: var(--file-header-sticky-offset);
 }
 
 .file-diff .file-header-spacer {
@@ -807,11 +807,15 @@ header {
     align-items: center;
     gap: var(--toolbar-gap);
     min-height: var(--toolbar-height);
+    /* Pinned: everything scrolls underneath it. File headers pin below it, at
+     * --file-header-sticky-offset, which is this element's height. */
+    position: sticky;
+    top: 0;
+    z-index: var(--z-toolbar);
     padding: var(--space-sm) var(--toolbar-padding-x);
     background: var(--surface-chrome);
     border-bottom: var(--border-width-hairline) solid var(--border-default);
     box-shadow: var(--shadow-xs);
-    position: relative;
 }
 
 /* The one piece of brand colour in the chrome: a hairline rule along the base. */
@@ -1186,7 +1190,7 @@ a.u-text-tertiary:hover,
     position: fixed;
     right: var(--space-lg);
     bottom: var(--space-lg);
-    z-index: 1000;
+    z-index: var(--z-floating);
     display: inline-flex;
     align-items: center;
     gap: var(--space-2xs);
