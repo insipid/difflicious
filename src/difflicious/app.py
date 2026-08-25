@@ -6,9 +6,9 @@ import signal
 from pathlib import Path
 from typing import Any, Optional
 
-from flask import Flask
+from flask import Flask, has_request_context, request
 
-from difflicious.config import get_font_config, get_theme_config
+from difflicious.config import THEME_COOKIE_NAME, get_font_config, get_theme_config
 from difflicious.services import DiffService, GitService, TemplateRenderingService
 
 
@@ -33,9 +33,9 @@ def create_app(
 
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
-    # Get font and theme configuration
+    # Font selection is fixed for the life of the process; the theme is not, so
+    # it is resolved per request instead of here.
     font_config = get_font_config()
-    theme_config = get_theme_config()
 
     # Register jinja-partials extension
     import jinja_partials  # type: ignore[import-untyped]
@@ -52,8 +52,16 @@ def create_app(
 
     @app.context_processor
     def inject_theme_config() -> dict[str, dict[str, Any]]:
-        """Inject theme configuration into all templates."""
-        return {"theme_config": theme_config}
+        """Inject theme configuration into all templates.
+
+        Resolved per request rather than once at startup, so the theme cookie
+        can override what the server was started with. Rendering outside a
+        request falls back to the server's own selection.
+        """
+        requested = (
+            request.cookies.get(THEME_COOKIE_NAME) if has_request_context() else None
+        )
+        return {"theme_config": get_theme_config(requested)}
 
     @app.context_processor
     def inject_auto_reload_config() -> dict[str, bool]:

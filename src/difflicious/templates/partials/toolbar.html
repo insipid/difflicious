@@ -25,29 +25,33 @@
                     {% endfor %}
                 </select>
 
-                <!-- Current file: jump to any file, and follow the pinned header -->
-                <label class="control-toggle-icon flex items-center" for="file-jump">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        title="File" aria-label="Jump to file">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <path d="M14 2v6h6" />
-                    </svg>
-                </label>
-                <select id="file-jump" class="control control-select"
-                    aria-label="Jump to file"
-                    x-model="$store.nav.currentFile"
-                    @change="$store.nav.jumpToFile($event.target.value)"
+                <!-- Current file: jump to any file, and follow the pinned header.
+                     Icon and select share one condition: hiding the select alone
+                     leaves its label behind, an icon labelling nothing. -->
+                <div class="flex items-center gap-2"
                     x-show="$store.nav.files.length > 1"
                     x-cloak>
-                    <template x-for="group in $store.nav.fileGroups" :key="group.label">
-                        <optgroup :label="group.label || 'Files'">
-                            <template x-for="file in group.files" :key="file.id">
-                                <option :value="file.id" x-text="file.label"></option>
-                            </template>
-                        </optgroup>
-                    </template>
-                </select>
+                    <label class="control-toggle-icon flex items-center" for="file-jump">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            title="File" aria-label="Jump to file">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <path d="M14 2v6h6" />
+                        </svg>
+                    </label>
+                    <select id="file-jump" class="control control-select"
+                        aria-label="Jump to file"
+                        x-model="$store.nav.currentFile"
+                        @change="$store.nav.jumpToFile($event.target.value)">
+                        <template x-for="group in $store.nav.fileGroups" :key="group.label">
+                            <optgroup :label="group.label || 'Files'">
+                                <template x-for="file in group.files" :key="file.id">
+                                    <option :value="file.id" x-text="file.label"></option>
+                                </template>
+                            </optgroup>
+                        </template>
+                    </select>
+                </div>
 
                 <!-- Jump to either end of the diff -->
                 <div class="flex items-center gap-1">

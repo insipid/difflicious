@@ -1,7 +1,7 @@
 """Centralized configuration for Difflicious application."""
 
 import os
-from typing import Any
+from typing import Any, Optional
 
 # Git diff configuration
 DEFAULT_CONTEXT_LINES = 3  # Default number of context lines in diffs
@@ -86,9 +86,58 @@ AVAILABLE_THEMES = {
             "&display=swap"
         ),
     },
+    # --- Candidates under review ------------------------------------------
+    # Three proposals for a theme with more colour and more shape than the
+    # first three. Registered so they can be rendered and screenshotted; one
+    # or more will be kept and the rest dropped before this lands.
+    "terrace": {
+        "name": "Terrace",
+        "description": "Warm plaster and clay, rounded, with a kiln-teal accent",
+        "file": "terrace.css",
+        "google_fonts_url": (
+            "https://fonts.googleapis.com/css2"
+            "?family=Fraunces:opsz,wght@9..144,600;9..144,700"
+            "&family=Karla:wght@400;500;600;700"
+            "&display=swap"
+        ),
+    },
+    "draught": {
+        "name": "Draught",
+        "description": "Petrol-blue drafting board, squared off, with a mulberry accent",
+        "file": "draught.css",
+        "google_fonts_url": (
+            "https://fonts.googleapis.com/css2"
+            "?family=Space+Grotesk:wght@500;600;700"
+            "&family=Archivo:wght@400;500;600"
+            "&display=swap"
+        ),
+    },
+    "riso": {
+        "name": "Riso",
+        "description": "Heather ground and cream stock, hard offset ink, slab type",
+        "file": "riso.css",
+        "google_fonts_url": (
+            "https://fonts.googleapis.com/css2"
+            "?family=Zilla+Slab:wght@500;600;700"
+            "&family=Work+Sans:wght@400;500;600"
+            "&display=swap"
+        ),
+    },
+    "console": {
+        "name": "Console",
+        "description": "Monospace throughout, achromatic and square, ANSI magenta",
+        # No fonts of its own: the interface adopts the runtime mono face, which
+        # the font config has already fetched for the diff body.
+        "file": "console.css",
+        "google_fonts_url": "",
+    },
 }
 
 THEME_CONTRACT_FILE = "_contract.css"
+
+# Per-request theme selection. Nothing in the app writes this cookie yet; it is
+# set out of band until there is a settings UI to own it. See docs/THEMING.md.
+THEME_COOKIE_NAME = "difflicious_theme"
 
 
 def looks_like_stylesheet_url(value: str) -> bool:
@@ -130,22 +179,68 @@ def theme_from_url(url: str) -> dict[str, str]:
     }
 
 
-def get_theme_config() -> dict[str, Any]:
-    """Get theme configuration based on environment variables.
+def _theme_config(
+    selected_theme_key: str, selected_theme: dict[str, str]
+) -> dict[str, Any]:
+    """Assemble the payload the templates render stylesheet links from."""
+    return {
+        "selected_theme_key": selected_theme_key,
+        "selected_theme": selected_theme,
+        "available_themes": AVAILABLE_THEMES,
+        "contract_file": THEME_CONTRACT_FILE,
+        # Handed to the browser so the console helper can name the cookie
+        # without a second copy of this string. See dev-theme.js.
+        "cookie_name": THEME_COOKIE_NAME,
+    }
+
+
+def theme_from_cookie(value: Optional[str]) -> Optional[str]:
+    """Resolve a theme cookie value to a registry key, or None to ignore it.
+
+    Only names already in the registry are accepted. In particular a cookie may
+    never name a stylesheet URL, the way `DIFFLICIOUS_THEME` can: a cookie is
+    attacker-settable in ways the server's own environment is not, and a remote
+    stylesheet can both restyle the page and read data out of it through
+    attribute selectors. The environment is trusted because whoever sets it is
+    already running the process.
+
+    Args:
+        value: Raw cookie value, or None when the cookie is absent.
+
+    Returns:
+        A key into AVAILABLE_THEMES, or None if the value names no known theme.
+    """
+    if not value:
+        return None
+
+    key = value.strip().lower()
+
+    return key if key in AVAILABLE_THEMES else None
+
+
+def get_theme_config(requested_theme: Optional[str] = None) -> dict[str, Any]:
+    """Get theme configuration for a single request.
+
+    Resolution order: the theme requested by this request, then
+    `DIFFLICIOUS_THEME` from the environment, then the default.
+
+    Args:
+        requested_theme: Theme asked for by this request, from the theme cookie.
+            Honoured only when it names a registered theme; anything else is
+            ignored in favour of the server's own selection.
 
     Returns:
         Dictionary containing the selected theme, the shared contract stylesheet
         and the full registry, for the template to render stylesheet links from.
     """
+    cookie_key = theme_from_cookie(requested_theme)
+    if cookie_key:
+        return _theme_config(cookie_key, AVAILABLE_THEMES[cookie_key])
+
     selected_theme_key = os.getenv("DIFFLICIOUS_THEME", DEFAULT_THEME)
 
     if looks_like_stylesheet_url(selected_theme_key):
-        return {
-            "selected_theme_key": selected_theme_key,
-            "selected_theme": theme_from_url(selected_theme_key),
-            "available_themes": AVAILABLE_THEMES,
-            "contract_file": THEME_CONTRACT_FILE,
-        }
+        return _theme_config(selected_theme_key, theme_from_url(selected_theme_key))
 
     # An unknown name falls back rather than failing: a typo in a shell profile
     # should not stop the tool starting. The CLI validates up front and reports
@@ -153,12 +248,7 @@ def get_theme_config() -> dict[str, Any]:
     if selected_theme_key not in AVAILABLE_THEMES:
         selected_theme_key = DEFAULT_THEME
 
-    return {
-        "selected_theme_key": selected_theme_key,
-        "selected_theme": AVAILABLE_THEMES[selected_theme_key],
-        "available_themes": AVAILABLE_THEMES,
-        "contract_file": THEME_CONTRACT_FILE,
-    }
+    return _theme_config(selected_theme_key, AVAILABLE_THEMES[selected_theme_key])
 
 
 def get_font_config() -> dict[str, Any]:

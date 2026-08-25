@@ -227,6 +227,11 @@ def _capture(
                 page.wait_for_load_state("load")
                 page.wait_for_selector(".file-header", timeout=15_000)
 
+                # Webfonts are requested with `display=swap`, so without this
+                # the shot catches the fallback face and a theme's typography
+                # never appears in its own screenshot.
+                page.evaluate("() => document.fonts.ready.then(() => true)")
+
                 # Files are collapsed by default — click each header to expand
                 for header in page.query_selector_all(".file-header"):
                     header.click()
@@ -261,13 +266,28 @@ def main() -> None:
         action="store_true",
         help="Capture every registered theme into docs/screenshots/themes/",
     )
+    parser.add_argument(
+        "--themes",
+        default=None,
+        help="Comma-separated theme keys to capture, instead of every one",
+    )
     parser.add_argument("--out", type=Path, default=None, help="Output directory")
     args = parser.parse_args()
 
-    if args.all_themes:
+    if args.all_themes or args.themes:
         from difflicious.config import AVAILABLE_THEMES  # noqa: PLC0415
 
-        themes: list[Optional[str]] = list(AVAILABLE_THEMES)
+        if args.themes:
+            requested = [key.strip() for key in args.themes.split(",") if key.strip()]
+            unknown = [key for key in requested if key not in AVAILABLE_THEMES]
+            if unknown:
+                raise SystemExit(
+                    f"Unknown theme(s): {', '.join(unknown)}. "
+                    f"Available: {', '.join(AVAILABLE_THEMES)}"
+                )
+            themes: list[Optional[str]] = list(requested)
+        else:
+            themes = list(AVAILABLE_THEMES)
         out_dir = args.out or (OUT_DIR / "themes")
     else:
         # The README shows the default theme; keep the historical filenames.

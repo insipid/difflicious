@@ -1,0 +1,302 @@
+/* ============================================================================
+ * TERRACE — warm plaster, rounded, sunlit
+ * ============================================================================
+ *
+ * Approach 1 of three "more character" candidates. Where Ledger is a printed
+ * page — one warm neutral, one accent, almost no shape — Terrace is a room:
+ * clay walls, cream panels, an ivory rail along the top, and a kiln-teal accent
+ * that runs cool against all of it. Every page part gets its own tint rather
+ * than a single ground with white cards on it.
+ *
+ * The accent is a blue-leaning teal, deliberately deeper and greyer than
+ * Sorbet's bright turquoise, and far from both diff hues. Terrace's diff tints
+ * stay warm — the sage and rust of the surrounding palette — so they sit in the
+ * room rather than on top of it.
+ *
+ * Geometry: generous radii, pill controls, a visible warm edge on cards, and
+ * soft wide shadows. Type is a soft high-contrast serif over a humanist sans.
+ *
+ * Loaded after `themes/_contract.css`, whose scales this file overrides freely.
+ * ========================================================================== */
+
+/* ============================================================================
+ * 2. PALETTE + 3. SEMANTIC — LIGHT ("plaster and clay")
+ * ========================================================================== */
+
+:root {
+
+    /* --- Palette: warm clay ramp ------------------------------------------ */
+    --theme-terrace-50:  #fffdf8;
+    --theme-terrace-100: #fdf8f0;
+    --theme-terrace-200: #e8d9c2;
+    --theme-terrace-300: #dbc9ae;
+    --theme-terrace-400: #cdb593;
+    --theme-terrace-500: #b39a7d;
+    --theme-terrace-600: #8a7256;
+    --theme-terrace-700: #635139;
+    --theme-terrace-800: #43382a;
+    --theme-terrace-900: #2b241c;
+
+    /* Named surfaces, private to this theme. Terrace's whole point is that the
+     * toolbar, the page and the gutters are three different tints rather than
+     * three steps of one ramp, so they get their own tokens. */
+    --theme-terrace-chrome: #faf3e7;   /* toolbar rail — lighter than the page */
+    --theme-terrace-sand:   #f2e5d0;   /* line-number gutters */
+
+    /* --- Palette: kiln teal accent ---------------------------------------- */
+    --theme-accent-subtle:   #dcecea;
+    --theme-accent-muted:    #a7cdc9;
+    --theme-accent-base:     #1d6a7a;
+    --theme-accent-hover:    #175869;
+    --theme-accent-active:   #124655;
+    --theme-accent-contrast: #ffffff;
+
+    /* --- Palette: diff sage / rust, warmed to match the plaster ------------ */
+    --theme-add-bg:        #e6eedd;
+    --theme-add-bg-strong: #cfe0c1;
+    --theme-add-marker:    #4a7c3f;
+    --theme-add-ink:       #375f2f;
+
+    --theme-del-bg:        #f9e6df;
+    --theme-del-bg-strong: #f0cec2;
+    --theme-del-marker:    #ab4a2c;
+    --theme-del-ink:       #8b3822;
+
+    --theme-shadow-color: 74 55 34;    /* warm brown ink, consumed with alpha */
+
+    /* --- SEMANTIC — surfaces ---------------------------------------------- */
+    --surface-primary:   var(--theme-terrace-200);   /* page: clay */
+    --surface-secondary: var(--theme-terrace-100);   /* cards: cream */
+    --surface-tertiary:  var(--theme-terrace-300);
+    --surface-raised:    var(--theme-terrace-50);
+    --surface-sunken:    var(--theme-terrace-300);
+    --surface-overlay:   var(--theme-terrace-50);
+    --surface-chrome:    var(--theme-terrace-chrome);
+
+    /* --- SEMANTIC — text -------------------------------------------------- */
+    --text-primary:   var(--theme-terrace-900);
+    --text-secondary: var(--theme-terrace-700);
+    --text-tertiary:  var(--theme-terrace-600);
+    --text-disabled:  var(--theme-terrace-500);
+    --text-inverted:  var(--theme-terrace-50);
+    --text-accent:    var(--theme-accent-base);
+
+    /* --- SEMANTIC — borders ----------------------------------------------- */
+    --border-subtle:      var(--theme-terrace-300);
+    --border-default:     var(--theme-terrace-400);
+    --border-strong:      var(--theme-terrace-500);
+    --border-interactive: var(--theme-terrace-600);
+    --border-accent:      var(--theme-accent-base);
+
+    /* --- SEMANTIC — accent / interactive ---------------------------------- */
+    --accent-base:     var(--theme-accent-base);
+    --accent-hover:    var(--theme-accent-hover);
+    --accent-active:   var(--theme-accent-active);
+    --accent-subtle:   var(--theme-accent-subtle);
+    --accent-muted:    var(--theme-accent-muted);
+    --accent-contrast: var(--theme-accent-contrast);
+
+    --interactive-primary:         var(--accent-base);
+    --interactive-primary-hover:   var(--accent-hover);
+    --interactive-primary-active:  var(--accent-active);
+    --interactive-secondary:       var(--text-secondary);
+    --interactive-secondary-hover: var(--text-primary);
+    --interactive-disabled:        var(--text-disabled);
+
+    --focus-ring:   var(--accent-base);
+    --focus-border: var(--accent-base);
+
+    /* --- SEMANTIC — elevation: soft, wide, warm ---------------------------- */
+    --shadow-none: none;
+    --shadow-xs: 0 1px 2px 0 rgb(var(--theme-shadow-color) / 0.05);
+    --shadow-sm: 0 2px 6px -2px rgb(var(--theme-shadow-color) / 0.10),
+                 0 1px 2px 0 rgb(var(--theme-shadow-color) / 0.06);
+    --shadow-md: 0 4px 12px -3px rgb(var(--theme-shadow-color) / 0.14),
+                 0 2px 4px -1px rgb(var(--theme-shadow-color) / 0.08);
+    --shadow-lg: 0 10px 28px -6px rgb(var(--theme-shadow-color) / 0.18),
+                 0 4px 10px -3px rgb(var(--theme-shadow-color) / 0.10);
+    --shadow-focus: 0 0 0 3px var(--accent-muted);
+
+    /* --- SEMANTIC — diff -------------------------------------------------- */
+    --diff-addition-bg:           var(--theme-add-bg);
+    --diff-addition-text:         var(--theme-add-marker);
+    --diff-addition-linenum-bg:   var(--theme-add-bg-strong);
+    --diff-addition-linenum-text: var(--theme-add-ink);
+    --diff-addition-rule:         var(--theme-add-marker);
+
+    --diff-deletion-bg:           var(--theme-del-bg);
+    --diff-deletion-text:         var(--theme-del-marker);
+    --diff-deletion-linenum-bg:   var(--theme-del-bg-strong);
+    --diff-deletion-linenum-text: var(--theme-del-ink);
+    --diff-deletion-rule:         var(--theme-del-marker);
+
+    --diff-context-bg:           var(--surface-secondary);
+    --diff-context-text:         var(--text-secondary);
+    --diff-context-linenum-bg:   var(--surface-secondary);
+    --diff-context-linenum-text: var(--text-disabled);
+
+    --diff-gutter-bg:     var(--theme-terrace-sand);
+    --diff-gutter-border: var(--theme-terrace-400);
+    --diff-gutter-text:   var(--theme-terrace-600);
+
+    --diff-expanded-bg:           var(--theme-terrace-sand);
+    --diff-hunk-strip-bg:         var(--theme-accent-subtle);
+    --diff-hunk-expansion-bg:     var(--accent-subtle);
+    --diff-hunk-expansion-border: var(--accent-muted);
+    --diff-hunk-expansion-text:   var(--accent-active);
+
+    /* --- SEMANTIC — status badges ----------------------------------------- */
+    --status-added-bg:      var(--theme-add-bg-strong);
+    --status-added-text:    var(--theme-add-ink);
+    --status-deleted-bg:    var(--theme-del-bg-strong);
+    --status-deleted-text:  var(--theme-del-ink);
+    --status-renamed-bg:    var(--accent-muted);
+    --status-renamed-text:  var(--accent-active);
+    --status-modified-bg:   var(--theme-terrace-300);
+    --status-modified-text: var(--theme-terrace-700);
+
+    /* --- SEMANTIC — syntax ------------------------------------------------- */
+    --syntax-keyword:  #8f4a8a;
+    --syntax-string:   #4a7c3f;
+    --syntax-number:   #a05a1a;
+    --syntax-comment:  var(--theme-terrace-600);
+    --syntax-function: #2f5f8a;
+    --syntax-class:    #96681a;
+    --syntax-builtin:  #1d6a7a;
+    --syntax-operator: var(--theme-terrace-700);
+    --syntax-name:     var(--text-primary);
+    --syntax-error:    var(--theme-del-marker);
+
+    /* --- 1. + 4. SHAPE AND TYPE — overriding the contract ------------------
+     * Terrace is rounded and unhurried. Corners are the loudest part of its
+     * character, so the whole radius scale moves, not just the card.
+     * ------------------------------------------------------------------- */
+    --font-display: 'Fraunces', 'Bricolage Grotesque', ui-serif, Georgia, serif;
+    --font-ui:      'Karla', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+
+    --radius-xs:   4px;
+    --radius-sm:   7px;
+    --radius-md:   12px;
+    --radius-lg:   18px;
+    --radius-xl:   26px;
+
+    --file-card-radius:       var(--radius-lg);
+    --file-card-border-width: var(--border-width-thick);
+    --file-card-border-colour:       var(--theme-terrace-400);
+    --file-card-border-colour-hover: var(--theme-accent-base);
+    --file-card-accent-width:  5px;
+    --file-card-accent-opacity: 0.9;
+    --file-card-shadow:       var(--shadow-sm);
+    --file-card-shadow-hover: var(--shadow-md);
+
+    --control-radius:  var(--radius-pill);
+    --control-height:  2rem;
+    --checkbox-radius: var(--radius-xs);
+    --badge-radius:    var(--radius-pill);
+    --badge-padding-x: var(--space-md);
+
+    /* A wider brand rule under the rail, since the rail itself is pale. */
+    --toolbar-rule-width: var(--border-width-accent);
+    --toolbar-height:     3.5rem;
+
+    --tracking-caps: 0.07em;
+}
+
+
+/* ============================================================================
+ * 2. PALETTE + 3. SEMANTIC — DARK ("lamplit room")
+ * ========================================================================== */
+
+[data-theme="dark"] {
+
+    /* Dark Terrace is the same room at night: warm brown-black ground, cream
+     * type, the teal accent lifted so it still reads as the cool note. */
+    --theme-terrace-50:  #2b231b;
+    --theme-terrace-100: #241d16;
+    --theme-terrace-200: #17120e;
+    --theme-terrace-300: #332a20;
+    --theme-terrace-400: #4a3e2f;
+    --theme-terrace-500: #7d6c55;
+    --theme-terrace-600: #a2917a;
+    --theme-terrace-700: #c9baa2;
+    --theme-terrace-800: #e3d9c8;
+    --theme-terrace-900: #f7f1e6;
+
+    --theme-terrace-chrome: #241d16;
+    --theme-terrace-sand:   #2b231b;
+
+    --theme-accent-subtle:   #123037;
+    --theme-accent-muted:    #1d5764;
+    --theme-accent-base:     #47a8b6;
+    --theme-accent-hover:    #66c0cb;
+    --theme-accent-active:   #93d7df;
+    --theme-accent-contrast: #08222a;
+
+    --theme-add-bg:        #1a2b19;
+    --theme-add-bg-strong: #254026;
+    --theme-add-marker:    #82c176;
+    --theme-add-ink:       #a8d79e;
+
+    --theme-del-bg:        #331914;
+    --theme-del-bg-strong: #4c241c;
+    --theme-del-marker:    #dd8b73;
+    --theme-del-ink:       #f0ac96;
+
+    --theme-shadow-color: 0 0 0;
+
+    --surface-primary:   var(--theme-terrace-200);
+    --surface-secondary: var(--theme-terrace-100);
+    --surface-tertiary:  var(--theme-terrace-300);
+    --surface-raised:    var(--theme-terrace-50);
+    --surface-sunken:    var(--theme-terrace-200);
+    --surface-overlay:   var(--theme-terrace-50);
+    --surface-chrome:    var(--theme-terrace-chrome);
+
+    --text-primary:   var(--theme-terrace-900);
+    --text-secondary: var(--theme-terrace-700);
+    --text-tertiary:  var(--theme-terrace-600);
+    --text-disabled:  var(--theme-terrace-500);
+    --text-inverted:  var(--theme-terrace-200);
+
+    --border-subtle:      var(--theme-terrace-300);
+    --border-default:     var(--theme-terrace-400);
+    --border-strong:      var(--theme-terrace-500);
+    --border-interactive: var(--theme-terrace-600);
+
+    /* The warm edge that reads as plaster in light reads as mud in dark, so
+     * cards take a step further up the ramp. */
+    --file-card-border-colour:       var(--theme-terrace-400);
+    --file-card-border-colour-hover: var(--theme-accent-base);
+
+    --shadow-xs: 0 1px 2px 0 rgb(var(--theme-shadow-color) / 0.35);
+    --shadow-sm: 0 2px 6px -2px rgb(var(--theme-shadow-color) / 0.45),
+                 0 1px 2px 0 rgb(var(--theme-shadow-color) / 0.35);
+    --shadow-md: 0 4px 12px -3px rgb(var(--theme-shadow-color) / 0.50),
+                 0 2px 4px -1px rgb(var(--theme-shadow-color) / 0.40);
+    --shadow-lg: 0 10px 28px -6px rgb(var(--theme-shadow-color) / 0.55),
+                 0 4px 10px -3px rgb(var(--theme-shadow-color) / 0.45);
+
+    --diff-context-bg:         var(--surface-secondary);
+    --diff-context-linenum-bg: var(--surface-secondary);
+
+    --diff-gutter-bg:     var(--theme-terrace-sand);
+    --diff-gutter-border: var(--theme-terrace-300);
+    --diff-gutter-text:   var(--theme-terrace-500);
+
+    --diff-expanded-bg:   var(--theme-terrace-300);
+    --diff-hunk-strip-bg: var(--theme-accent-subtle);
+
+    --status-modified-bg:   var(--theme-terrace-400);
+    --status-modified-text: var(--theme-terrace-800);
+
+    --syntax-keyword:  #d79ad0;
+    --syntax-string:   #a8d79e;
+    --syntax-number:   #e8b06a;
+    --syntax-comment:  var(--theme-terrace-500);
+    --syntax-function: #7fb6e0;
+    --syntax-class:    #e0bc72;
+    --syntax-builtin:  #5fc4cf;
+    --syntax-operator: var(--theme-terrace-700);
+    --syntax-name:     var(--text-primary);
+    --syntax-error:    var(--theme-del-marker);
+}

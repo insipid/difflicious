@@ -1,0 +1,297 @@
+/* ============================================================================
+ * DRAUGHT — drafting table: cool, ruled, exact
+ * ============================================================================
+ *
+ * Approach 2 of three "more character" candidates, and the one that finds its
+ * character in structure rather than in softness. A drafting board: petrol-blue
+ * board, bone paper pinned to it, a steel rail across the top, everything
+ * squared off and ruled. The accent is mulberry — a warm note against a cool
+ * ground, and a hue no other theme uses.
+ *
+ * Squarer and denser than anything shipped: near-zero radii, visible edges on
+ * every card, flat elevation, wide letter-spacing on the small caps labels, and
+ * a slightly taller diff line so the body reads as ruled paper.
+ *
+ * Mulberry is checked against the deletion rust on purpose: one is violet-pink,
+ * the other orange-red, and they never appear on the same element.
+ *
+ * Loaded after `themes/_contract.css`.
+ * ========================================================================== */
+
+/* ============================================================================
+ * 2. PALETTE + 3. SEMANTIC — LIGHT ("board and bone")
+ * ========================================================================== */
+
+:root {
+
+    /* --- Palette: petrol-grey ramp ---------------------------------------- */
+    --theme-draught-50:  #fafdfd;
+    --theme-draught-100: #edf4f5;
+    --theme-draught-200: #ccdae0;
+    --theme-draught-300: #bccdd4;
+    --theme-draught-400: #9db2bb;
+    --theme-draught-500: #7e959e;
+    --theme-draught-600: #5b727c;
+    --theme-draught-700: #3f545e;
+    --theme-draught-800: #2a3b44;
+    --theme-draught-900: #16242b;
+
+    /* Named surfaces, private to this theme: the board edge and the ruled
+     * gutter are their own tints, not steps of the ramp. */
+    --theme-draught-rail: #b9ccd3;   /* toolbar — the steel edge of the board */
+    --theme-draught-grid: #dfe9ec;   /* line-number gutters */
+
+    /* --- Palette: mulberry accent ----------------------------------------- */
+    --theme-accent-subtle:   #f4e7ef;
+    --theme-accent-muted:    #dcb8ce;
+    --theme-accent-base:     #8b3f6d;
+    --theme-accent-hover:    #742f5a;
+    --theme-accent-active:   #5c2446;
+    --theme-accent-contrast: #ffffff;
+
+    /* --- Palette: diff green / red, cooled to sit on the board ------------- */
+    --theme-add-bg:        #e2efe4;
+    --theme-add-bg-strong: #c4e0cb;
+    --theme-add-marker:    #2e7048;
+    --theme-add-ink:       #1f5535;
+
+    --theme-del-bg:        #f7e7e6;
+    --theme-del-bg-strong: #eccdcb;
+    --theme-del-marker:    #a83f38;
+    --theme-del-ink:       #86302a;
+
+    --theme-shadow-color: 22 36 43;
+
+    /* --- SEMANTIC — surfaces ---------------------------------------------- */
+    --surface-primary:   var(--theme-draught-200);   /* page: the board */
+    --surface-secondary: var(--theme-draught-100);   /* cards: bone paper */
+    --surface-tertiary:  var(--theme-draught-300);
+    --surface-raised:    var(--theme-draught-50);
+    --surface-sunken:    var(--theme-draught-300);
+    --surface-overlay:   var(--theme-draught-50);
+    --surface-chrome:    var(--theme-draught-rail);
+
+    /* --- SEMANTIC — text -------------------------------------------------- */
+    --text-primary:   var(--theme-draught-900);
+    --text-secondary: var(--theme-draught-700);
+    --text-tertiary:  var(--theme-draught-600);
+    --text-disabled:  var(--theme-draught-500);
+    --text-inverted:  var(--theme-draught-50);
+    --text-accent:    var(--theme-accent-base);
+
+    /* --- SEMANTIC — borders: everything has an edge ------------------------ */
+    --border-subtle:      var(--theme-draught-300);
+    --border-default:     var(--theme-draught-400);
+    --border-strong:      var(--theme-draught-500);
+    --border-interactive: var(--theme-draught-600);
+    --border-accent:      var(--theme-accent-base);
+
+    /* --- SEMANTIC — accent / interactive ---------------------------------- */
+    --accent-base:     var(--theme-accent-base);
+    --accent-hover:    var(--theme-accent-hover);
+    --accent-active:   var(--theme-accent-active);
+    --accent-subtle:   var(--theme-accent-subtle);
+    --accent-muted:    var(--theme-accent-muted);
+    --accent-contrast: var(--theme-accent-contrast);
+
+    --interactive-primary:         var(--accent-base);
+    --interactive-primary-hover:   var(--accent-hover);
+    --interactive-primary-active:  var(--accent-active);
+    --interactive-secondary:       var(--text-secondary);
+    --interactive-secondary-hover: var(--text-primary);
+    --interactive-disabled:        var(--text-disabled);
+
+    --focus-ring:   var(--accent-base);
+    --focus-border: var(--accent-base);
+
+    /* --- SEMANTIC — elevation: flat. Paper lies on the board --------------- */
+    --shadow-none: none;
+    --shadow-xs: 0 1px 0 0 rgb(var(--theme-shadow-color) / 0.05);
+    --shadow-sm: 0 1px 0 0 rgb(var(--theme-shadow-color) / 0.06);
+    --shadow-md: 0 1px 2px 0 rgb(var(--theme-shadow-color) / 0.10);
+    --shadow-lg: 0 2px 6px -2px rgb(var(--theme-shadow-color) / 0.14);
+    --shadow-focus: 0 0 0 var(--focus-ring-width) var(--accent-muted);
+
+    /* --- SEMANTIC — diff -------------------------------------------------- */
+    --diff-addition-bg:           var(--theme-add-bg);
+    --diff-addition-text:         var(--theme-add-marker);
+    --diff-addition-linenum-bg:   var(--theme-add-bg-strong);
+    --diff-addition-linenum-text: var(--theme-add-ink);
+    --diff-addition-rule:         var(--theme-add-marker);
+
+    --diff-deletion-bg:           var(--theme-del-bg);
+    --diff-deletion-text:         var(--theme-del-marker);
+    --diff-deletion-linenum-bg:   var(--theme-del-bg-strong);
+    --diff-deletion-linenum-text: var(--theme-del-ink);
+    --diff-deletion-rule:         var(--theme-del-marker);
+
+    --diff-context-bg:           var(--surface-secondary);
+    --diff-context-text:         var(--text-secondary);
+    --diff-context-linenum-bg:   var(--surface-secondary);
+    --diff-context-linenum-text: var(--text-disabled);
+
+    --diff-gutter-bg:     var(--theme-draught-grid);
+    --diff-gutter-border: var(--theme-draught-400);
+    --diff-gutter-text:   var(--theme-draught-600);
+
+    --diff-expanded-bg:           var(--theme-draught-grid);
+    --diff-hunk-strip-bg:         var(--theme-draught-200);
+    --diff-hunk-expansion-bg:     var(--accent-subtle);
+    --diff-hunk-expansion-border: var(--accent-muted);
+    --diff-hunk-expansion-text:   var(--accent-active);
+
+    /* --- SEMANTIC — status badges ----------------------------------------- */
+    --status-added-bg:      var(--theme-add-bg-strong);
+    --status-added-text:    var(--theme-add-ink);
+    --status-deleted-bg:    var(--theme-del-bg-strong);
+    --status-deleted-text:  var(--theme-del-ink);
+    --status-renamed-bg:    var(--accent-muted);
+    --status-renamed-text:  var(--accent-active);
+    --status-modified-bg:   var(--theme-draught-300);
+    --status-modified-text: var(--theme-draught-700);
+
+    /* --- SEMANTIC — syntax ------------------------------------------------- */
+    --syntax-keyword:  #6d3f9e;
+    --syntax-string:   #2e7048;
+    --syntax-number:   #a35a12;
+    --syntax-comment:  var(--theme-draught-500);
+    --syntax-function: #1f5f9e;
+    --syntax-class:    #8b6a12;
+    --syntax-builtin:  #10707d;
+    --syntax-operator: var(--theme-draught-700);
+    --syntax-name:     var(--text-primary);
+    --syntax-error:    var(--theme-del-marker);
+
+    /* --- 1. + 4. SHAPE AND TYPE — overriding the contract ------------------
+     * Right angles throughout, a real edge on every card, and a technical
+     * grotesque for the wordmark. Denser controls, airier diff lines: the
+     * chrome tightens so the content can breathe.
+     * ------------------------------------------------------------------- */
+    --font-display: 'Space Grotesk', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-ui:      'Archivo', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+
+    --radius-xs:   1px;
+    --radius-sm:   2px;
+    --radius-md:   3px;
+    --radius-lg:   4px;
+    --radius-xl:   6px;
+
+    --file-card-radius:       var(--radius-md);
+    --file-card-border-width: var(--border-width-hairline);
+    --file-card-border-colour:       var(--theme-draught-400);
+    --file-card-border-colour-hover: var(--theme-accent-base);
+    --file-card-accent-width:  var(--border-width-accent);
+    --file-card-accent-opacity: 1;
+    --file-card-shadow:       var(--shadow-sm);
+    --file-card-shadow-hover: var(--shadow-md);
+
+    --control-radius:  var(--radius-xs);
+    --control-height:  1.75rem;
+    --checkbox-radius: var(--radius-xs);
+    --badge-radius:    var(--radius-xs);
+
+    --toolbar-rule-width: var(--border-width-thick);
+    --toolbar-height:     3rem;
+
+    /* Ruled paper: a taller line and a wider number column. */
+    --diff-line-height:  1.625rem;
+    --diff-gutter-width: 3.25rem;
+    --diff-rule-width:   var(--border-width-thick);
+
+    /* Small caps labels are the theme's voice — let them spread. */
+    --tracking-caps:        0.1em;
+    --group-label-tracking: 0.12em;
+    --badge-tracking:       0.1em;
+}
+
+
+/* ============================================================================
+ * 2. PALETTE + 3. SEMANTIC — DARK ("night shift")
+ * ========================================================================== */
+
+[data-theme="dark"] {
+
+    --theme-draught-50:  #16242c;
+    --theme-draught-100: #121e25;
+    --theme-draught-200: #0c161b;
+    --theme-draught-300: #1d2d36;
+    --theme-draught-400: #2f4552;
+    --theme-draught-500: #62808c;
+    --theme-draught-600: #8aa3ad;
+    --theme-draught-700: #b6c9d1;
+    --theme-draught-800: #d8e4e9;
+    --theme-draught-900: #eff6f9;
+
+    --theme-draught-rail: #13222a;
+    --theme-draught-grid: #16242c;
+
+    --theme-accent-subtle:   #331a2a;
+    --theme-accent-muted:    #5c2d49;
+    --theme-accent-base:     #dd8fbb;
+    --theme-accent-hover:    #ecaacd;
+    --theme-accent-active:   #f6c6de;
+    --theme-accent-contrast: #2a1020;
+
+    --theme-add-bg:        #12271b;
+    --theme-add-bg-strong: #1b3c27;
+    --theme-add-marker:    #55b877;
+    --theme-add-ink:       #8ad9a3;
+
+    --theme-del-bg:        #2b1616;
+    --theme-del-bg-strong: #422022;
+    --theme-del-marker:    #e07f78;
+    --theme-del-ink:       #f2a9a2;
+
+    --theme-shadow-color: 0 0 0;
+
+    --surface-primary:   var(--theme-draught-200);
+    --surface-secondary: var(--theme-draught-100);
+    --surface-tertiary:  var(--theme-draught-300);
+    --surface-raised:    var(--theme-draught-50);
+    --surface-sunken:    var(--theme-draught-200);
+    --surface-overlay:   var(--theme-draught-50);
+    --surface-chrome:    var(--theme-draught-rail);
+
+    --text-primary:   var(--theme-draught-900);
+    --text-secondary: var(--theme-draught-700);
+    --text-tertiary:  var(--theme-draught-600);
+    --text-disabled:  var(--theme-draught-500);
+    --text-inverted:  var(--theme-draught-200);
+
+    --border-subtle:      var(--theme-draught-300);
+    --border-default:     var(--theme-draught-400);
+    --border-strong:      var(--theme-draught-500);
+    --border-interactive: var(--theme-draught-600);
+
+    --file-card-border-colour:       var(--theme-draught-400);
+    --file-card-border-colour-hover: var(--theme-accent-base);
+
+    --shadow-xs: 0 1px 0 0 rgb(var(--theme-shadow-color) / 0.30);
+    --shadow-sm: 0 1px 0 0 rgb(var(--theme-shadow-color) / 0.35);
+    --shadow-md: 0 1px 2px 0 rgb(var(--theme-shadow-color) / 0.45);
+    --shadow-lg: 0 2px 6px -2px rgb(var(--theme-shadow-color) / 0.55);
+
+    --diff-context-bg:         var(--surface-secondary);
+    --diff-context-linenum-bg: var(--surface-secondary);
+
+    --diff-gutter-bg:     var(--theme-draught-grid);
+    --diff-gutter-border: var(--theme-draught-300);
+    --diff-gutter-text:   var(--theme-draught-500);
+
+    --diff-expanded-bg:   var(--theme-draught-300);
+    --diff-hunk-strip-bg: var(--theme-draught-300);
+
+    --status-modified-bg:   var(--theme-draught-400);
+    --status-modified-text: var(--theme-draught-800);
+
+    --syntax-keyword:  #c0a0f0;
+    --syntax-string:   #8ad9a3;
+    --syntax-number:   #f0b878;
+    --syntax-comment:  var(--theme-draught-500);
+    --syntax-function: #7fb8ea;
+    --syntax-class:    #e6c46e;
+    --syntax-builtin:  #5cc6d4;
+    --syntax-operator: var(--theme-draught-700);
+    --syntax-name:     var(--text-primary);
+    --syntax-error:    var(--theme-del-marker);
+}

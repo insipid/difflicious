@@ -684,6 +684,136 @@ class TestThemeConfig:
         assert 'href="/static/css/themes/ledger.css"' not in html
 
 
+class TestThemeCookie:
+    """A request may ask for a different theme than the server was started with."""
+
+    def test_cookie_selects_a_registered_theme(self, monkeypatch):
+        from difflicious.config import get_theme_config
+
+        monkeypatch.delenv("DIFFLICIOUS_THEME", raising=False)
+        config = get_theme_config("console")
+
+        assert config["selected_theme_key"] == "console"
+        assert config["selected_theme"]["file"] == "console.css"
+
+    def test_cookie_overrides_the_environment(self, monkeypatch):
+        from difflicious.config import get_theme_config
+
+        monkeypatch.setenv("DIFFLICIOUS_THEME", "slate")
+
+        assert get_theme_config("sorbet")["selected_theme_key"] == "sorbet"
+
+    def test_absent_cookie_leaves_the_environment_in_charge(self, monkeypatch):
+        from difflicious.config import get_theme_config
+
+        monkeypatch.setenv("DIFFLICIOUS_THEME", "slate")
+
+        assert get_theme_config(None)["selected_theme_key"] == "slate"
+        assert get_theme_config("")["selected_theme_key"] == "slate"
+
+    def test_unknown_cookie_falls_back_to_the_environment(self, monkeypatch):
+        from difflicious.config import get_theme_config
+
+        monkeypatch.setenv("DIFFLICIOUS_THEME", "slate")
+
+        assert get_theme_config("not-a-theme")["selected_theme_key"] == "slate"
+
+    def test_unknown_cookie_falls_back_to_the_default(self, monkeypatch):
+        from difflicious.config import get_theme_config
+
+        monkeypatch.delenv("DIFFLICIOUS_THEME", raising=False)
+
+        assert get_theme_config("not-a-theme")["selected_theme_key"] == "ledger"
+
+    def test_cookie_is_normalised(self, monkeypatch):
+        """Whitespace and case in a hand-set cookie should not defeat it."""
+        from difflicious.config import get_theme_config
+
+        monkeypatch.delenv("DIFFLICIOUS_THEME", raising=False)
+
+        assert get_theme_config(" Slate ")["selected_theme_key"] == "slate"
+
+    def test_cookie_may_not_name_a_stylesheet_url(self, monkeypatch):
+        """A cookie is attacker-settable; a remote stylesheet must never be
+        loadable from one, however it is spelled."""
+        from difflicious.config import get_theme_config
+
+        monkeypatch.delenv("DIFFLICIOUS_THEME", raising=False)
+
+        for hostile in (
+            "https://evil.example.com/x.css",
+            "//evil.example.com/x.css",
+            "x.css",
+            "../../../etc/passwd",
+            "ledger.css",
+        ):
+            config = get_theme_config(hostile)
+            assert config["selected_theme_key"] == "ledger"
+            assert "url" not in config["selected_theme"]
+
+    def test_cookie_cannot_escape_a_url_theme_into_a_registry_theme(self, monkeypatch):
+        """The reverse direction is still allowed: a URL theme from the
+        environment is trusted, and a cookie may switch away from it."""
+        from difflicious.config import get_theme_config
+
+        monkeypatch.setenv("DIFFLICIOUS_THEME", "https://example.com/x.css")
+
+        assert get_theme_config(None)["selected_theme"]["url"]
+        assert get_theme_config("riso")["selected_theme_key"] == "riso"
+
+    def test_request_with_the_cookie_links_that_stylesheet(self, monkeypatch):
+        from difflicious.app import create_app
+        from difflicious.config import THEME_COOKIE_NAME
+
+        monkeypatch.setenv("DIFFLICIOUS_THEME", "slate")
+        client = create_app().test_client()
+        client.set_cookie(THEME_COOKIE_NAME, "console")
+
+        html = client.get("/").get_data(as_text=True)
+
+        assert 'href="/static/css/themes/console.css"' in html
+        assert 'href="/static/css/themes/slate.css"' not in html
+
+    def test_the_cookie_is_read_per_request(self, monkeypatch):
+        """Two requests to one running server may render different themes."""
+        from difflicious.app import create_app
+        from difflicious.config import THEME_COOKIE_NAME
+
+        monkeypatch.setenv("DIFFLICIOUS_THEME", "ledger")
+        client = create_app().test_client()
+
+        assert 'href="/static/css/themes/ledger.css"' in client.get("/").get_data(
+            as_text=True
+        )
+
+        client.set_cookie(THEME_COOKIE_NAME, "terrace")
+        assert 'href="/static/css/themes/terrace.css"' in client.get("/").get_data(
+            as_text=True
+        )
+
+    def test_a_themes_own_fonts_follow_the_cookie(self, monkeypatch):
+        """The font link is part of the theme, so it has to switch too."""
+        from markupsafe import escape
+
+        from difflicious.app import create_app
+        from difflicious.config import AVAILABLE_THEMES, THEME_COOKIE_NAME
+
+        monkeypatch.setenv("DIFFLICIOUS_THEME", "terrace")
+        client = create_app().test_client()
+        client.set_cookie(THEME_COOKIE_NAME, "riso")
+
+        html = client.get("/").get_data(as_text=True)
+
+        # Match whole link hrefs, not family names: the page also renders this
+        # repo's working tree, where a bare font name appears as diff content.
+        # Escaped, because the URLs carry `&` and the attribute is autoescaped.
+        def link(key: str) -> str:
+            return f'href="{escape(AVAILABLE_THEMES[key]["google_fonts_url"])}"'
+
+        assert link("riso") in html
+        assert link("terrace") not in html
+
+
 class TestThemeFromUrl:
     """A theme given as a URL is named after its stylesheet."""
 
