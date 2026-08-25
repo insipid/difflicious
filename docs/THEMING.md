@@ -16,6 +16,30 @@ The default is `ledger`. An unknown name on the command line is rejected with th
 valid options; an unknown name in the environment falls back to the default
 rather than refusing to start, so a stale shell profile cannot break the tool.
 
+### Per browser, with a cookie
+
+How the server was started sets the default for everyone it serves. A single
+browser can ask for something else with the `difflicious_theme` cookie, which is
+read on every request:
+
+```js
+// In the browser console, then reload
+document.cookie = "difflicious_theme=console; path=/; max-age=31536000"
+```
+
+Resolution order for each request: the cookie if it names a registered theme,
+then `DIFFLICIOUS_THEME`, then the default. Matching ignores case and surrounding
+whitespace. An unknown value is ignored rather than an error — the page still
+renders, in the server's own theme.
+
+Nothing in the app writes this cookie yet; a settings widget will own it. Until
+then it is set by hand, as above.
+
+**A cookie may only name a registered theme.** Unlike `DIFFLICIOUS_THEME`, it
+cannot point at a stylesheet URL. Whoever sets the environment is already running
+the process and is trusted; a cookie is not, and a remote stylesheet can both
+restyle a page and read data out of it through attribute selectors.
+
 | Theme | Look |
 |---|---|
 | `ledger` (default) | Warm paper and ink, single ochre accent |
@@ -182,6 +206,7 @@ Sorbet.
 
 ## Not yet built
 
-The theme is fixed for the life of the server process. Still to come: a picker in
-the UI that persists to `localStorage`, and per-request selection. The registry
-in `config.py` is the seam those will extend.
+Per-request selection exists, but only as a cookie set by hand. Still to come: a
+settings widget that writes it, and the rest of the per-user preferences
+alongside it. `get_theme_config()` already takes the request's preference as an
+argument, so a widget only has to set the cookie — the resolution is done.

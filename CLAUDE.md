@@ -351,6 +351,12 @@ theme but Ledger.
 `DIFFLICIOUS_THEME`; `--list-themes` shows them. A value that looks like a URL is
 loaded as a custom stylesheet named after its file.
 
+A single browser can override the server's choice with the `difflicious_theme`
+cookie, resolved per request: cookie, then `DIFFLICIOUS_THEME`, then the default.
+The cookie may only name a registered theme, never a stylesheet URL — see
+`docs/THEMING.md`. Nothing writes it yet; it is set by hand until there is a
+settings widget.
+
 ### Both themes, every time
 
 Light and dark are peers. Every semantic token is declared in both blocks of a
