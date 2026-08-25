@@ -123,6 +123,14 @@ AVAILABLE_THEMES = {
             "&display=swap"
         ),
     },
+    "console": {
+        "name": "Console",
+        "description": "Monospace throughout, achromatic and square, ANSI magenta",
+        # No fonts of its own: the interface adopts the runtime mono face, which
+        # the font config has already fetched for the diff body.
+        "file": "console.css",
+        "google_fonts_url": "",
+    },
 }
 
 THEME_CONTRACT_FILE = "_contract.css"

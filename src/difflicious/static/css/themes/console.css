@@ -1,0 +1,332 @@
+/* ============================================================================
+ * CONSOLE — the whole interface as a terminal
+ * ============================================================================
+ *
+ * The fourth candidate, and the one built to be as unlike the other six as the
+ * token contract allows. Every shipped theme and every other proposal is tinted,
+ * softly rounded, gently shadowed, low in contrast, and sets its interface in a
+ * sans or a serif. Console inverts all five at once:
+ *
+ *   - achromatic. A true neutral grey ramp, no warm or cool cast anywhere.
+ *   - square. Every radius is zero, including badges and controls.
+ *   - flat. Every shadow is `none`; separation is carried by rules alone.
+ *   - high contrast. Near-black rules on white in light, white on true black
+ *     in dark, rather than the mid-tone edges the others use.
+ *   - monospaced. `--font-ui` points at the runtime mono face, so the entire
+ *     interface — labels, buttons, badges, the wordmark — is set in whatever
+ *     DIFFLICIOUS_FONT is. It is the single largest visual change available
+ *     from a theme file, and it costs no webfont: that face is already loaded
+ *     for the diff body, which is why this theme registers no google_fonts_url.
+ *
+ * Denser than anything else, too: shorter controls, a shorter toolbar and a
+ * tighter diff line, because a text UI has no reason to breathe.
+ *
+ * The accent is magenta — ANSI colour 5, which is both the obvious choice for
+ * the concept and the one hue no other theme claims. The syntax palette is
+ * drawn from the same 16-colour set rather than tuned by hand, so highlighting
+ * reads as a terminal too.
+ *
+ * Loaded after `themes/_contract.css`.
+ * ========================================================================== */
+
+/* ============================================================================
+ * 2. PALETTE + 3. SEMANTIC — LIGHT ("paper terminal")
+ * ========================================================================== */
+
+:root {
+
+    /* --- Palette: achromatic ramp -----------------------------------------
+     * Deliberately neutral. Every other theme has a cast; the absence of one
+     * is this theme's colour decision. */
+    --theme-console-50:  #ffffff;
+    --theme-console-100: #ffffff;
+    --theme-console-200: #e6e6e6;
+    --theme-console-300: #d4d4d4;
+    --theme-console-400: #b4b4b4;
+    --theme-console-500: #8f8f8f;
+    --theme-console-600: #6b6b6b;
+    --theme-console-700: #454545;
+    --theme-console-800: #262626;
+    --theme-console-900: #0d0d0d;
+
+    /* The rule colour. Near-black at full strength on card edges: with no
+     * radius and no shadow, the rule is the only thing separating anything. */
+    --theme-console-rule: #111111;
+
+    /* Named surfaces, private to this theme. */
+    --theme-console-chrome: #f7f7f7;   /* toolbar — a status line */
+    --theme-console-gutter: #ebebeb;   /* line-number columns */
+
+    /* --- Palette: ANSI magenta accent -------------------------------------- */
+    --theme-accent-subtle:   #fbe4f7;
+    --theme-accent-muted:    #f0a8e4;
+    --theme-accent-base:     #a21caf;
+    --theme-accent-hover:    #86149a;
+    --theme-accent-active:   #6b0f7d;
+    --theme-accent-contrast: #ffffff;
+
+    /* --- Palette: diff, ANSI red and green rather than printed tints ------- */
+    --theme-add-bg:        #e2f5e4;
+    --theme-add-bg-strong: #c2e9c6;
+    --theme-add-marker:    #0f7b22;
+    --theme-add-ink:       #0a5c19;
+
+    --theme-del-bg:        #fde4e2;
+    --theme-del-bg-strong: #f8c4c0;
+    --theme-del-marker:    #c62828;
+    --theme-del-ink:       #9e1b1b;
+
+    --theme-shadow-color: 0 0 0;
+
+    /* --- SEMANTIC — surfaces ---------------------------------------------- */
+    --surface-primary:   var(--theme-console-200);   /* page */
+    --surface-secondary: var(--theme-console-100);   /* cards: pure white */
+    --surface-tertiary:  var(--theme-console-300);
+    --surface-raised:    var(--theme-console-50);
+    --surface-sunken:    var(--theme-console-300);
+    --surface-overlay:   var(--theme-console-50);
+    --surface-chrome:    var(--theme-console-chrome);
+
+    /* --- SEMANTIC — text -------------------------------------------------- */
+    --text-primary:   var(--theme-console-900);
+    --text-secondary: var(--theme-console-700);
+    --text-tertiary:  var(--theme-console-600);
+    --text-disabled:  var(--theme-console-500);
+    --text-inverted:  var(--theme-console-50);
+    --text-accent:    var(--theme-accent-base);
+
+    /* --- SEMANTIC — borders: the rule does all the work --------------------
+     * `--border-strong` is the near-black rule, not a mid grey. It is what the
+     * "modified" status strip resolves to, so a modified file gets a black
+     * edge rather than a tinted one. */
+    --border-subtle:      var(--theme-console-300);
+    --border-default:     var(--theme-console-400);
+    --border-strong:      var(--theme-console-rule);
+    --border-interactive: var(--theme-console-600);
+    --border-accent:      var(--theme-accent-base);
+
+    /* --- SEMANTIC — accent / interactive ---------------------------------- */
+    --accent-base:     var(--theme-accent-base);
+    --accent-hover:    var(--theme-accent-hover);
+    --accent-active:   var(--theme-accent-active);
+    --accent-subtle:   var(--theme-accent-subtle);
+    --accent-muted:    var(--theme-accent-muted);
+    --accent-contrast: var(--theme-accent-contrast);
+
+    --interactive-primary:         var(--accent-base);
+    --interactive-primary-hover:   var(--accent-hover);
+    --interactive-primary-active:  var(--accent-active);
+    --interactive-secondary:       var(--text-secondary);
+    --interactive-secondary-hover: var(--text-primary);
+    --interactive-disabled:        var(--text-disabled);
+
+    --focus-ring:   var(--accent-base);
+    --focus-border: var(--accent-base);
+
+    /* --- SEMANTIC — elevation: there is none -------------------------------
+     * Not "subtle shadows" — no shadows. The focus ring survives because it
+     * carries meaning rather than depth, and becomes a hard square outline. */
+    --shadow-none: none;
+    --shadow-xs:   none;
+    --shadow-sm:   none;
+    --shadow-md:   none;
+    --shadow-lg:   none;
+    --shadow-focus: 0 0 0 var(--focus-ring-width) var(--accent-base);
+
+    /* --- SEMANTIC — diff -------------------------------------------------- */
+    --diff-addition-bg:           var(--theme-add-bg);
+    --diff-addition-text:         var(--theme-add-marker);
+    --diff-addition-linenum-bg:   var(--theme-add-bg-strong);
+    --diff-addition-linenum-text: var(--theme-add-ink);
+    --diff-addition-rule:         var(--theme-add-marker);
+
+    --diff-deletion-bg:           var(--theme-del-bg);
+    --diff-deletion-text:         var(--theme-del-marker);
+    --diff-deletion-linenum-bg:   var(--theme-del-bg-strong);
+    --diff-deletion-linenum-text: var(--theme-del-ink);
+    --diff-deletion-rule:         var(--theme-del-marker);
+
+    --diff-context-bg:           var(--surface-secondary);
+    --diff-context-text:         var(--text-secondary);
+    --diff-context-linenum-bg:   var(--surface-secondary);
+    --diff-context-linenum-text: var(--text-disabled);
+
+    --diff-gutter-bg:     var(--theme-console-gutter);
+    --diff-gutter-border: var(--theme-console-400);
+    --diff-gutter-text:   var(--theme-console-600);
+
+    --diff-expanded-bg:           var(--theme-console-gutter);
+    --diff-hunk-strip-bg:         var(--theme-console-300);
+    --diff-hunk-expansion-bg:     var(--accent-subtle);
+    --diff-hunk-expansion-border: var(--accent-muted);
+    --diff-hunk-expansion-text:   var(--accent-active);
+
+    /* --- SEMANTIC — status badges ----------------------------------------- */
+    --status-added-bg:      var(--theme-add-bg-strong);
+    --status-added-text:    var(--theme-add-ink);
+    --status-deleted-bg:    var(--theme-del-bg-strong);
+    --status-deleted-text:  var(--theme-del-ink);
+    --status-renamed-bg:    var(--accent-muted);
+    --status-renamed-text:  var(--accent-active);
+    --status-modified-bg:   var(--theme-console-300);
+    --status-modified-text: var(--theme-console-800);
+
+    /* --- SEMANTIC — syntax: the ANSI 16 ------------------------------------ */
+    --syntax-keyword:  #a21caf;   /* magenta */
+    --syntax-string:   #0f7b22;   /* green */
+    --syntax-number:   #b45309;   /* yellow, darkened for white */
+    --syntax-comment:  var(--theme-console-500);
+    --syntax-function: #1d4ed8;   /* blue */
+    --syntax-class:    #a16207;   /* yellow */
+    --syntax-builtin:  #0e7490;   /* cyan */
+    --syntax-operator: var(--theme-console-700);
+    --syntax-name:     var(--text-primary);
+    --syntax-error:    var(--theme-del-marker);
+
+    /* --- 1. + 4. SHAPE AND TYPE — overriding the contract ------------------
+     * The interface takes the runtime mono face. --font-family-mono is the
+     * token the app rewrites from DIFFLICIOUS_FONT at request time, so this
+     * follows the user's chosen programming font rather than pinning one.
+     * ------------------------------------------------------------------- */
+    --font-display: var(--font-family-mono);
+    --font-ui:      var(--font-family-mono);
+
+    --radius-xs:   0;
+    --radius-sm:   0;
+    --radius-md:   0;
+    --radius-lg:   0;
+    --radius-xl:   0;
+    /* Even the pill tokens: a terminal has no capsules. */
+    --radius-pill: 0;
+
+    --file-card-radius:       var(--radius-none);
+    --file-card-border-width: var(--border-width-hairline);
+    --file-card-border-colour:       var(--theme-console-rule);
+    --file-card-border-colour-hover: var(--theme-accent-base);
+    --file-card-accent-width:  var(--border-width-accent);
+    --file-card-accent-opacity: 1;
+    --file-card-shadow:       var(--shadow-none);
+    --file-card-shadow-hover: var(--shadow-none);
+
+    --control-radius:  var(--radius-none);
+    --control-height:  1.625rem;
+    --checkbox-radius: var(--radius-none);
+    --checkbox-size:   0.875rem;
+    --badge-radius:    var(--radius-none);
+    --badge-padding-x: var(--space-sm);
+
+    --hunk-strip-radius: var(--radius-none);
+    --toolbar-rule-width: var(--border-width-thick);
+    --toolbar-height:     2.75rem;
+    --toolbar-gap:        var(--space-md);
+
+    /* Tighter rows and a narrower number column: a text UI, packed. */
+    --diff-line-height:  1.375rem;
+    --diff-gutter-width: 2.75rem;
+    --diff-rule-width:   var(--border-width-thick);
+
+    /* Mono is already wide; caps labels need less help than elsewhere. */
+    --tracking-caps:        0.05em;
+    --group-label-tracking: 0.05em;
+    --badge-tracking:       0.04em;
+}
+
+
+/* ============================================================================
+ * 2. PALETTE + 3. SEMANTIC — DARK ("true black")
+ * ========================================================================== */
+
+[data-theme="dark"] {
+
+    /* The only theme here whose dark ground is actually black. The others go
+     * to a tinted near-black; a terminal goes to zero. */
+    --theme-console-50:  #131313;
+    --theme-console-100: #0b0b0b;
+    --theme-console-200: #000000;
+    --theme-console-300: #1f1f1f;
+    --theme-console-400: #333333;
+    --theme-console-500: #5e5e5e;
+    --theme-console-600: #8f8f8f;
+    --theme-console-700: #b4b4b4;
+    --theme-console-800: #d4d4d4;
+    --theme-console-900: #ededed;
+
+    --theme-console-rule: #3d3d3d;
+
+    --theme-console-chrome: #0b0b0b;
+    --theme-console-gutter: #131313;
+
+    --theme-accent-subtle:   #2e0a2b;
+    --theme-accent-muted:    #6b1a63;
+    --theme-accent-base:     #e879f9;
+    --theme-accent-hover:    #f0abfc;
+    --theme-accent-active:   #f5d0fe;
+    --theme-accent-contrast: #1a0418;
+
+    --theme-add-bg:        #0d2a12;
+    --theme-add-bg-strong: #14431c;
+    --theme-add-marker:    #22c55e;
+    --theme-add-ink:       #86efac;
+
+    --theme-del-bg:        #2d0f0f;
+    --theme-del-bg-strong: #481717;
+    --theme-del-marker:    #ef4444;
+    --theme-del-ink:       #fca5a5;
+
+    --theme-shadow-color: 0 0 0;
+
+    --surface-primary:   var(--theme-console-200);
+    --surface-secondary: var(--theme-console-100);
+    --surface-tertiary:  var(--theme-console-300);
+    --surface-raised:    var(--theme-console-50);
+    --surface-sunken:    var(--theme-console-200);
+    --surface-overlay:   var(--theme-console-50);
+    --surface-chrome:    var(--theme-console-chrome);
+
+    --text-primary:   var(--theme-console-900);
+    --text-secondary: var(--theme-console-700);
+    --text-tertiary:  var(--theme-console-600);
+    --text-disabled:  var(--theme-console-500);
+    --text-inverted:  var(--theme-console-200);
+
+    --border-subtle:      var(--theme-console-300);
+    --border-default:     var(--theme-console-400);
+    --border-strong:      var(--theme-console-500);
+    --border-interactive: var(--theme-console-600);
+
+    /* Near-black rules vanish on a black ground, so the edge lifts off it
+     * instead. Still a hairline — the flatness is the point, not the weight. */
+    --file-card-border-colour:       var(--theme-console-rule);
+    --file-card-border-colour-hover: var(--theme-accent-base);
+
+    /* Restated so dark inherits the flatness rather than the contract's
+     * shadows, which a theme's light block does not cover. */
+    --shadow-xs: none;
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+
+    --diff-context-bg:         var(--surface-secondary);
+    --diff-context-linenum-bg: var(--surface-secondary);
+
+    --diff-gutter-bg:     var(--theme-console-gutter);
+    --diff-gutter-border: var(--theme-console-300);
+    --diff-gutter-text:   var(--theme-console-500);
+
+    --diff-expanded-bg:   var(--theme-console-300);
+    --diff-hunk-strip-bg: var(--theme-console-300);
+
+    --status-modified-bg:   var(--theme-console-400);
+    --status-modified-text: var(--theme-console-900);
+
+    --syntax-keyword:  #f0abfc;   /* bright magenta */
+    --syntax-string:   #86efac;   /* bright green */
+    --syntax-number:   #fcd34d;   /* bright yellow */
+    --syntax-comment:  var(--theme-console-500);
+    --syntax-function: #93c5fd;   /* bright blue */
+    --syntax-class:    #fde047;   /* yellow */
+    --syntax-builtin:  #67e8f9;   /* bright cyan */
+    --syntax-operator: var(--theme-console-700);
+    --syntax-name:     var(--text-primary);
+    --syntax-error:    var(--theme-del-marker);
+}

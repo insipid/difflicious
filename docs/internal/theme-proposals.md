@@ -1,13 +1,18 @@
-# Three theme proposals: more colour, more character
+# Four theme proposals: more colour, more character
 
-**Status:** proposals for review. All three are implemented and registered so they
+**Status:** proposals for review. All four are implemented and registered so they
 can be run and screenshotted, but they are *candidates* — the intent is to keep
 one or two and delete the rest before this lands.
+
+The first three are variations on "more colour and more shape". The fourth,
+Console, was asked for afterwards as a deliberate outlier: as unlike the other
+six as the contract allows, rather than a fourth point on the same axis.
 
 ```bash
 difflicious --theme terrace
 difflicious --theme draught
 difflicious --theme riso
+difflicious --theme console
 ```
 
 ## Where the existing three sit
@@ -31,10 +36,10 @@ palette read as coloured rather than as grey-with-an-accent, and it needed no ne
 tokens — `--surface-chrome` and `--diff-gutter-bg` were already separate roles,
 just previously set to neighbouring values.
 
-Each also picks a hue no shipped theme uses, so the five never blur together:
-ochre, indigo, turquoise, then **kiln teal**, **mulberry**, **ultramarine**.
+Each also picks a hue no shipped theme uses, so they never blur together: ochre,
+indigo, turquoise, then **kiln teal**, **mulberry**, **ultramarine**, **magenta**.
 
-Green and red stay reserved for diff semantics in all three, per THEMING.md. The
+Green and red stay reserved for diff semantics in all four, per THEMING.md. The
 mulberry in Draught is the closest call; it is violet-pink against a rust-red
 deletion tint, and the two never appear on the same element.
 
@@ -98,6 +103,43 @@ light Riso.
 
 ---
 
+## 4. Console — the whole interface as a terminal
+
+The outlier. Rather than another tinted, softly-shaped palette, this one inverts
+every trait the other six share, all at once:
+
+| | The other six | Console |
+|---|---|---|
+| Cast | warm, cool, petrol, lilac — all tinted | achromatic, a true neutral grey |
+| Corners | 5–18px | zero, including badges and controls |
+| Elevation | blurred or offset shadows | none at all; rules only |
+| Contrast | mid-tone edges, gentle | near-black rules on white; true black in dark |
+| Interface face | sans or serif | the runtime **mono** face |
+| Density | comfortable | short controls, 1.375rem diff rows |
+
+The monospace interface is the biggest single lever a theme file has — it changes
+every label, button, badge and the wordmark — and it costs nothing to load:
+`--font-ui` points at `--font-family-mono`, the token the app rewrites from
+`DIFFLICIOUS_FONT` per request. So Console follows whichever programming font is
+configured, and registers no `google_fonts_url` at all, because that face is
+already fetched for the diff body.
+
+The accent is magenta, ANSI colour 5 — on-concept, and the one hue nothing else
+claims. The syntax palette is taken from the same 16-colour set rather than tuned
+by hand, so highlighting reads as a terminal too. It is also the only proposal
+whose dark ground is actually `#000000`; the others all go to a tinted near-black.
+
+Being flat and square, it fits noticeably more diff on a screen than the others,
+which is the practical argument for it beyond the aesthetic one.
+
+![Console, light](../screenshots/proposals/detail-console-light.png)
+![Console, dark](../screenshots/proposals/detail-console-dark.png)
+![Console, cards](../screenshots/proposals/cards-console-light.png)
+![Console, full, light](../screenshots/proposals/console-light.png)
+![Console, full, dark](../screenshots/proposals/console-dark.png)
+
+---
+
 ## Interaction with the pinned toolbar
 
 Rebased onto the toolbar redesign (#85), which made the toolbar sticky and pins
@@ -105,8 +147,9 @@ file headers beneath it at `--file-header-sticky-offset`, now defined as
 `var(--toolbar-height-measured, var(--toolbar-height))` and required to equal the
 toolbar's height.
 
-All three proposals override `--toolbar-height` — Terrace and Riso to `3.5rem`,
-Draught down to `3rem`. That is safe, and worth recording why: the offset
+All four proposals override `--toolbar-height` — Terrace and Riso to `3.5rem`,
+Draught to `3rem`, Console down to `2.75rem`. That is safe, and worth
+recording why: the offset
 resolves *through* `--toolbar-height`, and `navStore` publishes the bar's real
 rendered height into `--toolbar-height-measured` via a `ResizeObserver`, so the
 pinned header follows a theme's chrome without the theme having to know the
@@ -118,6 +161,7 @@ contract exists. Verified per theme, with the header pinned:
 | `terrace` | 3.5rem | 56px | 0px |
 | `draught` | 3rem | 48px | 0px |
 | `riso` | 3.5rem | 56px | 0px |
+| `console` | 2.75rem | 44px | 0px |
 
 A theme that set a *fixed* `--file-header-sticky-offset` instead would break this,
 so it is best left alone.
@@ -138,8 +182,8 @@ one theme no longer means re-shooting every theme.
 
 ## If a proposal is adopted
 
-1. Delete the two candidates that lost, from `themes/` and from
-   `AVAILABLE_THEMES` in `src/difflicious/config.py`.
+1. Delete the candidates that lost, from `themes/` and from `AVAILABLE_THEMES`
+   in `src/difflicious/config.py`.
 2. Drop the "candidates under review" comment block in `config.py`.
 3. Add the winner to the table and thumbnail grid in `docs/THEMING.md`, and to
    the theme list in `CLAUDE.md` and `README.md`.
