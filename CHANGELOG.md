@@ -5,6 +5,61 @@ All notable changes to difflicious will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.0] - 2026-08-25
+
+### Themes, Navigation & Release Plumbing
+
+Four more themes, a toolbar that stays put and now navigates, and the first
+release whose Docker images should actually carry version tags.
+
+### Added
+- **Four themes** — `terrace` (warm plaster, rounded, sunlit), `draught`
+  (petrol-blue drafting board, squared off, ruled), `riso` (two-ink print, hard
+  offset ink, slab type), `console` (the whole interface as a terminal:
+  achromatic, zero radius, no shadows, and the runtime mono face for every
+  label). Each gives the toolbar, page, cards and gutters their own tint rather
+  than four steps of one neutral ramp, and each takes a hue no other theme claims
+- **Per-browser theme selection** — the `difflicious_theme` cookie is read on
+  every request. Resolution order: cookie, then `DIFFLICIOUS_THEME`, then the
+  default; matching ignores case and surrounding whitespace, and an unknown value
+  is ignored rather than raising. **A cookie may only name a registered theme** —
+  unlike the environment variable it cannot point at a stylesheet URL, because a
+  remote stylesheet can both restyle a page and read data out of it through
+  attribute selectors
+- **Console theme switcher** — `Difflicious.theme.<name>()` in devtools sets the
+  cookie and reloads, with one method per registered theme so the list
+  autocompletes, and `Difflicious.theme.clear()` to go back. An admitted stopgap
+  until a settings control owns the cookie; see `js/modules/dev-theme.js`
+- **Pinned toolbar** — the toolbar stays at the top of the window, with file
+  headers pinning directly beneath it at the bar's measured height
+- **File dropdown** — jump to any visible file, grouped the way the page groups
+  them, following whichever file header is currently pinned
+- **Jump to top and bottom** — buttons that disable themselves at either end
+- **An empty diff area explains itself** — when the filters hide every file the
+  area says so, instead of going blank
+- **`--themes` for `scripts/screenshot.py`**, to reshoot a subset
+
+### Fixed
+- **Docker images were never version-tagged** — the semver tag patterns read
+  `github.ref`, which is `refs/heads/main` when the job runs from Auto Release,
+  so every release published only `main` and `latest` despite INSTALLATION.md
+  describing version tags. Docker Hub held no version-tagged image for any
+  version
+- **Docker Hub description sync failed otherwise-good releases** — that endpoint
+  returns 403 without an admin-scoped token, reddening a job whose image had
+  published fine. The step is now `continue-on-error`; the token still needs
+  reissuing with the wider scope
+- **The file dropdown's icon outlived the dropdown** — the select hides itself
+  below two visible files but its label did not, leaving an icon labelling
+  nothing, which read as a control gone missing
+- **Screenshots were captured in fallback fonts** — the script now waits on
+  `document.fonts.ready` before shooting
+
+### Changed
+- **Theme is resolved per request** rather than once at startup
+- **Unstaged and Untracked toggles** moved into the controls row with the expand
+  buttons, under one named group
+
 ## [0.14.0] - 2026-08-23
 
 ### Themes & Interface

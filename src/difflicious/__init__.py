@@ -1,5 +1,5 @@
 """Difflicious - A sleek web-based git diff visualization tool."""
 
-__version__ = "0.14.0"
+__version__ = "0.15.0"
 __author__ = "Drew"
 __description__ = "A sleek web-based git diff visualization tool for developers"
