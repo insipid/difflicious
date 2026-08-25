@@ -33,7 +33,15 @@ whitespace. An unknown value is ignored rather than an error — the page still
 renders, in the server's own theme.
 
 Nothing in the app writes this cookie yet; a settings widget will own it. Until
-then it is set by hand, as above.
+then there is a shortcut in the console, which sets the cookie and reloads:
+
+```js
+Difflicious.theme.riso()    // autocompletes: one method per registered theme
+Difflicious.theme.clear()   // back to the server's own theme
+```
+
+That global is an admitted hack, and `js/modules/dev-theme.js` says so at
+length. It goes when the settings widget arrives.
 
 **A cookie may only name a registered theme.** Unlike `DIFFLICIOUS_THEME`, it
 cannot point at a stylesheet URL. Whoever sets the environment is already running

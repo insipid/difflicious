@@ -188,6 +188,9 @@ def _theme_config(
         "selected_theme": selected_theme,
         "available_themes": AVAILABLE_THEMES,
         "contract_file": THEME_CONTRACT_FILE,
+        # Handed to the browser so the console helper can name the cookie
+        # without a second copy of this string. See dev-theme.js.
+        "cookie_name": THEME_COOKIE_NAME,
     }
 
 

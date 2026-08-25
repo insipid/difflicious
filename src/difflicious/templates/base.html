@@ -90,6 +90,9 @@
     <script>
         window.DIFFLICIOUS_DEBUG = {{ 'true' if debug_enabled else 'false' }};
         window.DIFFLICIOUS_REPO = {{ repo_name | tojson }};
+        // Feeds the console theme switcher in js/modules/dev-theme.js
+        window.DIFFLICIOUS_THEMES = {{ theme_config.available_themes | list | tojson }};
+        window.DIFFLICIOUS_THEME_COOKIE = {{ theme_config.cookie_name | tojson }};
     </script>
 
     <!-- Expansion state pre-warming: reads localStorage before Alpine boots to prevent flash of collapsed state -->

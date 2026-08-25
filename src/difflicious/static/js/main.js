@@ -9,6 +9,7 @@ import { setDebug as setContextUIDebug } from './modules/context-expansion-ui.js
 import { setDebug as setExpansionDebug } from './modules/context-expansion.js';
 import { AutoReload, setDebug as setAutoReloadDebug } from './modules/auto-reload.js';
 import { $$ } from './modules/dom-utils.js';
+import { installThemeConsole } from './modules/dev-theme.js';
 
 // Debug flag - reads from DIFFLICIOUS_DEBUG env var (set in base.html template)
 const DEBUG = window.DIFFLICIOUS_DEBUG || false;
@@ -19,6 +20,11 @@ setHunkDebug(DEBUG);
 setContextUIDebug(DEBUG);
 setExpansionDebug(DEBUG);
 setAutoReloadDebug(DEBUG);
+
+// Console-only theme switcher. A hack, explained at length in dev-theme.js.
+// Installed here rather than on DOMContentLoaded so it is there to be typed at
+// as soon as the console opens.
+installThemeConsole();
 
 /**
  * Initialize the application when DOM is ready
